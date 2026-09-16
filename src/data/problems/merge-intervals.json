@@ -1,0 +1,178 @@
+{
+  "id": "merge-intervals",
+  "title": "Merge Intervals",
+  "pattern": "intervals",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Facebook",
+    "Amazon",
+    "Microsoft"
+  ],
+  "prompt": "Given an array of `intervals` where `intervals[i] = [start, end]`, merge all overlapping intervals and return an array of the non-overlapping intervals that cover all the intervals in the input, sorted by start.",
+  "examples": [
+    {
+      "input": "intervals = [[1,3],[2,6],[8,10],[15,18]]",
+      "output": "[[1,6],[8,10],[15,18]]",
+      "explanation": "[1,3] and [2,6] overlap, so they merge into [1,6]."
+    },
+    {
+      "input": "intervals = [[1,4],[4,5]]",
+      "output": "[[1,5]]",
+      "explanation": "Intervals that touch at an endpoint count as overlapping."
+    }
+  ],
+  "constraints": [
+    "1 <= intervals.length <= 10^4",
+    "intervals[i].length == 2",
+    "0 <= start <= end <= 10^5"
+  ],
+  "hints": [
+    "Sort the intervals by start value first \u2014 overlaps can then only happen between neighbors.",
+    "Walk the sorted list keeping a 'current merged interval'. If the next interval's start is <= the current merged end, extend the merge; otherwise push the current merged interval and start a new one.",
+    "Don't forget to push the last merged interval after the loop ends."
+  ],
+  "solution": {
+    "approach": "Sort intervals by start. Keep a running merged interval, initialized to the first. For each subsequent interval, if its start is <= the running interval's end, extend the end to the max of the two ends. Otherwise, the running interval is finalized \u2014 push it and start a new running interval from the current one. Push the final running interval after the loop.",
+    "code": "function merge(intervals) {\n  if (intervals.length === 0) return [];\n  const sorted = [...intervals].sort((a, b) => a[0] - b[0]);\n  const result = [sorted[0].slice()];\n  for (let i = 1; i < sorted.length; i++) {\n    const last = result[result.length - 1];\n    const [start, end] = sorted[i];\n    if (start <= last[1]) {\n      last[1] = Math.max(last[1], end);\n    } else {\n      result.push([start, end]);\n    }\n  }\n  return result;\n}",
+    "timeComplexity": "O(n log n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "function merge(intervals) {\n  // your code here\n}",
+  "functionName": "merge",
+  "testCases": [
+    {
+      "input": [
+        [
+          [
+            1,
+            3
+          ],
+          [
+            2,
+            6
+          ],
+          [
+            8,
+            10
+          ],
+          [
+            15,
+            18
+          ]
+        ]
+      ],
+      "expected": [
+        [
+          1,
+          6
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          15,
+          18
+        ]
+      ],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [
+          [
+            1,
+            4
+          ],
+          [
+            4,
+            5
+          ]
+        ]
+      ],
+      "expected": [
+        [
+          1,
+          5
+        ]
+      ],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [
+          [
+            1,
+            4
+          ],
+          [
+            0,
+            4
+          ]
+        ]
+      ],
+      "expected": [
+        [
+          0,
+          4
+        ]
+      ],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [
+          [
+            1,
+            4
+          ],
+          [
+            2,
+            3
+          ]
+        ]
+      ],
+      "expected": [
+        [
+          1,
+          4
+        ]
+      ],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [
+          [
+            1,
+            10
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            4,
+            5
+          ],
+          [
+            6,
+            7
+          ],
+          [
+            8,
+            9
+          ]
+        ]
+      ],
+      "expected": [
+        [
+          1,
+          10
+        ]
+      ],
+      "isHidden": true
+    }
+  ]
+}

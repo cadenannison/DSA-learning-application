@@ -130,6 +130,21 @@ export class BlindTestPresenter extends BaseAttemptPresenter<StrippedProblem> {
     }
   }
 
+  async loadRandomFromSet(setId: string): Promise<void> {
+    this.view.setLoading(true)
+    this.view.setError(null)
+
+    try {
+      const problem = await apiClient.getRandomProblemFromSet(setId)
+      this.problem = problem
+      this.view.setProblem(problem)
+    } catch (error) {
+      this.view.setError(error instanceof Error ? error.message : "Failed to load problem")
+    } finally {
+      this.view.setLoading(false)
+    }
+  }
+
   async run(code: string): Promise<void> {
     this.view.setRunning(true)
     try {

@@ -1,0 +1,20 @@
+{
+  "pattern": "greedy",
+  "title": "Greedy",
+  "summary": "Make the locally best choice at each step and never look back — valid whenever the problem's structure guarantees local optimality leads to a global optimum.",
+  "explanation": [
+    "A greedy algorithm builds a solution by always taking the choice that looks best right now, without reconsidering that choice later. This is much cheaper than dynamic programming or backtracking (usually a single O(n) or O(n log n) pass) but only produces the correct answer when the problem has the 'greedy choice property' — making the locally optimal choice at each step is guaranteed not to rule out a globally optimal solution.",
+    "The jump game is a good illustration: at each position, you don't need to try every possible jump length and recurse (which would be exponential). Instead, track the farthest index reachable so far as you scan left to right; if at any point your current index exceeds the farthest reachable index, you're stuck and can never reach the end. This works because 'the farthest you can reach' only ever needs to be updated with a max — there's no benefit to a smaller jump when a larger one was available, so no backtracking is ever needed.",
+    "The hard part of greedy problems is usually proving the greedy choice is safe, not implementing it — if you can't articulate why taking the locally best option never costs you the globally best option, the problem likely needs DP or backtracking instead. A common tell that greedy will work is that the problem can be sorted by some criterion (deadline, ratio, end time) such that processing in that order never requires revisiting an earlier decision."
+  ],
+  "whenToUse": [
+    "You can argue that making the best available choice at each step never prevents reaching the overall best solution.",
+    "The problem involves intervals, scheduling, or reachability where sorting by one key (start, end, ratio) makes a single left-to-right pass sufficient.",
+    "A DP formulation would work but is overkill — the state you'd track collapses to a single running value (farthest reach, running total, last chosen item).",
+    "You've verified with a small counterexample that a naive local choice doesn't fail — greedy is easy to get wrong silently, so this check matters."
+  ],
+  "timeComplexity": "O(n) to O(n log n), depending on whether sorting is required first",
+  "spaceComplexity": "O(1) beyond the input, typically",
+  "demoKind": "greedy",
+  "relatedProblemIds": ["jump-game"]
+}

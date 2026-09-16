@@ -3,22 +3,34 @@
   "title": "Valid Parentheses",
   "pattern": "stacks-queues",
   "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Facebook",
+    "Microsoft"
+  ],
   "prompt": "Given a string `s` containing only the characters `(`, `)`, `{`, `}`, `[`, and `]`, determine if the string is valid. A string is valid if every open bracket is closed by the same type of bracket, and brackets are closed in the correct order.",
   "examples": [
-    { "input": "s = \"()[]{}\"", "output": "true" },
-    { "input": "s = \"(]\"", "output": "false" }
+    {
+      "input": "s = \"()[]{}\"",
+      "output": "true"
+    },
+    {
+      "input": "s = \"(]\"",
+      "output": "false"
+    }
   ],
   "constraints": [
     "1 <= s.length <= 10^4",
     "s consists only of the characters '()[]{}'"
   ],
   "hints": [
-    "The most recently opened bracket must be the next one closed — that's a last-in-first-out order.",
+    "The most recently opened bracket must be the next one closed \u2014 that's a last-in-first-out order.",
     "Push opening brackets onto a stack. When you see a closing bracket, it must match the top of the stack.",
     "If the stack is empty when you need to pop, or a mismatch occurs, or the stack isn't empty at the end, the string is invalid."
   ],
   "solution": {
-    "approach": "Use a stack. Push each opening bracket. On a closing bracket, pop the stack and check it matches the expected opener — if the stack is empty or it doesn't match, the string is invalid immediately. At the end, the string is valid only if the stack is empty (no unclosed openers remain).",
+    "approach": "Use a stack. Push each opening bracket. On a closing bracket, pop the stack and check it matches the expected opener \u2014 if the stack is empty or it doesn't match, the string is invalid immediately. At the end, the string is valid only if the stack is empty (no unclosed openers remain).",
     "code": "function isValid(s) {\n  const pairs = { ')': '(', ']': '[', '}': '{' };\n  const stack = [];\n  for (const ch of s) {\n    if (ch === '(' || ch === '[' || ch === '{') {\n      stack.push(ch);\n    } else {\n      if (stack.pop() !== pairs[ch]) return false;\n    }\n  }\n  return stack.length === 0;\n}",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(n)"
@@ -26,11 +38,47 @@
   "starterCode": "function isValid(s) {\n  // your code here\n}",
   "functionName": "isValid",
   "testCases": [
-    { "input": ["()"], "expected": true, "isHidden": false },
-    { "input": ["()[]{}"], "expected": true, "isHidden": false },
-    { "input": ["(]"], "expected": false, "isHidden": false },
-    { "input": ["([)]"], "expected": false, "isHidden": true },
-    { "input": ["{[]}"], "expected": true, "isHidden": true },
-    { "input": ["("], "expected": false, "isHidden": true }
+    {
+      "input": [
+        "()"
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        "()[]{}"
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        "(]"
+      ],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [
+        "([)]"
+      ],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": [
+        "{[]}"
+      ],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [
+        "("
+      ],
+      "expected": false,
+      "isHidden": true
+    }
   ]
 }

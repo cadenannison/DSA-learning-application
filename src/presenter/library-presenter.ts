@@ -5,6 +5,7 @@ export interface LibraryView {
   setLoading(loading: boolean): void
   setProblems(problems: ProblemSummary[]): void
   setError(message: string | null): void
+  updateProblems(update: (problems: ProblemSummary[]) => ProblemSummary[]): void
 }
 
 export class LibraryPresenter {
@@ -21,6 +22,23 @@ export class LibraryPresenter {
       this.view.setError(error instanceof Error ? error.message : "Failed to load problems")
     } finally {
       this.view.setLoading(false)
+    }
+  }
+
+  async toggleFavorite(problemId: string, favorited: boolean): Promise<void> {
+    this.view.updateProblems((problems) =>
+      problems.map((problem) => (problem.id === problemId ? { ...problem, favorited } : problem))
+    )
+
+    try {
+      await apiClient.setFavorite(problemId, favorited)
+    } catch (error) {
+      this.view.updateProblems((problems) =>
+        problems.map((problem) =>
+          problem.id === problemId ? { ...problem, favorited: !favorited } : problem
+        )
+      )
+      this.view.setError(error instanceof Error ? error.message : "Failed to update favorite")
     }
   }
 }

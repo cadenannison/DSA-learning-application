@@ -1,0 +1,20 @@
+{
+  "pattern": "backtracking",
+  "title": "Backtracking",
+  "summary": "Explore choices one at a time, recurse into each, and undo ('backtrack') when a branch is exhausted — a systematic way to generate every valid combination.",
+  "explanation": [
+    "Backtracking builds a solution incrementally by making a choice, recursing to build the rest of the solution given that choice, and then undoing the choice ('backtracking') before trying the next option. It's essentially a DFS over a tree of decisions, where each path from root to a node represents a partial solution and leaves (or certain depths) represent complete ones.",
+    "The template has three parts: a base case that records the current partial solution once it's complete (or valid), a loop over the choices available at this step, and a recurse-then-undo pair around each choice — add the choice to the current path, recurse, then remove it from the path before trying the next choice. That 'undo' step is what lets a single mutable path variable be reused across the whole exploration instead of copying it at every level.",
+    "Generating subsets is a clean first example: at each element, you either include it in the current subset or don't, recurse either way, and undo before trying the other branch. Problems like permutations, combinations, N-Queens, and Sudoku solvers all follow the same shape, differing only in what counts as a 'choice' and what makes a partial solution invalid enough to prune early."
+  ],
+  "whenToUse": [
+    "The problem asks you to generate all subsets, permutations, combinations, or valid arrangements satisfying some constraint.",
+    "You can express the solution as a sequence of choices, each of which can be undone to try an alternative.",
+    "A brute-force search over all possibilities is required, but invalid partial solutions can be pruned early to avoid wasted work.",
+    "The search space is a tree of decisions and you need every leaf (or every valid leaf), not just one answer."
+  ],
+  "timeComplexity": "O(2^n) for subsets, O(n!) for permutations — exponential in general, pruning reduces the practical cost",
+  "spaceComplexity": "O(n) for the recursion stack and current path, plus output size",
+  "demoKind": "backtracking",
+  "relatedProblemIds": ["subsets"]
+}

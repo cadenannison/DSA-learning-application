@@ -1,0 +1,20 @@
+{
+  "pattern": "linked-list",
+  "title": "Linked List",
+  "summary": "Rewire next pointers instead of shifting elements — most linked list problems come down to carefully tracking a handful of node references.",
+  "explanation": [
+    "A linked list stores elements as separate nodes, each holding a value and a pointer to the next node, rather than in one contiguous block of memory like an array. That means you can't jump to index i in O(1) — you have to walk from the head — but inserting or removing a node is O(1) once you're holding the right pointers, since there's nothing to shift.",
+    "Most linked list problems are really about carefully juggling a small number of pointers (often named prev, curr, and next) while walking the list exactly once. Reversal is the canonical example: at each node you save curr.next before overwriting it, point curr back at prev, then advance prev and curr forward — three pointer updates per node, O(n) total, O(1) extra space.",
+    "A second common shape is the 'fast and slow pointer' (or 'runner') technique: two pointers start at the head and advance at different speeds (one node vs. two nodes per step). This finds the middle of a list in one pass, detects cycles (the fast pointer eventually laps the slow one), and finds the k-th node from the end — all without knowing the list's length in advance."
+  ],
+  "whenToUse": [
+    "The problem gives you a singly or doubly linked list and asks you to reverse, reorder, or restructure it in place.",
+    "You need O(1) insertion/removal at a known position and don't need random access by index.",
+    "You need to detect a cycle, find a middle node, or find the k-th node from the end without a second pass.",
+    "Recursion naturally expresses the structure (e.g. reverse the rest of the list, then fix up the current node)."
+  ],
+  "timeComplexity": "O(n)",
+  "spaceComplexity": "O(1) iterative, O(n) recursive (call stack)",
+  "demoKind": "linked-list",
+  "relatedProblemIds": ["reverse-linked-list"]
+}

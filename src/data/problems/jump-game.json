@@ -1,0 +1,101 @@
+{
+  "id": "jump-game",
+  "title": "Jump Game",
+  "pattern": "greedy",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Microsoft"
+  ],
+  "prompt": "Given an integer array `nums`, you start at index 0. Each element `nums[i]` is the maximum jump length from index `i`. Return `true` if you can reach the last index, or `false` otherwise.",
+  "examples": [
+    {
+      "input": "nums = [2,3,1,1,4]",
+      "output": "true",
+      "explanation": "Jump 1 step from index 0 to 1, then 3 steps to the last index."
+    },
+    {
+      "input": "nums = [3,2,1,0,4]",
+      "output": "false",
+      "explanation": "You will always arrive at index 3 with a jump length of 0, which is too short to escape."
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 10^4",
+    "0 <= nums[i] <= 10^5"
+  ],
+  "hints": [
+    "You don't need to try every path \u2014 track the furthest index you can possibly reach as you scan left to right.",
+    "At each index i, if i is beyond the furthest reachable index so far, you're stuck \u2014 return false immediately.",
+    "Otherwise update furthest = max(furthest, i + nums[i]). If furthest ever reaches or passes the last index, you can return true early."
+  ],
+  "solution": {
+    "approach": "Greedily track the furthest index reachable so far while scanning left to right. If the current index ever exceeds that furthest reach, the last index is unreachable, so return false. Otherwise extend the furthest reach using the current index's jump length. If the furthest reach ever covers the last index, return true.",
+    "code": "function canJump(nums) {\n  let furthest = 0;\n  for (let i = 0; i < nums.length; i++) {\n    if (i > furthest) return false;\n    furthest = Math.max(furthest, i + nums[i]);\n    if (furthest >= nums.length - 1) return true;\n  }\n  return true;\n}",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "function canJump(nums) {\n  // your code here\n}",
+  "functionName": "canJump",
+  "testCases": [
+    {
+      "input": [
+        [
+          2,
+          3,
+          1,
+          1,
+          4
+        ]
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [
+          3,
+          2,
+          1,
+          0,
+          4
+        ]
+      ],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [
+          0
+        ]
+      ],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [
+          1,
+          0,
+          1,
+          0
+        ]
+      ],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [
+          2,
+          0,
+          0
+        ]
+      ],
+      "expected": true,
+      "isHidden": true
+    }
+  ]
+}

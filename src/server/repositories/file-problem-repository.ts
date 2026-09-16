@@ -3,6 +3,10 @@ import path from "node:path"
 import type { ProblemFilter, ProblemRepository } from "@/server/interfaces/problem-repository"
 import type { DsaPattern, Problem, StrippedProblem } from "@/server/models/domain"
 
+function normalizeCompany(company: string): string {
+  return company.trim().toLowerCase()
+}
+
 function strip(problem: Problem): StrippedProblem {
   return {
     id: problem.id,
@@ -53,6 +57,10 @@ export class FileProblemRepository implements ProblemRepository {
     return problems.filter((problem) => {
       if (filter?.pattern && problem.pattern !== filter.pattern) return false
       if (filter?.difficulty && problem.difficulty !== filter.difficulty) return false
+      if (filter?.company) {
+        const company = normalizeCompany(filter.company)
+        if (!problem.companies.some((c) => normalizeCompany(c) === company)) return false
+      }
       if (filter?.query) {
         const query = filter.query.toLowerCase()
         if (!problem.title.toLowerCase().includes(query)) return false
@@ -64,5 +72,14 @@ export class FileProblemRepository implements ProblemRepository {
   async listPatterns(): Promise<DsaPattern[]> {
     const problems = await this.loadAll()
     return Array.from(new Set(problems.map((problem) => problem.pattern)))
+  }
+
+  async listCompanies(): Promise<string[]> {
+    const problems = await this.loadAll()
+    const companies = new Set<string>()
+    for (const problem of problems) {
+      for (const company of problem.companies) companies.add(company)
+    }
+    return Array.from(companies).sort((a, b) => a.localeCompare(b))
   }
 }

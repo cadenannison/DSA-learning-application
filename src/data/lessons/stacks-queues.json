@@ -1,0 +1,20 @@
+{
+  "pattern": "stacks-queues",
+  "title": "Stacks / Queues",
+  "summary": "Stacks give you last-in-first-out access for matching and undo-style problems; queues give you first-in-first-out access for ordered processing.",
+  "explanation": [
+    "A stack only allows access to its most recently added element (last in, first out) — push to add, pop to remove and return the top. That LIFO discipline makes it the natural tool for anything with nested or 'most recent thing must resolve first' structure: matching parentheses/brackets, undo history, evaluating expressions, and tracking function call frames.",
+    "Valid parentheses is the canonical stack problem: scan the string left to right, push every opening bracket onto the stack, and when you hit a closing bracket, check that it matches the bracket on top of the stack (and pop it) — if it doesn't match, or the stack is empty when you need to pop, the string is invalid. At the end, the string is only valid if the stack is empty, meaning every opening bracket found a match.",
+    "A queue only allows access to its oldest element (first in, first out) — enqueue to add at the back, dequeue to remove from the front. That FIFO discipline is what makes BFS process a graph level by level, and it's the right structure whenever 'the thing that arrived first should be handled first' — task scheduling, request buffering, or level-order tree traversal."
+  ],
+  "whenToUse": [
+    "The problem involves matching pairs, nesting, or validating balanced structures (brackets, tags, nested expressions).",
+    "You need 'undo' behavior, or need to reverse the order elements were seen in.",
+    "You're implementing BFS or any 'process in the order received' logic — reach for a queue.",
+    "You need to evaluate expressions (e.g. calculator problems) where operators and operands need LIFO handling."
+  ],
+  "timeComplexity": "O(1) per push/pop/enqueue/dequeue, O(n) to process a full input",
+  "spaceComplexity": "O(n)",
+  "demoKind": "stacks-queues",
+  "relatedProblemIds": ["valid-parentheses"]
+}

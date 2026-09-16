@@ -1,0 +1,20 @@
+{
+  "pattern": "sliding-window",
+  "title": "Sliding Window",
+  "summary": "Maintain a contiguous range of the array and slide/resize it incrementally instead of recomputing from scratch.",
+  "explanation": [
+    "Sliding window solves problems about contiguous subarrays or substrings by keeping a running window [start, end] and updating its running state (sum, count, set of characters, etc.) incrementally as the window moves, instead of recomputing that state from scratch for every possible window.",
+    "A fixed-size window (e.g. \"max sum of any k consecutive elements\") slides one step at a time: add the element entering on the right, remove the element leaving on the left, and compare.",
+    "A variable-size window (e.g. \"smallest subarray with sum >= target\") grows by moving the right edge forward until a condition is met, then shrinks by moving the left edge forward while the condition still holds — recording the best window found along the way. Each edge only ever moves forward, so the total work is O(n) even though it looks like two nested loops."
+  ],
+  "whenToUse": [
+    "The problem asks for a contiguous subarray or substring (not any subset).",
+    "You're optimizing (max/min/count) some property — sum, length, number of distinct characters — over all contiguous windows.",
+    "A brute-force approach recomputes the same overlapping range's sum/count repeatedly.",
+    "Elements only need to be added or removed from the ends of the current window, not the middle."
+  ],
+  "timeComplexity": "O(n)",
+  "spaceComplexity": "O(1) to O(k), depending on what the window tracks",
+  "demoKind": "sliding-window",
+  "relatedProblemIds": ["best-time-to-buy-sell-stock", "maximum-subarray"]
+}

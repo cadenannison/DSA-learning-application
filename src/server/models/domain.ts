@@ -27,6 +27,7 @@ export interface Problem {
   title: string
   pattern: DsaPattern
   difficulty: Difficulty
+  companies: string[]
   prompt: string
   examples: { input: string; output: string; explanation?: string }[]
   constraints: string[]
@@ -54,10 +55,12 @@ export interface ProblemSummary {
   title: string
   pattern: DsaPattern
   difficulty: Difficulty
+  companies: string[]
   progressStatus: ProgressStatus
+  favorited: boolean
 }
 
-export type PracticeMode = "practice" | "blind"
+export type PracticeMode = "practice" | "blind" | "oa"
 
 export interface AttemptRecord {
   id: string
@@ -104,3 +107,93 @@ export interface CodeSubmission {
 }
 
 export type ThemePreference = "light" | "dark"
+
+export type OASessionStatus = "in_progress" | "completed" | "expired"
+export type OAProblemStatus = "unanswered" | "in_progress" | "passed" | "failed"
+
+export interface OASessionConfig {
+  difficulty: Difficulty | Partial<Record<Difficulty, number>>
+  problemCount: number
+  timeBudgetMs: number
+}
+
+export interface OASessionProblemState {
+  problemId: string
+  status: OAProblemStatus
+  code: string | null
+  lastSubmissionResult: ExecutionResult | null
+  timeSpentMs: number
+}
+
+export interface OASession {
+  id: string
+  status: OASessionStatus
+  startedAt: string
+  deadline: string
+  problems: OASessionProblemState[]
+  activeProblemId: string | null
+}
+
+export interface OASessionSummary {
+  sessionId: string
+  status: OASessionStatus
+  problemsPassed: number
+  problemsTotal: number
+  perProblem: { problemId: string; status: OAProblemStatus; timeSpentMs: number }[]
+}
+
+export interface BlindTestSet {
+  id: string
+  name: string
+  createdAt: string
+  problemIds: string[]
+}
+
+export interface BlindTestSetSummary {
+  id: string
+  name: string
+  createdAt: string
+  problemCount: number
+}
+
+export interface BlindTestSetFilter {
+  patterns?: DsaPattern[]
+  difficulties?: Difficulty[]
+}
+
+export type LessonDemoKind =
+  | "two-pointers"
+  | "sliding-window"
+  | "binary-search"
+  | "bfs-dfs"
+  | "linked-list"
+  | "trees"
+  | "heaps"
+  | "backtracking"
+  | "intervals"
+  | "graphs"
+  | "dynamic-programming"
+  | "greedy"
+  | "tries"
+  | "stacks-queues"
+  | "none"
+
+export interface PatternLesson {
+  pattern: DsaPattern
+  title: string
+  summary: string
+  explanation: string[]
+  whenToUse: string[]
+  timeComplexity: string
+  spaceComplexity: string
+  demoKind: LessonDemoKind
+  relatedProblemIds: string[]
+}
+
+export interface PatternLessonSummary {
+  pattern: DsaPattern
+  title: string
+  summary: string
+  hasInteractiveDemo: boolean
+  relatedProblemCount: number
+}

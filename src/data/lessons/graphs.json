@@ -1,0 +1,20 @@
+{
+  "pattern": "graphs",
+  "title": "Graphs",
+  "summary": "Model relationships as nodes and edges, then apply traversal, cycle detection, or topological ordering to answer questions about connectivity and dependency.",
+  "explanation": [
+    "A graph generalizes trees and lists into nodes (vertices) connected by edges, which may be directed or undirected, weighted or unweighted, and may contain cycles. Most graph problems boil down to representing the relationships as an adjacency list (a map from each node to its neighbors) and then running a traversal — BFS or DFS — over that representation.",
+    "Directed graphs introduce a question trees don't have: dependency ordering. If an edge A -> B means 'A must happen before B', a topological sort produces a linear ordering of all nodes that respects every edge. The standard approach (Kahn's algorithm) repeatedly removes nodes with no remaining incoming edges (in-degree zero), adding them to the order and decrementing their neighbors' in-degrees — if you run out of zero-in-degree nodes before placing every node, the graph has a cycle and no valid ordering exists.",
+    "This is exactly the shape of 'course schedule' problems: courses are nodes, prerequisites are directed edges, and 'can you finish all courses' is really 'does this directed graph have a cycle' — answered by checking whether topological sort can place every node."
+  ],
+  "whenToUse": [
+    "The problem describes relationships or dependencies between items (courses, tasks, cities, accounts) rather than a strict hierarchy.",
+    "You need to detect a cycle in a directed graph, or produce a valid ordering that respects dependency constraints.",
+    "You need connectivity information — are two nodes reachable from each other, or how many separate groups exist.",
+    "A grid can be modeled as an implicit graph (each cell a node, adjacent cells as edges) for flood-fill style problems."
+  ],
+  "timeComplexity": "O(V + E)",
+  "spaceComplexity": "O(V + E)",
+  "demoKind": "graphs",
+  "relatedProblemIds": ["course-schedule"]
+}

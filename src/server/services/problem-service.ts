@@ -19,4 +19,8 @@ export class ProblemService {
   async listPatterns(): Promise<DsaPattern[]> {
     return this.problemRepository.listPatterns()
   }
+
+  async listCompanies(): Promise<string[]> {
+    return this.problemRepository.listCompanies()
+  }
 }

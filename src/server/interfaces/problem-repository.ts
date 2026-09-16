@@ -3,6 +3,7 @@ import type { DsaPattern, Difficulty, Problem, StrippedProblem } from "@/server/
 export interface ProblemFilter {
   pattern?: DsaPattern
   difficulty?: Difficulty
+  company?: string
   query?: string
 }
 
@@ -11,4 +12,5 @@ export interface ProblemRepository {
   getStrippedById(id: string): Promise<StrippedProblem | null>
   list(filter?: ProblemFilter): Promise<Problem[]>
   listPatterns(): Promise<DsaPattern[]>
+  listCompanies(): Promise<string[]>
 }

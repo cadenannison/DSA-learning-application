@@ -6,4 +6,6 @@ export interface ProgressStore {
   listProgress(): Promise<ProblemProgress[]>
   getTheme(): Promise<ThemePreference>
   setTheme(theme: ThemePreference): Promise<void>
+  setFavorite(problemId: string, favorited: boolean): Promise<void>
+  listFavoriteIds(): Promise<string[]>
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { container } from "@/server/container"
 import { executeRequestSchema, executionResultSchema } from "@/server/models/schemas"
+import { toClientExecutionResult } from "@/server/services/execution-result-view"
 
 export async function POST(request: NextRequest) {
   const body = await request.json()
@@ -22,13 +23,7 @@ export async function POST(request: NextRequest) {
     // in both practice and blind mode regardless of which mode was requested. If a future
     // field is added to ExecutionResult, executionResultSchema.parse below will reject
     // anything that isn't in the schema — extend the schema deliberately, not by accident.
-    const results = result.results.map((testResult) =>
-      testResult.isHidden
-        ? { ...testResult, input: [], expected: undefined, actual: undefined }
-        : testResult
-    )
-
-    return NextResponse.json(executionResultSchema.parse({ ...result, results }))
+    return NextResponse.json(executionResultSchema.parse(toClientExecutionResult(result)))
   } catch {
     return NextResponse.json({ error: "Problem not found" }, { status: 404 })
   }

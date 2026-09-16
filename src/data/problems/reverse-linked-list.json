@@ -1,0 +1,111 @@
+{
+  "id": "reverse-linked-list",
+  "title": "Reverse Linked List",
+  "pattern": "linked-list",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Apple",
+    "Facebook"
+  ],
+  "prompt": "Given the `head` of a singly linked list, reverse the list and return the reversed list.\n\nThe list is given as an array (e.g. `[1,2,3]` represents `1 -> 2 -> 3 -> null`). The starter code includes helpers to convert between the array and a linked-list node \u2014 build the actual list, reverse it by manipulating `next` pointers, then convert back to an array to return.",
+  "examples": [
+    {
+      "input": "head = [1,2,3,4,5]",
+      "output": "[5,4,3,2,1]"
+    },
+    {
+      "input": "head = [1,2]",
+      "output": "[2,1]"
+    },
+    {
+      "input": "head = []",
+      "output": "[]"
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [0, 5000]",
+    "-5000 <= Node.val <= 5000"
+  ],
+  "hints": [
+    "Track three pointers as you walk the list: previous, current, and next. Save 'next' before you overwrite current.next, then advance.",
+    "reverseList should not need extra space proportional to the list length \u2014 this can be done in O(1) space, iteratively.",
+    "The array <-> linked-list conversion is already handled in the starter code \u2014 focus on the pointer-reversal logic."
+  ],
+  "solution": {
+    "approach": "Convert the array to a linked list (helper provided). Walk the list with a 'prev' pointer starting at null and a 'curr' pointer starting at head. At each step, save curr.next, point curr.next backward to prev, then advance prev and curr forward. When curr is null, prev is the new head. Convert back to an array to return.",
+    "code": "function arrToList(arr) {\n  let head = null, tail = null;\n  for (const val of arr) {\n    const node = { val, next: null };\n    if (!head) { head = node; tail = node; }\n    else { tail.next = node; tail = node; }\n  }\n  return head;\n}\n\nfunction listToArr(head) {\n  const result = [];\n  let node = head;\n  while (node) { result.push(node.val); node = node.next; }\n  return result;\n}\n\nfunction reverseList(headArr) {\n  let head = arrToList(headArr);\n  let prev = null;\n  let curr = head;\n  while (curr) {\n    const next = curr.next;\n    curr.next = prev;\n    prev = curr;\n    curr = next;\n  }\n  return listToArr(prev);\n}",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1) auxiliary (excluding the returned list)"
+  },
+  "starterCode": "function arrToList(arr) {\n  let head = null, tail = null;\n  for (const val of arr) {\n    const node = { val, next: null };\n    if (!head) { head = node; tail = node; }\n    else { tail.next = node; tail = node; }\n  }\n  return head;\n}\n\nfunction listToArr(head) {\n  const result = [];\n  let node = head;\n  while (node) { result.push(node.val); node = node.next; }\n  return result;\n}\n\nfunction reverseList(headArr) {\n  let head = arrToList(headArr);\n  // your code here\n}",
+  "functionName": "reverseList",
+  "testCases": [
+    {
+      "input": [
+        [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      ],
+      "expected": [
+        5,
+        4,
+        3,
+        2,
+        1
+      ],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [
+          1,
+          2
+        ]
+      ],
+      "expected": [
+        2,
+        1
+      ],
+      "isHidden": false
+    },
+    {
+      "input": [
+        []
+      ],
+      "expected": [],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [
+          1
+        ]
+      ],
+      "expected": [
+        1
+      ],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [
+          7,
+          7,
+          7
+        ]
+      ],
+      "expected": [
+        7,
+        7,
+        7
+      ],
+      "isHidden": true
+    }
+  ]
+}

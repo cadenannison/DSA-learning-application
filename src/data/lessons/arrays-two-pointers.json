@@ -1,0 +1,20 @@
+{
+  "pattern": "arrays-two-pointers",
+  "title": "Two Pointers",
+  "summary": "Walk two indices toward each other (or in the same direction) through a sequence to avoid a nested loop.",
+  "explanation": [
+    "The two-pointer technique replaces a nested loop (checking every pair of elements, O(n^2)) with two indices that move through the array in a single coordinated pass, O(n).",
+    "The classic shape: one pointer starts at the left end, one at the right end. At each step you look at the pair they point to, decide whether the pair is too small, too large, or just right, and move exactly one pointer inward based on that decision. Because the array is sorted (or can be treated as such), moving a pointer inward never skips a valid answer.",
+    "A second shape uses both pointers moving in the same direction at different speeds — one scans ahead, one tracks a slower position (e.g. removing duplicates in place, or detecting a cycle in a linked list)."
+  ],
+  "whenToUse": [
+    "The input is sorted, or can be sorted without losing the information you need.",
+    "You're looking for a pair, triplet, or subrange that satisfies a sum/difference condition.",
+    "You need to do an in-place partition or de-duplication without extra memory.",
+    "A brute-force nested loop is O(n^2) and the problem has an implicit ordering you can exploit."
+  ],
+  "timeComplexity": "O(n)",
+  "spaceComplexity": "O(1)",
+  "demoKind": "two-pointers",
+  "relatedProblemIds": ["two-sum", "valid-anagram"]
+}

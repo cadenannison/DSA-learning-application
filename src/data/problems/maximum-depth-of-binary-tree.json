@@ -1,0 +1,100 @@
+{
+  "id": "maximum-depth-of-binary-tree",
+  "title": "Maximum Depth of Binary Tree",
+  "pattern": "trees",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "LinkedIn"
+  ],
+  "prompt": "Given the `root` of a binary tree, return its maximum depth \u2014 the number of nodes along the longest path from the root down to the farthest leaf node.\n\nThe tree is given as a level-order array where `null` marks a missing child (the standard LeetCode serialization). Your function receives this array directly; the starter code includes a helper that builds the tree from it, so you only need to implement the depth calculation.",
+  "examples": [
+    {
+      "input": "root = [3,9,20,null,null,15,7]",
+      "output": "3",
+      "explanation": "The path 3 -> 20 -> 15 (or 3 -> 20 -> 7) has 3 nodes."
+    },
+    {
+      "input": "root = [1,null,2]",
+      "output": "2"
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [0, 10^4]",
+    "-100 <= Node.val <= 100"
+  ],
+  "hints": [
+    "The depth of a tree rooted at a node is 1 + the max depth of its two subtrees. An empty tree has depth 0.",
+    "This is a natural fit for recursion: maxDepth(node) = node ? 1 + max(maxDepth(node.left), maxDepth(node.right)) : 0.",
+    "The array-to-tree conversion is already done for you in the starter code \u2014 focus on the recursive depth function."
+  ],
+  "solution": {
+    "approach": "Build the binary tree from the level-order array (helper provided). Then recursively compute depth: an empty subtree has depth 0; otherwise the depth is 1 plus the larger of the left and right subtree depths.",
+    "code": "function buildTree(arr) {\n  if (!arr || arr.length === 0 || arr[0] === null) return null;\n  const root = { val: arr[0], left: null, right: null };\n  const queue = [root];\n  let i = 1;\n  while (i < arr.length && queue.length > 0) {\n    const node = queue.shift();\n    if (i < arr.length) {\n      const leftVal = arr[i++];\n      if (leftVal !== null) {\n        node.left = { val: leftVal, left: null, right: null };\n        queue.push(node.left);\n      }\n    }\n    if (i < arr.length) {\n      const rightVal = arr[i++];\n      if (rightVal !== null) {\n        node.right = { val: rightVal, left: null, right: null };\n        queue.push(node.right);\n      }\n    }\n  }\n  return root;\n}\n\nfunction maxDepth(rootArr) {\n  const root = buildTree(rootArr);\n  function depth(node) {\n    if (!node) return 0;\n    return 1 + Math.max(depth(node.left), depth(node.right));\n  }\n  return depth(root);\n}",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(h), h = tree height"
+  },
+  "starterCode": "function buildTree(arr) {\n  if (!arr || arr.length === 0 || arr[0] === null) return null;\n  const root = { val: arr[0], left: null, right: null };\n  const queue = [root];\n  let i = 1;\n  while (i < arr.length && queue.length > 0) {\n    const node = queue.shift();\n    if (i < arr.length) {\n      const leftVal = arr[i++];\n      if (leftVal !== null) {\n        node.left = { val: leftVal, left: null, right: null };\n        queue.push(node.left);\n      }\n    }\n    if (i < arr.length) {\n      const rightVal = arr[i++];\n      if (rightVal !== null) {\n        node.right = { val: rightVal, left: null, right: null };\n        queue.push(node.right);\n      }\n    }\n  }\n  return root;\n}\n\nfunction maxDepth(rootArr) {\n  const root = buildTree(rootArr);\n  // your code here\n}",
+  "functionName": "maxDepth",
+  "testCases": [
+    {
+      "input": [
+        [
+          3,
+          9,
+          20,
+          null,
+          null,
+          15,
+          7
+        ]
+      ],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [
+          1,
+          null,
+          2
+        ]
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        []
+      ],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [
+          1
+        ]
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [
+          1,
+          2,
+          3,
+          4,
+          5,
+          null,
+          null,
+          6
+        ]
+      ],
+      "expected": 4,
+      "isHidden": true
+    }
+  ]
+}

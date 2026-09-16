@@ -37,4 +37,12 @@ export class ProgressService {
   async setTheme(theme: ThemePreference): Promise<void> {
     return this.progressStore.setTheme(theme)
   }
+
+  async setFavorite(problemId: string, favorited: boolean): Promise<void> {
+    return this.progressStore.setFavorite(problemId, favorited)
+  }
+
+  async listFavoriteIds(): Promise<string[]> {
+    return this.progressStore.listFavoriteIds()
+  }
 }

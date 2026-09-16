@@ -3,17 +3,30 @@
   "title": "Best Time to Buy and Sell Stock",
   "pattern": "sliding-window",
   "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Facebook",
+    "Bloomberg"
+  ],
   "prompt": "You're given an array `prices` where `prices[i]` is the price of a stock on day `i`. You may buy the stock on one day and sell it on a later day. Return the maximum profit achievable. Return `0` if no profit is possible.",
   "examples": [
-    { "input": "prices = [7,1,5,3,6,4]", "output": "5", "explanation": "Buy on day 1 (price 1), sell on day 4 (price 6), profit = 5" },
-    { "input": "prices = [7,6,4,3,1]", "output": "0", "explanation": "Prices only fall, so no profitable transaction exists" }
+    {
+      "input": "prices = [7,1,5,3,6,4]",
+      "output": "5",
+      "explanation": "Buy on day 1 (price 1), sell on day 4 (price 6), profit = 5"
+    },
+    {
+      "input": "prices = [7,6,4,3,1]",
+      "output": "0",
+      "explanation": "Prices only fall, so no profitable transaction exists"
+    }
   ],
   "constraints": [
     "1 <= prices.length <= 10^5",
     "0 <= prices[i] <= 10^4"
   ],
   "hints": [
-    "This isn't a fixed-size window — it's a running minimum plus a running best answer.",
+    "This isn't a fixed-size window \u2014 it's a running minimum plus a running best answer.",
     "As you scan left to right, track the lowest price seen so far. At each day, the best sell profit is today's price minus that running minimum.",
     "Keep a single pass: update the running minimum, then update the best profit with (price - runningMin), in that order, at each index."
   ],
@@ -26,10 +39,65 @@
   "starterCode": "function maxProfit(prices) {\n  // your code here\n}",
   "functionName": "maxProfit",
   "testCases": [
-    { "input": [[7, 1, 5, 3, 6, 4]], "expected": 5, "isHidden": false },
-    { "input": [[7, 6, 4, 3, 1]], "expected": 0, "isHidden": false },
-    { "input": [[1, 2]], "expected": 1, "isHidden": false },
-    { "input": [[2, 4, 1]], "expected": 2, "isHidden": true },
-    { "input": [[3, 3, 3, 3]], "expected": 0, "isHidden": true }
+    {
+      "input": [
+        [
+          7,
+          1,
+          5,
+          3,
+          6,
+          4
+        ]
+      ],
+      "expected": 5,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [
+          7,
+          6,
+          4,
+          3,
+          1
+        ]
+      ],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [
+          1,
+          2
+        ]
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [
+          2,
+          4,
+          1
+        ]
+      ],
+      "expected": 2,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [
+          3,
+          3,
+          3,
+          3
+        ]
+      ],
+      "expected": 0,
+      "isHidden": true
+    }
   ]
 }

@@ -1,0 +1,127 @@
+{
+  "id": "number-of-islands",
+  "title": "Number of Islands",
+  "pattern": "bfs-dfs",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Facebook",
+    "Microsoft"
+  ],
+  "prompt": "Given an `m x n` 2D binary `grid` where `\"1\"` represents land and `\"0\"` represents water, return the number of islands. An island is surrounded by water and formed by connecting adjacent lands horizontally or vertically.",
+  "examples": [
+    {
+      "input": "grid = [[\"1\",\"1\",\"0\"],[\"1\",\"0\",\"0\"],[\"0\",\"0\",\"1\"]]",
+      "output": "2",
+      "explanation": "The top-left 1s form one connected island; the bottom-right 1 is a separate island."
+    }
+  ],
+  "constraints": [
+    "1 <= m, n <= 300",
+    "grid[i][j] is '0' or '1'"
+  ],
+  "hints": [
+    "Scan every cell. When you find a '1' you haven't visited, that's a new island \u2014 increment your count.",
+    "From that cell, flood-fill (DFS or BFS) to every connected '1', marking each as visited so it isn't counted again.",
+    "You can mark visited cells by mutating the grid in place (e.g. setting them to '0') instead of a separate visited set, if you don't need to preserve the input."
+  ],
+  "solution": {
+    "approach": "Iterate every cell in the grid. Whenever a '1' is found, it must be part of an island not yet counted, so increment the island count and run a DFS/BFS flood-fill from that cell, marking every connected '1' as visited (flipped to '0') so the outer scan skips them. This ensures each island is counted exactly once.",
+    "code": "function numIslands(grid) {\n  if (grid.length === 0) return 0;\n  const rows = grid.length;\n  const cols = grid[0].length;\n  const g = grid.map((row) => row.slice());\n\n  function flood(r, c) {\n    if (r < 0 || r >= rows || c < 0 || c >= cols || g[r][c] !== \"1\") return;\n    g[r][c] = \"0\";\n    flood(r + 1, c);\n    flood(r - 1, c);\n    flood(r, c + 1);\n    flood(r, c - 1);\n  }\n\n  let count = 0;\n  for (let r = 0; r < rows; r++) {\n    for (let c = 0; c < cols; c++) {\n      if (g[r][c] === \"1\") {\n        count++;\n        flood(r, c);\n      }\n    }\n  }\n  return count;\n}",
+    "timeComplexity": "O(m * n)",
+    "spaceComplexity": "O(m * n) worst-case recursion depth"
+  },
+  "starterCode": "function numIslands(grid) {\n  // your code here\n}",
+  "functionName": "numIslands",
+  "testCases": [
+    {
+      "input": [
+        [
+          [
+            "1",
+            "1",
+            "0"
+          ],
+          [
+            "1",
+            "0",
+            "0"
+          ],
+          [
+            "0",
+            "0",
+            "1"
+          ]
+        ]
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [
+          [
+            "1",
+            "1",
+            "1"
+          ],
+          [
+            "0",
+            "1",
+            "0"
+          ],
+          [
+            "1",
+            "1",
+            "1"
+          ]
+        ]
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [
+          [
+            "0",
+            "0"
+          ],
+          [
+            "0",
+            "0"
+          ]
+        ]
+      ],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [
+          [
+            "1"
+          ]
+        ]
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [
+          [
+            "1",
+            "0",
+            "1",
+            "0",
+            "1"
+          ]
+        ]
+      ],
+      "expected": 3,
+      "isHidden": true
+    }
+  ]
+}

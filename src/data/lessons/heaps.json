@@ -1,0 +1,20 @@
+{
+  "pattern": "heaps",
+  "title": "Heaps",
+  "summary": "A binary tree stored in an array that always keeps the smallest (or largest) element at the top, giving O(log n) insert and O(1) peek.",
+  "explanation": [
+    "A heap is a complete binary tree — filled level by level, left to right — stored efficiently in a flat array, where a node at index i has children at 2i+1 and 2i+2. A min-heap keeps every parent smaller than or equal to its children (so the minimum is always at the root); a max-heap does the opposite. That 'heap property' only constrains parent-vs-child relationships, not full sorting, which is exactly why it's cheaper to maintain than a sorted array.",
+    "Inserting pushes a new element to the end of the array, then 'bubbles it up' — repeatedly swapping with its parent while it violates the heap property — which takes O(log n) since the tree has O(log n) levels. Removing the top swaps the root with the last element, shrinks the array, then 'sinks' the new root down by repeatedly swapping with its smaller (or larger) child until the property holds again, also O(log n).",
+    "Heaps are the standard tool for 'top k' and 'k-th largest/smallest' problems: keep a heap of size k as you scan the input, and the heap always holds exactly the k best elements seen so far without ever sorting the full dataset. They also power priority queues used in algorithms like Dijkstra's shortest path and in merging k sorted lists."
+  ],
+  "whenToUse": [
+    "You need the k largest, k smallest, or k most/least frequent elements from a collection.",
+    "You need repeated access to a running minimum or maximum while elements are being added and removed.",
+    "You're implementing a priority queue — jobs or events that must be processed in priority order rather than insertion order.",
+    "Full sorting (O(n log n)) is more work than you need, and a heap can get you the top k in O(n log k)."
+  ],
+  "timeComplexity": "O(log n) insert/remove, O(1) peek",
+  "spaceComplexity": "O(n)",
+  "demoKind": "heaps",
+  "relatedProblemIds": ["top-k-frequent-elements"]
+}

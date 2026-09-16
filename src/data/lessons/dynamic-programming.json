@@ -1,0 +1,20 @@
+{
+  "pattern": "dynamic-programming",
+  "title": "Dynamic Programming",
+  "summary": "Break a problem into overlapping subproblems, solve each one once, and reuse the stored result instead of recomputing it.",
+  "explanation": [
+    "Dynamic programming (DP) applies when a problem has two properties: optimal substructure (the best answer for the whole problem can be built from the best answers to smaller subproblems) and overlapping subproblems (a naive recursive solution would solve the exact same subproblem many times). DP exploits the second property by storing each subproblem's answer the first time it's computed and reusing it, turning an exponential brute-force search into a polynomial one.",
+    "There are two equivalent ways to implement it. Top-down (memoization) keeps the natural recursive structure but caches return values in a map or array keyed by the subproblem's inputs, so repeated calls with the same inputs return instantly. Bottom-up (tabulation) instead fills a table iteratively, starting from the smallest subproblems and building up to the final answer, avoiding recursion overhead entirely.",
+    "Maximum subarray sum (Kadane's algorithm) is a clean 1D example: define best-ending-here[i] as the largest sum of a subarray that ends exactly at index i. It only depends on best-ending-here[i-1]: either extend the previous best subarray by adding nums[i], or start fresh at i if the previous best was negative. Because each state only needs the immediately preceding one, you don't even need an array — a single running variable suffices, giving O(1) space instead of O(n)."
+  ],
+  "whenToUse": [
+    "A brute-force recursive solution would recompute the same subproblem many times (overlapping subproblems).",
+    "The problem asks for an optimal value (max/min/count of ways) over choices made in sequence — subarrays, subsequences, paths, partitions.",
+    "You can define a state (often an index, or a pair of indices) such that the answer at that state depends only on the answers to smaller/earlier states.",
+    "Greedy or two-pointer approaches provably don't work because the optimal choice at each step depends on more than just local information."
+  ],
+  "timeComplexity": "O(n) to O(n^2) depending on state space, typically number of states times work per state",
+  "spaceComplexity": "O(n) for a full table, often reducible to O(1) when only the previous state is needed",
+  "demoKind": "dynamic-programming",
+  "relatedProblemIds": ["maximum-subarray"]
+}

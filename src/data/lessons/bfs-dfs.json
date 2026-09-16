@@ -1,0 +1,20 @@
+{
+  "pattern": "bfs-dfs",
+  "title": "BFS / DFS",
+  "summary": "Two ways to systematically visit every reachable node in a graph or grid — level by level, or all the way down one path first.",
+  "explanation": [
+    "Breadth-first search (BFS) and depth-first search (DFS) both visit every node reachable from a starting point exactly once, using a 'visited' set to avoid repeats — but they explore in a different order, which makes them suited to different questions.",
+    "BFS uses a queue (FIFO). It visits the start node, then all of its direct neighbors, then all of their unvisited neighbors, and so on — expanding outward in layers. Because it explores in layers, the first time BFS reaches a node is guaranteed to be via a shortest path (in terms of number of edges), which is why BFS is the go-to for shortest-path and 'minimum steps' problems on unweighted graphs.",
+    "DFS uses a stack (either explicitly, or implicitly via recursion). It visits the start node, then dives into one neighbor, then one of that neighbor's neighbors, and keeps going deeper until it hits a dead end — then backtracks and tries the next unexplored branch. DFS is the natural fit for 'does a path exist', 'find all connected components', cycle detection, and problems where you need to explore a full path before deciding it's good (like backtracking)."
+  ],
+  "whenToUse": [
+    "BFS: you need the shortest path or minimum number of steps in an unweighted graph or grid.",
+    "BFS: you need to process nodes level-by-level (e.g. level-order tree traversal).",
+    "DFS: you need to explore every path, detect cycles, or find connected components.",
+    "DFS: the recursive/backtracking structure of the problem naturally matches 'go deep, then undo and try another branch'."
+  ],
+  "timeComplexity": "O(V + E)",
+  "spaceComplexity": "O(V)",
+  "demoKind": "bfs-dfs",
+  "relatedProblemIds": ["number-of-islands", "course-schedule"]
+}

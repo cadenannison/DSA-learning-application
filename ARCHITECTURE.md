@@ -137,6 +137,109 @@ BlindTestPresenter   — StrippedProblem (title, prompt, examples, constraints o
 
 `StrippedProblem` is a real type derived from `Problem` at the service boundary (`ProblemService.getForBlindTest(id)`), not a UI-side filter — so a bug can't leak the pattern tag into Blind Test by rendering the wrong field. This mirrors the SAR project's habit of encoding a hard rule as a type rather than a comment ("do not render X here").
 
+## Mock OA Mode (phase 2)
+
+Simulates a timed Google-style online assessment: a fixed-length, difficulty-driven session across multiple problems, distinct from untimed single-problem Practice/Blind Test attempts. Deferred until Practice Mode and Blind Test Mode are working end-to-end, since it reuses their editor/test-runner UI rather than building its own — that dependency is now satisfied.
+
+**Reuses, unchanged:** `ProblemRepository`, `CodeSandbox`/`ExecutionService`, `ProgressStore`, the editor + test-runner component. Mock OA does not get its own problem data model — it is a third consumer of the same three seams, alongside Practice and Blind Test.
+
+**Net-new:** a session/timer state model and a difficulty-driven problem selector, behind a new `OASessionManager` service — kept separate from `ProblemService`/`ExecutionService`/`ProgressService` rather than folded into them, so the three existing modes stay simple consumers of the same underlying layers.
+
+### OASessionManager
+
+```ts
+interface OASessionManager {
+  startSession(config: OASessionConfig): Promise<OASession>
+  getSession(sessionId: string): Promise<OASession | null>
+  saveProgress(sessionId: string, problemId: string, code: string): Promise<OASession>
+  submitProblem(sessionId: string, problemId: string, submission: CodeSubmission): Promise<OASession>
+  endSession(sessionId: string): Promise<OASessionSummary>
+}
+```
+
+- `startSession` selects `config.problemCount` problems matching `config.difficulty` (a single `Difficulty` or a mix, e.g. `{ medium: 2, hard: 1 }`) via the selector below, and returns an `OASession` with `status: "in_progress"`, `startedAt` stamped server-side, and a `deadline` computed from `config.timeBudgetMs`.
+- `saveProgress` persists in-editor code for a problem without submitting it — supports moving between problems and coming back later in the session, per the requirement that users can revisit earlier problems before time runs out.
+- `submitProblem` runs the submission through the existing `CodeSandbox` (same as Practice/Blind Test) and updates that problem's status within the session; it does not end the session.
+- A session auto-submits when `deadline` passes — enforced client-side by the persistent countdown timer calling `endSession`, and re-checked server-side on any call against an expired session (a late `submitProblem` against an expired session is rejected, same trust boundary as any other server-authoritative deadline).
+- `endSession` finalizes the session (`status: "completed"` or `"expired"`), writes one `AttemptRecord` per attempted problem tagged `mode: "oa"` (see below) plus the session's own row in `oa_sessions` (see Persistence), and returns the post-session summary.
+
+### Session/timer state model
+
+```ts
+export type OASessionStatus = "in_progress" | "completed" | "expired"
+export type OAProblemStatus = "unanswered" | "in_progress" | "passed" | "failed"
+
+export interface OASessionConfig {
+  difficulty: Difficulty | Partial<Record<Difficulty, number>>
+  problemCount: number
+  timeBudgetMs: number
+}
+
+export interface OASessionProblemState {
+  problemId: string
+  status: OAProblemStatus
+  code: string | null
+  lastSubmissionResult: ExecutionResult | null
+  timeSpentMs: number
+}
+
+export interface OASession {
+  id: string
+  status: OASessionStatus
+  startedAt: string
+  deadline: string
+  problems: OASessionProblemState[]
+  activeProblemId: string | null
+}
+
+export interface OASessionSummary {
+  sessionId: string
+  status: OASessionStatus
+  problemsPassed: number
+  problemsTotal: number
+  perProblem: { problemId: string; status: OAProblemStatus; timeSpentMs: number }[]
+}
+```
+
+`OASession` is the live, in-progress state a client polls/holds during the session (extends `PracticeMode` with an `"oa"` case in `AttemptRecord.mode`, rather than a parallel mode enum). `OASessionSummary` is the terminal, post-session view — a computed projection, same "don't store a redundant mutable view" rule `ProblemProgress` already follows.
+
+### Problem selection
+
+```ts
+interface OAProblemSelector {
+  selectForSession(config: OASessionConfig, recentSessionIds: string[]): Promise<ProblemSummary[]>
+}
+```
+
+- Pulls candidates from the existing `ProblemRepository.list({ difficulty })` per difficulty bucket in `config.difficulty` — pattern is never part of the selection filter, so pattern tags stay hidden from the user exactly as in Blind Test Mode (`ProblemService.getForBlindTest`-style stripping applies to session problems too — the session never exposes `pattern` to the client).
+- "Avoid repeating problems from recent OA sessions" is a soft preference, not a hard guarantee: filter candidates against problems used in `recentSessionIds` first, and only fall back to allowing repeats if too few unused problems exist at that difficulty (a thin library, like this one's, may not have enough per-difficulty inventory to guarantee no repeats — silently falling back beats failing to start a session).
+
+### Persistence
+
+One new table, following the `attempts` / `preferences` pattern already in place:
+
+| Table | Purpose |
+| --- | --- |
+| `oa_sessions` | One row per session: `id`, `status`, `startedAt`, `deadline`, `config` (JSON), `problemIds` (JSON, ordered) |
+
+Per-problem attempts within a session still write to `attempts` with `mode: "oa"` — `AttemptRecord.mode` (`src/server/models/domain.ts`) gains an `"oa"` variant alongside `"practice" | "blind"`, so OA attempts are queryable through the same table and distinguishable in history, per the requirement that OA sessions are tagged rather than indistinguishable from single-problem attempts. `OASessionSummary` is computed by joining `oa_sessions` with the matching `attempts` rows — not a separately-maintained mutable rollup, same reasoning as `ProblemProgress`.
+
+### Out of scope for the first Mock OA pass
+
+- Editing session config mid-session (difficulty/time budget are fixed at `startSession`)
+- Cross-device session resume — a session lives for one browser session, matching the single-local-user scope already declared above
+- Anti-repeat guarantee stronger than best-effort (see selector note above) — would require a much larger problem library than exists today
+
+### Implementation notes (deviations from the draft above)
+
+The contract above was implemented as drafted; the following are the concrete choices made where the draft deliberately left room for judgment:
+
+- **`OASessionStore` interface** (`src/server/interfaces/oa-session-store.ts`, net-new, not in the original draft): a small persistence-facing interface — `createSession`, `getSession`, `updateStatus`, `listRecentSessionIds` — over the durable `oa_sessions` row shape (`id`, `status`, `startedAt`, `deadline`, `config`, `problemIds`). `SqliteProgressStore` implements both `ProgressStore` and `OASessionStore` against the same `data/progress.db` connection (one new `CREATE TABLE IF NOT EXISTS oa_sessions` in its existing `migrate()`), rather than a separate store class — it already owns the one DB file, and `oa_sessions` follows the same `attempts`/`preferences` migration convention in place. `container.ts` still only constructs one `SqliteProgressStore` and passes it wherever either interface is needed.
+- **Live session state is in-memory, not fully persisted.** `OASessionService` (`src/server/services/oa-session-service.ts`) holds the live `OASession` (per-problem `code`, `lastSubmissionResult`, `timeSpentMs`, `activeProblemId`) in a `Map` for the process lifetime; only the durable summary shape (id/status/startedAt/deadline/config/problemIds) is written to `oa_sessions`. This satisfies the documented "one browser session, no cross-device resume" scope, but also means a dev-server restart mid-session loses in-progress code/results for that session (the row in `oa_sessions` still exists and is queryable, so it still feeds the selector's repeat-avoidance and history — just not live resume). If this needs to survive a restart later, `OASessionProblemState` would need its own persisted rows; not built now since it's explicitly out of scope.
+- **`timeSpentMs` is accrued server-side**, not self-reported by the client: `OASessionService` tracks a last-touched timestamp per `(sessionId, problemId)` and adds the wall-clock delta (capped at 10 minutes per touch, to avoid inflating the figure if a tab sits idle) on every `saveProgress`/`submitProblem` call. This keeps the number out of the client's hands without adding a new endpoint.
+- **Hidden test case stripping is shared, not duplicated.** The `/api/execute` route already stripped `input`/`expected`/`actual` off hidden `TestCaseResult`s before responding; that logic was extracted into `toClientExecutionResult` (`src/server/services/execution-result-view.ts`) so `OASessionService.submitProblem` applies the identical stripping before storing `lastSubmissionResult` on the session — otherwise a session fetch after submission would have leaked hidden-case answers that Practice/Blind Test already hide.
+- **Problem content delivered to the OA client reuses the Blind Test route**, not a new "OA problem" endpoint: `OASession`/`OASessionProblemState` only ever carry `problemId` + session-local state (never `pattern`, `difficulty`, `title`, `prompt`, etc. — enforced by `oaSessionSchema`'s `.strict()`), and the in-session page fetches display content via the existing `GET /api/blind/[id]` (`StrippedProblem` — no pattern/difficulty/hints/solution). This is exactly the reuse the draft called for ("`ProblemService.getForBlindTest`-style stripping applies to session problems too") without adding a fourth problem-shaping path.
+
 ## Progress surfaced in the library view
 
 `ProblemSummary` (list view) includes `progressStatus` computed by `ProgressService`, joined in the route handler — the library route handler calls both `ProblemService.list()` and `ProgressService.listProgress()` and merges by id. This keeps `ProblemRepository` ignorant of progress entirely (per the "allowed to know" table), so swapping either seam independently stays possible.
@@ -152,13 +255,17 @@ page.tsx (View implementation, holds React state)
 
 Presenters are unit-testable without mounting a component. Monaco (or CodeMirror) editor is a client component; if it needs `next/dynamic` with `ssr:false` that's decided at scaffold time based on which editor library is chosen.
 
+### Shared layout / sidebar nav
+
+`src/app/layout.tsx` renders a persistent left sidebar (`src/components/sidebar-nav.tsx`, a client component using `usePathname()` to highlight the active section) alongside `{children}`, rather than each route owning its own top-level chrome. Sections: **Library** (`/`, covers both Practice and Blind Test entry), **Mock OA** (`/oa`), and **Learning Patterns** (`/patterns` — reserved nav slot + a "coming soon" page only; no pattern-learning content is built here). The existing `ThemeToggle` now lives in the sidebar; individual pages that previously rendered their own toggle inline still do (harmless duplication, not removed, to avoid touching Practice/Blind Test page internals beyond the layout wrap).
+
 ## Persistence
 
 SQLite (`data/progress.db`) via `better-sqlite3` for progress only — problems are static files, not database rows, since they're authored/seeded content, not user data. This deliberately does not use SAR's "metadata in DB / binaries on disk" split, because there are no binaries here; noting the deviation rather than cargo-culting the pattern.
 
 | Table | Purpose |
 | --- | --- |
-| `attempts` | One row per run: `problemId`, `timestamp`, `passed`, `hintsUsed`, `durationMs`, `mode` (`practice` \| `blind`) |
+| `attempts` | One row per run: `problemId`, `timestamp`, `passed`, `hintsUsed`, `durationMs`, `mode` (`practice` \| `blind` \| `oa`) |
 | `preferences` | Single-row table: `theme` (`light` \| `dark`), persisted across sessions |
 
 `ProblemProgress` (status, last-reviewed, hints-used-ever) is computed from `attempts` on read — never stored directly — so spaced-repetition scheduling is an additional computed view later, not a migration.
