@@ -4,7 +4,7 @@ import { preferencesSchema } from "@/server/models/schemas"
 
 export async function GET() {
   const theme = await container.progressService.getTheme()
-  return NextResponse.json({ theme })
+  return NextResponse.json(preferencesSchema.parse({ theme }))
 }
 
 export async function PUT(request: NextRequest) {
@@ -16,5 +16,5 @@ export async function PUT(request: NextRequest) {
   }
 
   await container.progressService.setTheme(parsed.data.theme)
-  return NextResponse.json({ theme: parsed.data.theme })
+  return NextResponse.json(preferencesSchema.parse({ theme: parsed.data.theme }))
 }

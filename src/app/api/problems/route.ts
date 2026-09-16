@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { container } from "@/server/container"
-import { problemFilterSchema } from "@/server/models/schemas"
+import { problemFilterSchema, problemSummarySchema } from "@/server/models/schemas"
+import { z } from "zod"
 import type { ProblemSummary } from "@/server/models/domain"
 
 export async function GET(request: NextRequest) {
@@ -30,5 +31,5 @@ export async function GET(request: NextRequest) {
     progressStatus: progressByProblem.get(problem.id)?.status ?? "not_started",
   }))
 
-  return NextResponse.json(summaries)
+  return NextResponse.json(z.array(problemSummarySchema).parse(summaries))
 }

@@ -62,6 +62,7 @@ export type PracticeMode = "practice" | "blind"
 export interface AttemptRecord {
   id: string
   problemId: string
+  /** Server-assigned only — ProgressService.recordAttempt stamps this; never accept a caller-supplied value. */
   timestamp: string
   passed: boolean
   hintsUsed: number

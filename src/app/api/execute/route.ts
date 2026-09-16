@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { container } from "@/server/container"
-import { executeRequestSchema } from "@/server/models/schemas"
+import { executeRequestSchema, executionResultSchema } from "@/server/models/schemas"
 
 export async function POST(request: NextRequest) {
   const body = await request.json()
@@ -13,16 +13,22 @@ export async function POST(request: NextRequest) {
   try {
     const result = await container.executionService.execute(
       parsed.data.problemId,
-      parsed.data.submission
+      parsed.data.submission,
+      parsed.data.mode
     )
 
+    // Hidden-test-case stripping below is mode-independent: ExecutionResult/TestCaseResult
+    // never carry problem metadata (pattern, difficulty, hints), so this response is safe
+    // in both practice and blind mode regardless of which mode was requested. If a future
+    // field is added to ExecutionResult, executionResultSchema.parse below will reject
+    // anything that isn't in the schema — extend the schema deliberately, not by accident.
     const results = result.results.map((testResult) =>
       testResult.isHidden
         ? { ...testResult, input: [], expected: undefined, actual: undefined }
         : testResult
     )
 
-    return NextResponse.json({ ...result, results })
+    return NextResponse.json(executionResultSchema.parse({ ...result, results }))
   } catch {
     return NextResponse.json({ error: "Problem not found" }, { status: 404 })
   }

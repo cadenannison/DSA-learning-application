@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from "next/server"
+import { z } from "zod"
 import { container } from "@/server/container"
-import { recordAttemptRequestSchema } from "@/server/models/schemas"
+import {
+  attemptRecordSchema,
+  problemProgressSchema,
+  recordAttemptRequestSchema,
+} from "@/server/models/schemas"
 
 export async function GET() {
   const progress = await container.progressService.listProgress()
-  return NextResponse.json(progress)
+  return NextResponse.json(z.array(problemProgressSchema).parse(progress))
 }
 
 export async function POST(request: NextRequest) {
@@ -16,5 +21,5 @@ export async function POST(request: NextRequest) {
   }
 
   const attempt = await container.progressService.recordAttempt(parsed.data)
-  return NextResponse.json(attempt, { status: 201 })
+  return NextResponse.json(attemptRecordSchema.parse(attempt), { status: 201 })
 }
