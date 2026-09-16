@@ -1,0 +1,36 @@
+{
+  "id": "binary-search",
+  "title": "Binary Search",
+  "pattern": "binary-search",
+  "difficulty": "easy",
+  "prompt": "Given a sorted array of distinct integers `nums` and a `target`, return the index of `target` if it exists in `nums`, or `-1` otherwise. Your solution must run in O(log n) time.",
+  "examples": [
+    { "input": "nums = [-1,0,3,5,9,12], target = 9", "output": "4" },
+    { "input": "nums = [-1,0,3,5,9,12], target = 2", "output": "-1" }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 10^4",
+    "-10^4 < nums[i], target < 10^4",
+    "nums is sorted in ascending order with distinct values"
+  ],
+  "hints": [
+    "O(log n) on a sorted array is a strong signal to repeatedly halve the search space.",
+    "Keep a low and high pointer. Check the middle element — if it's the target, you're done; otherwise discard the half that can't contain it.",
+    "Watch the off-by-one: use `low <= high` as the loop condition, and set `mid = low + Math.floor((high - low) / 2)` to avoid overflow habits carried from other languages."
+  ],
+  "solution": {
+    "approach": "Maintain `low` and `high` bounds over the search space. At each step, compare the middle element to the target: if equal, return its index; if the middle is too small, search the right half; if too large, search the left half. Continue until the bounds cross.",
+    "code": "function search(nums, target) {\n  let low = 0;\n  let high = nums.length - 1;\n  while (low <= high) {\n    const mid = low + Math.floor((high - low) / 2);\n    if (nums[mid] === target) return mid;\n    if (nums[mid] < target) low = mid + 1;\n    else high = mid - 1;\n  }\n  return -1;\n}",
+    "timeComplexity": "O(log n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "function search(nums, target) {\n  // your code here\n}",
+  "functionName": "search",
+  "testCases": [
+    { "input": [[-1, 0, 3, 5, 9, 12], 9], "expected": 4, "isHidden": false },
+    { "input": [[-1, 0, 3, 5, 9, 12], 2], "expected": -1, "isHidden": false },
+    { "input": [[5], 5], "expected": 0, "isHidden": false },
+    { "input": [[2, 5], 5], "expected": 1, "isHidden": true },
+    { "input": [[1, 2, 3, 4, 5, 6, 7, 8, 9], 1], "expected": 0, "isHidden": true }
+  ]
+}

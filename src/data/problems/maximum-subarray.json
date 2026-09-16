@@ -1,0 +1,35 @@
+{
+  "id": "maximum-subarray",
+  "title": "Maximum Subarray",
+  "pattern": "dynamic-programming",
+  "difficulty": "medium",
+  "prompt": "Given an integer array `nums`, find the contiguous subarray (containing at least one number) with the largest sum, and return that sum.",
+  "examples": [
+    { "input": "nums = [-2,1,-3,4,-1,2,1,-5,4]", "output": "6", "explanation": "The subarray [4,-1,2,1] has the largest sum, 6" },
+    { "input": "nums = [1]", "output": "1" }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 10^5",
+    "-10^4 <= nums[i] <= 10^4"
+  ],
+  "hints": [
+    "At each position, you're deciding: extend the current subarray, or start fresh from here?",
+    "This is Kadane's algorithm — track a running sum that resets to the current element whenever continuing it would make things worse.",
+    "runningSum = max(nums[i], runningSum + nums[i]); track the best runningSum seen across the whole pass."
+  ],
+  "solution": {
+    "approach": "Kadane's algorithm. Track the best sum ending exactly at the current index (`current`). At each step, either extend the previous subarray or start a new one at the current element, whichever is larger. Track the maximum `current` seen across the whole array as the answer.",
+    "code": "function maxSubArray(nums) {\n  let current = nums[0];\n  let best = nums[0];\n  for (let i = 1; i < nums.length; i++) {\n    current = Math.max(nums[i], current + nums[i]);\n    best = Math.max(best, current);\n  }\n  return best;\n}",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "function maxSubArray(nums) {\n  // your code here\n}",
+  "functionName": "maxSubArray",
+  "testCases": [
+    { "input": [[-2, 1, -3, 4, -1, 2, 1, -5, 4]], "expected": 6, "isHidden": false },
+    { "input": [[1]], "expected": 1, "isHidden": false },
+    { "input": [[5, 4, -1, 7, 8]], "expected": 23, "isHidden": false },
+    { "input": [[-1, -2, -3]], "expected": -1, "isHidden": true },
+    { "input": [[-2, -1]], "expected": -1, "isHidden": true }
+  ]
+}

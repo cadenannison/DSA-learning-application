@@ -1,0 +1,35 @@
+{
+  "id": "valid-anagram",
+  "title": "Valid Anagram",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "easy",
+  "prompt": "Given two strings `s` and `t`, return `true` if `t` is an anagram of `s`, and `false` otherwise. An anagram uses exactly the same letters with exactly the same frequency, just rearranged.",
+  "examples": [
+    { "input": "s = \"anagram\", t = \"nagaram\"", "output": "true" },
+    { "input": "s = \"rat\", t = \"car\"", "output": "false" }
+  ],
+  "constraints": [
+    "1 <= s.length, t.length <= 5 * 10^4",
+    "s and t consist of lowercase English letters"
+  ],
+  "hints": [
+    "If the lengths differ, they can't be anagrams — check that first as a cheap early exit.",
+    "Counting each character's frequency in both strings and comparing the counts works without sorting.",
+    "A single array of 26 counters (or a hash map) can be incremented for `s` and decremented for `t` in one pass; if everything nets to zero, it's an anagram."
+  ],
+  "solution": {
+    "approach": "Compare lengths first as a fast rejection. Then use one frequency map: increment counts for each character in `s`, decrement for each character in `t`. If any count is non-zero at the end, the strings aren't anagrams.",
+    "code": "function isAnagram(s, t) {\n  if (s.length !== t.length) return false;\n  const counts = new Map();\n  for (const ch of s) counts.set(ch, (counts.get(ch) ?? 0) + 1);\n  for (const ch of t) {\n    const next = (counts.get(ch) ?? 0) - 1;\n    if (next < 0) return false;\n    counts.set(ch, next);\n  }\n  return true;\n}",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1) — at most 26 distinct lowercase letters"
+  },
+  "starterCode": "function isAnagram(s, t) {\n  // your code here\n}",
+  "functionName": "isAnagram",
+  "testCases": [
+    { "input": ["anagram", "nagaram"], "expected": true, "isHidden": false },
+    { "input": ["rat", "car"], "expected": false, "isHidden": false },
+    { "input": ["a", "a"], "expected": true, "isHidden": false },
+    { "input": ["ab", "a"], "expected": false, "isHidden": true },
+    { "input": ["aabbcc", "abcabc"], "expected": true, "isHidden": true }
+  ]
+}
