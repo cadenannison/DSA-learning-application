@@ -1,0 +1,93 @@
+{
+  "id": "find-minimum-in-rotated-sorted-array",
+  "title": "Find Minimum in Rotated Sorted Array",
+  "pattern": "binary-search",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Google",
+    "Bloomberg",
+    "Apple"
+  ],
+  "prompt": "An array of distinct integers, originally sorted in ascending order, has been rotated at some unknown pivot (e.g. `[0,1,2,4,5,6,7]` might become `[4,5,6,7,0,1,2]`). Given the rotated array `nums`, find and return the minimum element. Your algorithm must run in `O(log n)` time.",
+  "examples": [
+    {
+      "input": "nums = [3,4,5,1,2]",
+      "output": "1",
+      "explanation": "The original array [1,2,3,4,5] was rotated so that it starts at index 3."
+    },
+    {
+      "input": "nums = [4,5,6,7,0,1,2]",
+      "output": "0"
+    },
+    {
+      "input": "nums = [11,13,15,17]",
+      "output": "11",
+      "explanation": "The array wasn't actually rotated (or was rotated a full cycle), so the minimum is the first element."
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 5000",
+    "-5000 <= nums[i] <= 5000",
+    "All the integers of nums are unique",
+    "nums is sorted and then rotated between 0 and n - 1 times"
+  ],
+  "hints": [
+    "A linear scan finds the minimum in O(n), but the rotated-sorted structure allows something faster.",
+    "Compare the middle element to the rightmost element: if nums[mid] > nums[right], the minimum must be somewhere to the right of mid; otherwise it's at mid or to its left.",
+    "Binary search using that comparison, narrowing the search space by half each time, until low and high converge on the minimum."
+  ],
+  "solution": {
+    "approach": "Use binary search based on comparing the middle element to the rightmost element of the current search window. If nums[mid] > nums[right], the rotation point (and thus the minimum) must lie to the right of mid, so move low to mid + 1. Otherwise, the minimum is at mid or somewhere to its left, so move high to mid (not mid - 1, since mid itself could be the answer). Repeat until low equals high, which converges on the minimum in O(log n) time.",
+    "code": "def find_min(nums):\n    lo, hi = 0, len(nums) - 1\n\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if nums[mid] > nums[hi]:\n            lo = mid + 1\n        else:\n            hi = mid\n\n    return nums[lo]\n",
+    "timeComplexity": "O(log n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def find_min(nums):\n    # your code here\n    pass\n",
+  "functionName": "find_min",
+  "testCases": [
+    {
+      "input": [
+        [3, 4, 5, 1, 2]
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [4, 5, 6, 7, 0, 1, 2]
+      ],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [11, 13, 15, 17]
+      ],
+      "expected": 11,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [2, 1]
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [5, 1, 2, 3, 4]
+      ],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

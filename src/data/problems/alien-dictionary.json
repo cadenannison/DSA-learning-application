@@ -1,0 +1,88 @@
+{
+  "id": "alien-dictionary",
+  "title": "Alien Dictionary",
+  "pattern": "graphs",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Airbnb",
+    "Facebook",
+    "Amazon"
+  ],
+  "prompt": "There is a new alien language that uses the English alphabet, but the order among the letters is unknown to you. You are given a list of words from this alien language's dictionary, where the words are sorted lexicographically according to the (unknown) rules of this new language.\n\nDerive the order of letters in this language from the given list, and return it as a string of unique letters in valid alien-alphabet order. If the ordering is invalid (for example, it implies a cycle, or a word appears before a prefix of itself, which can never happen in a valid lexicographic ordering), return an empty string `\"\"`. If there are multiple valid orderings, return any one of them.",
+  "examples": [
+    {
+      "input": "words = [\"wrt\",\"wrf\",\"er\",\"ett\",\"rftt\"]",
+      "output": "\"wertf\"",
+      "explanation": "Comparing adjacent words gives edges w->e, r->t, e->r, t->f, which topologically sort to one valid order: wertf."
+    },
+    {
+      "input": "words = [\"z\",\"x\",\"z\"]",
+      "output": "\"\"",
+      "explanation": "The edges imply z before x and x before z — a cycle, so no valid ordering exists."
+    }
+  ],
+  "constraints": [
+    "1 <= words.length <= 100",
+    "1 <= words[i].length <= 100",
+    "words[i] consists of lowercase English letters",
+    "All characters that appear in words are included in the result"
+  ],
+  "hints": [
+    "Compare each pair of adjacent words to find the first position where their letters differ — that gives you a directed edge 'this letter comes before that letter' in the alien alphabet.",
+    "Watch for the invalid case where a longer word appears before its own prefix (e.g. 'abc' before 'ab') — that can never happen in a valid lexicographic ordering, so return \"\" immediately if you see it.",
+    "Once you have all the edges, this becomes a topological sort (via Kahn's algorithm or DFS with cycle detection) over all unique letters seen in the input. If the topological sort can't include every letter, there's a cycle — return \"\"."
+  ],
+  "solution": {
+    "approach": "Initialize every unique letter appearing in any word as a node with no known edges. Walk through adjacent word pairs; for each pair, find the first index where the characters differ and add a directed edge from the earlier letter to the later letter (this defines a 'comes before' relationship). While scanning, if a word is a prefix of the previous word (previous word is longer but otherwise identical up to the shorter length), the ordering is invalid, so return \"\". Then run Kahn's algorithm (BFS topological sort using in-degrees): repeatedly remove nodes with in-degree 0, appending them to the result. If we can't process every node this way, there is a cycle, so return \"\"; otherwise the processed order is a valid alien alphabet.",
+    "code": "from collections import deque\n\n\ndef alien_order(words):\n    adjacency = {ch: set() for word in words for ch in word}\n    in_degree = {ch: 0 for ch in adjacency}\n\n    for first, second in zip(words, words[1:]):\n        min_len = min(len(first), len(second))\n        found_diff = False\n        for i in range(min_len):\n            if first[i] != second[i]:\n                if second[i] not in adjacency[first[i]]:\n                    adjacency[first[i]].add(second[i])\n                    in_degree[second[i]] += 1\n                found_diff = True\n                break\n        if not found_diff and len(first) > len(second):\n            return \"\"\n\n    queue = deque(sorted(ch for ch in in_degree if in_degree[ch] == 0))\n    order = []\n    while queue:\n        ch = queue.popleft()\n        order.append(ch)\n        for nxt in sorted(adjacency[ch]):\n            in_degree[nxt] -= 1\n            if in_degree[nxt] == 0:\n                queue.append(nxt)\n\n    if len(order) != len(adjacency):\n        return \"\"\n    return \"\".join(order)\n",
+    "timeComplexity": "O(C), C = total number of characters across all words",
+    "spaceComplexity": "O(1) extra beyond the alphabet (at most 26 letters)"
+  },
+  "starterCode": "from collections import deque\n\n\ndef alien_order(words):\n    # your code here\n    pass\n",
+  "functionName": "alien_order",
+  "testCases": [
+    {
+      "input": [
+        ["wrt", "wrf", "er", "ett", "rftt"]
+      ],
+      "expected": "wertf",
+      "isHidden": false
+    },
+    {
+      "input": [
+        ["z", "x", "z"]
+      ],
+      "expected": "",
+      "isHidden": false
+    },
+    {
+      "input": [
+        ["z", "x"]
+      ],
+      "expected": "zx",
+      "isHidden": false
+    },
+    {
+      "input": [
+        ["abc", "ab"]
+      ],
+      "expected": "",
+      "isHidden": true
+    },
+    {
+      "input": [
+        ["a", "b", "c"]
+      ],
+      "expected": "abc",
+      "isHidden": true
+    },
+    {
+      "input": [
+        ["ab", "adc"]
+      ],
+      "expected": "abcd",
+      "isHidden": true
+    }
+  ]
+}

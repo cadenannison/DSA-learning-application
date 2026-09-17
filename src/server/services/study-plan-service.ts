@@ -151,9 +151,17 @@ export class StudyPlanService {
     ])
 
     const patternsWithReadiness = patterns.map(withReadiness)
-    const recommendation = this.computeRecommendation(patternsWithReadiness, settings)
     const drillQueueSize = computeDrillQueueSize(settings.dailyTimeBudgetMinutes)
     const drillQueue = this.computeDrillQueue(patternsWithReadiness, drillQueueSize)
+    const drillQueueEstimatedMinutes = drillQueue.reduce(
+      (sum, entry) => sum + entry.estimatedMinutes,
+      0
+    )
+    const recommendation = this.computeRecommendation(
+      patternsWithReadiness,
+      settings,
+      drillQueueEstimatedMinutes
+    )
     const overallProgress = this.computeOverallProgress(tracks, patternsWithReadiness)
 
     return {
@@ -340,7 +348,8 @@ export class StudyPlanService {
    * short parallel track alongside it, since it's lower-effort and time-boxed separately. */
   private computeRecommendation(
     patterns: StudyPatternWithReadiness[],
-    settings: StudyPlanSettings
+    settings: StudyPlanSettings,
+    drillQueueEstimatedMinutes: number
   ): StudyRecommendation {
     const daysRemaining = this.computeDaysRemaining(settings.interviewDate)
 
@@ -364,6 +373,7 @@ export class StudyPlanService {
         daysRemaining,
         suggestedMinutesToday: settings.dailyTimeBudgetMinutes,
         oaPrepSuggestion,
+        drillQueueEstimatedMinutes,
       }
     }
 
@@ -387,6 +397,7 @@ export class StudyPlanService {
       daysRemaining,
       suggestedMinutesToday: settings.dailyTimeBudgetMinutes,
       oaPrepSuggestion,
+      drillQueueEstimatedMinutes,
     }
   }
 
@@ -412,6 +423,7 @@ export class StudyPlanService {
         likelihoodWeight: pattern.likelihoodWeight,
         readiness: pattern.readiness,
         dueAt: pattern.spacedRepetition.dueAt,
+        estimatedMinutes: DRILL_QUEUE_MINUTES_PER_ITEM,
       } satisfies DrillQueueEntry
     })
 

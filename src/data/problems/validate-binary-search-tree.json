@@ -1,0 +1,86 @@
+{
+  "id": "validate-binary-search-tree",
+  "title": "Validate Binary Search Tree",
+  "pattern": "trees",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Facebook",
+    "Bloomberg"
+  ],
+  "prompt": "Given the `root` of a binary tree, determine if it is a valid binary search tree (BST).\n\nA valid BST is defined as follows: the left subtree of a node contains only nodes with values strictly less than the node's value; the right subtree contains only nodes with values strictly greater than the node's value; and both the left and right subtrees must also be valid BSTs.\n\nThe tree is given as a level-order array where `null` marks a missing child (the standard LeetCode serialization). Your function receives this array directly; the starter code includes a helper that builds the tree from it, so you only need to implement the validation.",
+  "examples": [
+    {
+      "input": "root = [2,1,3]",
+      "output": "true",
+      "explanation": "1 < 2 < 3, so every node satisfies the BST property."
+    },
+    {
+      "input": "root = [5,1,4,null,null,3,6]",
+      "output": "false",
+      "explanation": "The node 4 is in 5's right subtree, but 4's own right child is 3, which is less than 4 and also less than the ancestor bound of 5 — specifically, 3 must be greater than 4 to be valid there, which it isn't."
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [1, 10^4]",
+    "-2^31 <= Node.val <= 2^31 - 1"
+  ],
+  "hints": [
+    "It's not enough to just compare a node with its immediate children — every node in a left subtree must be less than ALL of its ancestors up to the point where it became a left child, not just its direct parent.",
+    "Carry a valid (low, high) range down through the recursion. The root's range is unbounded; when recursing left, tighten the upper bound to the current node's value; when recursing right, tighten the lower bound.",
+    "A node is valid only if low < node.val < high. Return false immediately if this fails; otherwise recurse into both children with updated bounds."
+  ],
+  "solution": {
+    "approach": "Recursively validate each node against a running (low, high) bound inherited from its ancestors. The root has no bound. When moving into a left child, the upper bound tightens to the parent's value; when moving into a right child, the lower bound tightens to the parent's value. A node is valid only if it strictly falls within its inherited bound; the whole tree is valid only if every node passes this check.",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef is_valid_bst(root_arr):\n    root = build_tree(root_arr)\n\n    def valid(node, low, high):\n        if node is None:\n            return True\n        if not (low < node.val < high):\n            return False\n        return valid(node.left, low, node.val) and valid(node.right, node.val, high)\n\n    return valid(root, float('-inf'), float('inf'))\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(h), h = tree height"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef is_valid_bst(root_arr):\n    root = build_tree(root_arr)\n    # your code here\n    pass\n",
+  "functionName": "is_valid_bst",
+  "testCases": [
+    {
+      "input": [
+        [2, 1, 3]
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [5, 1, 4, null, null, 3, 6]
+      ],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [5, 4, 6, null, null, 3, 7]
+      ],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [10, 5, 15, null, null, 6, 20]
+      ],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [2147483647]
+      ],
+      "expected": true,
+      "isHidden": true
+    }
+  ]
+}

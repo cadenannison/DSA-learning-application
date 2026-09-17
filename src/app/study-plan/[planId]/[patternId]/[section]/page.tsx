@@ -104,6 +104,7 @@ function PatternSectionContainer({
     >
       <PatternSectionContent
         key={`${pattern.id}:${section}`}
+        planId={planId}
         pattern={pattern}
         section={section}
         presenter={presenter}

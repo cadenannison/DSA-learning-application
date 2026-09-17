@@ -1,0 +1,79 @@
+{
+  "id": "pacific-atlantic-water-flow",
+  "title": "Pacific Atlantic Water Flow",
+  "pattern": "graphs",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon",
+    "Facebook",
+    "Microsoft"
+  ],
+  "prompt": "There is an `m x n` rectangular island where `heights[r][c]` represents the height of the cell at row `r`, column `c`. The Pacific Ocean touches the island's left and top edges, and the Atlantic Ocean touches the island's right and bottom edges.\n\nWater can flow from a cell to an adjacent cell (up, down, left, or right) only if the adjacent cell's height is less than or equal to the current cell's height (water flows downhill or on flat ground). Return the list of coordinates `[row, col]` from which water can flow to both the Pacific and the Atlantic.\n\nSince test comparisons need a deterministic order, sort your returned list (by row, then by column) before returning it.",
+  "examples": [
+    {
+      "input": "heights = [[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,5],[5,1,1,2,4]]",
+      "output": "[[0,4],[1,3],[1,4],[2,2],[3,0],[3,1],[4,0]]",
+      "explanation": "Each listed cell can reach both oceans by following non-increasing height paths."
+    },
+    {
+      "input": "heights = [[1]]",
+      "output": "[[0,0]]",
+      "explanation": "The single cell touches both oceans trivially."
+    }
+  ],
+  "constraints": [
+    "1 <= m, n <= 200",
+    "0 <= heights[r][c] <= 10^5"
+  ],
+  "hints": [
+    "Instead of checking, for every cell, whether water can flow all the way out to each ocean (which is slow), work backwards: start from the ocean edges and flow 'uphill'.",
+    "Run a multi-source BFS/DFS from all Pacific-adjacent cells (top row and left column) moving to neighbors with height >= current height, marking every cell reachable this way as 'can reach Pacific'. Do the same from Atlantic-adjacent cells (bottom row and right column) for 'can reach Atlantic'.",
+    "The answer is every cell marked reachable in both searches. Remember to sort the final list of coordinates for a deterministic comparison."
+  ],
+  "solution": {
+    "approach": "Reverse the flow direction: instead of asking whether a cell can drain to each ocean, start multi-source BFS from cells adjacent to each ocean and expand to neighbors whose height is greater than or equal to the current cell (since water could have flowed from that neighbor down to here). This marks every cell that can actually reach that ocean. Run this once for the Pacific-adjacent border (top row + left column) and once for the Atlantic-adjacent border (bottom row + right column). The intersection of both reachable sets is the answer, sorted for determinism.",
+    "code": "def pacific_atlantic(heights):\n    if not heights or not heights[0]:\n        return []\n\n    rows, cols = len(heights), len(heights[0])\n\n    def bfs(starts):\n        visited = set(starts)\n        queue = list(starts)\n        while queue:\n            r, c = queue.pop(0)\n            for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                nr, nc = r + dr, c + dc\n                if 0 <= nr < rows and 0 <= nc < cols and (nr, nc) not in visited:\n                    if heights[nr][nc] >= heights[r][c]:\n                        visited.add((nr, nc))\n                        queue.append((nr, nc))\n        return visited\n\n    pacific_starts = [(0, c) for c in range(cols)] + [(r, 0) for r in range(rows)]\n    atlantic_starts = [(rows - 1, c) for c in range(cols)] + [(r, cols - 1) for r in range(rows)]\n\n    pacific_reachable = bfs(pacific_starts)\n    atlantic_reachable = bfs(atlantic_starts)\n\n    result = [list(cell) for cell in (pacific_reachable & atlantic_reachable)]\n    result.sort()\n    return result\n",
+    "timeComplexity": "O(m * n)",
+    "spaceComplexity": "O(m * n)"
+  },
+  "starterCode": "def pacific_atlantic(heights):\n    # your code here\n    pass\n",
+  "functionName": "pacific_atlantic",
+  "testCases": [
+    {
+      "input": [
+        [[1, 2, 2, 3, 5], [3, 2, 3, 4, 4], [2, 4, 5, 3, 1], [6, 7, 1, 4, 5], [5, 1, 1, 2, 4]]
+      ],
+      "expected": [[0, 4], [1, 3], [1, 4], [2, 2], [3, 0], [3, 1], [4, 0]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1]]
+      ],
+      "expected": [[0, 0]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1, 1], [1, 1]]
+      ],
+      "expected": [[0, 0], [0, 1], [1, 0], [1, 1]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[3, 3, 3], [3, 3, 3], [3, 3, 3]]
+      ],
+      "expected": [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[1, 2, 3], [8, 9, 4], [7, 6, 5]]
+      ],
+      "expected": [[0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]],
+      "isHidden": true
+    }
+  ]
+}

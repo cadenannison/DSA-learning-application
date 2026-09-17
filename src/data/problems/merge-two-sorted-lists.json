@@ -1,0 +1,96 @@
+{
+  "id": "merge-two-sorted-lists",
+  "title": "Merge Two Sorted Lists",
+  "pattern": "linked-list",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Apple",
+    "Adobe",
+    "Bloomberg"
+  ],
+  "prompt": "You are given the heads of two sorted singly linked lists, `list1` and `list2`, each sorted in non-decreasing order. Merge the two lists into a single sorted list by splicing together the existing nodes, and return the head of the merged list.\n\nEach list is given as an array (e.g. `[1,2,4]` represents `1 -> 2 -> 4 -> null`). The starter code includes helpers to convert between arrays and linked-list nodes — build the actual lists, merge them by manipulating `next` pointers, then convert the result back to an array to return.",
+  "examples": [
+    {
+      "input": "list1 = [1,2,4], list2 = [1,3,4]",
+      "output": "[1,1,2,3,4,4]"
+    },
+    {
+      "input": "list1 = [], list2 = []",
+      "output": "[]"
+    },
+    {
+      "input": "list1 = [], list2 = [0]",
+      "output": "[0]"
+    }
+  ],
+  "constraints": [
+    "The number of nodes in both lists is in the range [0, 50]",
+    "-100 <= Node.val <= 100",
+    "Both list1 and list2 are sorted in non-decreasing order"
+  ],
+  "hints": [
+    "Use a dummy head node to avoid special-casing which list contributes the first node of the result.",
+    "Walk both lists with two pointers, always attaching the smaller current node to the tail of the merged list.",
+    "Once one list is exhausted, the rest of the other list is already sorted — just attach it directly to the tail."
+  ],
+  "solution": {
+    "approach": "Use a dummy sentinel node to build the merged list. Maintain a tail pointer starting at the dummy. While both lists have nodes remaining, compare their heads and attach the smaller one to the tail, advancing that list's pointer and the tail. When one list runs out, attach the remainder of the other list directly, since it is already sorted. Return dummy.next.",
+    "code": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for val in arr:\n        node = ListNode(val)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef merge_two_lists(list1_arr, list2_arr):\n    l1 = arr_to_list(list1_arr)\n    l2 = arr_to_list(list2_arr)\n\n    dummy = ListNode(0)\n    tail = dummy\n    while l1 and l2:\n        if l1.val <= l2.val:\n            tail.next = l1\n            l1 = l1.next\n        else:\n            tail.next = l2\n            l2 = l2.next\n        tail = tail.next\n    tail.next = l1 if l1 else l2\n\n    return list_to_arr(dummy.next)\n",
+    "timeComplexity": "O(n + m)",
+    "spaceComplexity": "O(1) auxiliary (excluding the returned list)"
+  },
+  "starterCode": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for val in arr:\n        node = ListNode(val)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef merge_two_lists(list1_arr, list2_arr):\n    l1 = arr_to_list(list1_arr)\n    l2 = arr_to_list(list2_arr)\n    # your code here\n    pass\n",
+  "functionName": "merge_two_lists",
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 4],
+        [1, 3, 4]
+      ],
+      "expected": [1, 1, 2, 3, 4, 4],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [],
+        []
+      ],
+      "expected": [],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [],
+        [0]
+      ],
+      "expected": [0],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3],
+        []
+      ],
+      "expected": [1, 2, 3],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [5, 10, 15],
+        [1, 2, 3]
+      ],
+      "expected": [1, 2, 3, 5, 10, 15],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [-3, -1, 0],
+        [-2, -1, 4]
+      ],
+      "expected": [-3, -2, -1, -1, 0, 4],
+      "isHidden": true
+    }
+  ]
+}

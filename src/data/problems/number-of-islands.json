@@ -56,7 +56,8 @@
         ]
       ],
       "expected": 2,
-      "isHidden": false
+      "isHidden": false,
+      "name": "grid = [[\"1\",\"1\",\"0\"], ...]"
     },
     {
       "input": [
@@ -79,7 +80,8 @@
         ]
       ],
       "expected": 1,
-      "isHidden": false
+      "isHidden": false,
+      "name": "single connected island"
     },
     {
       "input": [
@@ -95,7 +97,8 @@
         ]
       ],
       "expected": 0,
-      "isHidden": true
+      "isHidden": true,
+      "name": "all water"
     },
     {
       "input": [
@@ -106,7 +109,8 @@
         ]
       ],
       "expected": 1,
-      "isHidden": true
+      "isHidden": true,
+      "name": "single-cell grid"
     },
     {
       "input": [
@@ -121,7 +125,8 @@
         ]
       ],
       "expected": 3,
-      "isHidden": true
+      "isHidden": true,
+      "name": "alternating single row"
     }
   ]
 }

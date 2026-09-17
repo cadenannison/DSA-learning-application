@@ -1,0 +1,93 @@
+{
+  "id": "merge-k-sorted-lists",
+  "title": "Merge K Sorted Lists",
+  "pattern": "linked-list",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon",
+    "Meta",
+    "Microsoft",
+    "Uber"
+  ],
+  "prompt": "You are given an array of `k` linked lists, each sorted in non-decreasing order. Merge all the lists into one sorted linked list and return its head.\n\nThe input is an array of arrays (e.g. `[[1,4,5],[1,3,4],[2,6]]` represents three lists `1 -> 4 -> 5`, `1 -> 3 -> 4`, and `2 -> 6`). The starter code includes helpers to convert between arrays and linked-list nodes — build the actual lists, merge them by manipulating `next` pointers (a min-heap over the current heads works well), then convert the result back to a single array to return.",
+  "examples": [
+    {
+      "input": "lists = [[1,4,5],[1,3,4],[2,6]]",
+      "output": "[1,1,2,3,4,4,5,6]",
+      "explanation": "Merging the three lists together in sorted order."
+    },
+    {
+      "input": "lists = []",
+      "output": "[]"
+    },
+    {
+      "input": "lists = [[]]",
+      "output": "[]"
+    }
+  ],
+  "constraints": [
+    "k == lists.length",
+    "0 <= k <= 10^4",
+    "0 <= lists[i].length <= 500",
+    "-10^4 <= lists[i][j] <= 10^4",
+    "Each lists[i] is sorted in non-decreasing order"
+  ],
+  "hints": [
+    "Merging two sorted lists at a time is easy — can you repeat that pairwise across all k lists?",
+    "A min-heap keyed on node value, storing (value, index, node) for each list's current head, lets you always pop the globally smallest node next.",
+    "Because Python's heapq compares tuples element by element and ListNode isn't comparable, include a unique tie-breaker (like the list index or a counter) in the heap tuple to avoid comparing nodes directly."
+  ],
+  "solution": {
+    "approach": "Convert each input array into a linked list. Push the head of every non-empty list onto a min-heap keyed by (value, unique tiebreaker, node). Repeatedly pop the smallest node, append it to the merged result, and if that node has a next, push it onto the heap. This yields the fully merged, sorted list in O(N log k) time where N is the total number of nodes and k is the number of lists.",
+    "code": "import heapq\n\n\nclass ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for val in arr:\n        node = ListNode(val)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef merge_k_lists(lists_arr):\n    heap = []\n    counter = 0\n    for arr in lists_arr:\n        node = arr_to_list(arr)\n        if node:\n            heapq.heappush(heap, (node.val, counter, node))\n            counter += 1\n\n    dummy = ListNode(0)\n    tail = dummy\n    while heap:\n        val, _, node = heapq.heappop(heap)\n        tail.next = node\n        tail = tail.next\n        if node.next:\n            heapq.heappush(heap, (node.next.val, counter, node.next))\n            counter += 1\n\n    return list_to_arr(dummy.next)\n",
+    "timeComplexity": "O(N log k), where N is total nodes and k is the number of lists",
+    "spaceComplexity": "O(k) for the heap (excluding the returned list)"
+  },
+  "starterCode": "import heapq\n\n\nclass ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for val in arr:\n        node = ListNode(val)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef merge_k_lists(lists_arr):\n    # your code here\n    pass\n",
+  "functionName": "merge_k_lists",
+  "testCases": [
+    {
+      "input": [
+        [[1, 4, 5], [1, 3, 4], [2, 6]]
+      ],
+      "expected": [1, 1, 2, 3, 4, 4, 5, 6],
+      "isHidden": false
+    },
+    {
+      "input": [
+        []
+      ],
+      "expected": [],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[]]
+      ],
+      "expected": [],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1, 2, 3]]
+      ],
+      "expected": [1, 2, 3],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[], [1]]
+      ],
+      "expected": [1],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[-2, -1, 0], [-3, 5], [], [2, 4, 6]]
+      ],
+      "expected": [-3, -2, -1, 0, 2, 4, 5, 6],
+      "isHidden": true
+    }
+  ]
+}

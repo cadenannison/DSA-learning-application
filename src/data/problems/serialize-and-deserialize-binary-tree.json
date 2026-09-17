@@ -1,0 +1,86 @@
+{
+  "id": "serialize-and-deserialize-binary-tree",
+  "title": "Serialize and Deserialize Binary Tree",
+  "pattern": "trees",
+  "difficulty": "hard",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Microsoft",
+    "Facebook"
+  ],
+  "prompt": "Design an algorithm to serialize a binary tree into a string and deserialize that string back into the original tree structure. Your serialization format can be anything you like, as long as a tree can be reconstructed from it without ambiguity.\n\nSince this is a coding exercise rather than an interactive class-based design, the function is adapted to be self-contained and testable: it receives the tree as a level-order array (`null` for missing children, the standard LeetCode serialization), builds the tree with the provided helper, serializes it to a string with your own format, immediately deserializes that string back into a tree, and returns the round-tripped tree as a level-order array again (using the provided `tree_to_level_order` helper). If your serialize/deserialize pair is correct, the output should exactly match the original input array (after trimming trailing nulls).",
+  "examples": [
+    {
+      "input": "root = [1,2,3,null,null,4,5]",
+      "output": "[1,2,3,null,null,4,5]",
+      "explanation": "Serializing then deserializing reproduces the exact same tree structure and values."
+    },
+    {
+      "input": "root = []",
+      "output": "[]",
+      "explanation": "An empty tree serializes and deserializes back to an empty tree."
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [0, 10^4]",
+    "-1000 <= Node.val <= 1000"
+  ],
+  "hints": [
+    "A pre-order traversal that explicitly records null markers for missing children contains enough information to rebuild the tree unambiguously.",
+    "For serialization, do a pre-order DFS, appending each node's value to a list (as a string), and appending a sentinel like '#' whenever you hit a None child. Join with commas.",
+    "For deserialization, split the string back into tokens and consume them in order with a pointer or iterator, rebuilding the tree recursively: read a token, if it's '#' return None, otherwise create a node and recursively build its left and right children from the remaining tokens."
+  ],
+  "solution": {
+    "approach": "Serialize with a pre-order DFS: emit each node's value, and emit a '#' sentinel for every None child, joined by commas. This is unambiguous because pre-order plus explicit null markers fully determines the tree shape. Deserialize by splitting the string into tokens and consuming them left-to-right with an iterator: a '#' token means None, otherwise create a node and recursively fill its left then right subtree from the remaining tokens.",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef tree_to_level_order(root):\n    if root is None:\n        return []\n    result = []\n    queue = [root]\n    while queue:\n        node = queue.pop(0)\n        if node is None:\n            result.append(None)\n            continue\n        result.append(node.val)\n        queue.append(node.left)\n        queue.append(node.right)\n    while result and result[-1] is None:\n        result.pop()\n    return result\n\n\ndef serialize(root):\n    values = []\n\n    def dfs(node):\n        if node is None:\n            values.append('#')\n            return\n        values.append(str(node.val))\n        dfs(node.left)\n        dfs(node.right)\n\n    dfs(root)\n    return ','.join(values)\n\n\ndef deserialize(data):\n    tokens = iter(data.split(','))\n\n    def build():\n        val = next(tokens)\n        if val == '#':\n            return None\n        node = TreeNode(int(val))\n        node.left = build()\n        node.right = build()\n        return node\n\n    return build()\n\n\ndef serialize_deserialize(root_arr):\n    root = build_tree(root_arr)\n    data = serialize(root)\n    rebuilt = deserialize(data)\n    return tree_to_level_order(rebuilt)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef tree_to_level_order(root):\n    if root is None:\n        return []\n    result = []\n    queue = [root]\n    while queue:\n        node = queue.pop(0)\n        if node is None:\n            result.append(None)\n            continue\n        result.append(node.val)\n        queue.append(node.left)\n        queue.append(node.right)\n    while result and result[-1] is None:\n        result.pop()\n    return result\n\n\ndef serialize_deserialize(root_arr):\n    root = build_tree(root_arr)\n    # your code here\n    # 1. Serialize `root` into a string using any format you like.\n    # 2. Deserialize that string back into a tree.\n    # 3. Return tree_to_level_order(...) of the rebuilt tree.\n    pass\n",
+  "functionName": "serialize_deserialize",
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 3, null, null, 4, 5]
+      ],
+      "expected": [1, 2, 3, null, null, 4, 5],
+      "isHidden": false
+    },
+    {
+      "input": [
+        []
+      ],
+      "expected": [],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": [1],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2]
+      ],
+      "expected": [1, 2],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [5, 4, 7, 3, null, 2, null, -1, null, 9]
+      ],
+      "expected": [5, 4, 7, 3, null, 2, null, -1, null, 9],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, null, 2, null, 3, null, 4]
+      ],
+      "expected": [1, null, 2, null, 3, null, 4],
+      "isHidden": true
+    }
+  ]
+}

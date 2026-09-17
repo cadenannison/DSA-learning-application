@@ -1,6 +1,7 @@
 "use client"
 
 import CodeMirror, { EditorView } from "@uiw/react-codemirror"
+import { indentUnit } from "@codemirror/language"
 import { python } from "@codemirror/lang-python"
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language"
 import { tags } from "@lezer/highlight"
@@ -11,39 +12,44 @@ interface CodeEditorProps {
   height?: string
 }
 
-const editorTheme = EditorView.theme(
-  {
-    "&": {
-      backgroundColor: "var(--surface-2)",
-      color: "var(--text-1)",
-      fontSize: "12.5px",
-    },
-    ".cm-content": {
-      fontFamily: "var(--font-plex-mono), monospace",
-      lineHeight: "22px",
-      caretColor: "var(--text-1)",
-    },
-    ".cm-gutters": {
-      backgroundColor: "var(--surface-2)",
-      color: "var(--text-3)",
-      border: "none",
-    },
-    ".cm-activeLine": {
-      backgroundColor: "var(--accent-soft)",
-    },
-    ".cm-activeLineGutter": {
-      backgroundColor: "var(--accent-soft)",
-      color: "var(--text-2)",
-    },
-    "&.cm-focused": {
-      outline: "none",
-    },
-    ".cm-selectionBackground, &.cm-focused .cm-selectionBackground": {
-      backgroundColor: "var(--surface)",
-    },
+const PYTHON_INDENT = "    "
+
+const editorTheme = EditorView.theme({
+  "&": {
+    backgroundColor: "var(--surface-2)",
+    color: "var(--text-1)",
+    fontSize: "12.5px",
   },
-  { dark: true }
-)
+  ".cm-content": {
+    fontFamily: "var(--font-plex-mono), monospace",
+    lineHeight: "22px",
+    caretColor: "var(--text-1)",
+  },
+  ".cm-cursor, .cm-cursor-primary": {
+    borderLeft: "1.5px solid var(--text-1)",
+  },
+  ".cm-gutters": {
+    backgroundColor: "var(--surface-2)",
+    color: "var(--text-3)",
+    border: "none",
+  },
+  ".cm-activeLine": {
+    backgroundColor: "var(--accent-soft)",
+  },
+  ".cm-activeLineGutter": {
+    backgroundColor: "var(--accent-soft)",
+    color: "var(--text-2)",
+  },
+  "&.cm-focused": {
+    outline: "none",
+  },
+  "&.cm-focused .cm-cursor": {
+    borderLeftColor: "var(--text-1)",
+  },
+  ".cm-selectionBackground, &.cm-focused .cm-selectionBackground": {
+    backgroundColor: "var(--surface)",
+  },
+})
 
 // Muted, high-contrast token colors tuned for the dark surface — deliberately
 // restrained (no rainbow) per the design system's "close to a real editor" rule.
@@ -72,9 +78,10 @@ export function CodeEditor({ value, onChange, height = "400px" }: CodeEditorProp
       value={value}
       height={height}
       theme="none"
-      extensions={[python(), editorTheme, syntaxTheme]}
+      extensions={[python(), indentUnit.of(PYTHON_INDENT), editorTheme, syntaxTheme]}
       onChange={onChange}
-      basicSetup={{ tabSize: 2, syntaxHighlighting: false }}
+      basicSetup={{ tabSize: 4, syntaxHighlighting: false }}
+      indentWithTab
       className="overflow-hidden rounded-card border border-border text-[12.5px]"
     />
   )

@@ -1,0 +1,91 @@
+{
+  "id": "house-robber-ii",
+  "title": "House Robber II",
+  "pattern": "dynamic-programming",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Microsoft",
+    "Adobe"
+  ],
+  "prompt": "This is an extension of the classic house robber problem: the houses are now arranged in a circle, meaning the first house and the last house are adjacent to each other. Given `nums` where `nums[i]` is the money at house i, return the maximum amount you can rob without robbing two adjacent houses (remembering that house 0 and house n-1 count as adjacent).",
+  "examples": [
+    {
+      "input": "nums = [2,3,2]",
+      "output": "3",
+      "explanation": "Robbing house 0 and house 2 is not allowed since they're adjacent in the circle, so the best is robbing just house 1 (money = 3)."
+    },
+    {
+      "input": "nums = [1,2,3,1]",
+      "output": "4",
+      "explanation": "Rob house 0 (1) and house 2 (3): total = 4. They aren't adjacent since house 3 sits between house 2 and house 0 in the circle."
+    },
+    {
+      "input": "nums = [1,2,3]",
+      "output": "3",
+      "explanation": "All three houses are mutually adjacent in a circle of 3, so you can rob at most one; the best single house is 3."
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 100",
+    "0 <= nums[i] <= 1000"
+  ],
+  "hints": [
+    "The circular constraint only really matters for the pairing of house 0 and house n-1. If you could ignore the circle, this would be the standard linear house robber problem.",
+    "Split into two cases: either house 0 is never robbed (consider houses 1..n-1 as a line), or house n-1 is never robbed (consider houses 0..n-2 as a line). At least one of these two cases must reflect the true optimum, since you can never legally rob both endpoints.",
+    "Run the standard linear house-robber DP (O(1) space, two rolling variables) on each of the two sub-arrays, and return the max of the two results. Handle the n=1 edge case separately since there's no 'exclude one end' array left."
+  ],
+  "solution": {
+    "approach": "Because houses 0 and n-1 are adjacent in the circle, any valid selection either excludes house 0 or excludes house n-1 (it can never include both). So compute the standard linear house-robber result on nums[0:n-1] (excluding the last house) and on nums[1:n] (excluding the first house), and return the max of the two. Use the O(1)-space rolling-variable version of linear house robber as a helper. Special-case n == 1 since slicing would otherwise produce an empty array for one of the two cases.",
+    "code": "def rob_ii(nums):\n    def rob_line(houses):\n        prev2, prev1 = 0, 0\n        for value in houses:\n            current = max(prev1, prev2 + value)\n            prev2 = prev1\n            prev1 = current\n        return prev1\n\n    n = len(nums)\n    if n == 1:\n        return nums[0]\n\n    return max(rob_line(nums[:-1]), rob_line(nums[1:]))\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def rob_ii(nums):\n    # your code here\n    pass\n",
+  "functionName": "rob_ii",
+  "testCases": [
+    {
+      "input": [
+        [2, 3, 2]
+      ],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3, 1]
+      ],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3]
+      ],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [5]
+      ],
+      "expected": 5,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 3, 1, 3, 100]
+      ],
+      "expected": 103,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [0, 0]
+      ],
+      "expected": 0,
+      "isHidden": true
+    }
+  ]
+}

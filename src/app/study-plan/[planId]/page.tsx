@@ -137,7 +137,11 @@ function TodayContent({
         <StatCard label="Problem Mix" value={problemMix || "—"} />
       </div>
 
-      <DrillQueueCard queue={overview.drillQueue} planId={planId} />
+      <DrillQueueCard
+        queue={overview.drillQueue}
+        planId={planId}
+        dailyTimeBudgetMinutes={overview.settings.dailyTimeBudgetMinutes}
+      />
     </PageShell>
   )
 }
@@ -169,7 +173,15 @@ function PlanNav({ planId, active }: { planId: string; active: "today" | "board"
   )
 }
 
-function DrillQueueCard({ queue, planId }: { queue: DrillQueueEntry[]; planId: string }) {
+function DrillQueueCard({
+  queue,
+  planId,
+  dailyTimeBudgetMinutes,
+}: {
+  queue: DrillQueueEntry[]
+  planId: string
+  dailyTimeBudgetMinutes: number
+}) {
   if (queue.length === 0) {
     return (
       <p className="text-sm text-text-2">
@@ -178,18 +190,29 @@ function DrillQueueCard({ queue, planId }: { queue: DrillQueueEntry[]; planId: s
     )
   }
 
+  const totalEstimatedMinutes = queue.reduce((sum, entry) => sum + entry.estimatedMinutes, 0)
+  const overBudget = totalEstimatedMinutes > dailyTimeBudgetMinutes
+
   return (
-    <div className="overflow-hidden rounded-card border border-border bg-surface">
-      {queue.map((entry, index) => (
-        <RowListItem
-          key={entry.studyPatternId}
-          href={`/study-plan/${planId}/${entry.studyPatternId}/${defaultSectionForId()}`}
-          rank={index + 1}
-          title={entry.studyPatternName}
-          subtitle={`${Math.round(entry.likelihoodWeight * 100)}% likely to appear`}
-          trailing={<StatusPill label={DRILL_REASON_LABELS[entry.reason]} tone={DRILL_REASON_TONES[entry.reason]} />}
-        />
-      ))}
+    <div>
+      <div className="mb-2 flex items-center justify-between text-xs text-text-2">
+        <span>Today&apos;s drill queue</span>
+        <span className={`font-mono ${overBudget ? "text-warning" : "text-text-2"}`}>
+          est. {totalEstimatedMinutes} / {dailyTimeBudgetMinutes} min
+        </span>
+      </div>
+      <div className="overflow-hidden rounded-card border border-border bg-surface">
+        {queue.map((entry, index) => (
+          <RowListItem
+            key={entry.studyPatternId}
+            href={`/study-plan/${planId}/${entry.studyPatternId}/${defaultSectionForId()}`}
+            rank={index + 1}
+            title={entry.studyPatternName}
+            subtitle={`${Math.round(entry.likelihoodWeight * 100)}% likely to appear · est. ${entry.estimatedMinutes} min`}
+            trailing={<StatusPill label={DRILL_REASON_LABELS[entry.reason]} tone={DRILL_REASON_TONES[entry.reason]} />}
+          />
+        ))}
+      </div>
     </div>
   )
 }

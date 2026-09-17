@@ -1,0 +1,99 @@
+{
+  "id": "longest-increasing-subsequence",
+  "title": "Longest Increasing Subsequence",
+  "pattern": "dynamic-programming",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Microsoft",
+    "Amazon",
+    "Adobe",
+    "Bloomberg"
+  ],
+  "prompt": "Given an integer array `nums`, return the length of the longest strictly increasing subsequence. A subsequence is derived from the array by deleting zero or more elements without changing the relative order of the remaining elements; the remaining elements do not need to be contiguous.",
+  "examples": [
+    {
+      "input": "nums = [10,9,2,5,3,7,101,18]",
+      "output": "4",
+      "explanation": "The longest increasing subsequence is [2,3,7,101] (or [2,3,7,18]), with length 4."
+    },
+    {
+      "input": "nums = [0,1,0,3,2,3]",
+      "output": "4",
+      "explanation": "The longest increasing subsequence is [0,1,2,3]."
+    },
+    {
+      "input": "nums = [7,7,7,7]",
+      "output": "1",
+      "explanation": "All elements are equal, and the sequence must be strictly increasing, so the best is any single element."
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 2500",
+    "-10^4 <= nums[i] <= 10^4"
+  ],
+  "hints": [
+    "For each index i, consider: what is the longest increasing subsequence that ENDS exactly at i?",
+    "Define dp[i] = length of the longest increasing subsequence ending at index i. dp[i] = 1 + max(dp[j] for all j < i where nums[j] < nums[i]), or just 1 if no such j exists.",
+    "This naive approach is O(n^2), which is plenty for the given constraints. For a further challenge, an O(n log n) approach maintains a list of 'smallest tail values' for increasing subsequences of each length, using binary search to place each new value."
+  ],
+  "solution": {
+    "approach": "Use dynamic programming where dp[i] represents the length of the longest strictly increasing subsequence that ends at index i. Initialize every dp[i] to 1 (a single element is always a valid subsequence of length 1). For each i, look back at every j < i: if nums[j] < nums[i], then nums[i] could extend the subsequence ending at j, so dp[i] = max(dp[i], dp[j] + 1). The answer is the maximum value in dp.",
+    "code": "def length_of_lis(nums):\n    n = len(nums)\n    dp = [1] * n\n\n    for i in range(n):\n        for j in range(i):\n            if nums[j] < nums[i]:\n                dp[i] = max(dp[i], dp[j] + 1)\n\n    return max(dp) if dp else 0\n",
+    "timeComplexity": "O(n^2)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def length_of_lis(nums):\n    # your code here\n    pass\n",
+  "functionName": "length_of_lis",
+  "testCases": [
+    {
+      "input": [
+        [10, 9, 2, 5, 3, 7, 101, 18]
+      ],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0, 1, 0, 3, 2, 3]
+      ],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [7, 7, 7, 7]
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3, 4, 5]
+      ],
+      "expected": 5,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [5, 4, 3, 2, 1]
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [4]
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 3, 6, 7, 9, 4, 10, 5, 6]
+      ],
+      "expected": 6,
+      "isHidden": true
+    }
+  ]
+}

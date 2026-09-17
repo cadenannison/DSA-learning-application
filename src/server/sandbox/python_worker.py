@@ -54,6 +54,7 @@ def run_one(namespace, function_name, test_case, out_buffer):
             "isHidden": test_case["isHidden"],
             "stdout": out_buffer.getvalue(),
             "errorMessage": None,
+            "name": test_case.get("name"),
         }
     except Exception as exc:  # noqa: BLE001 - submission code, any exception is a runtime_error
         return {
@@ -64,22 +65,26 @@ def run_one(namespace, function_name, test_case, out_buffer):
             "isHidden": test_case["isHidden"],
             "stdout": out_buffer.getvalue(),
             "errorMessage": error_message(exc),
+            "name": test_case.get("name"),
         }
 
 
 def compile_error_result(test_cases, message):
-    result = {
-        "status": "runtime_error",
-        "input": [],
-        "expected": None,
-        "actual": None,
-        "isHidden": False,
-        "stdout": "",
-        "errorMessage": message,
-    }
     return {
         "allPassed": False,
-        "results": [result for _ in test_cases],
+        "results": [
+            {
+                "status": "runtime_error",
+                "input": [],
+                "expected": None,
+                "actual": None,
+                "isHidden": False,
+                "stdout": "",
+                "errorMessage": message,
+                "name": test_case.get("name"),
+            }
+            for test_case in test_cases
+        ],
         "runtimeMs": 0,
     }
 

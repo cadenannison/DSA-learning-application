@@ -1,0 +1,92 @@
+{
+  "id": "same-tree",
+  "title": "Same Tree",
+  "pattern": "trees",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Bloomberg",
+    "Microsoft",
+    "Google"
+  ],
+  "prompt": "Given the roots of two binary trees `p` and `q`, return `true` if the trees are structurally identical and every corresponding node holds the same value, or `false` otherwise.\n\nEach tree is given as a level-order array where `null` marks a missing child (the standard LeetCode serialization). Your function receives both arrays directly; the starter code includes a helper that builds a tree from an array, so you only need to implement the comparison.",
+  "examples": [
+    {
+      "input": "p = [1,2,3], q = [1,2,3]",
+      "output": "true",
+      "explanation": "Both trees have the same shape and matching values at every node."
+    },
+    {
+      "input": "p = [1,2], q = [1,null,2]",
+      "output": "false",
+      "explanation": "The single child is on the left in p but on the right in q, so the shapes differ."
+    }
+  ],
+  "constraints": [
+    "The number of nodes in both trees is in the range [0, 100]",
+    "-10^4 <= Node.val <= 10^4"
+  ],
+  "hints": [
+    "Two trees are the same if their roots match and their left subtrees match and their right subtrees match.",
+    "Handle the base cases first: two null nodes are the same, one null and one non-null are not.",
+    "Recurse: return p.val == q.val and isSameTree(p.left, q.left) and isSameTree(p.right, q.right)."
+  ],
+  "solution": {
+    "approach": "Build both trees from their level-order arrays, then recursively compare. If both nodes are None, they match. If exactly one is None, they don't. Otherwise compare the values and recurse on both left and right children.",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef is_same_tree(p_arr, q_arr):\n    p = build_tree(p_arr)\n    q = build_tree(q_arr)\n\n    def same(a, b):\n        if a is None and b is None:\n            return True\n        if a is None or b is None:\n            return False\n        return a.val == b.val and same(a.left, b.left) and same(a.right, b.right)\n\n    return same(p, q)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(h), h = tree height"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef is_same_tree(p_arr, q_arr):\n    p = build_tree(p_arr)\n    q = build_tree(q_arr)\n    # your code here\n    pass\n",
+  "functionName": "is_same_tree",
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 3],
+        [1, 2, 3]
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2],
+        [1, null, 2]
+      ],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 1],
+        [1, 1, 2]
+      ],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [],
+        []
+      ],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1],
+        []
+      ],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3, 4, 5],
+        [1, 2, 3, 4, 5]
+      ],
+      "expected": true,
+      "isHidden": true
+    }
+  ]
+}

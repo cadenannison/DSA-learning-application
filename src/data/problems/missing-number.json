@@ -1,0 +1,92 @@
+{
+  "id": "missing-number",
+  "title": "Missing Number",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Apple",
+    "Bloomberg"
+  ],
+  "prompt": "Given an array `nums` containing `n` distinct numbers in the range `[0, n]`, return the one number in that range that is missing from the array.",
+  "examples": [
+    {
+      "input": "nums = [3,0,1]",
+      "output": "2",
+      "explanation": "n = 3, so the range is [0,3]. All numbers are in [0,3] except 2."
+    },
+    {
+      "input": "nums = [0,1]",
+      "output": "2",
+      "explanation": "n = 2, so the range is [0,2]. 2 is missing."
+    },
+    {
+      "input": "nums = [9,6,4,2,3,5,7,0,1]",
+      "output": "8"
+    }
+  ],
+  "constraints": [
+    "n == nums.length",
+    "1 <= n <= 10^4",
+    "0 <= nums[i] <= n",
+    "All the numbers in nums are unique"
+  ],
+  "hints": [
+    "You could sort and scan for the gap, but is there a way to avoid sorting?",
+    "The numbers 0 through n have a known sum — what happens if you subtract the actual array's sum from it?",
+    "expected_sum = n * (n + 1) / 2. The missing number is expected_sum minus the sum of nums. Alternatively, XOR all indices 0..n with all values in nums — every present pair cancels out, leaving the missing number."
+  ],
+  "solution": {
+    "approach": "The numbers 0 through n would sum to n * (n + 1) / 2 if none were missing. Compute that expected sum, subtract the actual sum of the given array, and the difference is exactly the missing number, since every other value cancels out. This avoids sorting and runs in a single O(n) pass with O(1) extra space.",
+    "code": "def missing_number(nums):\n    n = len(nums)\n    expected = n * (n + 1) // 2\n    return expected - sum(nums)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def missing_number(nums):\n    # your code here\n    pass\n",
+  "functionName": "missing_number",
+  "testCases": [
+    {
+      "input": [
+        [3, 0, 1]
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0, 1]
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [9, 6, 4, 2, 3, 5, 7, 0, 1]
+      ],
+      "expected": 8,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0]
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [2, 0]
+      ],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

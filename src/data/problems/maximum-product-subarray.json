@@ -1,0 +1,100 @@
+{
+  "id": "maximum-product-subarray",
+  "title": "Maximum Product Subarray",
+  "pattern": "dynamic-programming",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Meta",
+    "Microsoft",
+    "LinkedIn",
+    "ByteDance"
+  ],
+  "prompt": "Given an integer array `nums`, find a contiguous, non-empty subarray that has the largest product, and return that product.",
+  "examples": [
+    {
+      "input": "nums = [2,3,-2,4]",
+      "output": "6",
+      "explanation": "The subarray [2,3] has the largest product, 6."
+    },
+    {
+      "input": "nums = [-2,0,-1]",
+      "output": "0",
+      "explanation": "The result cannot be 2, because [-2,-1] is not a contiguous subarray. Any subarray containing 0 is not helpful, so the best is [0] with product 0."
+    },
+    {
+      "input": "nums = [-2,3,-4]",
+      "output": "24",
+      "explanation": "The whole array [-2,3,-4] multiplies to 24, since two negatives cancel out."
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 2 * 10^4",
+    "-10 <= nums[i] <= 10",
+    "The product of any subarray fits in a 32-bit integer"
+  ],
+  "hints": [
+    "Unlike max subarray sum, a negative number can flip a very small (negative) product into the largest positive one.",
+    "Track both the maximum AND minimum product ending at each index — a large negative number times a new negative number can become the new maximum.",
+    "At each step, compute candidates using the current number times the previous max, times the previous min, and the number alone; the new max and min are the largest and smallest of those candidates."
+  ],
+  "solution": {
+    "approach": "Because multiplying by a negative number swaps the roles of largest and smallest, track both the maximum and minimum product ending at the current index. At each element, compute the three candidates (num alone, num * previous max, num * previous min), and update curMax and curMin to the max and min of those candidates respectively. Keep a running best of all curMax values seen. This handles sign flips correctly in a single O(n) pass.",
+    "code": "def max_product(nums):\n    result = nums[0]\n    cur_max = nums[0]\n    cur_min = nums[0]\n\n    for num in nums[1:]:\n        candidates = (num, cur_max * num, cur_min * num)\n        cur_max = max(candidates)\n        cur_min = min(candidates)\n        result = max(result, cur_max)\n\n    return result\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def max_product(nums):\n    # your code here\n    pass\n",
+  "functionName": "max_product",
+  "testCases": [
+    {
+      "input": [
+        [2, 3, -2, 4]
+      ],
+      "expected": 6,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [-2, 0, -1]
+      ],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [-2, 3, -4]
+      ],
+      "expected": 24,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [5]
+      ],
+      "expected": 5,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [-2, -3, -4]
+      ],
+      "expected": 12,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [0, 2]
+      ],
+      "expected": 2,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [-1, -2, -9, -6]
+      ],
+      "expected": 108,
+      "isHidden": true
+    }
+  ]
+}

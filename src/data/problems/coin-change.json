@@ -1,0 +1,106 @@
+{
+  "id": "coin-change",
+  "title": "Coin Change",
+  "pattern": "dynamic-programming",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Microsoft",
+    "Bloomberg",
+    "Uber"
+  ],
+  "prompt": "You are given an array of integers `coins` representing coin denominations and an integer `amount` representing a target sum. Return the fewest number of coins needed to make up `amount` using any number of coins of each denomination (unlimited supply). If it's impossible to make that amount exactly, return -1.",
+  "examples": [
+    {
+      "input": "coins = [1,2,5], amount = 11",
+      "output": "3",
+      "explanation": "11 = 5 + 5 + 1, using 3 coins."
+    },
+    {
+      "input": "coins = [2], amount = 3",
+      "output": "-1",
+      "explanation": "No combination of 2s ever sums to an odd number like 3."
+    },
+    {
+      "input": "coins = [1], amount = 0",
+      "output": "0"
+    }
+  ],
+  "constraints": [
+    "1 <= coins.length <= 12",
+    "1 <= coins[i] <= 2^31 - 1",
+    "0 <= amount <= 10^4"
+  ],
+  "hints": [
+    "Think of it as building up every amount from 0 to the target: what's the minimum coins needed for each smaller amount along the way?",
+    "Define dp[a] = fewest coins to make amount a. For each amount, try every coin: dp[a] = min(dp[a], dp[a - coin] + 1) if a - coin >= 0 and dp[a - coin] is reachable.",
+    "Initialize dp[0] = 0 and everything else to infinity (unreachable). At the end, if dp[amount] is still infinity, return -1."
+  ],
+  "solution": {
+    "approach": "Bottom-up DP over amounts 0..amount. dp[a] holds the minimum number of coins that sum exactly to a, with dp[0] = 0 as the base case (zero coins needed to make zero). For every amount a from 1 to target, try each coin denomination c <= a: if dp[a - c] is reachable, dp[a] can potentially be dp[a - c] + 1. Take the minimum over all coins. After filling the table, dp[amount] is the answer, or -1 if it never got updated from infinity.",
+    "code": "def coin_change(coins, amount):\n    INF = float('inf')\n    dp = [0] + [INF] * amount\n\n    for a in range(1, amount + 1):\n        for c in coins:\n            if c <= a and dp[a - c] + 1 < dp[a]:\n                dp[a] = dp[a - c] + 1\n\n    return dp[amount] if dp[amount] != INF else -1\n",
+    "timeComplexity": "O(amount * len(coins))",
+    "spaceComplexity": "O(amount)"
+  },
+  "starterCode": "def coin_change(coins, amount):\n    # your code here\n    pass\n",
+  "functionName": "coin_change",
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 5],
+        11
+      ],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [2],
+        3
+      ],
+      "expected": -1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1],
+        0
+      ],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 5],
+        100
+      ],
+      "expected": 20,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [186, 419, 83, 408],
+        6249
+      ],
+      "expected": 20,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1],
+        1
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [3, 7],
+        5
+      ],
+      "expected": -1,
+      "isHidden": true
+    }
+  ]
+}

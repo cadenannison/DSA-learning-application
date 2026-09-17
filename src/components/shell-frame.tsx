@@ -13,6 +13,7 @@ const WORKBENCH_PATTERNS: RegExp[] = [
   /^\/problems\/[^/]+$/,
   /^\/oa\/session\/[^/]+$/,
   /^\/study-plan\/[^/]+\/[^/]+\/[^/]+$/,
+  /^\/study-plan\/[^/]+\/[^/]+\/problem\/[^/]+$/,
 ]
 
 function isWorkbenchRoute(pathname: string): boolean {

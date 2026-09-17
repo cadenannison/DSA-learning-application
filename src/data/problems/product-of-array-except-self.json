@@ -1,0 +1,88 @@
+{
+  "id": "product-of-array-except-self",
+  "title": "Product of Array Except Self",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Meta",
+    "Microsoft",
+    "Apple",
+    "Uber"
+  ],
+  "prompt": "Given an integer array `nums`, return an array `answer` such that `answer[i]` equals the product of all elements of `nums` except `nums[i]`. You must write an algorithm that runs in `O(n)` time without using the division operator.",
+  "examples": [
+    {
+      "input": "nums = [1,2,3,4]",
+      "output": "[24,12,8,6]",
+      "explanation": "answer[0] = 2*3*4 = 24, answer[1] = 1*3*4 = 12, answer[2] = 1*2*4 = 8, answer[3] = 1*2*3 = 6"
+    },
+    {
+      "input": "nums = [-1,1,0,-3,3]",
+      "output": "[0,0,9,0,0]",
+      "explanation": "Because there's a single zero, every position except the zero's own index multiplies to 0."
+    }
+  ],
+  "constraints": [
+    "2 <= nums.length <= 10^5",
+    "-30 <= nums[i] <= 30",
+    "The product of any prefix or suffix of nums fits in a 32-bit integer"
+  ],
+  "hints": [
+    "Division would be easy (total product / nums[i]), but it's disallowed and breaks on zeros anyway.",
+    "answer[i] is the product of everything to the left of i times everything to the right of i. Can you precompute both sides?",
+    "Build a prefix-products array left-to-right, then multiply in suffix products right-to-left in a second pass, keeping a running suffix product instead of a whole second array to hit O(1) extra space (excluding the output)."
+  ],
+  "solution": {
+    "approach": "Compute a prefix product array where prefix[i] holds the product of all elements to the left of i (prefix[0] = 1). Then walk from the right, maintaining a running suffix product, and multiply it into prefix[i] as we go. The result is that each index ends up holding the product of everything except itself, all without division and in O(n) time with O(1) extra space beyond the output array.",
+    "code": "def product_except_self(nums):\n    n = len(nums)\n    answer = [1] * n\n\n    prefix = 1\n    for i in range(n):\n        answer[i] = prefix\n        prefix *= nums[i]\n\n    suffix = 1\n    for i in range(n - 1, -1, -1):\n        answer[i] *= suffix\n        suffix *= nums[i]\n\n    return answer\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1) excluding the output array"
+  },
+  "starterCode": "def product_except_self(nums):\n    # your code here\n    pass\n",
+  "functionName": "product_except_self",
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 3, 4]
+      ],
+      "expected": [24, 12, 8, 6],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [-1, 1, 0, -3, 3]
+      ],
+      "expected": [0, 0, 9, 0, 0],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [2, 3]
+      ],
+      "expected": [3, 2],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0, 0]
+      ],
+      "expected": [0, 0],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 1, 1, 1]
+      ],
+      "expected": [1, 1, 1, 1],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [-1, -2, -3, -4]
+      ],
+      "expected": [-24, -12, -8, -6],
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "id": "combination-sum",
+  "title": "Combination Sum",
+  "pattern": "backtracking",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Facebook",
+    "Uber",
+    "Snapchat",
+    "Airbnb"
+  ],
+  "prompt": "Given an array of distinct integers `candidates` and a target integer `target`, return all unique combinations of `candidates` where the chosen numbers sum to `target`. The same number may be chosen from `candidates` an unlimited number of times. Two combinations are unique if the multiset of numbers chosen differs.\n\nFor deterministic comparison, sort each inner combination in ascending order, and sort the outer list of combinations lexicographically.",
+  "examples": [
+    {
+      "input": "candidates = [2,3,6,7], target = 7",
+      "output": "[[2,2,3],[7]]",
+      "explanation": "2+2+3=7 and 7=7 are the only combinations (using each candidate an unlimited number of times)."
+    },
+    {
+      "input": "candidates = [2,3,5], target = 8",
+      "output": "[[2,2,2,2],[2,3,3],[3,5]]"
+    }
+  ],
+  "constraints": [
+    "1 <= candidates.length <= 30",
+    "2 <= candidates[i] <= 40",
+    "All elements of candidates are distinct",
+    "1 <= target <= 40"
+  ],
+  "hints": [
+    "Since numbers can repeat, when you choose candidates[i], you can choose it again — so the recursive call should still allow index i, not just i+1.",
+    "To avoid generating the same combination in different orders (e.g. [2,3,2] vs [2,2,3]), only ever move forward through the candidates array: track a 'start' index and only consider candidates[start:] at each recursive level.",
+    "Backtrack by index: for each candidate from 'start' onward, add it to the current path if it doesn't exceed the remaining target, recurse with the same start index (to allow reuse), then remove it and try the next candidate. Stop a branch early once the remaining target goes negative."
+  ],
+  "solution": {
+    "approach": "Sort candidates first to enable early pruning. Backtrack with a 'start' index that only ever advances forward, which guarantees each combination is generated in one canonical (non-decreasing) order and thus no duplicates arise from reordering the same values. At each recursive call, try every candidate from 'start' to the end: if it exceeds the remaining target, prune (and since candidates are sorted, no later candidate at this level can work either, so break). Otherwise, include it in the path, recurse with the SAME index (since repetition is allowed) and a reduced remaining target, then backtrack by removing it. When remaining target hits exactly 0, record a copy of the path. Finally, sort the outer list of combinations for deterministic comparison.",
+    "code": "def combination_sum(candidates, target):\n    candidates = sorted(candidates)\n    result = []\n    path = []\n\n    def backtrack(start, remaining):\n        if remaining == 0:\n            result.append(path[:])\n            return\n        for i in range(start, len(candidates)):\n            candidate = candidates[i]\n            if candidate > remaining:\n                break\n            path.append(candidate)\n            backtrack(i, remaining - candidate)\n            path.pop()\n\n    backtrack(0, target)\n    result.sort()\n    return result\n",
+    "timeComplexity": "O(n^(target/min(candidates)+1)) worst case, bounded by the branching of the search tree",
+    "spaceComplexity": "O(target/min(candidates)) recursion depth, plus output size"
+  },
+  "starterCode": "def combination_sum(candidates, target):\n    # your code here\n    pass\n",
+  "functionName": "combination_sum",
+  "testCases": [
+    {
+      "input": [
+        [2, 3, 6, 7],
+        7
+      ],
+      "expected": [[2, 2, 3], [7]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [2, 3, 5],
+        8
+      ],
+      "expected": [[2, 2, 2, 2], [2, 3, 3], [3, 5]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [2],
+        1
+      ],
+      "expected": [],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1],
+        1
+      ],
+      "expected": [[1]],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1],
+        2
+      ],
+      "expected": [[1, 1]],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [3, 5, 8],
+        11
+      ],
+      "expected": [[3, 3, 5], [3, 8]],
+      "isHidden": true
+    }
+  ]
+}

@@ -242,7 +242,7 @@ export default function LibraryPage() {
               type="button"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="min-h-[44px] rounded-control border border-border px-3 text-sm text-text-2 hover:bg-surface-2 hover:text-text-1 disabled:cursor-not-allowed disabled:opacity-40"
+              className="shine-hover min-h-[44px] rounded-control border px-3 text-sm transition-[color,background-color,border-color,transform] duration-150 disabled:cursor-not-allowed disabled:border-border disabled:bg-transparent disabled:text-text-3 disabled:opacity-40 enabled:border-accent/30 enabled:bg-accent-soft enabled:text-text-1 enabled:hover:border-accent/60 enabled:hover:bg-accent-soft enabled:active:scale-95"
             >
               Previous
             </button>
@@ -262,7 +262,7 @@ export default function LibraryPage() {
               type="button"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="min-h-[44px] rounded-control border border-border px-3 text-sm text-text-2 hover:bg-surface-2 hover:text-text-1 disabled:cursor-not-allowed disabled:opacity-40"
+              className="shine-hover min-h-[44px] rounded-control border px-3 text-sm transition-[color,background-color,border-color,transform] duration-150 disabled:cursor-not-allowed disabled:border-border disabled:bg-transparent disabled:text-text-3 disabled:opacity-40 enabled:border-accent/30 enabled:bg-accent-soft enabled:text-text-1 enabled:hover:border-accent/60 enabled:hover:bg-accent-soft enabled:active:scale-95"
             >
               Next
             </button>

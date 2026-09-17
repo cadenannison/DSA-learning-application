@@ -1,0 +1,94 @@
+{
+  "id": "number-of-connected-components-in-an-undirected-graph",
+  "title": "Number of Connected Components in an Undirected Graph",
+  "pattern": "graphs",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon",
+    "Facebook",
+    "Microsoft"
+  ],
+  "prompt": "You have a graph of `n` nodes labeled `0` to `n - 1`, and a list `edges` where `edges[i] = [a, b]` indicates an undirected edge between nodes `a` and `b`. Return the number of connected components in the graph.",
+  "examples": [
+    {
+      "input": "n = 5, edges = [[0,1],[1,2],[3,4]]",
+      "output": "2",
+      "explanation": "Nodes 0, 1, 2 form one component; nodes 3, 4 form another."
+    },
+    {
+      "input": "n = 5, edges = [[0,1],[1,2],[2,3],[3,4]]",
+      "output": "1",
+      "explanation": "All 5 nodes are chained together into a single connected component."
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 2000",
+    "0 <= edges.length <= 5000",
+    "edges[i].length == 2",
+    "There are no repeated edges"
+  ],
+  "hints": [
+    "Union-Find (disjoint set union) is a natural fit: start with n separate components (each node its own parent) and union the endpoints of every edge.",
+    "Each successful union (joining two previously separate sets) reduces the total component count by exactly one.",
+    "Start count at n, and every time you union two nodes that had different roots, decrement the count by one. The final count is your answer."
+  ],
+  "solution": {
+    "approach": "Initialize Union-Find with n singleton components, and a running component count starting at n. For every edge, find the roots of its two endpoints; if they differ, union them and decrement the component count (since two components just merged into one). Edges connecting nodes already in the same component are ignored (they don't reduce the count further). After processing all edges, the running count is the number of connected components.",
+    "code": "def count_components(n, edges):\n    parent = list(range(n))\n    count = n\n\n    def find(x):\n        while parent[x] != x:\n            parent[x] = parent[parent[x]]\n            x = parent[x]\n        return x\n\n    for a, b in edges:\n        root_a, root_b = find(a), find(b)\n        if root_a != root_b:\n            parent[root_a] = root_b\n            count -= 1\n\n    return count\n",
+    "timeComplexity": "O(n * alpha(n)), alpha = inverse Ackermann (effectively O(n))",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def count_components(n, edges):\n    # your code here\n    pass\n",
+  "functionName": "count_components",
+  "testCases": [
+    {
+      "input": [
+        5,
+        [[0, 1], [1, 2], [3, 4]]
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        5,
+        [[0, 1], [1, 2], [2, 3], [3, 4]]
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        4,
+        []
+      ],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [
+        1,
+        []
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        6,
+        [[0, 1], [2, 3], [4, 5]]
+      ],
+      "expected": 3,
+      "isHidden": true
+    },
+    {
+      "input": [
+        5,
+        [[0, 1], [0, 2], [0, 3], [0, 4]]
+      ],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

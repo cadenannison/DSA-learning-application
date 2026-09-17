@@ -1,5 +1,18 @@
 export type Difficulty = "easy" | "medium" | "hard"
 
+/** Baseline interview-pacing estimate in minutes, by difficulty — roughly what a focused
+ * attempt (read + code + test) takes, not a per-user measured average. Used to size a day's
+ * study queue against dailyTimeBudgetMinutes; not stored, always recomputed from difficulty. */
+const ESTIMATED_MINUTES_BY_DIFFICULTY: Record<Difficulty, number> = {
+  easy: 20,
+  medium: 30,
+  hard: 40,
+}
+
+export function estimateProblemMinutes(difficulty: Difficulty): number {
+  return ESTIMATED_MINUTES_BY_DIFFICULTY[difficulty]
+}
+
 export type DsaPattern =
   | "arrays-two-pointers"
   | "sliding-window"
@@ -20,6 +33,7 @@ export interface TestCase {
   input: unknown[]
   expected: unknown
   isHidden: boolean
+  name?: string
 }
 
 export interface Problem {
@@ -92,6 +106,7 @@ export interface TestCaseResult {
   isHidden: boolean
   stdout: string
   errorMessage: string | null
+  name?: string
 }
 
 export interface ExecutionResult {
@@ -321,6 +336,10 @@ export interface StudyProblem {
    * Drives whether the workbook renders an embedded, runnable editor (fetching the Problem by
    * this id) vs. an external-link "not embedded yet" notice. */
   linkedProblemId: string | null
+  /** Derived server-side from difficulty (see estimateProblemMinutes in StudyPlanService), not
+   * stored: a baseline interview-pacing estimate used to build the daily time budget. Not a
+   * measured average — just enough to size a day's queue against dailyTimeBudgetMinutes. */
+  estimatedMinutes: number
 }
 
 /** Rich per-pattern lesson content, authored only for patterns where hasExtendedLesson is
@@ -423,6 +442,10 @@ export interface StudyRecommendation {
   daysRemaining: number | null
   suggestedMinutesToday: number
   oaPrepSuggestion: string | null
+  /** Sum of drillQueue[].estimatedMinutes — how much of suggestedMinutesToday the queue as
+   * built actually accounts for. Purely informational: the queue itself isn't trimmed or
+   * reordered to fit, so this can run over or under the budget. */
+  drillQueueEstimatedMinutes: number
 }
 
 /** One entry in the "workthrough book" drill queue — the ordered, adaptive sequence the
@@ -437,6 +460,10 @@ export interface DrillQueueEntry {
   likelihoodWeight: number
   readiness: StudyReadiness
   dueAt: string | null
+  /** Baseline minutes budgeted for one drill pass at this pattern (see
+   * DRILL_QUEUE_MINUTES_PER_ITEM) — annotates the queue against dailyTimeBudgetMinutes without
+   * changing its order. */
+  estimatedMinutes: number
 }
 
 export interface StudyPlanOverview {

@@ -1,0 +1,81 @@
+{
+  "id": "sum-of-two-integers",
+  "title": "Sum of Two Integers",
+  "pattern": "greedy",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Meta",
+    "Microsoft",
+    "Bloomberg"
+  ],
+  "prompt": "Given two integers `a` and `b`, return their sum without using the `+` or `-` operators.",
+  "examples": [
+    {
+      "input": "a = 1, b = 2",
+      "output": "3",
+      "explanation": "1 + 2 = 3, computed using only bitwise operations."
+    },
+    {
+      "input": "a = 2, b = 3",
+      "output": "5"
+    },
+    {
+      "input": "a = -2, b = 3",
+      "output": "1"
+    }
+  ],
+  "constraints": [
+    "-1000 <= a, b <= 1000"
+  ],
+  "hints": [
+    "Think about how addition works in binary: at each bit position you get a sum bit and a carry bit.",
+    "XOR gives you the sum of two bits ignoring carry; AND gives you where a carry is generated. A carry always gets shifted one position to the left.",
+    "Repeatedly compute carry = (a AND b) << 1 and a = a XOR b, then set b = carry, until there's no carry left. In Python, mask to 32 bits and handle the sign bit manually since Python integers don't wrap like fixed-width ints."
+  ],
+  "solution": {
+    "approach": "Simulate binary addition using bitwise operations. XOR of a and b gives the sum of each bit position ignoring any carry, while AND of a and b (shifted left by one) gives the carry generated at each position. Repeatedly apply carry = (a & b) << 1 and a = a ^ b, then b = carry, until the carry becomes zero. Because Python integers are arbitrary precision (no natural 32-bit overflow), mask intermediate values to 32 bits with a mask, and convert back from the unsigned 32-bit representation to a signed Python integer at the end if the sign bit is set.",
+    "code": "def get_sum(a, b):\n    mask = 0xFFFFFFFF\n    max_int = 0x7FFFFFFF\n\n    while b != 0:\n        a, b = (a ^ b) & mask, ((a & b) << 1) & mask\n\n    return a if a <= max_int else ~(a ^ mask)\n",
+    "timeComplexity": "O(1) (bounded by 32 bit positions)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def get_sum(a, b):\n    # your code here\n    pass\n",
+  "functionName": "get_sum",
+  "testCases": [
+    {
+      "input": [1, 2],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [2, 3],
+      "expected": 5,
+      "isHidden": false
+    },
+    {
+      "input": [-2, 3],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [0, 0],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [-5, -3],
+      "expected": -8,
+      "isHidden": true
+    },
+    {
+      "input": [100, -100],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [-1, 1],
+      "expected": 0,
+      "isHidden": true
+    }
+  ]
+}

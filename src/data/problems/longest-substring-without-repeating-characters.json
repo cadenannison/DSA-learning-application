@@ -1,0 +1,99 @@
+{
+  "id": "longest-substring-without-repeating-characters",
+  "title": "Longest Substring Without Repeating Characters",
+  "pattern": "sliding-window",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Meta",
+    "Microsoft",
+    "Bloomberg",
+    "Adobe"
+  ],
+  "prompt": "Given a string `s`, find the length of the longest substring without repeating characters.",
+  "examples": [
+    {
+      "input": "s = \"abcabcbb\"",
+      "output": "3",
+      "explanation": "The answer is \"abc\", with length 3."
+    },
+    {
+      "input": "s = \"bbbbb\"",
+      "output": "1",
+      "explanation": "The answer is \"b\", with length 1."
+    },
+    {
+      "input": "s = \"pwwkew\"",
+      "output": "3",
+      "explanation": "The answer is \"wke\", with length 3. Note \"pwke\" is not a substring since it's not contiguous."
+    }
+  ],
+  "constraints": [
+    "0 <= s.length <= 5 * 10^4",
+    "s consists of English letters, digits, symbols, and spaces"
+  ],
+  "hints": [
+    "Brute force checks every substring for uniqueness — that's O(n^2) or worse. A sliding window can do it in O(n).",
+    "Maintain a window [left, right] and a hash set (or hash map of char to last seen index) of characters currently in the window.",
+    "When you encounter a character already in the window, shrink from the left (or jump left directly past its last occurrence, if using a map) until the duplicate is removed, then track the max window size seen."
+  ],
+  "solution": {
+    "approach": "Use a sliding window with a hash map tracking the most recent index of each character seen. Expand the window by moving `right` through the string. If the current character was seen before and its last index is within the current window, move `left` to just past that index. Update the map with the character's current index and track the max window length (right - left + 1) at each step.",
+    "code": "def length_of_longest_substring(s):\n    last_seen = {}\n    left = 0\n    max_len = 0\n    for right, ch in enumerate(s):\n        if ch in last_seen and last_seen[ch] >= left:\n            left = last_seen[ch] + 1\n        last_seen[ch] = right\n        max_len = max(max_len, right - left + 1)\n    return max_len\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(min(n, alphabet size))"
+  },
+  "starterCode": "def length_of_longest_substring(s):\n    # your code here\n    pass\n",
+  "functionName": "length_of_longest_substring",
+  "testCases": [
+    {
+      "input": [
+        "abcabcbb"
+      ],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [
+        "bbbbb"
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        "pwwkew"
+      ],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [
+        ""
+      ],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [
+        " "
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        "dvdf"
+      ],
+      "expected": 3,
+      "isHidden": true
+    },
+    {
+      "input": [
+        "abba"
+      ],
+      "expected": 2,
+      "isHidden": true
+    }
+  ]
+}

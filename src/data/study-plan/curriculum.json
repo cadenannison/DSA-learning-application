@@ -1,7 +1,7 @@
 {
   "globalCoachingNotes": [
-    "Communication style: default to the most obvious brute-force solution first, say it out loud, then iterate toward something better. Don't sit silently trying to jump straight to optimal — the iterative process is explicitly what's valued in these interviews, more than getting to the \"best\" answer immediately.",
-    "No REST API / system-design questions at this stage — that only applies once interviewing with a specific team post-offer, so it's not part of this prep."
+    "Communication style: default to the most obvious brute-force solution first, say it out loud, then iterate toward something better. Don't sit silently trying to jump straight to optimal \u2014 the iterative process is explicitly what's valued in these interviews, more than getting to the \"best\" answer immediately.",
+    "No REST API / system-design questions at this stage \u2014 that only applies once interviewing with a specific team post-offer, so it's not part of this prep."
   ],
   "referenceLinks": [
     {
@@ -9,7 +9,7 @@
       "url": "https://www.google.com/about/careers/applications/interview-tips/"
     },
     {
-      "label": "LeetCode company-wise questions — Google folder",
+      "label": "LeetCode company-wise questions \u2014 Google folder",
       "url": "https://github.com/snehasishroy/leetcode-companywise-interview-questions/tree/master/google"
     }
   ],
@@ -17,13 +17,13 @@
     {
       "id": "oa-prep",
       "name": "OA Prep",
-      "description": "Lightweight, ad-hoc topics for the initial online assessment — not real DSA depth.",
-      "coachingNote": "Per a direct report who did this exact loop: the OA reportedly doesn't require real data structures/algorithms and \"didn't even feel like real LeetCode\" — it's checking baseline coding ability, not pattern mastery."
+      "description": "Lightweight, ad-hoc topics for the initial online assessment \u2014 not real DSA depth.",
+      "coachingNote": "Per a direct report who did this exact loop: the OA reportedly doesn't require real data structures/algorithms and \"didn't even feel like real LeetCode\" \u2014 it's checking baseline coding ability, not pattern mastery."
     },
     {
       "id": "technical-interview-prep",
       "name": "Technical Interview Prep",
-      "description": "The real depth — pattern-by-pattern prep for the onsite/technical loop, in priority order.",
+      "description": "The real depth \u2014 pattern-by-pattern prep for the onsite/technical loop, in priority order.",
       "coachingNote": null
     }
   ],
@@ -35,7 +35,7 @@
       "priorityRank": 1,
       "likelihoodWeight": 0.7,
       "complexityTier": "core",
-      "conceptNotes": "Know built-in sort usage and the general idea of comparison-based sorting (O(n log n)). Not expected to hand-roll merge/quick sort for the OA — just use it correctly and reason about its complexity.",
+      "conceptNotes": "Know built-in sort usage and the general idea of comparison-based sorting (O(n log n)). Not expected to hand-roll merge/quick sort for the OA \u2014 just use it correctly and reason about its complexity.",
       "problems": []
     },
     {
@@ -55,7 +55,7 @@
       "priorityRank": 3,
       "likelihoodWeight": 0.5,
       "complexityTier": "core",
-      "conceptNotes": "Straightforward O(n) scan. Included because the OA reportedly stays this basic — don't overthink it.",
+      "conceptNotes": "Straightforward O(n) scan. Included because the OA reportedly stays this basic \u2014 don't overthink it.",
       "problems": []
     },
     {
@@ -75,25 +75,25 @@
       "priorityRank": 1,
       "likelihoodWeight": 0.95,
       "complexityTier": "core",
-      "conceptNotes": "Must be able to implement BFS and DFS from scratch, and know their time/space complexity cold: O(V + E) time, O(V) space. Also know Dijkstra's algorithm (priority-queue-based shortest path, O((V + E) log V)). Flagged as ~95% likely to appear per direct report — this is the single highest-leverage topic in the whole plan.",
+      "conceptNotes": "Must be able to implement BFS and DFS from scratch, and know their time/space complexity cold: O(V + E) time, O(V) space. Also know Dijkstra's algorithm (priority-queue-based shortest path, O((V + E) log V)). Flagged as ~95% likely to appear per direct report \u2014 this is the single highest-leverage topic in the whole plan.",
       "lesson": {
-        "coreIdeaMarkdown": "A graph is just a set of nodes (vertices) connected by edges — that's it. Nearly every graph problem you'll see is one of three engines wearing a costume: **BFS** (breadth-first search), **DFS** (depth-first search), or **Dijkstra's algorithm**. All three do the same fundamental thing — systematically visit every reachable node from a starting point, exactly once — but they differ in *the order* they visit nodes in, and that order is what makes each one suited to different questions.\n\n- **BFS** explores level-by-level, like ripples spreading out from a stone dropped in water. It uses a **queue** (FIFO): you visit a node, then push all of its unvisited neighbors onto the back of the queue, then pop the next node from the front. Because it expands outward one full \"ring\" at a time, **the first time BFS reaches a node is guaranteed to be via the shortest path in terms of number of edges** (assuming unweighted edges — all edges 'cost' the same). This is *why* BFS is the answer whenever a problem asks for \"shortest,\" \"minimum steps,\" \"fewest moves,\" or \"minimum distance\" in a graph where every edge has the same weight.\n- **DFS** commits to one path and follows it all the way to a dead end before backtracking, like solving a maze by always taking the leftmost turn and backing up when you hit a wall. It uses a **stack** (LIFO) — either an explicit stack you manage, or, more commonly, the call stack via recursion. DFS doesn't guarantee shortest paths, but it's naturally suited to questions about *existence, connectivity, and structure*: is there a path at all? How many separate connected components exist? Can you detect a cycle? Can you fully enumerate every path?\n- **Dijkstra's algorithm** is BFS's generalization to **weighted** graphs, where edges have different costs (e.g. distances, times, weights). Instead of a plain queue, it uses a **min-heap (priority queue)** keyed by \"total distance so far,\" and always expands the currently-cheapest-to-reach node next. This greedy choice — always finalize the node you're most confident about — is what guarantees correctness (as long as edge weights are non-negative).\n\nWhy each one *works* comes down to the invariant it maintains: BFS's queue guarantees you process nodes in strictly non-decreasing distance order (in unweighted-edge terms) because every node at distance *d* gets enqueued before any node at distance *d+1*. Dijkstra's min-heap generalizes that same invariant to weighted edges — you always finalize the next-cheapest unvisited node, which can only be correct if no unvisited edge could offer a cheaper path (true because weights are non-negative). DFS doesn't maintain a distance invariant at all — it trades that guarantee for simplicity and a natural fit with recursion, which is why it's not the right tool when the question is specifically about distance/shortest-ness.",
-        "workedExampleMarkdown": "Let's walk through **Number of Islands** in full, reasoning out loud the way you would in an interview.\n\n**The problem:** you're given a 2D grid of `'1'`s (land) and `'0'`s (water). An island is a group of `1`s connected horizontally or vertically (not diagonally). Count the number of islands.\n\n**Step 1 — say the brute-force idea out loud first.** \"My first instinct is: for every cell that's land, if I haven't already counted it as part of an island, that's a *new* island — and I need to mark every cell connected to it so I don't double-count it later.\" That's the whole idea. The only real work is *how* to mark 'every connected cell.'\n\n**Step 2 — recognize the signal.** The phrase \"count the number of \\[connected groups\\]\" is a huge tell for **connected components**, which is a DFS/BFS problem, not a Dijkstra one (no weights here) and not really a \"shortest path\" question (no BFS-specific need either) — so either DFS or BFS works equally well; DFS is usually simpler to write here because it maps naturally onto recursion.\n\n**Step 3 — walk through the mechanics.** Scan the grid cell by cell, top-left to bottom-right. Whenever you find a `'1'` that hasn't been visited yet:\n1. That's the top-left-most cell of a *new* island — increment your island counter.\n2. Trigger a DFS (or BFS) from that cell that visits every land cell reachable via up/down/left/right moves, marking each one visited (e.g. by flipping it to `'0'`, or tracking a separate `visited` set) so the outer scan skips them later.\n3. Continue the outer scan from where you left off.\n\n**Step 4 — the DFS itself.** `dfs(row, col)`: if `row`/`col` are out of bounds, or the cell is water, or already visited — stop (this is the *base case*, and forgetting one of these three checks is the single most common bug here). Otherwise, mark the cell visited, then recursively call `dfs` on all four neighbors.\n\n**Step 5 — complexity, reasoned, not memorized.** Every cell in the grid gets visited by the outer scan once, and every land cell gets visited by exactly one DFS call across the whole algorithm (because we mark cells visited as we go, so no cell is ever explored twice) — so the total work is proportional to the number of cells, `O(rows × cols)`, i.e. `O(V)` if you think of each cell as a graph node. Space is `O(rows × cols)` in the worst case for the recursion call stack (imagine one giant island snaking through the entire grid) — that *is* the O(V) space bound for DFS on a graph with V nodes.",
-        "variationsMarkdown": "Once BFS/DFS click, most \"variant\" problems are the same traversal wearing a different hat:\n\n- **Multi-source BFS** (e.g. Rotting Oranges, Walls and Gates, 01 Matrix): instead of starting from one node, you seed the BFS queue with *all* starting nodes at once (e.g. every already-rotten orange). The queue's level-by-level property still guarantees correctness — it just now represents \"distance from the nearest source\" instead of \"distance from a single origin.\"\n- **Grid flood-fill variants** (Number of Islands, Max Area of Island, Surrounded Regions, Pacific Atlantic Water Flow): the graph is implicit — cells are nodes, adjacency is \"shares an edge on the grid\" — so there's no explicit adjacency list to build; you just check the 4 (sometimes 8) neighbor offsets directly.\n- **Explicit adjacency-list graphs** (Course Schedule, Clone Graph, Network Delay Time): here you first have to *build* the graph (usually an adjacency list from a list of edges) before traversing it — don't skip this step mentally; it's real code.\n- **Topological sort** (Course Schedule, Course Schedule II, Alien Dictionary): a DFS or BFS (Kahn's algorithm, using in-degree counts) variant specifically for **directed acyclic graphs**, producing an ordering where every edge points forward. The signal phrase is almost always \"prerequisite\" or \"must happen before.\"\n- **Cycle detection**: in an undirected graph, a cycle exists if DFS reaches an already-visited node that isn't the immediate parent. In a directed graph (like Course Schedule), you need a second marker for \"currently in the recursion stack\" (not just \"visited ever\") — revisiting a node that's still on the current DFS path (not just previously fully explored) is what signals a cycle, and conflating the two is the classic bug.\n- **Dijkstra's proper** (Network Delay Time, Cheapest Flights Within K Stops, Path with Minimum Effort, Swim in Rising Water): whenever edges have different weights/costs and you need the *cheapest* or *minimum-max* path, not just *any* path.",
+        "coreIdeaMarkdown": "A graph is just a set of nodes (vertices) connected by edges \u2014 that's it. Nearly every graph problem you'll see is one of three engines wearing a costume: **BFS** (breadth-first search), **DFS** (depth-first search), or **Dijkstra's algorithm**. All three do the same fundamental thing \u2014 systematically visit every reachable node from a starting point, exactly once \u2014 but they differ in *the order* they visit nodes in, and that order is what makes each one suited to different questions.\n\n- **BFS** explores level-by-level, like ripples spreading out from a stone dropped in water. It uses a **queue** (FIFO): you visit a node, then push all of its unvisited neighbors onto the back of the queue, then pop the next node from the front. Because it expands outward one full \"ring\" at a time, **the first time BFS reaches a node is guaranteed to be via the shortest path in terms of number of edges** (assuming unweighted edges \u2014 all edges 'cost' the same). This is *why* BFS is the answer whenever a problem asks for \"shortest,\" \"minimum steps,\" \"fewest moves,\" or \"minimum distance\" in a graph where every edge has the same weight.\n- **DFS** commits to one path and follows it all the way to a dead end before backtracking, like solving a maze by always taking the leftmost turn and backing up when you hit a wall. It uses a **stack** (LIFO) \u2014 either an explicit stack you manage, or, more commonly, the call stack via recursion. DFS doesn't guarantee shortest paths, but it's naturally suited to questions about *existence, connectivity, and structure*: is there a path at all? How many separate connected components exist? Can you detect a cycle? Can you fully enumerate every path?\n- **Dijkstra's algorithm** is BFS's generalization to **weighted** graphs, where edges have different costs (e.g. distances, times, weights). Instead of a plain queue, it uses a **min-heap (priority queue)** keyed by \"total distance so far,\" and always expands the currently-cheapest-to-reach node next. This greedy choice \u2014 always finalize the node you're most confident about \u2014 is what guarantees correctness (as long as edge weights are non-negative).\n\nWhy each one *works* comes down to the invariant it maintains: BFS's queue guarantees you process nodes in strictly non-decreasing distance order (in unweighted-edge terms) because every node at distance *d* gets enqueued before any node at distance *d+1*. Dijkstra's min-heap generalizes that same invariant to weighted edges \u2014 you always finalize the next-cheapest unvisited node, which can only be correct if no unvisited edge could offer a cheaper path (true because weights are non-negative). DFS doesn't maintain a distance invariant at all \u2014 it trades that guarantee for simplicity and a natural fit with recursion, which is why it's not the right tool when the question is specifically about distance/shortest-ness.",
+        "workedExampleMarkdown": "Let's walk through **Number of Islands** in full, reasoning out loud the way you would in an interview.\n\n**The problem:** you're given a 2D grid of `'1'`s (land) and `'0'`s (water). An island is a group of `1`s connected horizontally or vertically (not diagonally). Count the number of islands.\n\n**Step 1 \u2014 say the brute-force idea out loud first.** \"My first instinct is: for every cell that's land, if I haven't already counted it as part of an island, that's a *new* island \u2014 and I need to mark every cell connected to it so I don't double-count it later.\" That's the whole idea. The only real work is *how* to mark 'every connected cell.'\n\n**Step 2 \u2014 recognize the signal.** The phrase \"count the number of \\[connected groups\\]\" is a huge tell for **connected components**, which is a DFS/BFS problem, not a Dijkstra one (no weights here) and not really a \"shortest path\" question (no BFS-specific need either) \u2014 so either DFS or BFS works equally well; DFS is usually simpler to write here because it maps naturally onto recursion.\n\n**Step 3 \u2014 walk through the mechanics.** Scan the grid cell by cell, top-left to bottom-right. Whenever you find a `'1'` that hasn't been visited yet:\n1. That's the top-left-most cell of a *new* island \u2014 increment your island counter.\n2. Trigger a DFS (or BFS) from that cell that visits every land cell reachable via up/down/left/right moves, marking each one visited (e.g. by flipping it to `'0'`, or tracking a separate `visited` set) so the outer scan skips them later.\n3. Continue the outer scan from where you left off.\n\n**Step 4 \u2014 the DFS itself.** `dfs(row, col)`: if `row`/`col` are out of bounds, or the cell is water, or already visited \u2014 stop (this is the *base case*, and forgetting one of these three checks is the single most common bug here). Otherwise, mark the cell visited, then recursively call `dfs` on all four neighbors.\n\n**Step 5 \u2014 complexity, reasoned, not memorized.** Every cell in the grid gets visited by the outer scan once, and every land cell gets visited by exactly one DFS call across the whole algorithm (because we mark cells visited as we go, so no cell is ever explored twice) \u2014 so the total work is proportional to the number of cells, `O(rows \u00d7 cols)`, i.e. `O(V)` if you think of each cell as a graph node. Space is `O(rows \u00d7 cols)` in the worst case for the recursion call stack (imagine one giant island snaking through the entire grid) \u2014 that *is* the O(V) space bound for DFS on a graph with V nodes.",
+        "variationsMarkdown": "Once BFS/DFS click, most \"variant\" problems are the same traversal wearing a different hat:\n\n- **Multi-source BFS** (e.g. Rotting Oranges, Walls and Gates, 01 Matrix): instead of starting from one node, you seed the BFS queue with *all* starting nodes at once (e.g. every already-rotten orange). The queue's level-by-level property still guarantees correctness \u2014 it just now represents \"distance from the nearest source\" instead of \"distance from a single origin.\"\n- **Grid flood-fill variants** (Number of Islands, Max Area of Island, Surrounded Regions, Pacific Atlantic Water Flow): the graph is implicit \u2014 cells are nodes, adjacency is \"shares an edge on the grid\" \u2014 so there's no explicit adjacency list to build; you just check the 4 (sometimes 8) neighbor offsets directly.\n- **Explicit adjacency-list graphs** (Course Schedule, Clone Graph, Network Delay Time): here you first have to *build* the graph (usually an adjacency list from a list of edges) before traversing it \u2014 don't skip this step mentally; it's real code.\n- **Topological sort** (Course Schedule, Course Schedule II, Alien Dictionary): a DFS or BFS (Kahn's algorithm, using in-degree counts) variant specifically for **directed acyclic graphs**, producing an ordering where every edge points forward. The signal phrase is almost always \"prerequisite\" or \"must happen before.\"\n- **Cycle detection**: in an undirected graph, a cycle exists if DFS reaches an already-visited node that isn't the immediate parent. In a directed graph (like Course Schedule), you need a second marker for \"currently in the recursion stack\" (not just \"visited ever\") \u2014 revisiting a node that's still on the current DFS path (not just previously fully explored) is what signals a cycle, and conflating the two is the classic bug.\n- **Dijkstra's proper** (Network Delay Time, Cheapest Flights Within K Stops, Path with Minimum Effort, Swim in Rising Water): whenever edges have different weights/costs and you need the *cheapest* or *minimum-max* path, not just *any* path.",
         "signalPhrases": [
-          "shortest path / fewest steps / minimum moves (unweighted) → BFS",
-          "minimum cost / cheapest / minimum time with weighted edges → Dijkstra's",
-          "does a path exist / is it connected / count connected components → DFS or BFS",
-          "prerequisite / must come before / dependency order → topological sort",
-          "grid of cells, flood-fill, spreading, infection, rotting → multi-source BFS",
-          "detect a cycle / can this be completed → cycle detection via DFS"
+          "shortest path / fewest steps / minimum moves (unweighted) \u2192 BFS",
+          "minimum cost / cheapest / minimum time with weighted edges \u2192 Dijkstra's",
+          "does a path exist / is it connected / count connected components \u2192 DFS or BFS",
+          "prerequisite / must come before / dependency order \u2192 topological sort",
+          "grid of cells, flood-fill, spreading, infection, rotting \u2192 multi-source BFS",
+          "detect a cycle / can this be completed \u2192 cycle detection via DFS"
         ],
-        "commonMistakesMarkdown": "- **Forgetting the visited set/marker entirely**, causing infinite loops on cyclic graphs (a graph is not a tree — it can have cycles, and DFS/BFS will loop forever without one).\n- **Marking a node visited at the wrong time.** For BFS, mark a node visited *when you enqueue it*, not when you dequeue it — otherwise the same node can be enqueued multiple times by different neighbors before it's ever processed, which is both a correctness and a performance bug.\n- **Off-by-one / missing bounds checks** on grid problems — forgetting to check `row/col` are within `[0, rows)` / `[0, cols)` before accessing the grid.\n- **Conflating \"visited\" with \"currently on the recursion stack\"** for directed-graph cycle detection (see Variations above) — this is the single most common bug in Course Schedule-style problems.\n- **Using DFS/plain BFS when the graph is weighted.** If edges have different costs, plain BFS/DFS do not guarantee the shortest/cheapest path — you need Dijkstra's (or, for graphs with negative weights, Bellman-Ford, though that's rarely in scope here).\n- **Rebuilding the adjacency list incorrectly for undirected graphs** — forgetting to add the edge in *both* directions when the input gives you a directed edge list but the graph is meant to be undirected.\n- **Recursion depth on DFS for very large/skinny graphs** — a graph that's essentially one long chain can blow the call stack; if that's a concern, convert to an iterative DFS with an explicit stack.",
-        "complexityMarkdown": "**BFS and DFS: O(V + E) time, O(V) space**, where V = number of vertices/nodes and E = number of edges. The O(V + E) comes from the fact that each node is enqueued/visited exactly once (that's the O(V) term), and for each node you examine all of its outgoing edges exactly once across the whole algorithm (that's the O(E) term) — you never revisit an edge from an already-visited node. The O(V) space is the visited set plus the queue (BFS) or the recursion/explicit stack (DFS), each of which holds at most all V nodes in the worst case (e.g. a star graph for BFS's queue, or a single long chain for DFS's stack).\n\n**Dijkstra's: O((V + E) log V) time, O(V) space.** Same V + E traversal structure as BFS, but each of the (up to) E edge relaxations may trigger a heap insert/update, and heap operations cost O(log V) — hence the extra log V factor. Space is still O(V) for the heap and the distance/visited tracking structures."
+        "commonMistakesMarkdown": "- **Forgetting the visited set/marker entirely**, causing infinite loops on cyclic graphs (a graph is not a tree \u2014 it can have cycles, and DFS/BFS will loop forever without one).\n- **Marking a node visited at the wrong time.** For BFS, mark a node visited *when you enqueue it*, not when you dequeue it \u2014 otherwise the same node can be enqueued multiple times by different neighbors before it's ever processed, which is both a correctness and a performance bug.\n- **Off-by-one / missing bounds checks** on grid problems \u2014 forgetting to check `row/col` are within `[0, rows)` / `[0, cols)` before accessing the grid.\n- **Conflating \"visited\" with \"currently on the recursion stack\"** for directed-graph cycle detection (see Variations above) \u2014 this is the single most common bug in Course Schedule-style problems.\n- **Using DFS/plain BFS when the graph is weighted.** If edges have different costs, plain BFS/DFS do not guarantee the shortest/cheapest path \u2014 you need Dijkstra's (or, for graphs with negative weights, Bellman-Ford, though that's rarely in scope here).\n- **Rebuilding the adjacency list incorrectly for undirected graphs** \u2014 forgetting to add the edge in *both* directions when the input gives you a directed edge list but the graph is meant to be undirected.\n- **Recursion depth on DFS for very large/skinny graphs** \u2014 a graph that's essentially one long chain can blow the call stack; if that's a concern, convert to an iterative DFS with an explicit stack.",
+        "complexityMarkdown": "**BFS and DFS: O(V + E) time, O(V) space**, where V = number of vertices/nodes and E = number of edges. The O(V + E) comes from the fact that each node is enqueued/visited exactly once (that's the O(V) term), and for each node you examine all of its outgoing edges exactly once across the whole algorithm (that's the O(E) term) \u2014 you never revisit an edge from an already-visited node. The O(V) space is the visited set plus the queue (BFS) or the recursion/explicit stack (DFS), each of which holds at most all V nodes in the worst case (e.g. a star graph for BFS's queue, or a single long chain for DFS's stack).\n\n**Dijkstra's: O((V + E) log V) time, O(V) space.** Same V + E traversal structure as BFS, but each of the (up to) E edge relaxations may trigger a heap insert/update, and heap operations cost O(log V) \u2014 hence the extra log V factor. Space is still O(V) for the heap and the distance/visited tracking structures."
       },
       "bugTracingExercise": {
-        "prompt": "Below is a buggy attempt at detecting a cycle in a directed graph (the core of Course Schedule). It almost works — it passes on small acyclic examples — but fails on some cyclic graphs. Find the bug before running it.\n\n```javascript\nfunction canFinish(numCourses, prerequisites) {\n  const graph = Array.from({ length: numCourses }, () => []);\n  for (const [course, prereq] of prerequisites) {\n    graph[course].push(prereq);\n  }\n\n  const visited = new Set();\n\n  function hasCycle(course) {\n    if (visited.has(course)) return true; // already seen this course somewhere\n    visited.add(course);\n    for (const prereq of graph[course]) {\n      if (hasCycle(prereq)) return true;\n    }\n    return false;\n  }\n\n  for (let course = 0; course < numCourses; course++) {\n    if (hasCycle(course)) return false;\n  }\n  return true;\n}\n```\n\nWhat's wrong, and why does it pass on some inputs but not others? What's the minimal fix?",
-        "solutionWalkthroughMarkdown": "**The bug:** `visited` only ever tracks \"has this node been explored at any point, ever\" — it never distinguishes between *(a)* a node that's part of the graph structure you're **currently in the middle of exploring** (i.e., on the current DFS recursion path) versus *(b)* a node you fully explored **earlier**, in a completely different branch, and which turned out to be cycle-free.\n\nConcretely: imagine courses `0 -> 1`, `0 -> 2`, `1 -> 2` (no cycle — 2 has no prerequisites). Starting DFS from course `0`: visit `0`, recurse into `1`, from `1` recurse into `2` (mark all three visited, `2` has no further prereqs, returns false all the way up — correct, no cycle). Now the outer loop moves to `course = 1`: `hasCycle(1)` immediately sees `visited.has(1)` is true (from the earlier traversal) and returns `true` — **falsely reporting a cycle**, even though there isn't one. The bug isn't in graphs *with* cycles; it's a false-positive on cycle-free graphs where a node is legitimately revisited from a different starting point after being fully cleared.\n\n(The same single `visited` set can also miss genuine cycles that only show up in certain traversal orders, for the same underlying reason: it can't tell 'currently mid-exploration' from 'fully explored and safe' apart.)\n\n**The fix:** track two separate states — nodes currently *on the active recursion path* (\"in progress\") versus nodes that have been *fully explored and confirmed safe* (\"done\"). A cycle exists only if you reach a node that's currently \"in progress\" (i.e., an ancestor of itself on the current path) — reaching a \"done\" node is fine and should short-circuit to `false` immediately (no need to re-explore it).\n\n```javascript\nfunction canFinish(numCourses, prerequisites) {\n  const graph = Array.from({ length: numCourses }, () => []);\n  for (const [course, prereq] of prerequisites) {\n    graph[course].push(prereq);\n  }\n\n  const inProgress = new Set();\n  const done = new Set();\n\n  function hasCycle(course) {\n    if (done.has(course)) return false;   // fully explored earlier, confirmed safe\n    if (inProgress.has(course)) return true; // revisited while still on the current path -> cycle\n\n    inProgress.add(course);\n    for (const prereq of graph[course]) {\n      if (hasCycle(prereq)) return true;\n    }\n    inProgress.delete(course);\n    done.add(course);\n    return false;\n  }\n\n  for (let course = 0; course < numCourses; course++) {\n    if (hasCycle(course)) return false;\n  }\n  return true;\n}\n```\n\nThis is exactly the \"visited vs. currently-on-recursion-stack\" distinction flagged in the Common Mistakes section above — internalizing this pattern (sometimes called the three-color/white-gray-black DFS marking scheme) is what separates a correct directed-cycle-detection implementation from one that only happens to work on the examples you tried."
+        "prompt": "Below is a buggy attempt at detecting a cycle in a directed graph (the core of Course Schedule). It almost works \u2014 it passes on small acyclic examples \u2014 but fails on some cyclic graphs. Find the bug before running it.\n\n```javascript\nfunction canFinish(numCourses, prerequisites) {\n  const graph = Array.from({ length: numCourses }, () => []);\n  for (const [course, prereq] of prerequisites) {\n    graph[course].push(prereq);\n  }\n\n  const visited = new Set();\n\n  function hasCycle(course) {\n    if (visited.has(course)) return true; // already seen this course somewhere\n    visited.add(course);\n    for (const prereq of graph[course]) {\n      if (hasCycle(prereq)) return true;\n    }\n    return false;\n  }\n\n  for (let course = 0; course < numCourses; course++) {\n    if (hasCycle(course)) return false;\n  }\n  return true;\n}\n```\n\nWhat's wrong, and why does it pass on some inputs but not others? What's the minimal fix?",
+        "solutionWalkthroughMarkdown": "**The bug:** `visited` only ever tracks \"has this node been explored at any point, ever\" \u2014 it never distinguishes between *(a)* a node that's part of the graph structure you're **currently in the middle of exploring** (i.e., on the current DFS recursion path) versus *(b)* a node you fully explored **earlier**, in a completely different branch, and which turned out to be cycle-free.\n\nConcretely: imagine courses `0 -> 1`, `0 -> 2`, `1 -> 2` (no cycle \u2014 2 has no prerequisites). Starting DFS from course `0`: visit `0`, recurse into `1`, from `1` recurse into `2` (mark all three visited, `2` has no further prereqs, returns false all the way up \u2014 correct, no cycle). Now the outer loop moves to `course = 1`: `hasCycle(1)` immediately sees `visited.has(1)` is true (from the earlier traversal) and returns `true` \u2014 **falsely reporting a cycle**, even though there isn't one. The bug isn't in graphs *with* cycles; it's a false-positive on cycle-free graphs where a node is legitimately revisited from a different starting point after being fully cleared.\n\n(The same single `visited` set can also miss genuine cycles that only show up in certain traversal orders, for the same underlying reason: it can't tell 'currently mid-exploration' from 'fully explored and safe' apart.)\n\n**The fix:** track two separate states \u2014 nodes currently *on the active recursion path* (\"in progress\") versus nodes that have been *fully explored and confirmed safe* (\"done\"). A cycle exists only if you reach a node that's currently \"in progress\" (i.e., an ancestor of itself on the current path) \u2014 reaching a \"done\" node is fine and should short-circuit to `false` immediately (no need to re-explore it).\n\n```javascript\nfunction canFinish(numCourses, prerequisites) {\n  const graph = Array.from({ length: numCourses }, () => []);\n  for (const [course, prereq] of prerequisites) {\n    graph[course].push(prereq);\n  }\n\n  const inProgress = new Set();\n  const done = new Set();\n\n  function hasCycle(course) {\n    if (done.has(course)) return false;   // fully explored earlier, confirmed safe\n    if (inProgress.has(course)) return true; // revisited while still on the current path -> cycle\n\n    inProgress.add(course);\n    for (const prereq of graph[course]) {\n      if (hasCycle(prereq)) return true;\n    }\n    inProgress.delete(course);\n    done.add(course);\n    return false;\n  }\n\n  for (let course = 0; course < numCourses; course++) {\n    if (hasCycle(course)) return false;\n  }\n  return true;\n}\n```\n\nThis is exactly the \"visited vs. currently-on-recursion-stack\" distinction flagged in the Common Mistakes section above \u2014 internalizing this pattern (sometimes called the three-color/white-gray-black DFS marking scheme) is what separates a correct directed-cycle-detection implementation from one that only happens to work on the examples you tried."
       },
       "problems": [
         {
@@ -114,7 +114,8 @@
           "name": "Clone Graph",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/clone-graph/"
+          "externalUrl": "https://leetcode.com/problems/clone-graph/",
+          "linkedProblemId": "clone-graph"
         },
         {
           "name": "Rotting Oranges",
@@ -126,7 +127,8 @@
           "name": "Pacific Atlantic Water Flow",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/pacific-atlantic-water-flow/"
+          "externalUrl": "https://leetcode.com/problems/pacific-atlantic-water-flow/",
+          "linkedProblemId": "pacific-atlantic-water-flow"
         },
         {
           "name": "Surrounded Regions",
@@ -186,7 +188,8 @@
           "name": "Alien Dictionary",
           "difficulty": "hard",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/alien-dictionary/"
+          "externalUrl": "https://leetcode.com/problems/alien-dictionary/",
+          "linkedProblemId": "alien-dictionary"
         },
         {
           "name": "Minimum Height Trees",
@@ -234,7 +237,8 @@
           "name": "Word Search II",
           "difficulty": "hard",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/word-search-ii/"
+          "externalUrl": "https://leetcode.com/problems/word-search-ii/",
+          "linkedProblemId": "word-search-ii"
         },
         {
           "name": "Find the City With the Smallest Number of Neighbors at a Threshold Distance",
@@ -289,23 +293,23 @@
       "complexityTier": "core",
       "conceptNotes": "Build up 1D DP first (single state dimension, e.g. index into an array), then 2D (two state dimensions, e.g. two string indices). The core skill is identifying the recurrence relation and whether to memoize top-down or tabulate bottom-up.",
       "lesson": {
-        "coreIdeaMarkdown": "Dynamic programming is not a data structure or a specific algorithm — it's a technique for avoiding repeated work when a problem has two properties: **overlapping subproblems** (the same smaller question gets asked over and over if you solve it naively with plain recursion) and **optimal substructure** (the best answer to the whole problem can be built directly from the best answers to its smaller pieces). When both hold, you can solve each distinct subproblem exactly once, cache (\"memoize\") the result, and reuse it instead of recomputing — turning an exponential brute force into something polynomial.\n\nThe entire skill of DP is: **define what a \"state\" means, then find the recurrence relation that expresses a state in terms of smaller/earlier states.** Everything else — whether you write it top-down (recursion + memo) or bottom-up (an iterative table) — is implementation detail once you have the recurrence.\n\n- **1D DP** means the state is described by a single changing value — usually an index into an array or string, or a single running quantity. `dp[i]` means \"the answer considering everything up through index i.\" Climbing Stairs, House Robber, and Maximum Subarray are all 1D: the state is just \"which position am I at.\"\n- **2D DP** means the state needs *two* independent dimensions to describe — most commonly, two positions into two different sequences (comparing/aligning two strings, like Longest Common Subsequence or Edit Distance), or two positions in a grid (Unique Paths, Minimum Path Sum), or one index plus one extra constraint (Coin Change's \"index\" plus \"remaining amount,\" or 0/1 Knapsack-style problems' \"item index\" plus \"remaining capacity\"). `dp[i][j]` means \"the answer considering state i together with state j.\"\n\n**Why it works:** if a subproblem's optimal answer only depends on the optimal answers to smaller subproblems (not on which *path* you took to get there), then you never need to reconsider a subproblem once it's solved — its answer is fixed regardless of context. That's optimal substructure, and it's what licenses caching. If a problem *doesn't* have this property (e.g. the best choice depends on the entire history, not just a summarized state), DP doesn't apply cleanly.\n\n**Top-down vs. bottom-up** are two implementations of the exact same recurrence: top-down starts from the original question and recurses downward to smaller cases, caching as it goes (natural to write, but pays recursion overhead and risks stack depth on large inputs); bottom-up starts from the smallest base cases and iteratively builds up to the final answer using a table (usually more efficient, and it's what unlocks the O(1)-space optimization when only the last one or two rows/values of the table are ever needed).",
-        "workedExampleMarkdown": "Let's fully reason through **Climbing Stairs**, the canonical 1D DP problem.\n\n**The problem:** you're climbing `n` stairs. Each move, you can go up 1 or 2 steps. How many distinct ways are there to reach the top?\n\n**Step 1 — say the brute force out loud.** \"From the top of the staircase, the very last move I made was either a single step from `n-1`, or a double step from `n-2`. So every distinct way to reach step `n` is either a way to reach `n-1` followed by one more single step, or a way to reach `n-2` followed by one more double step — and those two groups don't overlap, since they're distinguished by what the last move was.\" That single sentence *is* the recurrence: `ways(n) = ways(n-1) + ways(n-2)`.\n\n**Step 2 — define the state precisely.** Let `ways(i)` = the number of distinct ways to reach step `i`. This is 1D: the only thing that varies is which step you're asking about.\n\n**Step 3 — base cases.** `ways(1) = 1` (only one way: a single step). `ways(2) = 2` (either two single steps, or one double step). These are the smallest cases that can't be broken down further — every other value bottoms out at one of these.\n\n**Step 4 — recognize this is Fibonacci.** `ways(n) = ways(n-1) + ways(n-2)` with those base cases is exactly the Fibonacci sequence (shifted). Recognizing this shortcut isn't necessary to solve it correctly, but it's a useful sanity check and a common \"aha\" moment interviewers watch for.\n\n**Step 5 — naive recursion has overlapping subproblems.** If you implement `ways(n)` as plain recursion with no caching, computing `ways(5)` calls `ways(4)` and `ways(3)`; `ways(4)` itself calls `ways(3)` and `ways(2)` — notice `ways(3)` gets computed twice already, and this duplication compounds exponentially as `n` grows (`O(2^n)` calls total). That's the overlapping-subproblems signal that says \"cache this.\"\n\n**Step 6 — bottom-up tabulation.** Instead of top-down recursion with a memo, build the answer iteratively from the base cases upward: start with `prev = ways(1) = 1` and `curr = ways(2) = 2`, then for each step from 3 to `n`, compute `next = prev + curr`, then slide the window forward (`prev = curr`, `curr = next`). By the time the loop ends, `curr` holds `ways(n)`.\n\n**Step 7 — complexity, reasoned.** Each of the `n - 2` loop iterations does O(1) work (one addition, two assignments), so time is `O(n)`. Because each step only ever needs the *previous two* values — never the full history — you don't need an array of size `n` at all; two variables suffice, giving `O(1)` space. This \"realize you only need the last k rows of the table\" insight is one of the most common DP space optimizations, and it's worth explicitly checking for on every DP problem you solve, even ones that start out looking like they need a full table.",
-        "variationsMarkdown": "Once the \"define state -> find recurrence -> base case -> tabulate\" workflow clicks, most other DP problems are variations on where the state and recurrence come from:\n\n- **Choice-based 1D DP** (House Robber, House Robber II, Jump Game): at each index, the recurrence is a *choice* between two or more options (e.g. rob this house and skip the previous, or skip this house and keep the previous best) — `dp[i] = max(dp[i-1], dp[i-2] + nums[i])` for House Robber, expressing \"the best total up to house i is either the same as up to i-1 (skip house i), or the best up to i-2 plus this house's value (rob house i).\"\n- **Running/reset DP** (Maximum Subarray, Maximum Product Subarray): the state at index i asks \"what's the best value of a subarray/subsequence *ending exactly here*,\" and the recurrence decides whether to extend the previous run or restart fresh at the current element.\n- **Counting-paths 2D DP** (Unique Paths, Unique Paths II, Minimum Path Sum): state is a grid cell `(row, col)`; the recurrence combines the cell above and the cell to the left, since those are the only two ways to have arrived at this cell.\n- **Two-string alignment 2D DP** (Longest Common Subsequence, Edit Distance, Distinct Subsequences): state is a pair of indices, one into each string; the recurrence branches on whether the two current characters match.\n- **Unbounded/bounded knapsack-style DP** (Coin Change, Combination Sum IV, Partition Equal Subset Sum, Target Sum): state is \"index or coin choice\" plus \"remaining amount/capacity\"; the recurrence tries including vs. excluding the current item (bounded) or reusing it unlimited times (unbounded, like coins).\n- **Interval DP** (Palindromic Substrings, Longest Palindromic Substring, Burst Balloons): state is a *range* `[i, j]` rather than a single index, and the recurrence typically combines results from smaller sub-ranges inside `[i, j]`.",
+        "coreIdeaMarkdown": "Dynamic programming is not a data structure or a specific algorithm \u2014 it's a technique for avoiding repeated work when a problem has two properties: **overlapping subproblems** (the same smaller question gets asked over and over if you solve it naively with plain recursion) and **optimal substructure** (the best answer to the whole problem can be built directly from the best answers to its smaller pieces). When both hold, you can solve each distinct subproblem exactly once, cache (\"memoize\") the result, and reuse it instead of recomputing \u2014 turning an exponential brute force into something polynomial.\n\nThe entire skill of DP is: **define what a \"state\" means, then find the recurrence relation that expresses a state in terms of smaller/earlier states.** Everything else \u2014 whether you write it top-down (recursion + memo) or bottom-up (an iterative table) \u2014 is implementation detail once you have the recurrence.\n\n- **1D DP** means the state is described by a single changing value \u2014 usually an index into an array or string, or a single running quantity. `dp[i]` means \"the answer considering everything up through index i.\" Climbing Stairs, House Robber, and Maximum Subarray are all 1D: the state is just \"which position am I at.\"\n- **2D DP** means the state needs *two* independent dimensions to describe \u2014 most commonly, two positions into two different sequences (comparing/aligning two strings, like Longest Common Subsequence or Edit Distance), or two positions in a grid (Unique Paths, Minimum Path Sum), or one index plus one extra constraint (Coin Change's \"index\" plus \"remaining amount,\" or 0/1 Knapsack-style problems' \"item index\" plus \"remaining capacity\"). `dp[i][j]` means \"the answer considering state i together with state j.\"\n\n**Why it works:** if a subproblem's optimal answer only depends on the optimal answers to smaller subproblems (not on which *path* you took to get there), then you never need to reconsider a subproblem once it's solved \u2014 its answer is fixed regardless of context. That's optimal substructure, and it's what licenses caching. If a problem *doesn't* have this property (e.g. the best choice depends on the entire history, not just a summarized state), DP doesn't apply cleanly.\n\n**Top-down vs. bottom-up** are two implementations of the exact same recurrence: top-down starts from the original question and recurses downward to smaller cases, caching as it goes (natural to write, but pays recursion overhead and risks stack depth on large inputs); bottom-up starts from the smallest base cases and iteratively builds up to the final answer using a table (usually more efficient, and it's what unlocks the O(1)-space optimization when only the last one or two rows/values of the table are ever needed).",
+        "workedExampleMarkdown": "Let's fully reason through **Climbing Stairs**, the canonical 1D DP problem.\n\n**The problem:** you're climbing `n` stairs. Each move, you can go up 1 or 2 steps. How many distinct ways are there to reach the top?\n\n**Step 1 \u2014 say the brute force out loud.** \"From the top of the staircase, the very last move I made was either a single step from `n-1`, or a double step from `n-2`. So every distinct way to reach step `n` is either a way to reach `n-1` followed by one more single step, or a way to reach `n-2` followed by one more double step \u2014 and those two groups don't overlap, since they're distinguished by what the last move was.\" That single sentence *is* the recurrence: `ways(n) = ways(n-1) + ways(n-2)`.\n\n**Step 2 \u2014 define the state precisely.** Let `ways(i)` = the number of distinct ways to reach step `i`. This is 1D: the only thing that varies is which step you're asking about.\n\n**Step 3 \u2014 base cases.** `ways(1) = 1` (only one way: a single step). `ways(2) = 2` (either two single steps, or one double step). These are the smallest cases that can't be broken down further \u2014 every other value bottoms out at one of these.\n\n**Step 4 \u2014 recognize this is Fibonacci.** `ways(n) = ways(n-1) + ways(n-2)` with those base cases is exactly the Fibonacci sequence (shifted). Recognizing this shortcut isn't necessary to solve it correctly, but it's a useful sanity check and a common \"aha\" moment interviewers watch for.\n\n**Step 5 \u2014 naive recursion has overlapping subproblems.** If you implement `ways(n)` as plain recursion with no caching, computing `ways(5)` calls `ways(4)` and `ways(3)`; `ways(4)` itself calls `ways(3)` and `ways(2)` \u2014 notice `ways(3)` gets computed twice already, and this duplication compounds exponentially as `n` grows (`O(2^n)` calls total). That's the overlapping-subproblems signal that says \"cache this.\"\n\n**Step 6 \u2014 bottom-up tabulation.** Instead of top-down recursion with a memo, build the answer iteratively from the base cases upward: start with `prev = ways(1) = 1` and `curr = ways(2) = 2`, then for each step from 3 to `n`, compute `next = prev + curr`, then slide the window forward (`prev = curr`, `curr = next`). By the time the loop ends, `curr` holds `ways(n)`.\n\n**Step 7 \u2014 complexity, reasoned.** Each of the `n - 2` loop iterations does O(1) work (one addition, two assignments), so time is `O(n)`. Because each step only ever needs the *previous two* values \u2014 never the full history \u2014 you don't need an array of size `n` at all; two variables suffice, giving `O(1)` space. This \"realize you only need the last k rows of the table\" insight is one of the most common DP space optimizations, and it's worth explicitly checking for on every DP problem you solve, even ones that start out looking like they need a full table.",
+        "variationsMarkdown": "Once the \"define state -> find recurrence -> base case -> tabulate\" workflow clicks, most other DP problems are variations on where the state and recurrence come from:\n\n- **Choice-based 1D DP** (House Robber, House Robber II, Jump Game): at each index, the recurrence is a *choice* between two or more options (e.g. rob this house and skip the previous, or skip this house and keep the previous best) \u2014 `dp[i] = max(dp[i-1], dp[i-2] + nums[i])` for House Robber, expressing \"the best total up to house i is either the same as up to i-1 (skip house i), or the best up to i-2 plus this house's value (rob house i).\"\n- **Running/reset DP** (Maximum Subarray, Maximum Product Subarray): the state at index i asks \"what's the best value of a subarray/subsequence *ending exactly here*,\" and the recurrence decides whether to extend the previous run or restart fresh at the current element.\n- **Counting-paths 2D DP** (Unique Paths, Unique Paths II, Minimum Path Sum): state is a grid cell `(row, col)`; the recurrence combines the cell above and the cell to the left, since those are the only two ways to have arrived at this cell.\n- **Two-string alignment 2D DP** (Longest Common Subsequence, Edit Distance, Distinct Subsequences): state is a pair of indices, one into each string; the recurrence branches on whether the two current characters match.\n- **Unbounded/bounded knapsack-style DP** (Coin Change, Combination Sum IV, Partition Equal Subset Sum, Target Sum): state is \"index or coin choice\" plus \"remaining amount/capacity\"; the recurrence tries including vs. excluding the current item (bounded) or reusing it unlimited times (unbounded, like coins).\n- **Interval DP** (Palindromic Substrings, Longest Palindromic Substring, Burst Balloons): state is a *range* `[i, j]` rather than a single index, and the recurrence typically combines results from smaller sub-ranges inside `[i, j]`.",
         "signalPhrases": [
-          "count the number of distinct ways / how many ways to reach... → counting DP",
-          "maximum / minimum ... subject to constraints, with choices at each step → optimization DP",
-          "longest / shortest common ... between two sequences → 2D string-alignment DP",
-          "can you partition / can it be split into ... → subset-sum / partition DP",
-          "minimum number of \\[coins/jumps/operations\\] to reach ... → unbounded/bounded knapsack-style DP",
-          "'the answer to a smaller version of this problem helps solve the bigger one' — any recursive-feeling problem where brute force is exponential"
+          "count the number of distinct ways / how many ways to reach... \u2192 counting DP",
+          "maximum / minimum ... subject to constraints, with choices at each step \u2192 optimization DP",
+          "longest / shortest common ... between two sequences \u2192 2D string-alignment DP",
+          "can you partition / can it be split into ... \u2192 subset-sum / partition DP",
+          "minimum number of \\[coins/jumps/operations\\] to reach ... \u2192 unbounded/bounded knapsack-style DP",
+          "'the answer to a smaller version of this problem helps solve the bigger one' \u2014 any recursive-feeling problem where brute force is exponential"
         ],
-        "commonMistakesMarkdown": "- **Jumping straight to code without stating the recurrence out loud first.** If you can't say \"`dp[state] = ...` in terms of smaller states\" in a sentence, you don't have a DP solution yet — you have a hope. Always state the recurrence and base cases before writing a single line of code.\n- **Wrong or missing base cases.** Off-by-one errors here (e.g. using `dp[0] = 0` when it should be `dp[0] = 1`, or vice versa) silently propagate through the entire table and are hard to spot from the final wrong answer alone — trace the first 2-3 values by hand.\n- **Confusing \"the answer depends on this subproblem\" with \"this subproblem depends on the answer\"** — i.e., getting the recurrence direction backwards, especially in 2D grid problems (is `dp[i][j]` built from `dp[i-1][j]`/`dp[i][j-1]`, or the reverse?).\n- **Recomputing without memoizing** in a top-down solution — if you write the recursive version first (which is a fine way to *think*), don't forget the actual caching step (a `Map`/object/array keyed by state), or you've written the exponential brute force with extra steps.\n- **Iterating in the wrong order for bottom-up tabulation** — e.g. for unbounded knapsack (Coin Change), iterating coins in the outer loop vs. amount in the outer loop changes whether you're counting permutations or combinations; getting this backwards gives a subtly wrong count, not a crash.\n- **Missing the space optimization** — building a full `O(n)` or `O(n·m)` table when the recurrence only ever looks back 1-2 steps, when `O(1)` or `O(n)` space would do. Not wrong, but worth explicitly mentioning you *could* optimize it, since it's a very common interviewer follow-up.",
-        "complexityMarkdown": "**Time is (number of distinct states) × (work per state).** For 1D DP over an array of length n with O(1) work per state (like Climbing Stairs or House Robber), that's `O(n)` time. For 2D DP over two sequences of length n and m with O(1) work per cell (like Longest Common Subsequence), that's `O(n·m)` time — you're filling an n×m table, one cell at a time, each cell taking constant work given its neighbors are already known.\n\n**Space is, naively, one slot per state** — `O(n)` for 1D, `O(n·m)` for 2D — because that's how large the memo/table is. The key optimization to always consider: if the recurrence for state i only ever references a small fixed window of *previous* states (e.g. i-1 and i-2, as in Climbing Stairs, or just the previous row in a 2D grid problem), you can discard everything older than that window, collapsing 1D space to `O(1)` or 2D space from `O(n·m)` down to `O(m)` (just the previous row). This is why reasoning about *which* previous states a recurrence actually touches — not just writing the table — is where the real space-complexity understanding comes from, rather than memorizing \"DP is O(n) space.\""
+        "commonMistakesMarkdown": "- **Jumping straight to code without stating the recurrence out loud first.** If you can't say \"`dp[state] = ...` in terms of smaller states\" in a sentence, you don't have a DP solution yet \u2014 you have a hope. Always state the recurrence and base cases before writing a single line of code.\n- **Wrong or missing base cases.** Off-by-one errors here (e.g. using `dp[0] = 0` when it should be `dp[0] = 1`, or vice versa) silently propagate through the entire table and are hard to spot from the final wrong answer alone \u2014 trace the first 2-3 values by hand.\n- **Confusing \"the answer depends on this subproblem\" with \"this subproblem depends on the answer\"** \u2014 i.e., getting the recurrence direction backwards, especially in 2D grid problems (is `dp[i][j]` built from `dp[i-1][j]`/`dp[i][j-1]`, or the reverse?).\n- **Recomputing without memoizing** in a top-down solution \u2014 if you write the recursive version first (which is a fine way to *think*), don't forget the actual caching step (a `Map`/object/array keyed by state), or you've written the exponential brute force with extra steps.\n- **Iterating in the wrong order for bottom-up tabulation** \u2014 e.g. for unbounded knapsack (Coin Change), iterating coins in the outer loop vs. amount in the outer loop changes whether you're counting permutations or combinations; getting this backwards gives a subtly wrong count, not a crash.\n- **Missing the space optimization** \u2014 building a full `O(n)` or `O(n\u00b7m)` table when the recurrence only ever looks back 1-2 steps, when `O(1)` or `O(n)` space would do. Not wrong, but worth explicitly mentioning you *could* optimize it, since it's a very common interviewer follow-up.",
+        "complexityMarkdown": "**Time is (number of distinct states) \u00d7 (work per state).** For 1D DP over an array of length n with O(1) work per state (like Climbing Stairs or House Robber), that's `O(n)` time. For 2D DP over two sequences of length n and m with O(1) work per cell (like Longest Common Subsequence), that's `O(n\u00b7m)` time \u2014 you're filling an n\u00d7m table, one cell at a time, each cell taking constant work given its neighbors are already known.\n\n**Space is, naively, one slot per state** \u2014 `O(n)` for 1D, `O(n\u00b7m)` for 2D \u2014 because that's how large the memo/table is. The key optimization to always consider: if the recurrence for state i only ever references a small fixed window of *previous* states (e.g. i-1 and i-2, as in Climbing Stairs, or just the previous row in a 2D grid problem), you can discard everything older than that window, collapsing 1D space to `O(1)` or 2D space from `O(n\u00b7m)` down to `O(m)` (just the previous row). This is why reasoning about *which* previous states a recurrence actually touches \u2014 not just writing the table \u2014 is where the real space-complexity understanding comes from, rather than memorizing \"DP is O(n) space.\""
       },
       "bugTracingExercise": {
         "prompt": "Below is a buggy attempt at House Robber (given an array of house values, no two adjacent houses can be robbed, maximize total loot). It looks like a reasonable DP solution and passes on some inputs, but gives the wrong answer on others. Find the bug before running it.\n\n```javascript\nfunction rob(nums) {\n  if (nums.length === 0) return 0;\n  if (nums.length === 1) return nums[0];\n\n  const dp = new Array(nums.length);\n  dp[0] = nums[0];\n  dp[1] = nums[1];\n\n  for (let i = 2; i < nums.length; i++) {\n    dp[i] = Math.max(dp[i - 1], dp[i - 2] + nums[i]);\n  }\n\n  return dp[nums.length - 1];\n}\n```\n\nWhat's wrong, and on what kind of input does it fail? What's the minimal fix?",
-        "solutionWalkthroughMarkdown": "**The bug is the base case `dp[1] = nums[1]`.** `dp[i]` is supposed to mean \"the maximum loot achievable considering houses `0` through `i`\" — not \"the value of house `i` alone.\" For `dp[1]`, that means: the best of *either* robbing house 0, *or* robbing house 1 (you can't rob both if they're small, but more importantly, you're never forced to rob house 1 just because you're considering it — you're choosing the best option up to that point). The correct base case is `dp[1] = Math.max(nums[0], nums[1])`, not `dp[1] = nums[1]`.\n\n**Why it passes on some inputs:** if `nums[1] >= nums[0]` (house 1 is worth at least as much as house 0), then `Math.max(nums[0], nums[1])` equals `nums[1]` anyway, so the bug produces the same result by coincidence. It only surfaces when `nums[0] > nums[1]` — e.g. `nums = [5, 1, 1, 5]`. Correct answer: rob houses 0 and 3 for `5 + 5 = 10`. But with the bug, `dp[1] = 1` (wrongly discarding the fact that house 0's value of 5 was available at this point), and that wrong `dp[1] = 1` then propagates forward: `dp[2] = max(dp[1], dp[0] + nums[2]) = max(1, 5 + 1) = 6`, `dp[3] = max(dp[2], dp[1] + nums[3]) = max(6, 1 + 5) = 6` — the algorithm returns `6` instead of the correct `10`, because the corrupted `dp[1]` silently undercounts the option of having robbed house 0 alone up through index 1.\n\n**The fix:**\n```javascript\nfunction rob(nums) {\n  if (nums.length === 0) return 0;\n  if (nums.length === 1) return nums[0];\n\n  const dp = new Array(nums.length);\n  dp[0] = nums[0];\n  dp[1] = Math.max(nums[0], nums[1]); // fixed: best of the two options up through index 1\n\n  for (let i = 2; i < nums.length; i++) {\n    dp[i] = Math.max(dp[i - 1], dp[i - 2] + nums[i]);\n  }\n\n  return dp[nums.length - 1];\n}\n```\n\nThe general lesson (see Common Mistakes above): **a base case has to satisfy the same definition of `dp[i]` as every other entry** — \"the best answer considering everything up to and including i\" — not just \"whatever value happens to be sitting at that index in the input.\" Whenever a DP solution passes some tests and silently fails others with no crash, mismatched base-case semantics is one of the first things worth checking by hand-tracing the first 2-3 entries of the table.\""
+        "solutionWalkthroughMarkdown": "**The bug is the base case `dp[1] = nums[1]`.** `dp[i]` is supposed to mean \"the maximum loot achievable considering houses `0` through `i`\" \u2014 not \"the value of house `i` alone.\" For `dp[1]`, that means: the best of *either* robbing house 0, *or* robbing house 1 (you can't rob both if they're small, but more importantly, you're never forced to rob house 1 just because you're considering it \u2014 you're choosing the best option up to that point). The correct base case is `dp[1] = Math.max(nums[0], nums[1])`, not `dp[1] = nums[1]`.\n\n**Why it passes on some inputs:** if `nums[1] >= nums[0]` (house 1 is worth at least as much as house 0), then `Math.max(nums[0], nums[1])` equals `nums[1]` anyway, so the bug produces the same result by coincidence. It only surfaces when `nums[0] > nums[1]` \u2014 e.g. `nums = [5, 1, 1, 5]`. Correct answer: rob houses 0 and 3 for `5 + 5 = 10`. But with the bug, `dp[1] = 1` (wrongly discarding the fact that house 0's value of 5 was available at this point), and that wrong `dp[1] = 1` then propagates forward: `dp[2] = max(dp[1], dp[0] + nums[2]) = max(1, 5 + 1) = 6`, `dp[3] = max(dp[2], dp[1] + nums[3]) = max(6, 1 + 5) = 6` \u2014 the algorithm returns `6` instead of the correct `10`, because the corrupted `dp[1]` silently undercounts the option of having robbed house 0 alone up through index 1.\n\n**The fix:**\n```javascript\nfunction rob(nums) {\n  if (nums.length === 0) return 0;\n  if (nums.length === 1) return nums[0];\n\n  const dp = new Array(nums.length);\n  dp[0] = nums[0];\n  dp[1] = Math.max(nums[0], nums[1]); // fixed: best of the two options up through index 1\n\n  for (let i = 2; i < nums.length; i++) {\n    dp[i] = Math.max(dp[i - 1], dp[i - 2] + nums[i]);\n  }\n\n  return dp[nums.length - 1];\n}\n```\n\nThe general lesson (see Common Mistakes above): **a base case has to satisfy the same definition of `dp[i]` as every other entry** \u2014 \"the best answer considering everything up to and including i\" \u2014 not just \"whatever value happens to be sitting at that index in the input.\" Whenever a DP solution passes some tests and silently fails others with no crash, mismatched base-case semantics is one of the first things worth checking by hand-tracing the first 2-3 entries of the table.\""
       },
       "problems": [
         {
@@ -319,55 +323,64 @@
           "name": "House Robber",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/house-robber/"
+          "externalUrl": "https://leetcode.com/problems/house-robber/",
+          "linkedProblemId": "house-robber"
         },
         {
           "name": "Unique Paths",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/unique-paths/"
+          "externalUrl": "https://leetcode.com/problems/unique-paths/",
+          "linkedProblemId": "unique-paths"
         },
         {
           "name": "Longest Common Subsequence",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/longest-common-subsequence/"
+          "externalUrl": "https://leetcode.com/problems/longest-common-subsequence/",
+          "linkedProblemId": "longest-common-subsequence"
         },
         {
           "name": "Coin Change",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/coin-change/"
+          "externalUrl": "https://leetcode.com/problems/coin-change/",
+          "linkedProblemId": "coin-change"
         },
         {
           "name": "House Robber II",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/house-robber-ii/"
+          "externalUrl": "https://leetcode.com/problems/house-robber-ii/",
+          "linkedProblemId": "house-robber-ii"
         },
         {
           "name": "Longest Increasing Subsequence",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/longest-increasing-subsequence/"
+          "externalUrl": "https://leetcode.com/problems/longest-increasing-subsequence/",
+          "linkedProblemId": "longest-increasing-subsequence"
         },
         {
           "name": "Word Break",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/word-break/"
+          "externalUrl": "https://leetcode.com/problems/word-break/",
+          "linkedProblemId": "word-break"
         },
         {
           "name": "Combination Sum IV",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/combination-sum-iv/"
+          "externalUrl": "https://leetcode.com/problems/combination-sum-iv/",
+          "linkedProblemId": "combination-sum-iv"
         },
         {
           "name": "Decode Ways",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/decode-ways/"
+          "externalUrl": "https://leetcode.com/problems/decode-ways/",
+          "linkedProblemId": "decode-ways"
         },
         {
           "name": "Unique Paths II",
@@ -379,7 +392,8 @@
           "name": "Jump Game",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/jump-game/"
+          "externalUrl": "https://leetcode.com/problems/jump-game/",
+          "linkedProblemId": "jump-game"
         },
         {
           "name": "Jump Game II",
@@ -391,13 +405,15 @@
           "name": "Maximum Subarray",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/maximum-subarray/"
+          "externalUrl": "https://leetcode.com/problems/maximum-subarray/",
+          "linkedProblemId": "maximum-subarray"
         },
         {
           "name": "Maximum Product Subarray",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/maximum-product-subarray/"
+          "externalUrl": "https://leetcode.com/problems/maximum-product-subarray/",
+          "linkedProblemId": "maximum-product-subarray"
         },
         {
           "name": "Partition Equal Subset Sum",
@@ -415,13 +431,15 @@
           "name": "Longest Palindromic Substring",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/longest-palindromic-substring/"
+          "externalUrl": "https://leetcode.com/problems/longest-palindromic-substring/",
+          "linkedProblemId": "longest-palindromic-substring"
         },
         {
           "name": "Palindromic Substrings",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/palindromic-substrings/"
+          "externalUrl": "https://leetcode.com/problems/palindromic-substrings/",
+          "linkedProblemId": "palindromic-substrings"
         },
         {
           "name": "Edit Distance",
@@ -451,7 +469,8 @@
           "name": "Counting Bits",
           "difficulty": "easy",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/counting-bits/"
+          "externalUrl": "https://leetcode.com/problems/counting-bits/",
+          "linkedProblemId": "counting-bits"
         },
         {
           "name": "Minimum Path Sum",
@@ -498,7 +517,7 @@
       "priorityRank": 3,
       "likelihoodWeight": 0.55,
       "complexityTier": "complexity-ceiling",
-      "conceptNotes": "Explicitly the hardest topic reported to show up — not optional, and not just another item in the list. Implement with path compression + union by rank/size to get near-O(1) amortized operations. The bug-prone parts: forgetting path compression, and off-by-one errors when initializing parent pointers.",
+      "conceptNotes": "Explicitly the hardest topic reported to show up \u2014 not optional, and not just another item in the list. Implement with path compression + union by rank/size to get near-O(1) amortized operations. The bug-prone parts: forgetting path compression, and off-by-one errors when initializing parent pointers.",
       "problems": [
         {
           "name": "Number of Provinces",
@@ -522,13 +541,15 @@
           "name": "Graph Valid Tree (Union-Find)",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/graph-valid-tree/"
+          "externalUrl": "https://leetcode.com/problems/graph-valid-tree/",
+          "linkedProblemId": "graph-valid-tree"
         },
         {
           "name": "Number of Connected Components in an Undirected Graph (Union-Find)",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/number-of-connected-components-in-an-undirected-graph/"
+          "externalUrl": "https://leetcode.com/problems/number-of-connected-components-in-an-undirected-graph/",
+          "linkedProblemId": "number-of-connected-components-in-an-undirected-graph"
         },
         {
           "name": "Number of Islands II",
@@ -587,7 +608,8 @@
           "name": "Maximum Depth of Binary Tree",
           "difficulty": "easy",
           "role": "canonical_easy",
-          "externalUrl": "https://leetcode.com/problems/maximum-depth-of-binary-tree/"
+          "externalUrl": "https://leetcode.com/problems/maximum-depth-of-binary-tree/",
+          "linkedProblemId": "maximum-depth-of-binary-tree"
         },
         {
           "name": "Level Order Traversal",
@@ -611,7 +633,8 @@
           "name": "Invert Binary Tree",
           "difficulty": "easy",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/invert-binary-tree/"
+          "externalUrl": "https://leetcode.com/problems/invert-binary-tree/",
+          "linkedProblemId": "invert-binary-tree"
         },
         {
           "name": "Balanced Binary Tree",
@@ -623,13 +646,15 @@
           "name": "Same Tree",
           "difficulty": "easy",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/same-tree/"
+          "externalUrl": "https://leetcode.com/problems/same-tree/",
+          "linkedProblemId": "same-tree"
         },
         {
           "name": "Subtree of Another Tree",
           "difficulty": "easy",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/subtree-of-another-tree/"
+          "externalUrl": "https://leetcode.com/problems/subtree-of-another-tree/",
+          "linkedProblemId": "subtree-of-another-tree"
         },
         {
           "name": "Binary Tree Right Side View",
@@ -641,37 +666,43 @@
           "name": "Construct Binary Tree from Preorder and Inorder Traversal",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/"
+          "externalUrl": "https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/",
+          "linkedProblemId": "construct-binary-tree-from-preorder-and-inorder-traversal"
         },
         {
           "name": "Validate Binary Search Tree",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/validate-binary-search-tree/"
+          "externalUrl": "https://leetcode.com/problems/validate-binary-search-tree/",
+          "linkedProblemId": "validate-binary-search-tree"
         },
         {
           "name": "Kth Smallest Element in a BST",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/kth-smallest-element-in-a-bst/"
+          "externalUrl": "https://leetcode.com/problems/kth-smallest-element-in-a-bst/",
+          "linkedProblemId": "kth-smallest-element-in-a-bst"
         },
         {
           "name": "Lowest Common Ancestor of a Binary Search Tree",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/"
+          "externalUrl": "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/",
+          "linkedProblemId": "lowest-common-ancestor-of-a-binary-search-tree"
         },
         {
           "name": "Binary Tree Maximum Path Sum",
           "difficulty": "hard",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/binary-tree-maximum-path-sum/"
+          "externalUrl": "https://leetcode.com/problems/binary-tree-maximum-path-sum/",
+          "linkedProblemId": "binary-tree-maximum-path-sum"
         },
         {
           "name": "Serialize and Deserialize Binary Tree",
           "difficulty": "hard",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/serialize-and-deserialize-binary-tree/"
+          "externalUrl": "https://leetcode.com/problems/serialize-and-deserialize-binary-tree/",
+          "linkedProblemId": "serialize-and-deserialize-binary-tree"
         },
         {
           "name": "Binary Tree Zigzag Level Order Traversal",
@@ -724,19 +755,22 @@
           "name": "Top K Frequent Elements",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/top-k-frequent-elements/"
+          "externalUrl": "https://leetcode.com/problems/top-k-frequent-elements/",
+          "linkedProblemId": "top-k-frequent-elements"
         },
         {
           "name": "Merge K Sorted Lists",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/merge-k-sorted-lists/"
+          "externalUrl": "https://leetcode.com/problems/merge-k-sorted-lists/",
+          "linkedProblemId": "merge-k-sorted-lists"
         },
         {
           "name": "Find Median from Data Stream",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/find-median-from-data-stream/"
+          "externalUrl": "https://leetcode.com/problems/find-median-from-data-stream/",
+          "linkedProblemId": "find-median-from-data-stream"
         },
         {
           "name": "K Closest Points to Origin",
@@ -813,43 +847,49 @@
       "priorityRank": 6,
       "likelihoodWeight": 0.45,
       "complexityTier": "important",
-      "conceptNotes": "Hash map get/set is O(1) average (O(n) worst case on pathological collisions — rarely relevant in interviews). This is usually the first optimization to reach for when a brute-force pair/lookup problem is O(n^2).",
+      "conceptNotes": "Hash map get/set is O(1) average (O(n) worst case on pathological collisions \u2014 rarely relevant in interviews). This is usually the first optimization to reach for when a brute-force pair/lookup problem is O(n^2).",
       "problems": [
         {
           "name": "Two Sum",
           "difficulty": "easy",
           "role": "canonical_easy",
-          "externalUrl": "https://leetcode.com/problems/two-sum/"
+          "externalUrl": "https://leetcode.com/problems/two-sum/",
+          "linkedProblemId": "two-sum"
         },
         {
           "name": "Group Anagrams",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/group-anagrams/"
+          "externalUrl": "https://leetcode.com/problems/group-anagrams/",
+          "linkedProblemId": "group-anagrams"
         },
         {
           "name": "Product of Array Except Self",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/product-of-array-except-self/"
+          "externalUrl": "https://leetcode.com/problems/product-of-array-except-self/",
+          "linkedProblemId": "product-of-array-except-self"
         },
         {
           "name": "Longest Consecutive Sequence",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/longest-consecutive-sequence/"
+          "externalUrl": "https://leetcode.com/problems/longest-consecutive-sequence/",
+          "linkedProblemId": "longest-consecutive-sequence"
         },
         {
           "name": "Valid Anagram",
           "difficulty": "easy",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/valid-anagram/"
+          "externalUrl": "https://leetcode.com/problems/valid-anagram/",
+          "linkedProblemId": "valid-anagram"
         },
         {
           "name": "Contains Duplicate",
           "difficulty": "easy",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/contains-duplicate/"
+          "externalUrl": "https://leetcode.com/problems/contains-duplicate/",
+          "linkedProblemId": "contains-duplicate"
         },
         {
           "name": "Top K Frequent Words",
@@ -867,7 +907,8 @@
           "name": "Encode and Decode Strings",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/encode-and-decode-strings/"
+          "externalUrl": "https://leetcode.com/problems/encode-and-decode-strings/",
+          "linkedProblemId": "encode-and-decode-strings"
         },
         {
           "name": "Ransom Note",
@@ -950,7 +991,8 @@
           "name": "Valid Parentheses",
           "difficulty": "easy",
           "role": "canonical_easy",
-          "externalUrl": "https://leetcode.com/problems/valid-parentheses/"
+          "externalUrl": "https://leetcode.com/problems/valid-parentheses/",
+          "linkedProblemId": "valid-parentheses"
         },
         {
           "name": "Daily Temperatures",
@@ -1033,7 +1075,8 @@
           "name": "Reverse Linked List",
           "difficulty": "easy",
           "role": "canonical_easy",
-          "externalUrl": "https://leetcode.com/problems/reverse-linked-list/"
+          "externalUrl": "https://leetcode.com/problems/reverse-linked-list/",
+          "linkedProblemId": "reverse-linked-list"
         },
         {
           "name": "Add Two Numbers",
@@ -1045,25 +1088,29 @@
           "name": "Remove Nth Node From End of List",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/remove-nth-node-from-end-of-list/"
+          "externalUrl": "https://leetcode.com/problems/remove-nth-node-from-end-of-list/",
+          "linkedProblemId": "remove-nth-node-from-end-of-list"
         },
         {
           "name": "Merge Two Sorted Lists",
           "difficulty": "easy",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/merge-two-sorted-lists/"
+          "externalUrl": "https://leetcode.com/problems/merge-two-sorted-lists/",
+          "linkedProblemId": "merge-two-sorted-lists"
         },
         {
           "name": "Linked List Cycle",
           "difficulty": "easy",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/linked-list-cycle/"
+          "externalUrl": "https://leetcode.com/problems/linked-list-cycle/",
+          "linkedProblemId": "linked-list-cycle"
         },
         {
           "name": "Reorder List",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/reorder-list/"
+          "externalUrl": "https://leetcode.com/problems/reorder-list/",
+          "linkedProblemId": "reorder-list"
         },
         {
           "name": "Copy List with Random Pointer",
@@ -1110,31 +1157,35 @@
       "priorityRank": 9,
       "likelihoodWeight": 0.3,
       "complexityTier": "important",
-      "conceptNotes": "Almost always starts with sorting by start (or end) time — O(n log n) — then a single linear pass to merge/insert/count overlaps, O(n). The sort is the step people forget to say out loud.",
+      "conceptNotes": "Almost always starts with sorting by start (or end) time \u2014 O(n log n) \u2014 then a single linear pass to merge/insert/count overlaps, O(n). The sort is the step people forget to say out loud.",
       "problems": [
         {
           "name": "Merge Intervals",
           "difficulty": "easy",
           "role": "canonical_easy",
-          "externalUrl": "https://leetcode.com/problems/merge-intervals/"
+          "externalUrl": "https://leetcode.com/problems/merge-intervals/",
+          "linkedProblemId": "merge-intervals"
         },
         {
           "name": "Insert Interval",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/insert-interval/"
+          "externalUrl": "https://leetcode.com/problems/insert-interval/",
+          "linkedProblemId": "insert-interval"
         },
         {
           "name": "Meeting Rooms II",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/meeting-rooms-ii/"
+          "externalUrl": "https://leetcode.com/problems/meeting-rooms-ii/",
+          "linkedProblemId": "meeting-rooms-ii"
         },
         {
           "name": "Non-overlapping Intervals",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/non-overlapping-intervals/"
+          "externalUrl": "https://leetcode.com/problems/non-overlapping-intervals/",
+          "linkedProblemId": "non-overlapping-intervals"
         },
         {
           "name": "Minimum Number of Arrows to Burst Balloons",
@@ -1152,7 +1203,8 @@
           "name": "Meeting Rooms",
           "difficulty": "easy",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/meeting-rooms/"
+          "externalUrl": "https://leetcode.com/problems/meeting-rooms/",
+          "linkedProblemId": "meeting-rooms"
         },
         {
           "name": "My Calendar I",
@@ -1181,25 +1233,28 @@
       "priorityRank": 10,
       "likelihoodWeight": 0.3,
       "complexityTier": "important",
-      "conceptNotes": "Exponential time in general (O(2^n) for subsets, O(n!) for permutations) — the skill being tested is correct pruning and clean choose/explore/un-choose recursion, not beating the asymptotic bound.",
+      "conceptNotes": "Exponential time in general (O(2^n) for subsets, O(n!) for permutations) \u2014 the skill being tested is correct pruning and clean choose/explore/un-choose recursion, not beating the asymptotic bound.",
       "problems": [
         {
           "name": "Subsets",
           "difficulty": "easy",
           "role": "canonical_easy",
-          "externalUrl": "https://leetcode.com/problems/subsets/"
+          "externalUrl": "https://leetcode.com/problems/subsets/",
+          "linkedProblemId": "subsets"
         },
         {
           "name": "Permutations",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/permutations/"
+          "externalUrl": "https://leetcode.com/problems/permutations/",
+          "linkedProblemId": "permutations"
         },
         {
           "name": "Combination Sum",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/combination-sum/"
+          "externalUrl": "https://leetcode.com/problems/combination-sum/",
+          "linkedProblemId": "combination-sum"
         },
         {
           "name": "Subsets II",
@@ -1217,7 +1272,8 @@
           "name": "Word Search",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/word-search/"
+          "externalUrl": "https://leetcode.com/problems/word-search/",
+          "linkedProblemId": "word-search"
         },
         {
           "name": "Palindrome Partitioning",
@@ -1235,7 +1291,8 @@
           "name": "N-Queens",
           "difficulty": "hard",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/n-queens/"
+          "externalUrl": "https://leetcode.com/problems/n-queens/",
+          "linkedProblemId": "n-queens"
         },
         {
           "name": "N-Queens II",
@@ -1282,7 +1339,7 @@
       "priorityRank": 11,
       "likelihoodWeight": 0.35,
       "complexityTier": "stretch",
-      "conceptNotes": "Lower priority to build from scratch since these are typically the most familiar going in — but still worth a canonical easy + two mediums each as a refresher. All three turn an O(n^2) brute force into O(n) (two pointers/sliding window) or O(log n) (binary search) by exploiting sorted order or a monotonic window property.",
+      "conceptNotes": "Lower priority to build from scratch since these are typically the most familiar going in \u2014 but still worth a canonical easy + two mediums each as a refresher. All three turn an O(n^2) brute force into O(n) (two pointers/sliding window) or O(log n) (binary search) by exploiting sorted order or a monotonic window property.",
       "problems": [
         {
           "name": "Two Sum II (Two Pointers)",
@@ -1294,31 +1351,36 @@
           "name": "Longest Substring Without Repeating Characters",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/longest-substring-without-repeating-characters/"
+          "externalUrl": "https://leetcode.com/problems/longest-substring-without-repeating-characters/",
+          "linkedProblemId": "longest-substring-without-repeating-characters"
         },
         {
           "name": "Search in Rotated Sorted Array",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/search-in-rotated-sorted-array/"
+          "externalUrl": "https://leetcode.com/problems/search-in-rotated-sorted-array/",
+          "linkedProblemId": "search-in-rotated-sorted-array"
         },
         {
           "name": "Valid Palindrome",
           "difficulty": "easy",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/valid-palindrome/"
+          "externalUrl": "https://leetcode.com/problems/valid-palindrome/",
+          "linkedProblemId": "valid-palindrome"
         },
         {
           "name": "3Sum",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/3sum/"
+          "externalUrl": "https://leetcode.com/problems/3sum/",
+          "linkedProblemId": "three-sum"
         },
         {
           "name": "Container With Most Water",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/container-with-most-water/"
+          "externalUrl": "https://leetcode.com/problems/container-with-most-water/",
+          "linkedProblemId": "container-with-most-water"
         },
         {
           "name": "Trapping Rain Water",
@@ -1342,13 +1404,15 @@
           "name": "Best Time to Buy and Sell Stock",
           "difficulty": "easy",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/"
+          "externalUrl": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/",
+          "linkedProblemId": "best-time-to-buy-sell-stock"
         },
         {
           "name": "Longest Repeating Character Replacement",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/longest-repeating-character-replacement/"
+          "externalUrl": "https://leetcode.com/problems/longest-repeating-character-replacement/",
+          "linkedProblemId": "longest-repeating-character-replacement"
         },
         {
           "name": "Permutation in String",
@@ -1360,7 +1424,8 @@
           "name": "Minimum Window Substring",
           "difficulty": "hard",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/minimum-window-substring/"
+          "externalUrl": "https://leetcode.com/problems/minimum-window-substring/",
+          "linkedProblemId": "minimum-window-substring"
         },
         {
           "name": "Sliding Window Maximum",
@@ -1384,7 +1449,8 @@
           "name": "Find Minimum in Rotated Sorted Array",
           "difficulty": "medium",
           "role": "medium_variant",
-          "externalUrl": "https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/"
+          "externalUrl": "https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/",
+          "linkedProblemId": "find-minimum-in-rotated-sorted-array"
         },
         {
           "name": "Koko Eating Bananas",

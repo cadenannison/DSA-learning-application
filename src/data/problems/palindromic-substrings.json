@@ -1,0 +1,87 @@
+{
+  "id": "palindromic-substrings",
+  "title": "Palindromic Substrings",
+  "pattern": "dynamic-programming",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Meta",
+    "Google",
+    "Microsoft",
+    "Adobe"
+  ],
+  "prompt": "Given a string `s`, return the total number of palindromic substrings it contains. Substrings that occur at different starting or ending index positions are counted separately, even if the characters they contain are the same.",
+  "examples": [
+    {
+      "input": "s = \"abc\"",
+      "output": "3",
+      "explanation": "\"a\", \"b\", \"c\" are the three palindromic substrings."
+    },
+    {
+      "input": "s = \"aaa\"",
+      "output": "6",
+      "explanation": "\"a\", \"a\", \"a\", \"aa\", \"aa\", \"aaa\" — 6 palindromic substrings, counting positions separately."
+    }
+  ],
+  "constraints": [
+    "1 <= s.length <= 1000",
+    "s consists of lowercase English letters"
+  ],
+  "hints": [
+    "This can be framed as dynamic programming: let dp[i][j] be True if the substring from i to j (inclusive) is a palindrome. A substring is a palindrome if its endpoints match and the substring inside them is also a palindrome (or is short enough not to need an inner check).",
+    "Fill the DP table by increasing substring length, so that when you check dp[i][j] you already know dp[i+1][j-1].",
+    "Equivalently, you can skip the O(n^2) space table entirely and use the 'expand around center' technique from palindrome-substring problems, counting every successful expansion instead of just tracking the longest one."
+  ],
+  "solution": {
+    "approach": "Use the expand-around-center technique: for each of the 2n-1 possible centers (n single-character centers for odd-length palindromes, n-1 between-character centers for even-length palindromes), expand outward while the characters match, counting one palindrome for every successful expansion step. Summing these counts across all centers gives the total number of palindromic substrings in O(n^2) time and O(1) extra space.",
+    "code": "def count_substrings(s):\n    n = len(s)\n    count = 0\n\n    def expand(left, right):\n        nonlocal count\n        while left >= 0 and right < n and s[left] == s[right]:\n            count += 1\n            left -= 1\n            right += 1\n\n    for i in range(n):\n        expand(i, i)\n        expand(i, i + 1)\n\n    return count\n",
+    "timeComplexity": "O(n^2)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def count_substrings(s):\n    # your code here\n    pass\n",
+  "functionName": "count_substrings",
+  "testCases": [
+    {
+      "input": [
+        "abc"
+      ],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [
+        "aaa"
+      ],
+      "expected": 6,
+      "isHidden": false
+    },
+    {
+      "input": [
+        "a"
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        "aa"
+      ],
+      "expected": 3,
+      "isHidden": true
+    },
+    {
+      "input": [
+        "racecar"
+      ],
+      "expected": 10,
+      "isHidden": true
+    },
+    {
+      "input": [
+        "abba"
+      ],
+      "expected": 6,
+      "isHidden": true
+    }
+  ]
+}

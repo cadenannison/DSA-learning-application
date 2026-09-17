@@ -1,0 +1,93 @@
+{
+  "id": "non-overlapping-intervals",
+  "title": "Non-overlapping Intervals",
+  "pattern": "intervals",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon",
+    "Meta",
+    "Bloomberg",
+    "Uber"
+  ],
+  "prompt": "Given an array of intervals `intervals` where `intervals[i] = [start, end]`, return the minimum number of intervals you need to remove so that the rest of the intervals do not overlap. Intervals that only touch at an endpoint (e.g. `[1,2]` and `[2,3]`) are not considered overlapping.",
+  "examples": [
+    {
+      "input": "intervals = [[1,2],[2,3],[3,4],[1,3]]",
+      "output": "1",
+      "explanation": "Remove [1,3] and the rest do not overlap."
+    },
+    {
+      "input": "intervals = [[1,2],[1,2],[1,2]]",
+      "output": "2",
+      "explanation": "You need to remove two [1,2] intervals so only one remains."
+    },
+    {
+      "input": "intervals = [[1,2],[2,3]]",
+      "output": "0",
+      "explanation": "They only touch at an endpoint, so no removal is needed."
+    }
+  ],
+  "constraints": [
+    "1 <= intervals.length <= 10^5",
+    "intervals[i].length == 2",
+    "-5 * 10^4 <= start < end <= 5 * 10^4"
+  ],
+  "hints": [
+    "This is a classic greedy 'activity selection' problem in disguise — think about maximizing how many intervals you can KEEP, then subtract from the total.",
+    "Sort intervals by their end value, not their start value. Greedily keep an interval if it starts at or after the end of the last interval you kept.",
+    "Every time the current interval overlaps the last kept one, that current interval must be the one removed (since it was sorted by end, it ends later or equal, so discarding it never hurts future choices)."
+  ],
+  "solution": {
+    "approach": "Sort intervals by end value. Greedily keep track of the end of the last interval kept, starting at negative infinity. For each interval in sorted order, if its start is >= the last kept end, keep it and update last kept end to its end. Otherwise it overlaps, so count it as removed. The answer is the total count of removed intervals. This greedy works because sorting by end and always keeping the earliest-ending non-overlapping interval maximizes the number of intervals retained.",
+    "code": "def erase_overlap_intervals(intervals):\n    if not intervals:\n        return 0\n    sorted_intervals = sorted(intervals, key=lambda pair: pair[1])\n    removed = 0\n    last_end = float('-inf')\n    for start, end in sorted_intervals:\n        if start >= last_end:\n            last_end = end\n        else:\n            removed += 1\n    return removed\n",
+    "timeComplexity": "O(n log n)",
+    "spaceComplexity": "O(n) for the sorted copy"
+  },
+  "starterCode": "def erase_overlap_intervals(intervals):\n    # your code here\n    pass\n",
+  "functionName": "erase_overlap_intervals",
+  "testCases": [
+    {
+      "input": [
+        [[1, 2], [2, 3], [3, 4], [1, 3]]
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1, 2], [1, 2], [1, 2]]
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1, 2], [2, 3]]
+      ],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1, 100], [11, 22], [1, 11], [2, 12]]
+      ],
+      "expected": 2,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[0, 2], [1, 3], [2, 4], [3, 5], [4, 6]]
+      ],
+      "expected": 2,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[-5, 0], [0, 5]]
+      ],
+      "expected": 0,
+      "isHidden": true
+    }
+  ]
+}

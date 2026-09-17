@@ -1,0 +1,81 @@
+{
+  "id": "clone-graph",
+  "title": "Clone Graph",
+  "pattern": "graphs",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Facebook",
+    "Amazon",
+    "Microsoft"
+  ],
+  "prompt": "You are given a reference to a node in a connected undirected graph. Each node has an integer label and a list of neighbor labels. Return a deep copy (clone) of the graph.\n\nSince this is a coding exercise, the graph is represented as an adjacency list `graph` where `graph[i]` is the list of neighbor labels for the node labeled `i + 1` (nodes are 1-indexed, matching the standard LeetCode representation). Your function should build an internal graph of node objects, clone every node and every edge, then reconstruct and return the clone's adjacency list in the exact same format (a list where index `i` holds the sorted neighbor labels of cloned node `i + 1`), so it can be compared against the original for equality.",
+  "examples": [
+    {
+      "input": "graph = [[2,4],[1,3],[2,4],[1,3]]",
+      "output": "[[2,4],[1,3],[2,4],[1,3]]",
+      "explanation": "Node 1 connects to 2 and 4, node 2 connects to 1 and 3, etc. The clone reproduces the same adjacency structure."
+    },
+    {
+      "input": "graph = [[]]",
+      "output": "[[]]",
+      "explanation": "A single isolated node with no neighbors clones to a single isolated node."
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [0, 100]",
+    "1 <= node label <= 100",
+    "There are no repeated edges and no self-loops",
+    "The graph is connected"
+  ],
+  "hints": [
+    "Use a hash map from original node label to cloned node object so you never clone the same node twice, even when it's reachable through multiple paths.",
+    "Do a DFS (or BFS) from the first node: for each original node, create its clone if it doesn't exist yet, then for every neighbor, create the neighbor's clone (if needed) and link it, recursing into unvisited neighbors.",
+    "Since the graph can have cycles, always check the visited/clone map before recursing into a neighbor to avoid infinite loops."
+  ],
+  "solution": {
+    "approach": "Build a simple graph representation from the input adjacency list. Use DFS starting at node 1, maintaining a map from original label to a cloned node placeholder. For each node visited, clone its neighbors, using the map to avoid re-cloning nodes already seen (which also naturally handles cycles). Finally, walk the clone map to reconstruct the adjacency list in the same index-based format as the input.",
+    "code": "class Node:\n    def __init__(self, val):\n        self.val = val\n        self.neighbors = []\n\n\ndef clone_graph(graph):\n    n = len(graph)\n    if n == 0:\n        return []\n\n    clones = {}\n\n    def dfs(label):\n        if label in clones:\n            return clones[label]\n        clone = Node(label)\n        clones[label] = clone\n        for neighbor_label in graph[label - 1]:\n            clone.neighbors.append(dfs(neighbor_label))\n        return clone\n\n    dfs(1)\n\n    # Make sure every node (even ones only reachable via edges) is cloned.\n    for label in range(1, n + 1):\n        if label not in clones:\n            dfs(label)\n\n    result = [[] for _ in range(n)]\n    for label, clone in clones.items():\n        result[label - 1] = sorted(neighbor.val for neighbor in clone.neighbors)\n    return result\n",
+    "timeComplexity": "O(V + E)",
+    "spaceComplexity": "O(V)"
+  },
+  "starterCode": "class Node:\n    def __init__(self, val):\n        self.val = val\n        self.neighbors = []\n\n\ndef clone_graph(graph):\n    # your code here\n    pass\n",
+  "functionName": "clone_graph",
+  "testCases": [
+    {
+      "input": [
+        [[2, 4], [1, 3], [2, 4], [1, 3]]
+      ],
+      "expected": [[2, 4], [1, 3], [2, 4], [1, 3]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[]]
+      ],
+      "expected": [[]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        []
+      ],
+      "expected": [],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[2], [1]]
+      ],
+      "expected": [[2], [1]],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[2, 3], [1, 3], [1, 2]]
+      ],
+      "expected": [[2, 3], [1, 3], [1, 2]],
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "id": "longest-consecutive-sequence",
+  "title": "Longest Consecutive Sequence",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Meta",
+    "Google",
+    "Microsoft",
+    "ByteDance"
+  ],
+  "prompt": "Given an unsorted array of integers `nums`, return the length of the longest run of consecutive integers (e.g. `[3,4,5,6]`) that can be formed using numbers from the array. Your algorithm must run in `O(n)` time.",
+  "examples": [
+    {
+      "input": "nums = [100,4,200,1,3,2]",
+      "output": "4",
+      "explanation": "The longest consecutive sequence is [1,2,3,4], with length 4."
+    },
+    {
+      "input": "nums = [0,3,7,2,5,8,4,6,0,1]",
+      "output": "9",
+      "explanation": "The longest consecutive sequence is [0,1,2,3,4,5,6,7,8], with length 9."
+    }
+  ],
+  "constraints": [
+    "0 <= nums.length <= 10^5",
+    "-10^9 <= nums[i] <= 10^9"
+  ],
+  "hints": [
+    "Sorting gives an easy O(n log n) solution — the challenge is doing it in O(n).",
+    "Put all numbers in a set for O(1) lookups. A number can only be the START of a sequence if num - 1 is NOT in the set.",
+    "For each number that starts a sequence, count upward (num+1, num+2, ...) while each next value is in the set, tracking the longest run found. Each number is only ever visited as part of one sequence's counting, keeping the total work O(n)."
+  ],
+  "solution": {
+    "approach": "Put all numbers into a hash set for O(1) membership checks. For each number, only treat it as the potential start of a sequence if num - 1 is not present in the set (otherwise it would be counted as part of a longer sequence starting earlier). From each such start, repeatedly check for num + 1, num + 2, and so on, counting the length of the run. Because only true sequence starts trigger an inner scan, and each number is visited by at most one such scan across the whole run, the total work stays O(n) despite the nested-looking loop.",
+    "code": "def longest_consecutive(nums):\n    num_set = set(nums)\n    best = 0\n\n    for num in num_set:\n        if num - 1 not in num_set:\n            length = 1\n            current = num\n            while current + 1 in num_set:\n                current += 1\n                length += 1\n            best = max(best, length)\n\n    return best\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def longest_consecutive(nums):\n    # your code here\n    pass\n",
+  "functionName": "longest_consecutive",
+  "testCases": [
+    {
+      "input": [
+        [100, 4, 200, 1, 3, 2]
+      ],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0, 3, 7, 2, 5, 8, 4, 6, 0, 1]
+      ],
+      "expected": 9,
+      "isHidden": false
+    },
+    {
+      "input": [
+        []
+      ],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 0, 1]
+      ],
+      "expected": 3,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [9, 1, 4, 7, 3, -1, 0, 5, 8, -1, 6]
+      ],
+      "expected": 7,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [5]
+      ],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "id": "encode-and-decode-strings",
+  "title": "Encode and Decode Strings",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Meta",
+    "Amazon",
+    "Uber",
+    "Microsoft"
+  ],
+  "prompt": "Design an algorithm to encode a list of strings into a single string, and decode that single string back into the original list of strings. Your encoding must be able to handle any string, including ones containing arbitrary characters like spaces, digits, colons, or any of your chosen delimiter characters.\n\nNormally this is implemented as two separate functions, `encode(strs)` and `decode(s)`, used together by a caller. Since this app's test harness checks a single function's return value, implement one combined function `encode_decode(strs)` that internally encodes the list into a string and then immediately decodes that string back into a list, returning the result. A correct implementation should always return a list equal to the original input `strs`, which is exactly what the test cases verify — this checks that your encode/decode pair round-trips correctly for tricky inputs (empty strings, strings containing delimiter-like characters, etc.).",
+  "examples": [
+    {
+      "input": "strs = [\"lint\",\"code\",\"love\",\"you\"]",
+      "output": "[\"lint\",\"code\",\"love\",\"you\"]",
+      "explanation": "Encoding then decoding returns the original list unchanged."
+    },
+    {
+      "input": "strs = [\"we\",\"say\",\":\",\"yes\"]",
+      "output": "[\"we\",\"say\",\":\",\"yes\"]",
+      "explanation": "Even though one string is just a colon (a common naive delimiter), the round trip must still be exact."
+    }
+  ],
+  "constraints": [
+    "0 <= strs.length <= 200",
+    "0 <= strs[i].length <= 200",
+    "strs[i] contains any possible characters out of 256 valid ASCII characters, including delimiter-like characters and empty strings"
+  ],
+  "hints": [
+    "A naive approach like joining with a comma or colon breaks as soon as a string itself contains that character. You need a delimiter scheme that can't be confused with string content.",
+    "A common trick from network protocols: prefix each string with its length before a fixed separator that can't be misread as part of the length, e.g. `4#lint`.",
+    "To decode, read digits until you hit the separator to know the exact length of the next chunk, then consume exactly that many characters as the string (regardless of what they contain), and repeat from there."
+  ],
+  "solution": {
+    "approach": "Encode each string as `<length>#<string>`, concatenating these chunks with no separator needed between them since the length prefix tells the decoder exactly how many characters to consume next. To decode, scan for the '#' character to read the length, convert it to an int, then take exactly that many following characters as the next string, advancing the read pointer past them, and repeat until the encoded string is exhausted. Because the length is read explicitly rather than inferred from a delimiter, this handles strings containing any characters, including digits, '#', or empty strings.",
+    "code": "def encode_decode(strs):\n    def encode(strings):\n        encoded = []\n        for s in strings:\n            encoded.append(str(len(s)) + \"#\" + s)\n        return \"\".join(encoded)\n\n    def decode(s):\n        result = []\n        i = 0\n        while i < len(s):\n            j = i\n            while s[j] != \"#\":\n                j += 1\n            length = int(s[i:j])\n            start = j + 1\n            result.append(s[start:start + length])\n            i = start + length\n        return result\n\n    encoded = encode(strs)\n    return decode(encoded)\n",
+    "timeComplexity": "O(n) total characters across all strings, for both encode and decode",
+    "spaceComplexity": "O(n) for the encoded string and decoded result"
+  },
+  "starterCode": "def encode_decode(strs):\n    # your code here\n    pass\n",
+  "functionName": "encode_decode",
+  "testCases": [
+    {
+      "input": [
+        ["lint", "code", "love", "you"]
+      ],
+      "expected": ["lint", "code", "love", "you"],
+      "isHidden": false
+    },
+    {
+      "input": [
+        ["we", "say", ":", "yes"]
+      ],
+      "expected": ["we", "say", ":", "yes"],
+      "isHidden": false
+    },
+    {
+      "input": [
+        []
+      ],
+      "expected": [],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [""]
+      ],
+      "expected": [""],
+      "isHidden": true
+    },
+    {
+      "input": [
+        ["", "", "a"]
+      ],
+      "expected": ["", "", "a"],
+      "isHidden": true
+    },
+    {
+      "input": [
+        ["4#lint", "5#code"]
+      ],
+      "expected": ["4#lint", "5#code"],
+      "isHidden": true
+    },
+    {
+      "input": [
+        ["a", "bc", "def", ""]
+      ],
+      "expected": ["a", "bc", "def", ""],
+      "isHidden": true
+    }
+  ]
+}

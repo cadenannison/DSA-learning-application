@@ -320,7 +320,8 @@ function RecommendationCard({ overview }: { overview: StudyPlanOverview }) {
       <p className="text-sm text-text-1">{rec.reason}</p>
       {rec.oaPrepSuggestion && <p className="mt-2 text-sm text-text-2">{rec.oaPrepSuggestion}</p>}
       <p className="mt-2 text-xs text-text-2">
-        Suggested budget today: {rec.suggestedMinutesToday} minutes
+        Suggested budget today: {rec.suggestedMinutesToday} minutes · drill queue est.{" "}
+        {rec.drillQueueEstimatedMinutes} minutes
       </p>
     </div>
   )

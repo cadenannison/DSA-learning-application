@@ -1,0 +1,91 @@
+{
+  "id": "lowest-common-ancestor-of-a-binary-search-tree",
+  "title": "Lowest Common Ancestor of a Binary Search Tree",
+  "pattern": "trees",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Facebook",
+    "Microsoft",
+    "LinkedIn"
+  ],
+  "prompt": "Given the `root` of a binary search tree, and the values `p` and `q` of two nodes guaranteed to exist in the tree, return the value of their lowest common ancestor (LCA) — the deepest node in the tree that has both nodes as descendants (a node is allowed to be a descendant of itself).\n\nThe tree is given as a level-order array where `null` marks a missing child (the standard LeetCode serialization). Your function receives this array along with the values `p` and `q`; the starter code includes a helper that builds the tree from the array, so you only need to find and return the LCA's value.",
+  "examples": [
+    {
+      "input": "root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8",
+      "output": "6",
+      "explanation": "The LCA of nodes 2 and 8 is the root, 6, since they're in different subtrees of it."
+    },
+    {
+      "input": "root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 4",
+      "output": "2",
+      "explanation": "Node 4 is a descendant of node 2, so 2 is its own LCA with node 4."
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [2, 10^5]",
+    "-10^9 <= Node.val <= 10^9",
+    "All node values are unique",
+    "p and q both exist in the tree and p != q"
+  ],
+  "hints": [
+    "Use the BST ordering property: at any node, you can tell which subtree(s) p and q are in just by comparing their values to the current node's value, without searching both sides blindly.",
+    "If both p and q are smaller than the current node's value, the LCA must be in the left subtree. If both are larger, it must be in the right subtree.",
+    "The first node you reach (walking down from the root) where p and q are no longer both on the same side — i.e. one is <= the node and the other is >=, or the node's value equals one of them — is the LCA."
+  ],
+  "solution": {
+    "approach": "Exploit the BST property: starting at the root, compare both target values to the current node's value. If both are less than the current node, the LCA must lie in the left subtree, so move left. If both are greater, move right. Otherwise (they diverge, or the current node equals one of them), the current node is the split point and thus the LCA.",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef lowest_common_ancestor(root_arr, p, q):\n    root = build_tree(root_arr)\n    node = root\n    while node:\n        if p < node.val and q < node.val:\n            node = node.left\n        elif p > node.val and q > node.val:\n            node = node.right\n        else:\n            return node.val\n    return None\n",
+    "timeComplexity": "O(h), h = tree height",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef lowest_common_ancestor(root_arr, p, q):\n    root = build_tree(root_arr)\n    # your code here\n    pass\n",
+  "functionName": "lowest_common_ancestor",
+  "testCases": [
+    {
+      "input": [
+        [6, 2, 8, 0, 4, 7, 9, null, null, 3, 5],
+        2,
+        8
+      ],
+      "expected": 6,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [6, 2, 8, 0, 4, 7, 9, null, null, 3, 5],
+        2,
+        4
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [2, 1],
+        2,
+        1
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [6, 2, 8, 0, 4, 7, 9, null, null, 3, 5],
+        0,
+        5
+      ],
+      "expected": 2,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [6, 2, 8, 0, 4, 7, 9, null, null, 3, 5],
+        7,
+        9
+      ],
+      "expected": 8,
+      "isHidden": true
+    }
+  ]
+}

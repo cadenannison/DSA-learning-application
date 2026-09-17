@@ -60,7 +60,8 @@ export function TestResults({ result }: { result: ExecutionResult }) {
               <div className={`flex items-center gap-2 font-medium ${statusColor(testResult.status)}`}>
                 {passed ? <CheckIcon /> : <XIcon />}
                 <span>
-                  Case {index + 1}: {statusLabel(testResult.status)}
+                  Case {index + 1}
+                  {testResult.name ? ` · ${testResult.name}` : ""}: {statusLabel(testResult.status)}
                   {testResult.isHidden && passed ? " (hidden)" : ""}
                 </span>
               </div>

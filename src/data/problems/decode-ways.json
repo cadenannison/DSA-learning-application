@@ -1,0 +1,99 @@
+{
+  "id": "decode-ways",
+  "title": "Decode Ways",
+  "pattern": "dynamic-programming",
+  "difficulty": "medium",
+  "companies": [
+    "Facebook",
+    "Amazon",
+    "Microsoft",
+    "Uber",
+    "Bloomberg"
+  ],
+  "prompt": "A message of uppercase English letters is encoded to digits using the mapping 'A' -> \"1\", 'B' -> \"2\", ..., 'Z' -> \"26\". Given a string `s` containing only digits, return the number of ways it can be decoded back into letters. A leading zero in any grouping makes that grouping invalid (e.g. \"06\" cannot map to 'F'), and the empty string decodes in exactly one way (the base case).",
+  "examples": [
+    {
+      "input": "s = \"12\"",
+      "output": "2",
+      "explanation": "\"12\" could be decoded as \"AB\" (1, 2) or \"L\" (12)."
+    },
+    {
+      "input": "s = \"226\"",
+      "output": "3",
+      "explanation": "\"226\" could be decoded as \"BZ\" (2, 26), \"VF\" (22, 6), or \"BBF\" (2, 2, 6)."
+    },
+    {
+      "input": "s = \"06\"",
+      "output": "0",
+      "explanation": "\"06\" cannot be decoded because \"6\" cannot have a leading zero prefix and \"06\" is not a valid two-digit code."
+    }
+  ],
+  "constraints": [
+    "1 <= s.length <= 100",
+    "s consists of only digits and may contain leading zeros"
+  ],
+  "hints": [
+    "At each position, you can potentially decode either 1 digit or 2 digits as a chunk — but not every digit or pair is valid.",
+    "Define dp[i] = number of ways to decode the prefix s[0:i]. dp[i] can build on dp[i-1] (decode s[i-1] alone, if it's not '0') and on dp[i-2] (decode s[i-2:i] as a two-digit code, if it's between '10' and '26').",
+    "Base cases: dp[0] = 1 (empty prefix), and dp[1] = 1 if s[0] != '0' else 0. Watch out for strings starting with '0' entirely — they have zero valid decodings."
+  ],
+  "solution": {
+    "approach": "Bottom-up DP where dp[i] is the number of ways to decode s[0:i]. dp[0] = 1 as the base case (empty string decodes trivially). For each i from 1 to len(s): if s[i-1] != '0', a single-digit decode is valid, so add dp[i-1]. If i >= 2 and the two-character chunk s[i-2:i] represents a number between 10 and 26 inclusive, a two-digit decode is valid, so add dp[i-2]. The final answer is dp[len(s)]; if no valid decodings ever accumulate for a given position, dp stays 0 there, correctly propagating invalidity forward.",
+    "code": "def num_decodings(s):\n    n = len(s)\n    dp = [0] * (n + 1)\n    dp[0] = 1\n    dp[1] = 1 if s[0] != '0' else 0\n\n    for i in range(2, n + 1):\n        one_digit = s[i - 1:i]\n        two_digit = s[i - 2:i]\n\n        if one_digit != '0':\n            dp[i] += dp[i - 1]\n        if 10 <= int(two_digit) <= 26:\n            dp[i] += dp[i - 2]\n\n    return dp[n]\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def num_decodings(s):\n    # your code here\n    pass\n",
+  "functionName": "num_decodings",
+  "testCases": [
+    {
+      "input": [
+        "12"
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        "226"
+      ],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [
+        "06"
+      ],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [
+        "0"
+      ],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [
+        "10"
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        "27"
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        "111111"
+      ],
+      "expected": 13,
+      "isHidden": true
+    }
+  ]
+}

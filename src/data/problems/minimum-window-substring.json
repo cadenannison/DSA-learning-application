@@ -1,0 +1,97 @@
+{
+  "id": "minimum-window-substring",
+  "title": "Minimum Window Substring",
+  "pattern": "sliding-window",
+  "difficulty": "hard",
+  "companies": [
+    "Meta",
+    "Amazon",
+    "Google",
+    "Microsoft",
+    "Uber"
+  ],
+  "prompt": "Given two strings `s` and `t`, return the shortest substring of `s` that contains every character of `t` (including duplicates) at least as many times as it appears in `t`. If no such substring exists, return an empty string `\"\"`.",
+  "examples": [
+    {
+      "input": "s = \"ADOBECODEBANC\", t = \"ABC\"",
+      "output": "\"BANC\"",
+      "explanation": "\"BANC\" is the smallest substring of s that includes 'A', 'B', and 'C'."
+    },
+    {
+      "input": "s = \"a\", t = \"a\"",
+      "output": "\"a\""
+    },
+    {
+      "input": "s = \"a\", t = \"aa\"",
+      "output": "\"\"",
+      "explanation": "t requires two 'a' characters, but s only contains one."
+    }
+  ],
+  "constraints": [
+    "1 <= s.length, t.length <= 10^5",
+    "s and t consist of English letters (upper and lower case)"
+  ],
+  "hints": [
+    "Use a sliding window that expands to the right until it satisfies all character requirements of t, then contracts from the left as much as possible while still satisfying them.",
+    "Keep a frequency map of required characters from t, and a counter of how many distinct required characters are currently 'fully satisfied' in the window.",
+    "Every time the window fully satisfies all requirements, try shrinking from the left and record the window if it's the smallest valid one seen so far, then continue expanding right."
+  ],
+  "solution": {
+    "approach": "Build a frequency map of characters needed from t. Use two pointers to expand a window over s, tracking a frequency map of the window's characters that are relevant to t, plus a counter of how many distinct characters currently meet their required count. When the counter equals the number of distinct characters in t (the window is 'valid'), try to shrink the window from the left as much as possible while staying valid, updating the best (smallest) window found each time. Continue expanding right until the end of s.",
+    "code": "def min_window(s, t):\n    if not s or not t:\n        return \"\"\n\n    need = {}\n    for ch in t:\n        need[ch] = need.get(ch, 0) + 1\n\n    required = len(need)\n    window_counts = {}\n    formed = 0\n\n    left = 0\n    best_len = float('inf')\n    best_left = 0\n\n    for right, ch in enumerate(s):\n        window_counts[ch] = window_counts.get(ch, 0) + 1\n        if ch in need and window_counts[ch] == need[ch]:\n            formed += 1\n\n        while formed == required:\n            if right - left + 1 < best_len:\n                best_len = right - left + 1\n                best_left = left\n\n            left_ch = s[left]\n            window_counts[left_ch] -= 1\n            if left_ch in need and window_counts[left_ch] < need[left_ch]:\n                formed -= 1\n            left += 1\n\n    if best_len == float('inf'):\n        return \"\"\n    return s[best_left:best_left + best_len]\n",
+    "timeComplexity": "O(|s| + |t|)",
+    "spaceComplexity": "O(|s| + |t|)"
+  },
+  "starterCode": "def min_window(s, t):\n    # your code here\n    pass\n",
+  "functionName": "min_window",
+  "testCases": [
+    {
+      "input": [
+        "ADOBECODEBANC",
+        "ABC"
+      ],
+      "expected": "BANC",
+      "isHidden": false
+    },
+    {
+      "input": [
+        "a",
+        "a"
+      ],
+      "expected": "a",
+      "isHidden": false
+    },
+    {
+      "input": [
+        "a",
+        "aa"
+      ],
+      "expected": "",
+      "isHidden": false
+    },
+    {
+      "input": [
+        "ab",
+        "b"
+      ],
+      "expected": "b",
+      "isHidden": true
+    },
+    {
+      "input": [
+        "aa",
+        "aa"
+      ],
+      "expected": "aa",
+      "isHidden": true
+    },
+    {
+      "input": [
+        "cabwefgewcwaefgcf",
+        "cae"
+      ],
+      "expected": "cwae",
+      "isHidden": true
+    }
+  ]
+}

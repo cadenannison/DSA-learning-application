@@ -74,6 +74,7 @@ const testCaseSchema = z.object({
   input: z.array(z.unknown()),
   expected: z.unknown(),
   isHidden: z.boolean(),
+  name: z.string().optional(),
 })
 
 export const problemSchema = z.object({
@@ -150,6 +151,7 @@ const testCaseResultSchema = z.object({
   isHidden: z.boolean(),
   stdout: z.string(),
   errorMessage: z.string().nullable(),
+  name: z.string().optional(),
 })
 
 export const executionResultSchema = z.object({
@@ -409,6 +411,7 @@ export const studyProblemSchema = z.object({
   timeTakenMinutes: z.number().int().min(0).nullable(),
   constraintAddedMidSolve: z.boolean().nullable(),
   linkedProblemId: z.string().nullable(),
+  estimatedMinutes: z.number().int().min(0),
 })
 
 export const extendedLessonSchema = z.object({
@@ -511,6 +514,7 @@ export const studyRecommendationSchema = z.object({
   daysRemaining: z.number().int().nullable(),
   suggestedMinutesToday: z.number().int().min(0),
   oaPrepSuggestion: z.string().nullable(),
+  drillQueueEstimatedMinutes: z.number().int().min(0),
 })
 
 export const drillQueueEntrySchema = z.object({
@@ -527,6 +531,7 @@ export const drillQueueEntrySchema = z.object({
   likelihoodWeight: z.number().min(0).max(1),
   readiness: studyReadinessSchema,
   dueAt: z.string().nullable(),
+  estimatedMinutes: z.number().int().min(0),
 })
 
 export const studyPlanOverviewSchema = z.object({

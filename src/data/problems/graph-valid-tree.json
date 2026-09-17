@@ -1,0 +1,94 @@
+{
+  "id": "graph-valid-tree",
+  "title": "Graph Valid Tree",
+  "pattern": "graphs",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Facebook",
+    "Amazon",
+    "Microsoft"
+  ],
+  "prompt": "You have a graph of `n` nodes labeled `0` to `n - 1`, and a list `edges` where `edges[i] = [a, b]` indicates an undirected edge between nodes `a` and `b`. Return `true` if these edges form a valid tree (a connected, acyclic graph), or `false` otherwise.",
+  "examples": [
+    {
+      "input": "n = 5, edges = [[0,1],[0,2],[0,3],[1,4]]",
+      "output": "true",
+      "explanation": "All 5 nodes are connected with exactly 4 edges and no cycles \u2014 a valid tree."
+    },
+    {
+      "input": "n = 5, edges = [[0,1],[1,2],[2,3],[1,3],[1,4]]",
+      "output": "false",
+      "explanation": "Nodes 1, 2, and 3 form a cycle, so this is not a valid tree."
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 2000",
+    "0 <= edges.length <= 5000",
+    "edges[i].length == 2",
+    "There are no self-loops or repeated edges"
+  ],
+  "hints": [
+    "A graph with n nodes is a valid tree only if it's connected AND has exactly n - 1 edges. If it has more edges than that, it must contain a cycle; if fewer, it can't be connected.",
+    "Union-Find (disjoint set union) is a natural fit: process each edge and union its two endpoints. If two endpoints are already in the same set before you union them, adding that edge creates a cycle.",
+    "After checking the edge count is exactly n - 1 and no cycle was found while unioning, confirm all nodes ended up in a single connected component (one root remains)."
+  ],
+  "solution": {
+    "approach": "First check the necessary edge count: a tree on n nodes must have exactly n - 1 edges (otherwise it can't be both connected and acyclic). Then use Union-Find: for each edge, find the roots of its two endpoints. If they're already the same root, this edge would create a cycle, so return false. Otherwise union them. If we get through all edges without detecting a cycle and the edge count matches n - 1, the graph is guaranteed to be a single connected acyclic component, i.e. a valid tree.",
+    "code": "def valid_tree(n, edges):\n    if len(edges) != n - 1:\n        return False\n\n    parent = list(range(n))\n\n    def find(x):\n        while parent[x] != x:\n            parent[x] = parent[parent[x]]\n            x = parent[x]\n        return x\n\n    for a, b in edges:\n        root_a, root_b = find(a), find(b)\n        if root_a == root_b:\n            return False\n        parent[root_a] = root_b\n\n    return True\n",
+    "timeComplexity": "O(n * alpha(n)), alpha = inverse Ackermann (effectively O(n))",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def valid_tree(n, edges):\n    # your code here\n    pass\n",
+  "functionName": "valid_tree",
+  "testCases": [
+    {
+      "input": [
+        5,
+        [[0, 1], [0, 2], [0, 3], [1, 4]]
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        5,
+        [[0, 1], [1, 2], [2, 3], [1, 3], [1, 4]]
+      ],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [
+        1,
+        []
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        4,
+        [[0, 1], [2, 3]]
+      ],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": [
+        2,
+        [[0, 1]]
+      ],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [
+        3,
+        [[0, 1], [1, 2], [0, 2]]
+      ],
+      "expected": false,
+      "isHidden": true
+    }
+  ]
+}

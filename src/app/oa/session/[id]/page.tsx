@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation"
 import { use, useCallback, useEffect, useRef, useState } from "react"
 import { CodeEditor } from "@/components/code-editor"
+import { ResetCodeButton } from "@/components/reset-code-button"
 import { TestResults } from "@/components/test-results"
 import { apiClient } from "@/lib/api-client"
 import { OASessionPresenter, type OASessionView } from "@/presenter/oa-session-presenter"
@@ -197,6 +198,12 @@ export default function OASessionPage({ params }: { params: Promise<{ id: string
               >
                 Submit
               </button>
+              <ResetCodeButton
+                onReset={() => {
+                  setCode(problemContent.starterCode)
+                  if (activeProblemId) presenter.saveProgress(activeProblemId, problemContent.starterCode)
+                }}
+              />
             </div>
 
             {(() => {

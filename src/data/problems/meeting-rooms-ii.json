@@ -1,0 +1,87 @@
+{
+  "id": "meeting-rooms-ii",
+  "title": "Meeting Rooms II",
+  "pattern": "intervals",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Meta",
+    "Amazon",
+    "Microsoft",
+    "Uber"
+  ],
+  "prompt": "Given an array of meeting time intervals `intervals` where `intervals[i] = [start, end]`, return the minimum number of conference rooms required to hold all the meetings without any overlap within a room.",
+  "examples": [
+    {
+      "input": "intervals = [[0,30],[5,10],[15,20]]",
+      "output": "2",
+      "explanation": "One room hosts [0,30]; a second room hosts [5,10] then [15,20]."
+    },
+    {
+      "input": "intervals = [[7,10],[2,4]]",
+      "output": "1",
+      "explanation": "The meetings don't overlap, so one room suffices."
+    }
+  ],
+  "constraints": [
+    "1 <= intervals.length <= 10^4",
+    "0 <= start[i] < end[i] <= 10^6"
+  ],
+  "hints": [
+    "Think about the problem as tracking how many meetings are simultaneously in progress at any moment — the answer is the maximum of that count.",
+    "Separate all start times and all end times into two sorted lists, then sweep through them in time order.",
+    "Use two pointers over the sorted starts and sorted ends: whenever the next start is before the next end, a new room is needed (increment a counter); whenever a meeting ends, a room frees up (decrement). Track the running maximum."
+  ],
+  "solution": {
+    "approach": "Split the intervals into a sorted list of start times and a sorted list of end times. Sweep through both with two pointers: if the next start time is earlier than the next end time, a meeting is beginning before another ends, so we need an additional room (increment rooms and track the max); otherwise a room frees up (advance the end pointer). This simulates the number of concurrently active meetings without needing a heap.",
+    "code": "def min_meeting_rooms(intervals):\n    if not intervals:\n        return 0\n\n    starts = sorted(interval[0] for interval in intervals)\n    ends = sorted(interval[1] for interval in intervals)\n\n    s_ptr = 0\n    e_ptr = 0\n    rooms = 0\n    max_rooms = 0\n\n    while s_ptr < len(starts):\n        if starts[s_ptr] < ends[e_ptr]:\n            rooms += 1\n            s_ptr += 1\n            max_rooms = max(max_rooms, rooms)\n        else:\n            rooms -= 1\n            e_ptr += 1\n\n    return max_rooms\n",
+    "timeComplexity": "O(n log n)",
+    "spaceComplexity": "O(n) for the sorted start/end arrays"
+  },
+  "starterCode": "def min_meeting_rooms(intervals):\n    # your code here\n    pass\n",
+  "functionName": "min_meeting_rooms",
+  "testCases": [
+    {
+      "input": [
+        [[0, 30], [5, 10], [15, 20]]
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[7, 10], [2, 4]]
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1, 5]]
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1, 10], [2, 7], [3, 19], [8, 12], [10, 20], [11, 30]]
+      ],
+      "expected": 4,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[1, 5], [5, 10], [10, 15]]
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[1, 4], [2, 5], [3, 6]]
+      ],
+      "expected": 3,
+      "isHidden": true
+    }
+  ]
+}

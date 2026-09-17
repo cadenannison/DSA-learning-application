@@ -1,0 +1,107 @@
+{
+  "id": "linked-list-cycle",
+  "title": "Linked List Cycle",
+  "pattern": "linked-list",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Bloomberg",
+    "Apple",
+    "ByteDance"
+  ],
+  "prompt": "Given a linked list, determine whether it contains a cycle, where some node's `next` pointer eventually points back to an earlier node in the list instead of `null`.\n\nSince a JSON test case can't represent an actual cyclic pointer structure, the list is encoded as `[values, pos]`: `values` is the array of node values in order, and `pos` is the zero-based index of the node that the last node's `next` pointer connects back to (forming a cycle at that node), or `-1` if there is no cycle at all. For example, `values = [3,2,0,-4], pos = 1` means the list is `3 -> 2 -> 0 -> -4 -> (back to node at index 1, i.e. the node with value 2)`. Your function should build the real linked structure (with the cycle, if any) internally from this encoding, then determine whether a cycle exists and return `True` or `False`.",
+  "examples": [
+    {
+      "input": "values = [3,2,0,-4], pos = 1",
+      "output": "true",
+      "explanation": "There is a cycle: the tail connects back to the node at index 1 (value 2)."
+    },
+    {
+      "input": "values = [1,2], pos = 0",
+      "output": "true",
+      "explanation": "The tail connects back to the head, forming a cycle."
+    },
+    {
+      "input": "values = [1], pos = -1",
+      "output": "false",
+      "explanation": "No cycle; the single node's next is null."
+    }
+  ],
+  "constraints": [
+    "The number of nodes in the list is in the range [0, 10^4]",
+    "-10^5 <= Node.val <= 10^5",
+    "pos is -1 or a valid index into values"
+  ],
+  "hints": [
+    "Detecting a cycle without extra memory means you can't just store every node you've visited in a set (well, you could, but there's a more elegant O(1)-space trick).",
+    "Floyd's cycle detection: use two pointers, one moving one step at a time and one moving two steps at a time.",
+    "If there is a cycle, the fast pointer will eventually lap the slow pointer and they will point to the exact same node. If the fast pointer reaches null first, there is no cycle."
+  ],
+  "solution": {
+    "approach": "Build the actual linked list from the values array, then, if pos is not -1, connect the last node's next pointer to the node at index pos to form a real cycle. Run Floyd's tortoise-and-hare: a slow pointer advances one node at a time, a fast pointer advances two nodes at a time. If they ever meet (same node reference), a cycle exists. If the fast pointer reaches null (or its next is null), there is no cycle.",
+    "code": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef build_cyclic_list(values, pos):\n    if not values:\n        return None\n    nodes = [ListNode(v) for v in values]\n    for i in range(len(nodes) - 1):\n        nodes[i].next = nodes[i + 1]\n    if pos != -1:\n        nodes[-1].next = nodes[pos]\n    return nodes[0]\n\n\ndef has_cycle(values, pos):\n    head = build_cyclic_list(values, pos)\n    slow = head\n    fast = head\n    while fast and fast.next:\n        slow = slow.next\n        fast = fast.next.next\n        if slow is fast:\n            return True\n    return False\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef build_cyclic_list(values, pos):\n    if not values:\n        return None\n    nodes = [ListNode(v) for v in values]\n    for i in range(len(nodes) - 1):\n        nodes[i].next = nodes[i + 1]\n    if pos != -1:\n        nodes[-1].next = nodes[pos]\n    return nodes[0]\n\n\ndef has_cycle(values, pos):\n    head = build_cyclic_list(values, pos)\n    # your code here\n    pass\n",
+  "functionName": "has_cycle",
+  "testCases": [
+    {
+      "input": [
+        [3, 2, 0, -4],
+        1
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2],
+        0
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1],
+        -1
+      ],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [],
+        -1
+      ],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3, 4, 5],
+        -1
+      ],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3, 4, 5],
+        4
+      ],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3],
+        2
+      ],
+      "expected": true,
+      "isHidden": true
+    }
+  ]
+}

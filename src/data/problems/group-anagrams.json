@@ -1,0 +1,91 @@
+{
+  "id": "group-anagrams",
+  "title": "Group Anagrams",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Meta",
+    "Uber",
+    "Microsoft",
+    "Bloomberg"
+  ],
+  "prompt": "Given an array of strings `strs`, group the anagrams together. You may return the groups in any order, but to keep grading deterministic here, return the groups ordered by the position of each group's first-occurring string in the input, and list words inside each group in the order they appeared in the input.",
+  "examples": [
+    {
+      "input": "strs = [\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"]",
+      "output": "[[\"eat\",\"tea\",\"ate\"],[\"tan\",\"nat\"],[\"bat\"]]",
+      "explanation": "'eat', 'tea', and 'ate' are anagrams of each other; 'tan' and 'nat' are anagrams; 'bat' stands alone. Groups appear in the order their first member first appeared."
+    },
+    {
+      "input": "strs = [\"\"]",
+      "output": "[[\"\"]]"
+    },
+    {
+      "input": "strs = [\"a\"]",
+      "output": "[[\"a\"]]"
+    }
+  ],
+  "constraints": [
+    "1 <= strs.length <= 10^4",
+    "0 <= strs[i].length <= 100",
+    "strs[i] consists of lowercase English letters only"
+  ],
+  "hints": [
+    "Two strings are anagrams exactly when they contain the same letters with the same frequencies — what canonical form captures that?",
+    "Sorting the characters of a string gives a canonical key: all anagrams sort to the identical string.",
+    "Use a hash map from the sorted-string key to a list of original strings; walk the input once, appending each string to its key's bucket, then return the buckets in first-seen order."
+  ],
+  "solution": {
+    "approach": "For each string, compute a canonical key by sorting its characters — anagrams always produce the same sorted key. Use an ordered dictionary mapping each key to the list of original strings that share it, appending to the appropriate bucket as we scan the input once left to right. Because a regular Python dict preserves insertion order, iterating its values at the end naturally yields groups ordered by their first occurrence, with words inside each group in input order.",
+    "code": "def group_anagrams(strs):\n    groups = {}\n    for s in strs:\n        key = ''.join(sorted(s))\n        if key not in groups:\n            groups[key] = []\n        groups[key].append(s)\n    return list(groups.values())\n",
+    "timeComplexity": "O(n * k log k) where n is the number of strings and k is the max string length",
+    "spaceComplexity": "O(n * k)"
+  },
+  "starterCode": "def group_anagrams(strs):\n    # your code here\n    pass\n",
+  "functionName": "group_anagrams",
+  "testCases": [
+    {
+      "input": [
+        ["eat", "tea", "tan", "ate", "nat", "bat"]
+      ],
+      "expected": [["eat", "tea", "ate"], ["tan", "nat"], ["bat"]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [""]
+      ],
+      "expected": [[""]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        ["a"]
+      ],
+      "expected": [["a"]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        ["abc", "bca", "cab", "xyz"]
+      ],
+      "expected": [["abc", "bca", "cab"], ["xyz"]],
+      "isHidden": true
+    },
+    {
+      "input": [
+        ["ab", "ba", "abc"]
+      ],
+      "expected": [["ab", "ba"], ["abc"]],
+      "isHidden": true
+    },
+    {
+      "input": [
+        ["", ""]
+      ],
+      "expected": [["", ""]],
+      "isHidden": true
+    }
+  ]
+}

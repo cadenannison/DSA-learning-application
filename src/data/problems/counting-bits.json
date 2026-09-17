@@ -1,0 +1,73 @@
+{
+  "id": "counting-bits",
+  "title": "Counting Bits",
+  "pattern": "dynamic-programming",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Microsoft",
+    "Apple"
+  ],
+  "prompt": "Given an integer `n`, return an array `ans` of length `n + 1` where `ans[i]` is the number of `1` bits in the binary representation of `i`, for every `i` from `0` to `n`.",
+  "examples": [
+    {
+      "input": "n = 2",
+      "output": "[0,1,1]",
+      "explanation": "0 is 0 (0 bits), 1 is 1 (1 bit), 2 is 10 (1 bit)."
+    },
+    {
+      "input": "n = 5",
+      "output": "[0,1,1,2,1,2]",
+      "explanation": "0=0(0), 1=1(1), 2=10(1), 3=11(2), 4=100(1), 5=101(2)"
+    }
+  ],
+  "constraints": [
+    "0 <= n <= 10^5"
+  ],
+  "hints": [
+    "You could count bits for each number independently in O(log n) each, but can you reuse previous answers?",
+    "Every number i relates to a smaller number by removing its lowest set bit, or by right-shifting by one.",
+    "Use the relation ans[i] = ans[i >> 1] + (i & 1): shifting right by one drops the last bit, and you add back 1 if that dropped bit was a 1."
+  ],
+  "solution": {
+    "approach": "Build the answer array bottom-up using the recurrence ans[i] = ans[i >> 1] + (i & 1). Shifting i right by one bit removes its least significant bit, whose bit count we've already computed; adding back (i & 1) accounts for whether that removed bit was itself a 1. This lets each answer be computed in O(1) using previously computed results, giving an overall O(n) solution instead of O(n log n) from counting bits independently for each number.",
+    "code": "def count_bits(n):\n    ans = [0] * (n + 1)\n    for i in range(1, n + 1):\n        ans[i] = ans[i >> 1] + (i & 1)\n    return ans\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n) for the output array"
+  },
+  "starterCode": "def count_bits(n):\n    # your code here\n    pass\n",
+  "functionName": "count_bits",
+  "testCases": [
+    {
+      "input": [2],
+      "expected": [0, 1, 1],
+      "isHidden": false
+    },
+    {
+      "input": [5],
+      "expected": [0, 1, 1, 2, 1, 2],
+      "isHidden": false
+    },
+    {
+      "input": [0],
+      "expected": [0],
+      "isHidden": false
+    },
+    {
+      "input": [1],
+      "expected": [0, 1],
+      "isHidden": true
+    },
+    {
+      "input": [8],
+      "expected": [0, 1, 1, 2, 1, 2, 2, 3, 1],
+      "isHidden": true
+    },
+    {
+      "input": [15],
+      "expected": [0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4],
+      "isHidden": true
+    }
+  ]
+}

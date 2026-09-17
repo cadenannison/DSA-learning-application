@@ -18,37 +18,39 @@ const WORKER_SCRIPT_PATH = path.join(process.cwd(), "src/server/sandbox/python_w
 // The parent enforces this as a wall-clock deadline via `setTimeout`, on *this* thread's event
 // loop, which the worker process can never block since it's a separate OS process.
 function timeoutResult(testCases: TestCase[], runtimeMs: number): ExecutionResult {
-  const result: TestCaseResult = {
-    status: "timeout",
-    input: [],
-    expected: undefined,
-    actual: undefined,
-    isHidden: false,
-    stdout: "",
-    errorMessage: "Execution exceeded the wall-clock time limit",
-  }
-
   return {
     allPassed: false,
-    results: testCases.map(() => result),
+    results: testCases.map(
+      (testCase): TestCaseResult => ({
+        status: "timeout",
+        input: [],
+        expected: undefined,
+        actual: undefined,
+        isHidden: false,
+        stdout: "",
+        errorMessage: "Execution exceeded the wall-clock time limit",
+        name: testCase.name,
+      })
+    ),
     runtimeMs,
   }
 }
 
 function errorResult(testCases: TestCase[], runtimeMs: number, message: string): ExecutionResult {
-  const result: TestCaseResult = {
-    status: "runtime_error",
-    input: [],
-    expected: undefined,
-    actual: undefined,
-    isHidden: false,
-    stdout: "",
-    errorMessage: message,
-  }
-
   return {
     allPassed: false,
-    results: testCases.map(() => result),
+    results: testCases.map(
+      (testCase): TestCaseResult => ({
+        status: "runtime_error",
+        input: [],
+        expected: undefined,
+        actual: undefined,
+        isHidden: false,
+        stdout: "",
+        errorMessage: message,
+        name: testCase.name,
+      })
+    ),
     runtimeMs,
   }
 }

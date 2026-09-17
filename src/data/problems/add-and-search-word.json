@@ -1,0 +1,95 @@
+{
+  "id": "add-and-search-word",
+  "title": "Add and Search Word",
+  "pattern": "tries",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Facebook",
+    "Amazon",
+    "Uber"
+  ],
+  "prompt": "The classic version of this problem defines a `WordDictionary` class supporting interleaved `addWord` and `search` calls. Since this test harness calls a single pure function per test case rather than exercising a stateful object, we adapt it: implement `add_search_word(words_to_add, queries)`.\n\nFirst, insert every word in `words_to_add` into a trie (all insertions happen up front). Then, for each pattern in `queries`, determine whether it matches any word in the trie, where a `.` in the pattern can match any single letter. Return a list of booleans, one per query, in order.\n\nA pattern matches a word if they're the same length and every non-`.` character in the pattern equals the corresponding character in the word.",
+  "examples": [
+    {
+      "input": "words_to_add = [\"bad\",\"dad\",\"mad\"], queries = [\"pad\",\"bad\",\".ad\",\"b..\"]",
+      "output": "[false,true,true,true]",
+      "explanation": "\"pad\" matches no inserted word. \"bad\" matches exactly. \".ad\" matches \"bad\", \"dad\", or \"mad\" (any letter in the first slot). \"b..\" matches \"bad\" (any letters in slots 2 and 3)."
+    },
+    {
+      "input": "words_to_add = [\"a\"], queries = [\"a\",\".\",\"aa\"]",
+      "output": "[true,true,false]",
+      "explanation": "\"a\" matches exactly, \".\" matches \"a\" via wildcard, \"aa\" doesn't match since lengths differ."
+    }
+  ],
+  "constraints": [
+    "1 <= words_to_add.length, queries.length <= 10^4",
+    "1 <= word length, query length <= 25",
+    "words_to_add[i] consists of lowercase English letters",
+    "queries[i] consists of lowercase English letters and/or '.'",
+    "At most 2 dots appear in any single query"
+  ],
+  "hints": [
+    "Build a standard trie from words_to_add first, where each node maps a character to a child node and tracks whether a word ends there.",
+    "Searching a pattern is a normal trie walk EXCEPT when you hit a '.': since it can match any letter, you must try every child at that position, recursively continuing the search from each one.",
+    "Write the search as a recursive helper taking (pattern, index, current node). At a '.', loop over all children of the current node and return true if any recursive branch succeeds; otherwise, follow the single matching character as usual."
+  ],
+  "solution": {
+    "approach": "Build a trie by inserting every word in words_to_add up front, exactly as in a standard trie: each node has a dict of children keyed by character and a flag marking word endings. For searching, use a recursive function that walks the pattern character by character against a current trie node. On a normal letter, follow the matching child if it exists, or fail. On a '.', since it can represent any letter, branch into every child of the current node and return true if any branch leads to a full match. A match succeeds when we've consumed the whole pattern and the current node is marked as a word ending.",
+    "code": "def add_search_word(words_to_add, queries):\n    root = {'children': {}, 'is_end': False}\n\n    def insert(word):\n        node = root\n        for ch in word:\n            if ch not in node['children']:\n                node['children'][ch] = {'children': {}, 'is_end': False}\n            node = node['children'][ch]\n        node['is_end'] = True\n\n    def dfs(word, index, node):\n        if index == len(word):\n            return node['is_end']\n\n        ch = word[index]\n        if ch == '.':\n            for child in node['children'].values():\n                if dfs(word, index + 1, child):\n                    return True\n            return False\n        else:\n            child = node['children'].get(ch)\n            if child is None:\n                return False\n            return dfs(word, index + 1, child)\n\n    for word in words_to_add:\n        insert(word)\n\n    return [dfs(query, 0, root) for query in queries]\n",
+    "timeComplexity": "O(total characters inserted) for building, and O(26^d * L) worst case per query with d dots and length L",
+    "spaceComplexity": "O(total characters inserted)"
+  },
+  "starterCode": "def add_search_word(words_to_add, queries):\n    # your code here\n    pass\n",
+  "functionName": "add_search_word",
+  "testCases": [
+    {
+      "input": [
+        ["bad", "dad", "mad"],
+        ["pad", "bad", ".ad", "b.."]
+      ],
+      "expected": [false, true, true, true],
+      "isHidden": false
+    },
+    {
+      "input": [
+        ["a"],
+        ["a", ".", "aa"]
+      ],
+      "expected": [true, true, false],
+      "isHidden": false
+    },
+    {
+      "input": [
+        ["cat", "car", "cart"],
+        ["ca.", "c...", "..r", "cart"]
+      ],
+      "expected": [true, true, true, true],
+      "isHidden": false
+    },
+    {
+      "input": [
+        ["dog"],
+        ["..."]
+      ],
+      "expected": [true],
+      "isHidden": true
+    },
+    {
+      "input": [
+        ["dog"],
+        ["...."]
+      ],
+      "expected": [false],
+      "isHidden": true
+    },
+    {
+      "input": [
+        ["abc", "abd", "abe"],
+        ["ab.", "a.c", "..."]
+      ],
+      "expected": [true, true, true],
+      "isHidden": true
+    }
+  ]
+}

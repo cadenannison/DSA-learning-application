@@ -1,0 +1,73 @@
+{
+  "id": "unique-paths",
+  "title": "Unique Paths",
+  "pattern": "dynamic-programming",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Facebook",
+    "Snapchat"
+  ],
+  "prompt": "A robot sits at the top-left corner of an `m x n` grid. It can only move either down or right at any point in time, and it is trying to reach the bottom-right corner. Given the two integers `m` and `n`, return the number of distinct paths from the top-left to the bottom-right corner.",
+  "examples": [
+    {
+      "input": "m = 3, n = 7",
+      "output": "28"
+    },
+    {
+      "input": "m = 3, n = 2",
+      "output": "3",
+      "explanation": "From the top-left, there are 3 distinct paths to the bottom-right: Right->Down->Down, Down->Right->Down, Down->Down->Right."
+    }
+  ],
+  "constraints": [
+    "1 <= m, n <= 100",
+    "The answer is guaranteed to fit in a 32-bit integer"
+  ],
+  "hints": [
+    "The number of paths to reach any cell only depends on the number of paths to reach the cell above it and the cell to its left, since those are the only two ways to arrive.",
+    "Define dp[r][c] = number of distinct paths to reach cell (r, c). The entire first row and first column are all 1 (only one way to reach any cell along the top edge or left edge: keep going straight).",
+    "For every other cell, dp[r][c] = dp[r-1][c] + dp[r][c-1]. The answer is dp[m-1][n-1]."
+  ],
+  "solution": {
+    "approach": "Build a 2D DP table of size m x n where dp[r][c] is the number of distinct paths from the start to cell (r, c). The first row and first column are all 1, since there's exactly one way to reach any cell along the top or left edge (straight down or straight right). For every interior cell, the robot could have arrived from directly above or directly to the left, so dp[r][c] = dp[r-1][c] + dp[r][c-1]. The final answer is dp[m-1][n-1], the bottom-right corner.",
+    "code": "def unique_paths(m, n):\n    dp = [[1] * n for _ in range(m)]\n\n    for r in range(1, m):\n        for c in range(1, n):\n            dp[r][c] = dp[r - 1][c] + dp[r][c - 1]\n\n    return dp[m - 1][n - 1]\n",
+    "timeComplexity": "O(m * n)",
+    "spaceComplexity": "O(m * n)"
+  },
+  "starterCode": "def unique_paths(m, n):\n    # your code here\n    pass\n",
+  "functionName": "unique_paths",
+  "testCases": [
+    {
+      "input": [3, 7],
+      "expected": 28,
+      "isHidden": false
+    },
+    {
+      "input": [3, 2],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [1, 1],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [7, 3],
+      "expected": 28,
+      "isHidden": true
+    },
+    {
+      "input": [1, 10],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [10, 10],
+      "expected": 48620,
+      "isHidden": true
+    }
+  ]
+}

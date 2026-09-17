@@ -1,0 +1,87 @@
+{
+  "id": "container-with-most-water",
+  "title": "Container With Most Water",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Bloomberg",
+    "Adobe",
+    "Apple"
+  ],
+  "prompt": "You are given an integer array `height` of length `n`, where `height[i]` represents the height of a vertical line drawn at position `i`. Find two lines that, together with the x-axis, form a container that holds the most water, and return the maximum amount of water it can store. The container's area is `min(height[i], height[j]) * (j - i)`.",
+  "examples": [
+    {
+      "input": "height = [1,8,6,2,5,4,8,3,7]",
+      "output": "49",
+      "explanation": "The lines at index 1 (height 8) and index 8 (height 7) form a container of area min(8,7) * (8-1) = 7 * 7 = 49."
+    },
+    {
+      "input": "height = [1,1]",
+      "output": "1",
+      "explanation": "min(1,1) * (1-0) = 1"
+    }
+  ],
+  "constraints": [
+    "2 <= height.length <= 10^5",
+    "0 <= height[i] <= 10^4"
+  ],
+  "hints": [
+    "Checking every pair of lines is O(n^2). Can you eliminate bad pairs without checking them individually?",
+    "Start with the widest possible container: one pointer at each end. The area is limited by the shorter of the two lines.",
+    "Since width can only shrink as pointers move inward, moving the pointer at the SHORTER line is the only way a later pair could beat the current area — moving the taller one can never help."
+  ],
+  "solution": {
+    "approach": "Use two pointers starting at the far left and far right. At each step compute the area using the shorter of the two lines times the distance between them, and update the best seen. Then move the pointer pointing at the shorter line inward, since keeping it fixed while shrinking width can never produce a larger area than what's already been checked — only a taller line at that pointer offers hope of a bigger result. Repeat until the pointers meet, giving an O(n) scan instead of checking all O(n^2) pairs.",
+    "code": "def max_area(height):\n    lo, hi = 0, len(height) - 1\n    best = 0\n\n    while lo < hi:\n        h = min(height[lo], height[hi])\n        best = max(best, h * (hi - lo))\n        if height[lo] < height[hi]:\n            lo += 1\n        else:\n            hi -= 1\n\n    return best\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def max_area(height):\n    # your code here\n    pass\n",
+  "functionName": "max_area",
+  "testCases": [
+    {
+      "input": [
+        [1, 8, 6, 2, 5, 4, 8, 3, 7]
+      ],
+      "expected": 49,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 1]
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [4, 3, 2, 1, 4]
+      ],
+      "expected": 16,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 1]
+      ],
+      "expected": 2,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [0, 2]
+      ],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [2, 3, 4, 5, 18, 17, 6]
+      ],
+      "expected": 17,
+      "isHidden": true
+    }
+  ]
+}

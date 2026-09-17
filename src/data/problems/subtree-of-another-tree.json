@@ -1,0 +1,85 @@
+{
+  "id": "subtree-of-another-tree",
+  "title": "Subtree of Another Tree",
+  "pattern": "trees",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Facebook",
+    "Microsoft",
+    "Bloomberg"
+  ],
+  "prompt": "Given the roots of two binary trees `root` and `subRoot`, return `true` if `subRoot` appears as an exact subtree of `root` (a node in `root` whose entire subtree structurally matches `subRoot`, values included), or `false` otherwise.\n\nBoth trees are given as level-order arrays where `null` marks a missing child (the standard LeetCode serialization). Your function receives both arrays directly; the starter code includes a helper that builds a tree from an array, so you only need to implement the subtree-matching logic.",
+  "examples": [
+    {
+      "input": "root = [3,4,5,1,2], subRoot = [4,1,2]",
+      "output": "true",
+      "explanation": "The subtree rooted at the node with value 4 exactly matches subRoot."
+    },
+    {
+      "input": "root = [3,4,5,1,2,null,null,null,null,0], subRoot = [4,1,2]",
+      "output": "false",
+      "explanation": "The node with value 4 has an extra descendant (0) that subRoot doesn't have, so it's not an exact match."
+    }
+  ],
+  "constraints": [
+    "The number of nodes in root is in the range [1, 2000]",
+    "The number of nodes in subRoot is in the range [1, 1000]",
+    "-10^4 <= Node.val <= 10^4"
+  ],
+  "hints": [
+    "You already know how to check if two trees are exactly identical (same shape, same values) — reuse that as a helper.",
+    "Walk every node of root; at each node, check whether the subtree rooted there is identical to subRoot.",
+    "If any node in root passes the identical-tree check against subRoot, the answer is true; if none do after visiting all nodes, it's false."
+  ],
+  "solution": {
+    "approach": "Write a helper `is_same(a, b)` that checks whether two trees are structurally identical with matching values, exactly like the Same Tree problem. Then traverse every node of `root`; for each node, check if the subtree rooted there is identical to `subRoot`. Return true as soon as one matches, otherwise false after the full traversal.",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef is_subtree(root_arr, subroot_arr):\n    root = build_tree(root_arr)\n    sub_root = build_tree(subroot_arr)\n\n    def is_same(a, b):\n        if a is None and b is None:\n            return True\n        if a is None or b is None:\n            return False\n        return a.val == b.val and is_same(a.left, b.left) and is_same(a.right, b.right)\n\n    def contains(node):\n        if node is None:\n            return False\n        if is_same(node, sub_root):\n            return True\n        return contains(node.left) or contains(node.right)\n\n    return contains(root)\n",
+    "timeComplexity": "O(m * n)",
+    "spaceComplexity": "O(h_root + h_sub)"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef is_subtree(root_arr, subroot_arr):\n    root = build_tree(root_arr)\n    sub_root = build_tree(subroot_arr)\n    # your code here\n    pass\n",
+  "functionName": "is_subtree",
+  "testCases": [
+    {
+      "input": [
+        [3, 4, 5, 1, 2],
+        [4, 1, 2]
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [3, 4, 5, 1, 2, null, null, null, null, 0],
+        [4, 1, 2]
+      ],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 1],
+        [1]
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3],
+        [4]
+      ],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [3, 4, 5, 1, 2],
+        [3, 4, 5, 1, 2]
+      ],
+      "expected": true,
+      "isHidden": true
+    }
+  ]
+}

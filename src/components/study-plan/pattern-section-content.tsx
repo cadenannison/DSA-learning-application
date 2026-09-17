@@ -11,16 +11,16 @@ import { StudyPlanPresenter } from "@/presenter/study-plan-presenter"
 import type { PatternSection } from "@/components/study-plan/pattern-page-shell"
 import type { StudyPatternWithReadiness } from "@/types"
 
-/** Renders the content for a single active section of a pattern's dedicated page. Each section
- * mounts/unmounts as the user navigates between routes, which is what lets
- * EmbeddedProblemWorkbench's expand/collapse timer keep firing correctly (see that component) —
- * leaving the Practice Problems section unmounts any expanded problem row exactly the same way
- * collapsing it in place used to. */
+/** Renders the content for a single active section of a pattern's dedicated page. Embeddable
+ * problems in the Practice Problems section link out to the dedicated workbench route (see
+ * ExpandableProblemRow) rather than expanding an editor in place. */
 export function PatternSectionContent({
+  planId,
   pattern,
   section,
   presenter,
 }: {
+  planId: string
   pattern: StudyPatternWithReadiness
   section: PatternSection
   presenter: StudyPlanPresenter
@@ -68,12 +68,25 @@ export function PatternSectionContent({
       )
     }
 
+    const remainingEstimatedMinutes = pattern.problems
+      .filter((problem) => !problem.completed)
+      .reduce((sum, problem) => sum + problem.estimatedMinutes, 0)
+
     return (
       <div className="h-full overflow-y-auto px-6 py-5">
         <div className="mx-auto max-w-4xl space-y-2">
+          <div className="text-xs text-text-2">
+            Remaining in this pattern: est. {remainingEstimatedMinutes} min
+          </div>
           {pattern.hasExtendedLesson
             ? pattern.problems.map((problem) => (
-                <ExpandableProblemRow key={problem.id} problem={problem} presenter={presenter} />
+                <ExpandableProblemRow
+                  key={problem.id}
+                  problem={problem}
+                  presenter={presenter}
+                  planId={planId}
+                  patternId={pattern.id}
+                />
               ))
             : pattern.problems.map((problem) => (
                 <label
@@ -90,6 +103,9 @@ export function PatternSectionContent({
                   </span>
                   <span className="font-mono text-[10px] uppercase text-text-2">
                     {problem.role === "canonical_easy" ? "canonical easy" : "medium"}
+                  </span>
+                  <span className="font-mono text-[10px] text-text-2">
+                    est. {problem.estimatedMinutes} min
                   </span>
                 </label>
               ))}

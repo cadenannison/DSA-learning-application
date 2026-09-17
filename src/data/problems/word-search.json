@@ -1,0 +1,106 @@
+{
+  "id": "word-search",
+  "title": "Word Search",
+  "pattern": "backtracking",
+  "difficulty": "medium",
+  "companies": [
+    "Microsoft",
+    "Amazon",
+    "Facebook",
+    "Bloomberg",
+    "Uber"
+  ],
+  "prompt": "Given an `m x n` grid of characters `board` (a list of lists, one character per cell) and a string `word`, return true if `word` exists as a path through adjacent cells (horizontally or vertically neighboring, not diagonal). The same cell may not be used more than once within the path.",
+  "examples": [
+    {
+      "input": "board = [[\"A\",\"B\",\"C\",\"E\"],[\"S\",\"F\",\"C\",\"S\"],[\"A\",\"D\",\"E\",\"E\"]], word = \"ABCCED\"",
+      "output": "true",
+      "explanation": "The path A(0,0)->B(0,1)->C(0,2)->C(1,2)->E(2,2)->D(2,1) traces out \"ABCCED\" through adjacent cells."
+    },
+    {
+      "input": "board = [[\"A\",\"B\",\"C\",\"E\"],[\"S\",\"F\",\"C\",\"S\"],[\"A\",\"D\",\"E\",\"E\"]], word = \"SEE\"",
+      "output": "true"
+    },
+    {
+      "input": "board = [[\"A\",\"B\",\"C\",\"E\"],[\"S\",\"F\",\"C\",\"S\"],[\"A\",\"D\",\"E\",\"E\"]], word = \"ABCB\"",
+      "output": "false",
+      "explanation": "\"ABCB\" would require reusing the cell containing the first 'B', which isn't allowed."
+    }
+  ],
+  "constraints": [
+    "1 <= board.length, board[i].length <= 6",
+    "1 <= word.length <= 15",
+    "board and word consist of only lowercase and uppercase English letters"
+  ],
+  "hints": [
+    "Try starting the search from every cell that matches the word's first character — a DFS/backtracking search from each candidate start.",
+    "At each step of the DFS, check the current cell matches the current character of the word, then recurse into all four neighboring cells looking for the next character. Mark the current cell as visited (e.g. temporarily overwrite it with a sentinel) so it can't be reused in this path.",
+    "Undo the visited marker when backtracking out of a cell (restore the original character) so other search paths can still use that cell. The search succeeds as soon as you've matched every character of the word."
+  ],
+  "solution": {
+    "approach": "For each cell in the board, attempt a DFS/backtracking search that tries to match the word starting at that cell. The DFS checks that the current cell's character matches word[index]; if index reaches the end of word, a full match was found. Otherwise, temporarily mark the current cell as visited (overwrite with a sentinel character) and recurse into all four adjacent cells looking for word[index+1], restoring the original character afterward regardless of outcome (backtracking). Return true as soon as any starting cell leads to a full match.",
+    "code": "def exist(board, word):\n    rows, cols = len(board), len(board[0])\n\n    def dfs(r, c, index):\n        if index == len(word):\n            return True\n        if r < 0 or r >= rows or c < 0 or c >= cols or board[r][c] != word[index]:\n            return False\n\n        original = board[r][c]\n        board[r][c] = '#'\n\n        found = (\n            dfs(r + 1, c, index + 1) or\n            dfs(r - 1, c, index + 1) or\n            dfs(r, c + 1, index + 1) or\n            dfs(r, c - 1, index + 1)\n        )\n\n        board[r][c] = original\n        return found\n\n    for r in range(rows):\n        for c in range(cols):\n            if dfs(r, c, 0):\n                return True\n    return False\n",
+    "timeComplexity": "O(m * n * 4^L) worst case, where L is the length of word",
+    "spaceComplexity": "O(L) recursion depth"
+  },
+  "starterCode": "def exist(board, word):\n    # your code here\n    pass\n",
+  "functionName": "exist",
+  "testCases": [
+    {
+      "input": [
+        [
+          ["A", "B", "C", "E"],
+          ["S", "F", "C", "S"],
+          ["A", "D", "E", "E"]
+        ],
+        "ABCCED"
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [
+          ["A", "B", "C", "E"],
+          ["S", "F", "C", "S"],
+          ["A", "D", "E", "E"]
+        ],
+        "SEE"
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [
+          ["A", "B", "C", "E"],
+          ["S", "F", "C", "S"],
+          ["A", "D", "E", "E"]
+        ],
+        "ABCB"
+      ],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [
+          ["a"]
+        ],
+        "a"
+      ],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [
+          ["a", "a"]
+        ],
+        "aaa"
+      ],
+      "expected": false,
+      "isHidden": true
+    }
+  ]
+}

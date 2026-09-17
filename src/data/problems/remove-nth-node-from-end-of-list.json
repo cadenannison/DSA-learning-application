@@ -1,0 +1,98 @@
+{
+  "id": "remove-nth-node-from-end-of-list",
+  "title": "Remove Nth Node From End of List",
+  "pattern": "linked-list",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Meta",
+    "Microsoft",
+    "Apple",
+    "Google"
+  ],
+  "prompt": "Given the `head` of a singly linked list, remove the `n`th node from the end of the list and return the head of the resulting list.\n\nThe list is given as an array (e.g. `[1,2,3,4,5]` represents `1 -> 2 -> 3 -> 4 -> 5 -> null`). The starter code includes helpers to convert between the array and a linked-list node — build the actual list, remove the target node by manipulating `next` pointers, then convert back to an array to return.",
+  "examples": [
+    {
+      "input": "head = [1,2,3,4,5], n = 2",
+      "output": "[1,2,3,5]",
+      "explanation": "The 2nd node from the end is 4, so it is removed."
+    },
+    {
+      "input": "head = [1], n = 1",
+      "output": "[]"
+    },
+    {
+      "input": "head = [1,2], n = 1",
+      "output": "[1]"
+    }
+  ],
+  "constraints": [
+    "The number of nodes in the list is sz",
+    "1 <= sz <= 30",
+    "0 <= Node.val <= 100",
+    "1 <= n <= sz"
+  ],
+  "hints": [
+    "Try to solve it in a single pass instead of first counting the list length.",
+    "Use two pointers separated by a gap of n nodes: advance a 'fast' pointer n steps ahead first, then move both pointers together until fast reaches the end.",
+    "Use a dummy node before the head so that removing the head itself (when n equals the list length) doesn't need special-casing."
+  ],
+  "solution": {
+    "approach": "Use a dummy node pointing to head so removals at the very front don't need special handling. Advance a fast pointer n+1 steps from dummy, then move a slow pointer (starting at dummy) and fast together until fast reaches the end (null). At that point slow sits just before the node to remove, so slow.next = slow.next.next skips over it. Return dummy.next.",
+    "code": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for val in arr:\n        node = ListNode(val)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef remove_nth_from_end(head_arr, n):\n    head = arr_to_list(head_arr)\n    dummy = ListNode(0, head)\n    fast = dummy\n    slow = dummy\n\n    for _ in range(n + 1):\n        fast = fast.next\n\n    while fast:\n        fast = fast.next\n        slow = slow.next\n\n    slow.next = slow.next.next\n    return list_to_arr(dummy.next)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1) auxiliary (excluding the returned list)"
+  },
+  "starterCode": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for val in arr:\n        node = ListNode(val)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef remove_nth_from_end(head_arr, n):\n    head = arr_to_list(head_arr)\n    # your code here\n    pass\n",
+  "functionName": "remove_nth_from_end",
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 3, 4, 5],
+        2
+      ],
+      "expected": [1, 2, 3, 5],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1],
+        1
+      ],
+      "expected": [],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2],
+        1
+      ],
+      "expected": [1],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2],
+        2
+      ],
+      "expected": [2],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3, 4, 5],
+        5
+      ],
+      "expected": [2, 3, 4, 5],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3],
+        1
+      ],
+      "expected": [1, 2],
+      "isHidden": true
+    }
+  ]
+}

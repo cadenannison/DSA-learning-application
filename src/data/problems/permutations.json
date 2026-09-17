@@ -1,0 +1,79 @@
+{
+  "id": "permutations",
+  "title": "Permutations",
+  "pattern": "backtracking",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Facebook",
+    "Bloomberg"
+  ],
+  "prompt": "Given an array `nums` of distinct integers, return all possible permutations of the array, in any order.\n\nFor deterministic comparison, sort the outer list of permutations (for example, by converting each permutation to a tuple and sorting the list of tuples).",
+  "examples": [
+    {
+      "input": "nums = [1,2,3]",
+      "output": "[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]",
+      "explanation": "All 3! = 6 orderings of [1,2,3], sorted lexicographically."
+    },
+    {
+      "input": "nums = [0,1]",
+      "output": "[[0,1],[1,0]]"
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 6",
+    "-10 <= nums[i] <= 10",
+    "All integers in nums are unique"
+  ],
+  "hints": [
+    "A permutation is built by picking one unused element at a time until none remain. Track which elements have already been placed in the current path.",
+    "Use backtracking: at each recursive call, try every element not yet used, add it to the current path, mark it used, recurse, then undo (remove it, mark unused) before trying the next.",
+    "When the current path's length equals len(nums), you've built a complete permutation \u2014 record a copy of it. Sort the final list of permutations (e.g. by tuple conversion) for deterministic comparison."
+  ],
+  "solution": {
+    "approach": "Standard backtracking over 'used' state. Maintain a boolean array marking which indices of nums have already been placed into the current path. At each recursive call, if the path length equals len(nums), a full permutation is complete, so record a copy. Otherwise, try every index not yet used: mark it used, append its value to the path, recurse, then backtrack by removing it and marking it unused again. After collecting every permutation, sort the outer list (via tuple conversion) so the result is deterministic regardless of generation order.",
+    "code": "def permute(nums):\n    n = len(nums)\n    result = []\n    path = []\n    used = [False] * n\n\n    def backtrack():\n        if len(path) == n:\n            result.append(path[:])\n            return\n        for i in range(n):\n            if used[i]:\n                continue\n            used[i] = True\n            path.append(nums[i])\n            backtrack()\n            path.pop()\n            used[i] = False\n\n    backtrack()\n    result.sort(key=lambda perm: tuple(perm))\n    return result\n",
+    "timeComplexity": "O(n * n!)",
+    "spaceComplexity": "O(n * n!) for the output, O(n) recursion depth"
+  },
+  "starterCode": "def permute(nums):\n    # your code here\n    pass\n",
+  "functionName": "permute",
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 3]
+      ],
+      "expected": [[1, 2, 3], [1, 3, 2], [2, 1, 3], [2, 3, 1], [3, 1, 2], [3, 2, 1]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0, 1]
+      ],
+      "expected": [[0, 1], [1, 0]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": [[1]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2]
+      ],
+      "expected": [[1, 2], [2, 1]],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [-1, 0, 1]
+      ],
+      "expected": [[-1, 0, 1], [-1, 1, 0], [0, -1, 1], [0, 1, -1], [1, -1, 0], [1, 0, -1]],
+      "isHidden": true
+    }
+  ]
+}

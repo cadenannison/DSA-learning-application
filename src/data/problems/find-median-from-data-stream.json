@@ -1,0 +1,96 @@
+{
+  "id": "find-median-from-data-stream",
+  "title": "Find Median from Data Stream",
+  "pattern": "heaps",
+  "difficulty": "hard",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Microsoft",
+    "LinkedIn",
+    "Bloomberg"
+  ],
+  "prompt": "The classic version of this problem defines a `MedianFinder` class with `addNum(num)` and `findMedian()` methods, called repeatedly as numbers stream in. Since this test harness calls a single pure function per test case rather than exercising a stateful object across many calls, we adapt it: implement `find_median_from_data_stream(nums, queries)`.\n\n`nums` is the stream of incoming numbers, added one at a time, in order. `queries` is a list of indices into `nums`; for each index `q` in `queries`, report the median of all numbers added so far, i.e. the median of `nums[0..q]` inclusive. Return a list of medians, one per entry in `queries`, in the same order as `queries`.\n\nThe median of a list of length k is the middle element if k is odd, or the average of the two middle elements if k is even.",
+  "examples": [
+    {
+      "input": "nums = [2,3,4], queries = [0,1,2]",
+      "output": "[2.0,2.5,3.0]",
+      "explanation": "After adding nums[0..0]=[2], median=2.0. After adding nums[0..1]=[2,3], median=(2+3)/2=2.5. After adding nums[0..2]=[2,3,4], median=3.0."
+    },
+    {
+      "input": "nums = [6,10,2,6,5], queries = [0,4]",
+      "output": "[6.0,6.0]",
+      "explanation": "After just [6], median=6.0. After all 5 values sorted as [2,5,6,6,10], the middle value is 6, so median=6.0."
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 5000",
+    "-10^5 <= nums[i] <= 10^5",
+    "1 <= queries.length <= nums.length",
+    "0 <= queries[i] < nums.length",
+    "queries is given in strictly increasing order"
+  ],
+  "hints": [
+    "Maintain two heaps: a max-heap for the smaller half of numbers seen so far, and a min-heap for the larger half. Keeping them balanced in size lets you find the median in O(1).",
+    "After inserting a new number into the appropriate heap, rebalance so the two heaps differ in size by at most 1. Python's heapq is a min-heap, so simulate a max-heap by pushing negated values.",
+    "If the heaps are equal in size, the median is the average of both heap tops. If one heap has one more element, the median is that heap's top. Process nums index by index, and whenever the current index matches the next query, record the median before moving on."
+  ],
+  "solution": {
+    "approach": "Maintain a max-heap `small` (negated values, via heapq) holding the smaller half of numbers seen so far, and a min-heap `large` holding the larger half, kept balanced so their sizes differ by at most 1. To add a number: push it to `small`, then move `small`'s max over to `large` to maintain the small-half/large-half ordering invariant, then rebalance sizes by moving the smaller heap's extreme back if `large` grew too big. The median is the top of `small` if it has more elements, or the average of both tops if equal size. Walk through nums in order, adding one at a time, and whenever the current index equals the next entry in queries, record the current median.",
+    "code": "import heapq\n\ndef find_median_from_data_stream(nums, queries):\n    small = []  # max-heap (negated)\n    large = []  # min-heap\n\n    def add_num(num):\n        heapq.heappush(small, -num)\n        heapq.heappush(large, -heapq.heappop(small))\n        if len(large) > len(small):\n            heapq.heappush(small, -heapq.heappop(large))\n\n    def find_median():\n        if len(small) > len(large):\n            return float(-small[0])\n        return (-small[0] + large[0]) / 2.0\n\n    query_set = set(queries)\n    results_by_index = {}\n\n    for i, num in enumerate(nums):\n        add_num(num)\n        if i in query_set:\n            results_by_index[i] = find_median()\n\n    return [results_by_index[q] for q in queries]\n",
+    "timeComplexity": "O(n log n) for n numbers added, each insertion is O(log n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def find_median_from_data_stream(nums, queries):\n    # your code here\n    pass\n",
+  "functionName": "find_median_from_data_stream",
+  "testCases": [
+    {
+      "input": [
+        [2, 3, 4],
+        [0, 1, 2]
+      ],
+      "expected": [2.0, 2.5, 3.0],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [6, 10, 2, 6, 5],
+        [0, 4]
+      ],
+      "expected": [6.0, 6.0],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1],
+        [0]
+      ],
+      "expected": [1.0],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2],
+        [0, 1]
+      ],
+      "expected": [1.0, 1.5],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [5, 15, 1, 3],
+        [0, 1, 2, 3]
+      ],
+      "expected": [5.0, 10.0, 5.0, 4.0],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [-1, -2, -3, -4, -5],
+        [4]
+      ],
+      "expected": [-3.0],
+      "isHidden": true
+    }
+  ]
+}

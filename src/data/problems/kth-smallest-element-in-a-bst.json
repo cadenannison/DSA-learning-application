@@ -1,0 +1,85 @@
+{
+  "id": "kth-smallest-element-in-a-bst",
+  "title": "Kth Smallest Element in a BST",
+  "pattern": "trees",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon",
+    "Facebook",
+    "Microsoft"
+  ],
+  "prompt": "Given the `root` of a binary search tree and an integer `k`, return the `k`-th smallest value among all node values in the tree (1-indexed, so k=1 returns the smallest value).\n\nThe tree is given as a level-order array where `null` marks a missing child (the standard LeetCode serialization). Your function receives this array and `k`; the starter code includes a helper that builds the tree from the array, so you only need to find the k-th smallest value.",
+  "examples": [
+    {
+      "input": "root = [3,1,4,null,2], k = 1",
+      "output": "1",
+      "explanation": "An in-order traversal of the BST visits values in sorted order: 1, 2, 3, 4. The 1st smallest is 1."
+    },
+    {
+      "input": "root = [5,3,6,2,4,null,null,1], k = 3",
+      "output": "3",
+      "explanation": "In-order traversal gives 1, 2, 3, 4, 5, 6. The 3rd smallest is 3."
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [1, 10^4]",
+    "0 <= Node.val <= 10^4",
+    "1 <= k <= number of nodes in the tree"
+  ],
+  "hints": [
+    "An in-order traversal (left, node, right) of a binary search tree visits values in strictly increasing sorted order.",
+    "You don't need to collect the entire traversal into a list \u2014 you can stop as soon as you've visited the k-th node.",
+    "Use an explicit counter that increments every time you visit a node during the in-order walk; when the counter reaches k, that node's value is your answer."
+  ],
+  "solution": {
+    "approach": "Perform an in-order traversal (left, visit, right), which visits BST nodes in ascending sorted order. Keep a counter that increments each time a node is visited; the moment the counter equals k, record that node's value as the answer and short-circuit the remaining traversal.",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef kth_smallest(root_arr, k):\n    root = build_tree(root_arr)\n    count = [0]\n    answer = [None]\n\n    def inorder(node):\n        if node is None or answer[0] is not None:\n            return\n        inorder(node.left)\n        if answer[0] is not None:\n            return\n        count[0] += 1\n        if count[0] == k:\n            answer[0] = node.val\n            return\n        inorder(node.right)\n\n    inorder(root)\n    return answer[0]\n",
+    "timeComplexity": "O(h + k), h = tree height",
+    "spaceComplexity": "O(h)"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef kth_smallest(root_arr, k):\n    root = build_tree(root_arr)\n    # your code here\n    pass\n",
+  "functionName": "kth_smallest",
+  "testCases": [
+    {
+      "input": [
+        [3, 1, 4, null, 2],
+        1
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [5, 3, 6, 2, 4, null, null, 1],
+        3
+      ],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1],
+        1
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [5, 3, 6, 2, 4, null, null, 1],
+        6
+      ],
+      "expected": 6,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [2, 1, 3],
+        2
+      ],
+      "expected": 2,
+      "isHidden": true
+    }
+  ]
+}

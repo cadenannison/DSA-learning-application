@@ -1,0 +1,103 @@
+{
+  "id": "word-search-ii",
+  "title": "Word Search II",
+  "pattern": "tries",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Amazon",
+    "Airbnb",
+    "Microsoft"
+  ],
+  "prompt": "Given an `m x n` grid of characters `board` (a list of lists, one character per cell) and a list of strings `words`, return all words from `words` that can be formed by a path through adjacent cells (horizontally or vertically neighboring, not diagonal). The same cell may not be used more than once within a single word's path, but each word search starts fresh (a cell can be reused across different found words).\n\nReturn the found words sorted alphabetically, for deterministic comparison.",
+  "examples": [
+    {
+      "input": "board = [[\"o\",\"a\",\"a\",\"n\"],[\"e\",\"t\",\"a\",\"e\"],[\"i\",\"h\",\"k\",\"r\"],[\"i\",\"f\",\"l\",\"v\"]], words = [\"oath\",\"pea\",\"eat\",\"rain\"]",
+      "output": "[\"eat\",\"oath\"]",
+      "explanation": "\"oath\" traces o->a->t->h through adjacent cells. \"eat\" traces e->a->t. \"pea\" and \"rain\" cannot be traced. Sorted alphabetically: [\"eat\",\"oath\"]."
+    },
+    {
+      "input": "board = [[\"a\",\"b\"],[\"c\",\"d\"]], words = [\"abcb\"]",
+      "output": "[]",
+      "explanation": "\"abcb\" would require reusing the cell containing 'b', which isn't allowed within a single word's path."
+    }
+  ],
+  "constraints": [
+    "1 <= board.length, board[i].length <= 12",
+    "board[i][j] is a lowercase English letter",
+    "1 <= words.length <= 3 * 10^4",
+    "1 <= words[i].length <= 10",
+    "words[i] consists of lowercase English letters",
+    "All words[i] are unique"
+  ],
+  "hints": [
+    "Searching each word independently with a fresh DFS from every cell works, but for many words it's much faster to combine them all into a single trie first, so shared prefixes are only explored once.",
+    "Do one DFS pass over the board; at each cell, walk down the trie as far as the board's letters allow, rather than restarting a trie lookup per word.",
+    "Mark a trie node's matched word (store the full word string at its end-of-word node) so that when your DFS reaches an end-of-word node, you can record it directly. Mark visited cells during the DFS path and unmark them on backtrack, and consider pruning a trie leaf after it's found to avoid duplicate work."
+  ],
+  "solution": {
+    "approach": "Build a trie from all words, storing the complete word string at each end-of-word node for easy retrieval. Then do a single DFS from every board cell: at each step, check if the current board character exists as a child in the current trie node; if so, descend the trie alongside moving to the neighbor cell. Whenever a trie node marked as a word-end is reached, add that word to the results (and clear the marker to avoid duplicate additions). Mark cells visited during the current path with a sentinel to prevent reuse, and restore them when backtracking. Finally, sort the found words alphabetically for deterministic output.",
+    "code": "def find_words(board, words):\n    root = {}\n    WORD_KEY = '$'\n\n    for word in words:\n        node = root\n        for ch in word:\n            node = node.setdefault(ch, {})\n        node[WORD_KEY] = word\n\n    rows, cols = len(board), len(board[0])\n    found = set()\n\n    def dfs(r, c, parent):\n        ch = board[r][c]\n        node = parent.get(ch)\n        if node is None:\n            return\n\n        word_match = node.get(WORD_KEY)\n        if word_match is not None:\n            found.add(word_match)\n            node[WORD_KEY] = None\n\n        board[r][c] = '#'\n        for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n            nr, nc = r + dr, c + dc\n            if 0 <= nr < rows and 0 <= nc < cols and board[nr][nc] != '#':\n                dfs(nr, nc, node)\n        board[r][c] = ch\n\n        if not node:\n            parent.pop(ch, None)\n\n    for r in range(rows):\n        for c in range(cols):\n            dfs(r, c, root)\n\n    return sorted(found)\n",
+    "timeComplexity": "O(m * n * 4 * 3^(L-1)) worst case, where L is the max word length, bounded by trie sharing across words",
+    "spaceComplexity": "O(total characters across words) for the trie"
+  },
+  "starterCode": "def find_words(board, words):\n    # your code here\n    pass\n",
+  "functionName": "find_words",
+  "testCases": [
+    {
+      "input": [
+        [
+          ["o", "a", "a", "n"],
+          ["e", "t", "a", "e"],
+          ["i", "h", "k", "r"],
+          ["i", "f", "l", "v"]
+        ],
+        ["oath", "pea", "eat", "rain"]
+      ],
+      "expected": ["eat", "oath"],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [
+          ["a", "b"],
+          ["c", "d"]
+        ],
+        ["abcb"]
+      ],
+      "expected": [],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [
+          ["a"]
+        ],
+        ["a"]
+      ],
+      "expected": ["a"],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [
+          ["a", "b"],
+          ["c", "d"]
+        ],
+        ["ab", "cd", "ac", "bd", "x"]
+      ],
+      "expected": ["ab", "ac", "bd", "cd"],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [
+          ["a", "a"]
+        ],
+        ["aaa"]
+      ],
+      "expected": [],
+      "isHidden": true
+    }
+  ]
+}

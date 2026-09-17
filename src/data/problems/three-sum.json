@@ -1,0 +1,91 @@
+{
+  "id": "three-sum",
+  "title": "3Sum",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Meta",
+    "Microsoft",
+    "Google",
+    "Bloomberg"
+  ],
+  "prompt": "Given an integer array `nums`, return all the unique triplets `[nums[i], nums[j], nums[k]]` such that `i != j`, `i != k`, `j != k`, and `nums[i] + nums[j] + nums[k] == 0`. The result must not contain duplicate triplets. You may return the triplets in any order, but each triplet's elements should be sorted in ascending order.",
+  "examples": [
+    {
+      "input": "nums = [-1,0,1,2,-1,-4]",
+      "output": "[[-1,-1,2],[-1,0,1]]",
+      "explanation": "The two distinct triplets that sum to 0 are (-1,-1,2) and (-1,0,1)."
+    },
+    {
+      "input": "nums = [0,1,1]",
+      "output": "[]",
+      "explanation": "No triplet sums to 0."
+    },
+    {
+      "input": "nums = [0,0,0]",
+      "output": "[[0,0,0]]"
+    }
+  ],
+  "constraints": [
+    "3 <= nums.length <= 3000",
+    "-10^5 <= nums[i] <= 10^5"
+  ],
+  "hints": [
+    "Sorting the array first makes duplicate-skipping and two-pointer scanning much easier.",
+    "Fix one number, then the problem reduces to finding two other numbers (in the remaining sorted array) that sum to its negation — a two-pointer sweep.",
+    "After sorting, skip over duplicate values for the fixed index (and for the two pointers once a match is found) to avoid emitting the same triplet twice."
+  ],
+  "solution": {
+    "approach": "Sort the array first. Then for each index i (skipping duplicate values to avoid repeat triplets), use two pointers, lo starting right after i and hi starting at the end, to find pairs that sum to -nums[i]. If the sum is too small, move lo right; if too large, move hi left; if it matches, record the triplet and advance both pointers past any duplicate values. This avoids the O(n^3) brute force by turning the inner search into an O(n) two-pointer scan for each of the n outer choices.",
+    "code": "def three_sum(nums):\n    nums.sort()\n    n = len(nums)\n    result = []\n\n    for i in range(n - 2):\n        if i > 0 and nums[i] == nums[i - 1]:\n            continue\n        if nums[i] > 0:\n            break\n\n        lo, hi = i + 1, n - 1\n        while lo < hi:\n            total = nums[i] + nums[lo] + nums[hi]\n            if total < 0:\n                lo += 1\n            elif total > 0:\n                hi -= 1\n            else:\n                result.append([nums[i], nums[lo], nums[hi]])\n                lo += 1\n                hi -= 1\n                while lo < hi and nums[lo] == nums[lo - 1]:\n                    lo += 1\n                while lo < hi and nums[hi] == nums[hi + 1]:\n                    hi -= 1\n\n    return result\n",
+    "timeComplexity": "O(n^2)",
+    "spaceComplexity": "O(1) extra space, excluding output and sort space"
+  },
+  "starterCode": "def three_sum(nums):\n    # your code here\n    pass\n",
+  "functionName": "three_sum",
+  "testCases": [
+    {
+      "input": [
+        [-1, 0, 1, 2, -1, -4]
+      ],
+      "expected": [[-1, -1, 2], [-1, 0, 1]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0, 1, 1]
+      ],
+      "expected": [],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0, 0, 0]
+      ],
+      "expected": [[0, 0, 0]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0, 0, 0, 0]
+      ],
+      "expected": [[0, 0, 0]],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [-2, 0, 1, 1, 2]
+      ],
+      "expected": [[-2, 0, 2], [-2, 1, 1]],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, -2, -1]
+      ],
+      "expected": [],
+      "isHidden": true
+    }
+  ]
+}

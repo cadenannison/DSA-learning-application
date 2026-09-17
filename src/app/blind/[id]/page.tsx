@@ -4,6 +4,7 @@ import Link from "next/link"
 import { use, useEffect, useState } from "react"
 import { BlindTestPresenter, type BlindTestView } from "@/presenter/practice-presenter"
 import { CodeEditor } from "@/components/code-editor"
+import { ResetCodeButton } from "@/components/reset-code-button"
 import { TestResults } from "@/components/test-results"
 import { ThemeToggle } from "@/components/theme-toggle"
 import type { ExecutionResult, StrippedProblem } from "@/types"
@@ -103,6 +104,7 @@ export default function BlindTestPage({ params }: { params: Promise<{ id: string
             >
               Submit
             </button>
+            <ResetCodeButton onReset={() => setCode(problem.starterCode)} />
           </div>
 
           {result && <TestResults result={result} />}

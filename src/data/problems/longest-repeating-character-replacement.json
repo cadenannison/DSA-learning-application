@@ -1,0 +1,94 @@
+{
+  "id": "longest-repeating-character-replacement",
+  "title": "Longest Repeating Character Replacement",
+  "pattern": "sliding-window",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Meta",
+    "Microsoft",
+    "ByteDance"
+  ],
+  "prompt": "You are given a string `s` consisting of uppercase English letters and an integer `k`. You may choose up to `k` characters in the string and change each to any other uppercase English letter. Return the length of the longest substring you can achieve that contains only one repeating character, after performing at most `k` such changes.",
+  "examples": [
+    {
+      "input": "s = \"ABAB\", k = 2",
+      "output": "4",
+      "explanation": "Replace the two 'A's (or two 'B's) to get \"BBBB\" or \"AAAA\"."
+    },
+    {
+      "input": "s = \"AABABBA\", k = 1",
+      "output": "4",
+      "explanation": "Replace one 'A' in \"AABA\" to get \"AABBA\" -> the substring \"BABB\" or \"ABBB\" has length 4 after one change."
+    }
+  ],
+  "constraints": [
+    "1 <= s.length <= 10^5",
+    "s consists of only uppercase English letters",
+    "0 <= k <= s.length"
+  ],
+  "hints": [
+    "For any window, the number of characters you'd need to change equals the window size minus the count of its most frequent character. A window is achievable if that number is <= k.",
+    "Use a sliding window and a frequency count of characters within it. Track the highest frequency count seen so far in any window state.",
+    "Grow the window by moving right each step. If (window size - highest frequency count) exceeds k, shrink from the left by one. The window never needs to shrink in size overall \u2014 track the max window size seen throughout."
+  ],
+  "solution": {
+    "approach": "Maintain a sliding window [left, right] and a frequency count of each character within it. Track max_freq, the highest single-character frequency seen in any window state so far (it never needs to decrease, even as the window slides, because we only care about the best achievable window size). At each step, if the window size minus max_freq exceeds k (meaning more than k replacements would be needed to make it uniform), shrink the window from the left. The answer is the largest window size reached.",
+    "code": "def character_replacement(s, k):\n    counts = {}\n    left = 0\n    max_freq = 0\n    result = 0\n\n    for right, ch in enumerate(s):\n        counts[ch] = counts.get(ch, 0) + 1\n        max_freq = max(max_freq, counts[ch])\n\n        window_size = right - left + 1\n        if window_size - max_freq > k:\n            counts[s[left]] -= 1\n            left += 1\n\n        result = max(result, right - left + 1)\n\n    return result\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1) (at most 26 letters tracked)"
+  },
+  "starterCode": "def character_replacement(s, k):\n    # your code here\n    pass\n",
+  "functionName": "character_replacement",
+  "testCases": [
+    {
+      "input": [
+        "ABAB",
+        2
+      ],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [
+        "AABABBA",
+        1
+      ],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [
+        "AAAA",
+        0
+      ],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [
+        "ABCDE",
+        1
+      ],
+      "expected": 2,
+      "isHidden": true
+    },
+    {
+      "input": [
+        "A",
+        0
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        "ABBB",
+        2
+      ],
+      "expected": 4,
+      "isHidden": true
+    }
+  ]
+}

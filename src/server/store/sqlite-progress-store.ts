@@ -8,6 +8,7 @@ import type { OASessionRecord, OASessionStore } from "@/server/interfaces/oa-ses
 import type { ProgressStore } from "@/server/interfaces/progress-store"
 import type { StatsStore } from "@/server/interfaces/stats-store"
 import type { StudyCurriculumSeed, StudyPlanStore } from "@/server/interfaces/study-plan-store"
+import { estimateProblemMinutes } from "@/server/models/domain"
 import type {
   AttemptRecord,
   BlindTestSet,
@@ -884,6 +885,7 @@ export class SqliteProgressStore
           ? null
           : state.constraint_added_mid_solve === 1,
       linkedProblemId: extension?.linked_problem_id ?? null,
+      estimatedMinutes: estimateProblemMinutes(row.difficulty as StudyProblem["difficulty"]),
     }
   }
 
@@ -1286,6 +1288,9 @@ export class SqliteProgressStore
               ? null
               : state.constraint_added_mid_solve === 1,
           linkedProblemId: linkedProblemIdById.get(problemRow.id) ?? null,
+          estimatedMinutes: estimateProblemMinutes(
+            problemRow.difficulty as StudyProblem["difficulty"]
+          ),
         }
       }),
       spacedRepetition: {

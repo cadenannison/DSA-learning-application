@@ -1,0 +1,76 @@
+{
+  "id": "number-of-1-bits",
+  "title": "Number of 1 Bits",
+  "pattern": "greedy",
+  "difficulty": "easy",
+  "companies": [
+    "Apple",
+    "Microsoft",
+    "Amazon",
+    "Bloomberg"
+  ],
+  "prompt": "Write a function that takes an unsigned integer `n` and returns the number of `1` bits it has (also known as the Hamming weight).",
+  "examples": [
+    {
+      "input": "n = 11 (binary: 1011)",
+      "output": "3",
+      "explanation": "The binary representation 1011 has three 1 bits."
+    },
+    {
+      "input": "n = 128 (binary: 10000000)",
+      "output": "1"
+    },
+    {
+      "input": "n = 0",
+      "output": "0"
+    }
+  ],
+  "constraints": [
+    "0 <= n <= 2^31 - 1"
+  ],
+  "hints": [
+    "You could check every one of the 32 bit positions individually with a mask and a shift.",
+    "A neat trick: n & (n - 1) clears the lowest set bit of n. How many times can you do that before n becomes 0?",
+    "Loop while n is nonzero, incrementing a counter and applying n = n & (n - 1) each time; the loop runs exactly once per set bit."
+  ],
+  "solution": {
+    "approach": "Repeatedly clear the lowest set bit of n using the trick n & (n - 1), which flips the lowest 1 bit to 0. Count how many times this can be done before n reaches 0 \u2014 that count equals the number of 1 bits, since each iteration removes exactly one set bit regardless of how many leading zeros or gaps are present. This runs in time proportional to the number of set bits rather than always scanning all 32 positions.",
+    "code": "def hamming_weight(n):\n    count = 0\n    while n:\n        n &= n - 1\n        count += 1\n    return count\n",
+    "timeComplexity": "O(k) where k is the number of set bits (O(1) bounded by 32)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def hamming_weight(n):\n    # your code here\n    pass\n",
+  "functionName": "hamming_weight",
+  "testCases": [
+    {
+      "input": [11],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [128],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [0],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [7],
+      "expected": 3,
+      "isHidden": true
+    },
+    {
+      "input": [2147483647],
+      "expected": 31,
+      "isHidden": true
+    },
+    {
+      "input": [1],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

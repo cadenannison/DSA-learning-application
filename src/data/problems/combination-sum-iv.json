@@ -1,0 +1,94 @@
+{
+  "id": "combination-sum-iv",
+  "title": "Combination Sum IV",
+  "pattern": "dynamic-programming",
+  "difficulty": "medium",
+  "companies": [
+    "Snapchat",
+    "Google",
+    "Amazon",
+    "Bloomberg"
+  ],
+  "prompt": "Given an array of distinct positive integers `nums` and a target integer `target`, return the number of possible combinations (order matters here, so this is really counting sequences) that add up to `target`. Numbers may be reused an unlimited number of times, and two sequences using the same numbers in a different order count as different combinations.",
+  "examples": [
+    {
+      "input": "nums = [1,2,3], target = 4",
+      "output": "7",
+      "explanation": "The 7 ordered sequences are: (1,1,1,1), (1,1,2), (1,2,1), (1,3), (2,1,1), (2,2), (3,1)."
+    },
+    {
+      "input": "nums = [9], target = 3",
+      "output": "0",
+      "explanation": "9 alone can never sum to 3."
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 200",
+    "1 <= nums[i] <= 1000",
+    "All elements of nums are distinct",
+    "1 <= target <= 1000"
+  ],
+  "hints": [
+    "Despite the name 'combination', order matters here \u2014 (1,2,1) and (2,1,1) are counted separately. That reframes this as counting ordered sequences, closer to a coin-change-style counting problem.",
+    "Define dp[t] = number of ordered sequences from nums that sum exactly to t. dp[0] = 1 (one way to make 0: pick nothing).",
+    "For each target value t from 1 to target, sum dp[t - num] over every num in nums where num <= t. Because you iterate the target in the outer loop and numbers in the inner loop, different orderings of the same numbers get counted separately."
+  ],
+  "solution": {
+    "approach": "This is a counting DP where dp[t] holds the number of ordered sequences of numbers from nums that sum to exactly t. dp[0] = 1, representing the single empty sequence that sums to 0. For each t from 1 up to target, dp[t] = sum of dp[t - num] for every num in nums with num <= t (choosing num as the LAST element added completes a sequence summing to t). Iterating target in the outer loop (rather than nums in the outer loop) is what makes this count permutations rather than combinations, since at every total we consider starting a new sequence with any number.",
+    "code": "def combination_sum_4(nums, target):\n    dp = [0] * (target + 1)\n    dp[0] = 1\n\n    for t in range(1, target + 1):\n        for num in nums:\n            if num <= t:\n                dp[t] += dp[t - num]\n\n    return dp[target]\n",
+    "timeComplexity": "O(target * len(nums))",
+    "spaceComplexity": "O(target)"
+  },
+  "starterCode": "def combination_sum_4(nums, target):\n    # your code here\n    pass\n",
+  "functionName": "combination_sum_4",
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 3],
+        4
+      ],
+      "expected": 7,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [9],
+        3
+      ],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1],
+        1
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2],
+        3
+      ],
+      "expected": 3,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [4, 2, 1],
+        32
+      ],
+      "expected": 39882198,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [3, 5, 7],
+        2
+      ],
+      "expected": 0,
+      "isHidden": true
+    }
+  ]
+}

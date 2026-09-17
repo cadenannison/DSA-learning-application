@@ -1,0 +1,88 @@
+{
+  "id": "spiral-matrix",
+  "title": "Spiral Matrix",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Google",
+    "Apple",
+    "Bloomberg"
+  ],
+  "prompt": "Given an `m x n` matrix, return all elements of the matrix in spiral order: starting at the top-left, moving right across the top row, down the right column, left across the bottom row, up the left column, and continuing this inward spiral until every element has been visited.",
+  "examples": [
+    {
+      "input": "matrix = [[1,2,3],[4,5,6],[7,8,9]]",
+      "output": "[1,2,3,6,9,8,7,4,5]",
+      "explanation": "Traverse the top row left-to-right, then the right column top-to-bottom, then the bottom row right-to-left, then the remaining left column bottom-to-top, then spiral into the center."
+    },
+    {
+      "input": "matrix = [[1,2,3,4],[5,6,7,8],[9,10,11,12]]",
+      "output": "[1,2,3,4,8,12,11,10,9,5,6,7]"
+    }
+  ],
+  "constraints": [
+    "m == matrix.length",
+    "n == matrix[i].length",
+    "1 <= m, n <= 10",
+    "-100 <= matrix[i][j] <= 100"
+  ],
+  "hints": [
+    "Track four shrinking boundaries: top, bottom, left, and right rows/columns still unvisited.",
+    "Traverse the top boundary left-to-right, then the right boundary top-to-bottom, then (if rows remain) the bottom boundary right-to-left, then (if columns remain) the left boundary bottom-to-top, moving each boundary inward after its pass.",
+    "After each of the four passes, check whether top > bottom or left > right, and stop once the boundaries cross — this handles non-square matrices correctly."
+  ],
+  "solution": {
+    "approach": "Maintain four boundaries: top, bottom, left, and right, representing the current unvisited rectangle. Repeatedly traverse the top row left-to-right then push top down; traverse the right column top-to-bottom then pull right in; if top <= bottom, traverse the bottom row right-to-left then pull bottom up; if left <= right, traverse the left column bottom-to-top then push left in. After each of the four legs, re-check the boundary conditions since a leg can exhaust the remaining rows or columns partway through a non-square matrix. Repeat until the boundaries cross, having visited every element exactly once.",
+    "code": "def spiral_order(matrix):\n    if not matrix or not matrix[0]:\n        return []\n\n    result = []\n    top, bottom = 0, len(matrix) - 1\n    left, right = 0, len(matrix[0]) - 1\n\n    while top <= bottom and left <= right:\n        for col in range(left, right + 1):\n            result.append(matrix[top][col])\n        top += 1\n\n        for row in range(top, bottom + 1):\n            result.append(matrix[row][right])\n        right -= 1\n\n        if top <= bottom:\n            for col in range(right, left - 1, -1):\n                result.append(matrix[bottom][col])\n            bottom -= 1\n\n        if left <= right:\n            for row in range(bottom, top - 1, -1):\n                result.append(matrix[row][left])\n            left += 1\n\n    return result\n",
+    "timeComplexity": "O(m * n)",
+    "spaceComplexity": "O(1) extra space excluding the output"
+  },
+  "starterCode": "def spiral_order(matrix):\n    # your code here\n    pass\n",
+  "functionName": "spiral_order",
+  "testCases": [
+    {
+      "input": [
+        [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+      ],
+      "expected": [1, 2, 3, 6, 9, 8, 7, 4, 5],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
+      ],
+      "expected": [1, 2, 3, 4, 8, 12, 11, 10, 9, 5, 6, 7],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1]]
+      ],
+      "expected": [1],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1], [2], [3]]
+      ],
+      "expected": [1, 2, 3],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[1, 2, 3]]
+      ],
+      "expected": [1, 2, 3],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[1, 2], [3, 4]]
+      ],
+      "expected": [1, 2, 4, 3],
+      "isHidden": true
+    }
+  ]
+}

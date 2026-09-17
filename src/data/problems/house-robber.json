@@ -1,0 +1,87 @@
+{
+  "id": "house-robber",
+  "title": "House Robber",
+  "pattern": "dynamic-programming",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Adobe",
+    "Apple",
+    "LinkedIn"
+  ],
+  "prompt": "You are a professional robber planning to rob houses along a street. Each house has a nonnegative amount of money, given in the array `nums`, where `nums[i]` is the money at house i. Adjacent houses have connected security systems, so you cannot rob two directly adjacent houses on the same night without triggering an alarm. Return the maximum amount of money you can rob without robbing two adjacent houses.",
+  "examples": [
+    {
+      "input": "nums = [1,2,3,1]",
+      "output": "4",
+      "explanation": "Rob house 0 (money = 1) and house 2 (money = 3): total = 1 + 3 = 4."
+    },
+    {
+      "input": "nums = [2,7,9,3,1]",
+      "output": "12",
+      "explanation": "Rob house 0 (2), house 2 (9), and house 4 (1): total = 2 + 9 + 1 = 12."
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 100",
+    "0 <= nums[i] <= 400"
+  ],
+  "hints": [
+    "At each house, you face a binary choice: rob it (and skip the previous house) or skip it (and keep whatever you had going into it).",
+    "Track two running values as you scan left to right: the best total if you rob up through the previous house, and the best total if you rob up through two houses back.",
+    "At house i: newBest = max(skip this house entirely, robThisHouse + bestUpToTwoBack). Slide the two trackers forward as you go, avoiding the need for a full array."
+  ],
+  "solution": {
+    "approach": "Use two rolling variables instead of a full DP array: prev2 (best loot considering houses up to i-2) and prev1 (best loot considering houses up to i-1). For each house's value, the best loot including up to this house is max(prev1, prev2 + value) — either skip this house and keep prev1, or rob it and add to prev2. Slide the window forward. This is O(1) space instead of O(n).",
+    "code": "def rob(nums):\n    prev2, prev1 = 0, 0\n    for value in nums:\n        current = max(prev1, prev2 + value)\n        prev2 = prev1\n        prev1 = current\n    return prev1\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def rob(nums):\n    # your code here\n    pass\n",
+  "functionName": "rob",
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 3, 1]
+      ],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [2, 7, 9, 3, 1]
+      ],
+      "expected": 12,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [5]
+      ],
+      "expected": 5,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [2, 1]
+      ],
+      "expected": 2,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [0, 0, 0]
+      ],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [100, 1, 1, 100]
+      ],
+      "expected": 200,
+      "isHidden": true
+    }
+  ]
+}

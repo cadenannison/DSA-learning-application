@@ -1,0 +1,73 @@
+{
+  "id": "reverse-bits",
+  "title": "Reverse Bits",
+  "pattern": "greedy",
+  "difficulty": "easy",
+  "companies": [
+    "Apple",
+    "Microsoft",
+    "Amazon",
+    "Bloomberg"
+  ],
+  "prompt": "Reverse the bits of a given 32-bit unsigned integer `n` and return the resulting unsigned integer.",
+  "examples": [
+    {
+      "input": "n = 43261596 (binary: 00000010100101000001111010011100)",
+      "output": "964176192",
+      "explanation": "Reversing the 32 bits of the input gives binary 00111001011110000010100101000000, which is 964176192."
+    },
+    {
+      "input": "n = 4294967293 (binary: 11111111111111111111111111111101)",
+      "output": "3221225471",
+      "explanation": "Reversing the 32 bits gives binary 10111111111111111111111111111111, which is 3221225471."
+    }
+  ],
+  "constraints": [
+    "The input is a 32-bit unsigned integer represented as a Python int in [0, 2^32 - 1]"
+  ],
+  "hints": [
+    "Think of the input as a fixed-width, 32-character binary string — reversal just flips the order of those characters.",
+    "You can build the result bit by bit: examine the lowest bit of n, and place it at the highest available position of the result.",
+    "Loop 32 times: shift the result left by one, OR in the lowest bit of n, then shift n right by one to expose the next bit."
+  ],
+  "solution": {
+    "approach": "Process all 32 bits one at a time. On each of 32 iterations, shift the accumulated result left by one bit to make room, then OR in the current lowest bit of n (n & 1), and finally shift n right by one to expose the next bit for the following iteration. After 32 iterations, the result holds the bits of n in reversed order.",
+    "code": "def reverse_bits(n):\n    result = 0\n    for _ in range(32):\n        result = (result << 1) | (n & 1)\n        n >>= 1\n    return result\n",
+    "timeComplexity": "O(1) (always exactly 32 iterations)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def reverse_bits(n):\n    # your code here\n    pass\n",
+  "functionName": "reverse_bits",
+  "testCases": [
+    {
+      "input": [43261596],
+      "expected": 964176192,
+      "isHidden": false
+    },
+    {
+      "input": [4294967293],
+      "expected": 3221225471,
+      "isHidden": false
+    },
+    {
+      "input": [0],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [1],
+      "expected": 2147483648,
+      "isHidden": true
+    },
+    {
+      "input": [4294967295],
+      "expected": 4294967295,
+      "isHidden": true
+    },
+    {
+      "input": [2147483648],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}
