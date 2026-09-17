@@ -3,6 +3,10 @@ import type {
   CodeSubmission,
   ExecutionResult,
   MockInterviewResult,
+  ReadinessChecklistOverview,
+  ReadinessTriState,
+  RoadmapOverview,
+  Skill,
   StudyPatternStage,
   StudyPlanOverview,
   StudySession,
@@ -114,5 +118,30 @@ export class StudyPlanPresenter {
    * here does. */
   async logProblemTimeOnCollapse(id: string, minutes: number): Promise<void> {
     await apiClient.logProblemSession(this.planId, id, minutes)
+  }
+
+  /** Read-only and computed fresh server-side each call — no shared overview state to
+   * refetch, so this doesn't touch this.load(). */
+  async loadRoadmap(): Promise<RoadmapOverview> {
+    return apiClient.getRoadmap(this.planId)
+  }
+
+  async loadSkills(): Promise<Skill[]> {
+    return apiClient.getSkills(this.planId)
+  }
+
+  async setSkillDone(skillId: string, done: boolean): Promise<Skill> {
+    return apiClient.updateSkill(this.planId, skillId, done)
+  }
+
+  async loadReadinessChecklist(): Promise<ReadinessChecklistOverview> {
+    return apiClient.getReadinessChecklist(this.planId)
+  }
+
+  async setReadinessChecklistItem(
+    itemId: string,
+    update: { checked?: boolean; triState?: ReadinessTriState; note?: string }
+  ): Promise<ReadinessChecklistOverview> {
+    return apiClient.updateReadinessChecklistItem(this.planId, itemId, update)
   }
 }

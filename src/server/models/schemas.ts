@@ -436,6 +436,23 @@ export const spacedRepetitionStateSchema = z.object({
   reviewCount: z.number().int().min(0),
 })
 
+export const skillSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string(),
+  patternIds: z.array(z.string()),
+  done: z.boolean(),
+  lastVerifiedAt: z.string().nullable(),
+})
+
+export const resourceTypeSchema = z.enum(["video", "article", "visualization"])
+
+export const patternResourceSchema = z.object({
+  title: z.string(),
+  url: z.string(),
+  type: resourceTypeSchema,
+})
+
 export const studyPatternSchema = z.object({
   id: z.string(),
   trackId: studyTrackIdSchema,
@@ -452,6 +469,8 @@ export const studyPatternSchema = z.object({
   hasExtendedLesson: z.boolean(),
   lesson: extendedLessonSchema.nullable(),
   bugTracingExercise: bugTracingExerciseSchema.nullable(),
+  skills: z.array(skillSchema),
+  resources: z.array(patternResourceSchema),
 })
 
 export const studyPatternWithReadinessSchema = studyPatternSchema.extend({
@@ -599,3 +618,70 @@ export const submitStudyProblemResponseSchema = z.object({
 export const logProblemSessionRequestSchema = z.object({
   minutesSpent: z.number().int().min(0),
 })
+
+// --- Roadmap ---
+
+export const roadmapPatternEntrySchema = z.object({
+  studyPatternId: z.string(),
+  studyPatternName: z.string(),
+  trackId: studyTrackIdSchema,
+  priorityRank: z.number().int(),
+  stage: studyPatternStageSchema,
+  readiness: studyReadinessSchema,
+  estimatedHoursRemaining: z.number().min(0),
+  isCurrent: z.boolean(),
+  isUpNext: z.boolean(),
+})
+
+export const roadmapOverviewSchema = z.object({
+  interviewDate: z.string().nullable(),
+  daysRemaining: z.number().int().nullable(),
+  dailyTimeBudgetMinutes: z.number().int().min(1),
+  daysNeededAtCurrentPace: z.number().min(0),
+  paceDeltaDays: z.number().nullable(),
+  tracks: z.array(
+    z.object({
+      trackId: studyTrackIdSchema,
+      entries: z.array(roadmapPatternEntrySchema),
+    })
+  ),
+})
+
+// --- Skills ---
+
+export const updateSkillRequestSchema = z.object({
+  done: z.boolean(),
+})
+
+// --- Readiness Checklist ---
+
+export const readinessSourceSchema = z.enum(["manual", "derived", "tri_state"])
+
+export const readinessTriStateSchema = z.enum(["not_applicable", "needs_review", "confirmed"])
+
+export const readinessChecklistItemSchema = z.object({
+  id: z.string(),
+  section: z.enum(["oa", "technical"]),
+  label: z.string(),
+  source: readinessSourceSchema,
+  checked: z.boolean(),
+  triState: readinessTriStateSchema.nullable(),
+  note: z.string().nullable(),
+})
+
+export const readinessChecklistOverviewSchema = z.object({
+  oaItems: z.array(readinessChecklistItemSchema),
+  technicalItems: z.array(readinessChecklistItemSchema),
+  oaCompletionFraction: z.number().min(0).max(1),
+  technicalCompletionFraction: z.number().min(0).max(1),
+})
+
+export const updateReadinessChecklistItemRequestSchema = z.object({
+  checked: z.boolean().optional(),
+  triState: readinessTriStateSchema.optional(),
+  note: z.string().optional(),
+})
+
+// --- Resources ---
+// resourceTypeSchema / patternResourceSchema are defined earlier (above studyPatternSchema),
+// since studyPatternSchema embeds resources: patternResourceSchema[].

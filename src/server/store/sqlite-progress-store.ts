@@ -16,9 +16,11 @@ import type {
   MockInterviewResult,
   OASessionConfig,
   OASessionStatus,
+  PatternResource,
   PracticeMode,
   ProblemProgress,
   ProgressStatus,
+  Skill,
   StatEvent,
   StatEventType,
   StudyPattern,
@@ -147,6 +149,36 @@ interface StudyPatternExtensionRow {
   lesson_json: string | null
   bug_tracing_prompt: string | null
   bug_tracing_solution_markdown: string | null
+}
+
+interface StudyPatternResourceRow {
+  study_pattern_id: string
+  title: string
+  url: string
+  type: string
+  position: number
+}
+
+interface SkillRow {
+  id: string
+  name: string
+  description: string
+  pattern_ids_json: string
+}
+
+interface UserSkillStateRow {
+  plan_id: string
+  skill_id: string
+  done: number
+  last_verified_at: string | null
+}
+
+interface ReadinessChecklistStateRow {
+  plan_id: string
+  item_id: string
+  checked: number
+  tri_state: string | null
+  note: string
 }
 
 interface UserRow {
@@ -334,6 +366,30 @@ export class SqliteProgressStore
         bug_tracing_solution_markdown TEXT
       );
 
+      -- Curated external explainers per pattern (2-4, not a link dump). Multi-row per pattern
+      -- (unlike the single-row study_pattern_extensions above), position preserves seed order.
+      -- Absence of any rows for a pattern means no resources seeded yet.
+      CREATE TABLE IF NOT EXISTS study_pattern_resources (
+        study_pattern_id TEXT NOT NULL REFERENCES study_patterns(id),
+        title TEXT NOT NULL,
+        url TEXT NOT NULL,
+        type TEXT NOT NULL,
+        position INTEGER NOT NULL DEFAULT 0,
+        PRIMARY KEY (study_pattern_id, position)
+      );
+      CREATE INDEX IF NOT EXISTS idx_study_pattern_resources_pattern_id
+        ON study_pattern_resources(study_pattern_id);
+
+      -- Discrete, testable competencies — shared curriculum data seeded once, same as
+      -- study_patterns. pattern_ids_json is a JSON-encoded string array (same convention as
+      -- study_sessions.study_pattern_ids below); empty array = global/pattern-less skill.
+      CREATE TABLE IF NOT EXISTS skills (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT NOT NULL,
+        pattern_ids_json TEXT NOT NULL DEFAULT '[]'
+      );
+
       -- Append-only per-user activity log backing the Profile stats page — one row per
       -- meaningful event (a code submission, an OA session ending). Keyed by user_id (not
       -- plan_id): stats are account-wide across every feature, not scoped to one study plan.
@@ -369,7 +425,7 @@ export class SqliteProgressStore
    * runs exactly once per database file. Pre-production dev data, so no data is preserved
    * across the migration; a future real migration would need to carry rows forward instead. */
   private migrateStudyPlansToPerPlanState(): void {
-    const STUDY_PLAN_SCHEMA_VERSION = 1
+    const STUDY_PLAN_SCHEMA_VERSION = 2
     const row = this.db.prepare(`SELECT version FROM schema_meta WHERE id = 1`).get() as
       | { version: number }
       | undefined
@@ -458,6 +514,28 @@ export class SqliteProgressStore
         ON study_problem_sessions(plan_id);
       CREATE INDEX idx_study_problem_sessions_problem_id
         ON study_problem_sessions(study_problem_id);
+
+      DROP TABLE IF EXISTS user_skill_state;
+      CREATE TABLE user_skill_state (
+        plan_id TEXT NOT NULL REFERENCES study_plans(id) ON DELETE CASCADE,
+        skill_id TEXT NOT NULL REFERENCES skills(id),
+        done INTEGER NOT NULL DEFAULT 0,
+        last_verified_at TEXT,
+        PRIMARY KEY (plan_id, skill_id)
+      );
+      CREATE INDEX idx_user_skill_state_plan_id ON user_skill_state(plan_id);
+
+      DROP TABLE IF EXISTS readiness_checklist_state;
+      CREATE TABLE readiness_checklist_state (
+        plan_id TEXT NOT NULL REFERENCES study_plans(id) ON DELETE CASCADE,
+        item_id TEXT NOT NULL,
+        checked INTEGER NOT NULL DEFAULT 0,
+        tri_state TEXT,
+        note TEXT NOT NULL DEFAULT '',
+        PRIMARY KEY (plan_id, item_id)
+      );
+      CREATE INDEX idx_readiness_checklist_state_plan_id
+        ON readiness_checklist_state(plan_id);
     `)
 
     this.db.prepare(`UPDATE schema_meta SET version = ? WHERE id = 1`).run(STUDY_PLAN_SCHEMA_VERSION)
@@ -709,6 +787,14 @@ export class SqliteProgressStore
          (study_pattern_id, lesson_json, bug_tracing_prompt, bug_tracing_solution_markdown)
        VALUES (@studyPatternId, @lessonJson, @bugTracingPrompt, @bugTracingSolutionMarkdown)`
     )
+    const insertResource = this.db.prepare(
+      `INSERT OR IGNORE INTO study_pattern_resources (study_pattern_id, title, url, type, position)
+       VALUES (@studyPatternId, @title, @url, @type, @position)`
+    )
+    const insertSkill = this.db.prepare(
+      `INSERT OR IGNORE INTO skills (id, name, description, pattern_ids_json)
+       VALUES (@id, @name, @description, @patternIdsJson)`
+    )
 
     const transaction = this.db.transaction(() => {
       for (const track of seed.tracks) {
@@ -741,6 +827,16 @@ export class SqliteProgressStore
           })
         }
 
+        pattern.resources?.forEach((resource, position) => {
+          insertResource.run({
+            studyPatternId: pattern.id,
+            title: resource.title,
+            url: resource.url,
+            type: resource.type,
+            position,
+          })
+        })
+
         pattern.problems.forEach((problem, index) => {
           const id = `${pattern.id}--${index}`
 
@@ -759,6 +855,15 @@ export class SqliteProgressStore
               linkedProblemId: problem.linkedProblemId,
             })
           }
+        })
+      }
+
+      for (const skill of seed.skills) {
+        insertSkill.run({
+          id: skill.id,
+          name: skill.name,
+          description: skill.description,
+          patternIdsJson: JSON.stringify(skill.patternIds),
         })
       }
     })
@@ -781,6 +886,9 @@ export class SqliteProgressStore
     const problemIds = (
       this.db.prepare(`SELECT id FROM study_problems`).all() as { id: string }[]
     ).map((r) => r.id)
+    const skillIds = (this.db.prepare(`SELECT id FROM skills`).all() as { id: string }[]).map(
+      (r) => r.id
+    )
 
     const insertPlan = this.db.prepare(
       `INSERT INTO study_plans (id, user_id, name, created_at) VALUES (@id, @userId, @name, @createdAt)`
@@ -792,6 +900,10 @@ export class SqliteProgressStore
     const insertProblemState = this.db.prepare(
       `INSERT OR IGNORE INTO user_study_problem_state (plan_id, study_problem_id)
        VALUES (@planId, @studyProblemId)`
+    )
+    const insertSkillState = this.db.prepare(
+      `INSERT OR IGNORE INTO user_skill_state (plan_id, skill_id)
+       VALUES (@planId, @skillId)`
     )
     const insertSettings = this.db.prepare(
       `INSERT OR IGNORE INTO study_plan_settings (plan_id, interview_date, daily_time_budget_minutes)
@@ -805,6 +917,9 @@ export class SqliteProgressStore
       }
       for (const studyProblemId of problemIds) {
         insertProblemState.run({ planId: id, studyProblemId })
+      }
+      for (const skillId of skillIds) {
+        insertSkillState.run({ planId: id, skillId })
       }
       insertSettings.run({ planId: id })
     })
@@ -1261,6 +1376,15 @@ export class SqliteProgressStore
       .prepare(`SELECT * FROM study_pattern_extensions WHERE study_pattern_id = ?`)
       .get(row.id) as StudyPatternExtensionRow | undefined
 
+    const resourceRows = this.db
+      .prepare(
+        `SELECT * FROM study_pattern_resources WHERE study_pattern_id = ? ORDER BY position ASC`
+      )
+      .all(row.id) as StudyPatternResourceRow[]
+
+    const allSkills = this.listSkillsSync(planId)
+    const patternSkills = allSkills.filter((skill) => skill.patternIds.includes(row.id))
+
     return {
       id: row.id,
       trackId: row.track_id as StudyPattern["trackId"],
@@ -1310,6 +1434,146 @@ export class SqliteProgressStore
             solutionWalkthroughMarkdown: patternExtension.bug_tracing_solution_markdown ?? "",
           }
         : null,
+      skills: patternSkills,
+      resources: resourceRows.map((r) => ({
+        title: r.title,
+        url: r.url,
+        type: r.type as PatternResource["type"],
+      })),
+    }
+  }
+
+  /** Shared by toPattern (per-pattern skill filtering) and the public listSkills method —
+   * loads every skill once and parses pattern_ids_json in JS, same convention as
+   * study_sessions.study_pattern_ids elsewhere in this store, rather than a SQLite json_each
+   * table-valued query. */
+  private listSkillsSync(planId: string): Skill[] {
+    const skillRows = this.db.prepare(`SELECT * FROM skills`).all() as SkillRow[]
+    const stateRows = this.db
+      .prepare(`SELECT * FROM user_skill_state WHERE plan_id = ?`)
+      .all(planId) as UserSkillStateRow[]
+    const stateById = new Map(stateRows.map((s) => [s.skill_id, s]))
+
+    return skillRows.map((row) => {
+      const state = stateById.get(row.id)
+      return {
+        id: row.id,
+        name: row.name,
+        description: row.description,
+        patternIds: JSON.parse(row.pattern_ids_json) as string[],
+        done: state?.done === 1,
+        lastVerifiedAt: state?.last_verified_at ?? null,
+      }
+    })
+  }
+
+  async listSkills(planId: string): Promise<Skill[]> {
+    return this.listSkillsSync(planId)
+  }
+
+  async updateSkill(
+    planId: string,
+    skillId: string,
+    update: { done: boolean }
+  ): Promise<Skill | null> {
+    const existing = this.db.prepare(`SELECT id FROM skills WHERE id = ?`).get(skillId)
+    if (!existing) return null
+
+    const lastVerifiedAt = update.done ? new Date().toISOString() : null
+
+    this.db
+      .prepare(
+        `UPDATE user_skill_state SET done = @done, last_verified_at = @lastVerifiedAt
+         WHERE plan_id = @planId AND skill_id = @skillId`
+      )
+      .run({ planId, skillId, done: update.done ? 1 : 0, lastVerifiedAt })
+
+    return this.listSkillsSync(planId).find((s) => s.id === skillId) ?? null
+  }
+
+  async listStudyProblemsByLinkedProblemId(
+    problemId: string
+  ): Promise<{ planId: string; studyProblemId: string; studyPatternId: string }[]> {
+    const rows = this.db
+      .prepare(
+        `SELECT usps.plan_id AS plan_id, sp.id AS study_problem_id, sp.study_pattern_id AS study_pattern_id
+         FROM study_problem_extensions spe
+         JOIN study_problems sp ON sp.id = spe.study_problem_id
+         JOIN user_study_problem_state usps ON usps.study_problem_id = sp.id
+         WHERE spe.linked_problem_id = ?`
+      )
+      .all(problemId) as { plan_id: string; study_problem_id: string; study_pattern_id: string }[]
+
+    return rows.map((row) => ({
+      planId: row.plan_id,
+      studyProblemId: row.study_problem_id,
+      studyPatternId: row.study_pattern_id,
+    }))
+  }
+
+  async getReadinessChecklistState(
+    planId: string
+  ): Promise<{ itemId: string; checked: boolean; triState: string | null; note: string }[]> {
+    const rows = this.db
+      .prepare(`SELECT * FROM readiness_checklist_state WHERE plan_id = ?`)
+      .all(planId) as ReadinessChecklistStateRow[]
+
+    return rows.map((row) => ({
+      itemId: row.item_id,
+      checked: row.checked === 1,
+      triState: row.tri_state,
+      note: row.note,
+    }))
+  }
+
+  async updateReadinessChecklistItem(
+    planId: string,
+    itemId: string,
+    update: { checked?: boolean; triState?: string; note?: string }
+  ): Promise<void> {
+    const existing = this.db
+      .prepare(`SELECT 1 FROM readiness_checklist_state WHERE plan_id = ? AND item_id = ?`)
+      .get(planId, itemId)
+
+    if (!existing) {
+      this.db
+        .prepare(
+          `INSERT INTO readiness_checklist_state (plan_id, item_id, checked, tri_state, note)
+           VALUES (@planId, @itemId, @checked, @triState, @note)`
+        )
+        .run({
+          planId,
+          itemId,
+          checked: update.checked ? 1 : 0,
+          triState: update.triState ?? null,
+          note: update.note ?? "",
+        })
+      return
+    }
+
+    const sets: string[] = []
+    const params: Record<string, unknown> = { planId, itemId }
+
+    if (update.checked !== undefined) {
+      sets.push("checked = @checked")
+      params.checked = update.checked ? 1 : 0
+    }
+    if (update.triState !== undefined) {
+      sets.push("tri_state = @triState")
+      params.triState = update.triState
+    }
+    if (update.note !== undefined) {
+      sets.push("note = @note")
+      params.note = update.note
+    }
+
+    if (sets.length > 0) {
+      this.db
+        .prepare(
+          `UPDATE readiness_checklist_state SET ${sets.join(", ")}
+           WHERE plan_id = @planId AND item_id = @itemId`
+        )
+        .run(params)
     }
   }
 

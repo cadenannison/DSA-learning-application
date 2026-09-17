@@ -42,8 +42,16 @@ function buildContainer(): Container {
   const progressStore = new SqliteProgressStore(dbPath)
 
   const executionService = new ExecutionService(sandbox, problemRepository)
-  const progressService = new ProgressService(progressStore)
   const oaProblemSelector = new DefaultOAProblemSelector(problemRepository, progressStore)
+  // Built before progressService so the cross-app completion hook (a passing attempt anywhere
+  // marks linked StudyProblems complete) can reuse its updateProblem/auto-advance logic
+  // instead of duplicating it against the raw store.
+  const studyPlanService = new StudyPlanService(
+    progressStore,
+    studyCurriculumRepository,
+    executionService
+  )
+  const progressService = new ProgressService(progressStore, progressStore, studyPlanService)
 
   return {
     problemService: new ProblemService(problemRepository),
@@ -57,11 +65,7 @@ function buildContainer(): Container {
     ),
     blindTestSetService: new BlindTestSetService(progressStore, problemRepository),
     patternLessonService: new PatternLessonService(patternLessonRepository),
-    studyPlanService: new StudyPlanService(
-      progressStore,
-      studyCurriculumRepository,
-      executionService
-    ),
+    studyPlanService,
     authService: new AuthService(progressStore),
     statsService: new StatsService(progressStore),
   }

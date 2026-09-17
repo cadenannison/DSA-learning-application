@@ -6,6 +6,7 @@ import { AuthGate } from "@/components/auth-gate"
 import { StudyPlanPresenter } from "@/presenter/study-plan-presenter"
 import { sortedPatternsByTrack } from "@/lib/study-plan-ordering"
 import { defaultSectionFor } from "@/components/study-plan/pattern-page-shell"
+import { PlanNav } from "@/components/study-plan/plan-nav"
 import { PageShell } from "@/components/ui/page-shell"
 import { PageHeader } from "@/components/ui/page-header"
 import { StatusPill, type StatusTone } from "@/components/ui/status-pill"
@@ -221,33 +222,6 @@ function BoardContent({ planId, user, logout }: { planId: string; user: User; lo
         </section>
       )}
     </PageShell>
-  )
-}
-
-function PlanNav({ planId, active }: { planId: string; active: "today" | "board" }) {
-  return (
-    <div className="mb-6 flex gap-6 border-b border-border" role="tablist">
-      <Link
-        href={`/study-plan/${planId}`}
-        role="tab"
-        aria-selected={active === "today"}
-        className={`min-h-[44px] border-b-2 px-1 text-sm font-medium transition-colors ${
-          active === "today" ? "border-accent text-text-1" : "border-transparent text-text-2 hover:text-text-1"
-        }`}
-      >
-        Today
-      </Link>
-      <Link
-        href={`/study-plan/${planId}/board`}
-        role="tab"
-        aria-selected={active === "board"}
-        className={`min-h-[44px] border-b-2 px-1 text-sm font-medium transition-colors ${
-          active === "board" ? "border-accent text-text-1" : "border-transparent text-text-2 hover:text-text-1"
-        }`}
-      >
-        Full Plan
-      </Link>
-    </div>
   )
 }
 

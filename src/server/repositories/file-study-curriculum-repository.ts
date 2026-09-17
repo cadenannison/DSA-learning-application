@@ -6,6 +6,7 @@ interface CurriculumJson {
   referenceLinks: { label: string; url: string }[]
   tracks: StudyCurriculumSeed["tracks"]
   patterns: StudyCurriculumSeed["patterns"]
+  skills: StudyCurriculumSeed["skills"]
 }
 
 /** Reads the seed curriculum from a single JSON file rather than hardcoding it into a
@@ -26,6 +27,7 @@ export class FileStudyCurriculumRepository {
     this.cache = {
       tracks: parsed.tracks,
       patterns: parsed.patterns,
+      skills: parsed.skills,
       globalCoachingNotes: parsed.globalCoachingNotes,
       referenceLinks: parsed.referenceLinks,
     }

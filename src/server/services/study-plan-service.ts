@@ -3,10 +3,17 @@ import type { StudyPlanStore } from "@/server/interfaces/study-plan-store"
 import type { ExecutionService } from "@/server/services/execution-service"
 import {
   STUDY_PATTERN_STAGE_ORDER,
+  estimatePatternRemainingMinutes,
   type CodeSubmission,
   type DrillQueueEntry,
   type ExecutionResult,
   type MockInterviewResult,
+  type ReadinessChecklistItem,
+  type ReadinessChecklistOverview,
+  type ReadinessTriState,
+  type RoadmapOverview,
+  type RoadmapPatternEntry,
+  type Skill,
   type StudyPattern,
   type StudyPatternStage,
   type StudyPatternWithReadiness,
@@ -18,6 +25,7 @@ import {
   type StudyRecommendation,
   type StudySession,
   type StudyTrack,
+  type StudyTrackId,
 } from "@/server/models/domain"
 
 const STAGE_INDEX: Record<StudyPatternStage, number> = Object.fromEntries(
@@ -172,6 +180,237 @@ export class StudyPlanService {
       drillQueue,
       overallProgress,
     }
+  }
+
+  /** Priority-ordered, time-costed view of both tracks: per pattern, hours of work remaining
+   * plus whether it's the current or up-next pick, and a plan-wide "days needed at this pace"
+   * vs. "days remaining" comparison. Pure computation over listPatterns/getSettings — no new
+   * persistence. */
+  async getRoadmap(planId: string): Promise<RoadmapOverview> {
+    const [patterns, settings] = await Promise.all([
+      this.store.listPatterns(planId),
+      this.store.getSettings(planId),
+    ])
+
+    const patternsWithReadiness = patterns.map(withReadiness)
+    const daysRemaining = this.computeDaysRemaining(settings.interviewDate)
+
+    const trackIds: StudyTrackId[] = ["oa-prep", "technical-interview-prep"]
+    const tracks = trackIds.map((trackId) => {
+      const sorted = patternsWithReadiness
+        .filter((pattern) => pattern.trackId === trackId)
+        .sort((a, b) => a.priorityRank - b.priorityRank)
+      const incomplete = this.nextIncompletePatterns(patternsWithReadiness, trackId)
+      const currentId = incomplete[0]?.id ?? null
+      const upNextIds = new Set(incomplete.slice(1, 3).map((p) => p.id))
+
+      const entries: RoadmapPatternEntry[] = sorted.map((pattern) => ({
+        studyPatternId: pattern.id,
+        studyPatternName: pattern.name,
+        trackId: pattern.trackId,
+        priorityRank: pattern.priorityRank,
+        stage: pattern.stage,
+        readiness: pattern.readiness,
+        estimatedHoursRemaining: estimatePatternRemainingMinutes(pattern) / 60,
+        isCurrent: pattern.id === currentId,
+        isUpNext: upNextIds.has(pattern.id),
+      }))
+
+      return { trackId, entries }
+    })
+
+    const totalHoursRemaining = tracks
+      .flatMap((track) => track.entries)
+      .filter((entry) => entry.stage !== "bug_tracing_done")
+      .reduce((sum, entry) => sum + entry.estimatedHoursRemaining, 0)
+
+    const daysNeededAtCurrentPace =
+      totalHoursRemaining / (settings.dailyTimeBudgetMinutes / 60)
+    const paceDeltaDays =
+      daysRemaining === null ? null : daysNeededAtCurrentPace - daysRemaining
+
+    return {
+      interviewDate: settings.interviewDate,
+      daysRemaining,
+      dailyTimeBudgetMinutes: settings.dailyTimeBudgetMinutes,
+      daysNeededAtCurrentPace,
+      paceDeltaDays,
+      tracks,
+    }
+  }
+
+  async listSkills(planId: string): Promise<Skill[]> {
+    return this.store.listSkills(planId)
+  }
+
+  async updateSkill(planId: string, skillId: string, done: boolean): Promise<Skill | null> {
+    return this.store.updateSkill(planId, skillId, { done })
+  }
+
+  /** Builds all 11 Readiness Checklist items fresh on every call: derived items are recomputed
+   * from Skills/mock-interview data (never stored), manual/tri-state items read their per-plan
+   * toggle (defaulting to unchecked/not_applicable when no row exists yet). */
+  async getReadinessChecklist(planId: string): Promise<ReadinessChecklistOverview> {
+    const [skills, manualState, mockResults] = await Promise.all([
+      this.store.listSkills(planId),
+      this.store.getReadinessChecklistState(planId),
+      this.store.listMockInterviewResults(planId),
+    ])
+
+    const skillDone = (skillId: string) => skills.find((s) => s.id === skillId)?.done ?? false
+    const manualItem = (itemId: string) =>
+      manualState.find((s) => s.itemId === itemId) ?? { checked: false, triState: null, note: "" }
+
+    const hasTimedMock = mockResults.some(
+      (result) => result.timeTakenMinutes >= 40 && result.timeTakenMinutes <= 50
+    )
+    const hasMidSolveConstraintMock = mockResults.some((result) => result.constraintAddedMidSolve)
+
+    const oaTips = manualItem("reviewed_google_tips_and_video")
+    const postOaTopics = manualItem("post_oa_topic_list_reviewed")
+    const coreTopics = manualItem("oa_core_topics_comfortable")
+
+    const oaItems: ReadinessChecklistItem[] = [
+      {
+        id: "oa_core_topics_comfortable",
+        section: "oa",
+        label:
+          "Comfortable with sorting, binary search, linear search, hash maps under time pressure",
+        source: "manual",
+        checked: coreTopics.checked,
+        triState: null,
+        note: coreTopics.note || null,
+      },
+      {
+        id: "brute_force_first_practiced",
+        section: "oa",
+        label: "Practiced explaining brute-force-first approach out loud before optimizing",
+        source: "derived",
+        checked: skillDone("default-brute-force-first"),
+        triState: null,
+        note: null,
+      },
+      {
+        id: "oa_builtin_only_comfortable",
+        section: "oa",
+        label: "Comfortable using only built-in language features (no external libraries)",
+        source: "derived",
+        checked: skillDone("oa-builtin-only-solve"),
+        triState: null,
+        note: null,
+      },
+    ]
+
+    const technicalItems: ReadinessChecklistItem[] = [
+      {
+        id: "bfs_dfs_from_scratch",
+        section: "technical",
+        label: "Can implement BFS and DFS from scratch, no hesitation",
+        source: "derived",
+        checked: skillDone("bfs-from-scratch") && skillDone("dfs-from-scratch"),
+        triState: null,
+        note: null,
+      },
+      {
+        id: "union_find_from_scratch",
+        section: "technical",
+        label: "Can implement Union-Find with path compression from scratch",
+        source: "derived",
+        checked: skillDone("union-find-from-scratch"),
+        triState: null,
+        note: null,
+      },
+      {
+        id: "dijkstra_from_scratch",
+        section: "technical",
+        label: "Can implement Dijkstra's algorithm from scratch",
+        source: "derived",
+        checked: skillDone("dijkstra-from-scratch"),
+        triState: null,
+        note: null,
+      },
+      {
+        id: "bigo_common_operations",
+        section: "technical",
+        label: "Comfortable with Big-O of common operations across list, hash table, heap, stack, tree",
+        source: "derived",
+        checked:
+          skillDone("bigo-lists") &&
+          skillDone("bigo-hash-tables") &&
+          skillDone("bigo-heaps") &&
+          skillDone("bigo-stacks") &&
+          skillDone("bigo-trees"),
+        triState: null,
+        note: null,
+      },
+      {
+        id: "timed_mock_completed",
+        section: "technical",
+        label: "Completed at least one timed 45-minute mock, cold-start, no prep time",
+        source: "derived",
+        checked: hasTimedMock,
+        triState: null,
+        note: null,
+      },
+      {
+        id: "mid_solve_constraint_practiced",
+        section: "technical",
+        label: "Practiced handling a mid-solve added constraint on an already-solved problem",
+        source: "derived",
+        checked: hasMidSolveConstraintMock,
+        triState: null,
+        note: null,
+      },
+      {
+        id: "reviewed_google_tips_and_video",
+        section: "technical",
+        label: "Reviewed Google's official interview tips page and watched at least one mock interview video",
+        source: "manual",
+        checked: oaTips.checked,
+        triState: null,
+        note: oaTips.note || null,
+      },
+      {
+        id: "post_oa_topic_list_reviewed",
+        section: "technical",
+        label:
+          "Reviewed Google's official post-OA topic list, if/when received, and confirmed no gaps against it",
+        source: "tri_state",
+        checked: postOaTopics.triState === "confirmed",
+        triState: (postOaTopics.triState as ReadinessTriState | null) ?? "not_applicable",
+        note: postOaTopics.note || null,
+      },
+    ]
+
+    const completionFraction = (items: ReadinessChecklistItem[]) =>
+      items.length === 0 ? 0 : items.filter((item) => item.checked).length / items.length
+
+    return {
+      oaItems,
+      technicalItems,
+      oaCompletionFraction: completionFraction(oaItems),
+      technicalCompletionFraction: completionFraction(technicalItems),
+    }
+  }
+
+  /** Only the 3 manual/tri-state item ids are legitimate targets — derived items are always
+   * recomputed fresh in getReadinessChecklist and ignore writes here. */
+  async updateReadinessChecklistItem(
+    planId: string,
+    itemId: string,
+    update: { checked?: boolean; triState?: ReadinessTriState; note?: string }
+  ): Promise<ReadinessChecklistOverview> {
+    const MANUAL_ITEM_IDS = new Set([
+      "oa_core_topics_comfortable",
+      "reviewed_google_tips_and_video",
+      "post_oa_topic_list_reviewed",
+    ])
+
+    if (MANUAL_ITEM_IDS.has(itemId)) {
+      await this.store.updateReadinessChecklistItem(planId, itemId, update)
+    }
+
+    return this.getReadinessChecklist(planId)
   }
 
   async updatePattern(
@@ -353,14 +592,10 @@ export class StudyPlanService {
   ): StudyRecommendation {
     const daysRemaining = this.computeDaysRemaining(settings.interviewDate)
 
-    const technicalPatterns = patterns
-      .filter((pattern) => pattern.trackId === "technical-interview-prep")
-      .sort((a, b) => a.priorityRank - b.priorityRank)
-
     const oaPatterns = patterns.filter((pattern) => pattern.trackId === "oa-prep")
     const oaPrepSuggestion = this.computeOaPrepSuggestion(oaPatterns)
 
-    const nextPattern = technicalPatterns.find((pattern) => pattern.stage !== "bug_tracing_done")
+    const nextPattern = this.nextIncompletePatterns(patterns, "technical-interview-prep")[0]
 
     if (!nextPattern) {
       return {
@@ -492,6 +727,18 @@ export class StudyPlanService {
       case "bug_tracing_done":
         return "do a bug-tracing pass — read/trace someone else's (or your own past) buggy solution"
     }
+  }
+
+  /** Shared by computeRecommendation ("today's pick") and getRoadmap ("current pattern") so
+   * the two views can never disagree about which pattern is next: patterns in this track,
+   * priority-rank order, filtered to not-yet-bug_tracing_done. */
+  private nextIncompletePatterns(
+    patterns: StudyPatternWithReadiness[],
+    trackId: StudyTrackId
+  ): StudyPatternWithReadiness[] {
+    return patterns
+      .filter((pattern) => pattern.trackId === trackId && pattern.stage !== "bug_tracing_done")
+      .sort((a, b) => a.priorityRank - b.priorityRank)
   }
 
   private computeOaPrepSuggestion(oaPatterns: StudyPatternWithReadiness[]): string | null {

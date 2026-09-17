@@ -30,7 +30,16 @@ import type {
   problemSummarySchema,
   profileStatsOverviewSchema,
   progressStatusSchema,
+  patternResourceSchema,
+  readinessChecklistItemSchema,
+  readinessChecklistOverviewSchema,
+  readinessSourceSchema,
+  readinessTriStateSchema,
   registerRequestSchema,
+  resourceTypeSchema,
+  roadmapOverviewSchema,
+  roadmapPatternEntrySchema,
+  skillSchema,
   spacedRepetitionStateSchema,
   statEventTypeSchema,
   strippedProblemSchema,
@@ -52,6 +61,8 @@ import type {
   submitStudyProblemRequestSchema,
   submitStudyProblemResponseSchema,
   themePreferenceSchema,
+  updateReadinessChecklistItemRequestSchema,
+  updateSkillRequestSchema,
   userSchema,
 } from "@/server/models/schemas"
 
@@ -128,3 +139,20 @@ export type BugTracingExercise = z.infer<typeof bugTracingExerciseSchema>
 export type SubmitStudyProblemRequest = z.infer<typeof submitStudyProblemRequestSchema>
 export type SubmitStudyProblemResponse = z.infer<typeof submitStudyProblemResponseSchema>
 export type LogProblemSessionRequest = z.infer<typeof logProblemSessionRequestSchema>
+
+export type RoadmapPatternEntry = z.infer<typeof roadmapPatternEntrySchema>
+export type RoadmapOverview = z.infer<typeof roadmapOverviewSchema>
+
+export type Skill = z.infer<typeof skillSchema>
+export type UpdateSkillRequest = z.infer<typeof updateSkillRequestSchema>
+
+export type ReadinessSource = z.infer<typeof readinessSourceSchema>
+export type ReadinessTriState = z.infer<typeof readinessTriStateSchema>
+export type ReadinessChecklistItem = z.infer<typeof readinessChecklistItemSchema>
+export type ReadinessChecklistOverview = z.infer<typeof readinessChecklistOverviewSchema>
+export type UpdateReadinessChecklistItemRequest = z.infer<
+  typeof updateReadinessChecklistItemRequestSchema
+>
+
+export type ResourceType = z.infer<typeof resourceTypeSchema>
+export type PatternResource = z.infer<typeof patternResourceSchema>
