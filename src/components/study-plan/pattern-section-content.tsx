@@ -8,8 +8,18 @@ import {
 } from "@/components/study-plan/pattern-lesson-section"
 import { EmptyState } from "@/components/ui/empty-state"
 import { StudyPlanPresenter } from "@/presenter/study-plan-presenter"
+import { PatternLab } from "@/components/pattern-lab"
+import { PATTERNS as PATTERN_LAB_PATTERNS } from "@/components/pattern-lab/content"
 import type { PatternSection } from "@/components/study-plan/pattern-page-shell"
 import type { StudyPatternWithReadiness } from "@/types"
+
+/** Patterns with a full Pattern Lab experience (Learn/Recognize It/Practice) in place of the
+ * markdown lesson + worked example tabs. Maps this app's StudyPattern id to Pattern Lab's own
+ * internal Pattern id (they differ for dp: "dynamic-programming" vs "dp"). */
+const PATTERN_LAB_IDS: Partial<Record<string, string>> = {
+  "dynamic-programming": "dp",
+  graphs: "graphs",
+}
 
 /** Renders the content for a single active section of a pattern's dedicated page. Embeddable
  * problems in the Practice Problems section link out to the dedicated workbench route (see
@@ -25,6 +35,16 @@ export function PatternSectionContent({
   section: PatternSection
   presenter: StudyPlanPresenter
 }) {
+  const patternLabId = PATTERN_LAB_IDS[pattern.id]
+
+  if (section === "lesson" && patternLabId) {
+    return (
+      <div className="h-full overflow-y-auto">
+        <PatternLab patterns={PATTERN_LAB_PATTERNS} initialPatternId={patternLabId} />
+      </div>
+    )
+  }
+
   if (section === "lesson" && pattern.lesson) {
     return (
       <ScrollableSection>
