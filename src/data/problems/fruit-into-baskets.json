@@ -1,0 +1,78 @@
+{
+  "id": "fruit-into-baskets",
+  "title": "Fruit Into Baskets",
+  "pattern": "sliding-window",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "You are visiting a farm with a row of fruit trees given as an array `fruits`, where `fruits[i]` is the type of fruit the `i`th tree produces. You have exactly two baskets, and each basket can hold only a single type of fruit (unlimited quantity). Starting from any tree of your choice, you must pick exactly one fruit from every tree while moving to the right, stopping once you'd need a third basket type. Return the maximum number of fruits you can pick this way.",
+  "examples": [
+    {
+      "input": "fruits = [1,2,1]",
+      "output": "3",
+      "explanation": "All three fruits fit in two baskets, one of type 1 and one of type 2."
+    },
+    {
+      "input": "fruits = [0,1,2,2]",
+      "output": "3",
+      "explanation": "Picking [1,2,2] uses only two fruit types and gives 3 fruits."
+    },
+    {
+      "input": "fruits = [1,2,3,2,2]",
+      "output": "4",
+      "explanation": "Picking [2,3,2,2] uses only two fruit types (2 and 3) and gives 4 fruits."
+    }
+  ],
+  "constraints": [
+    "1 <= fruits.length <= 10^5",
+    "0 <= fruits[i] < fruits.length"
+  ],
+  "hints": [
+    "This is really 'find the longest subarray containing at most 2 distinct values' in disguise.",
+    "Use a sliding window with a hash map counting occurrences of each fruit type currently in the window.",
+    "Expand right and add to the map; whenever the map has more than 2 distinct keys, shrink from the left (decrementing and removing keys that hit zero) until only 2 types remain, tracking the max window length throughout."
+  ],
+  "solution": {
+    "approach": "The two-basket constraint means the answer is the longest subarray with at most 2 distinct fruit types. Maintain a sliding window with a hash map from fruit type to its count within the window. Expand the window to the right, updating the map. Whenever the map contains more than 2 distinct types, shrink from the left, decrementing counts and removing a type entirely once its count hits zero, until at most 2 types remain. Track the maximum window length seen.",
+    "code": "def total_fruit(fruits):\n    counts = {}\n    left = 0\n    best = 0\n\n    for right, fruit in enumerate(fruits):\n        counts[fruit] = counts.get(fruit, 0) + 1\n        while len(counts) > 2:\n            left_fruit = fruits[left]\n            counts[left_fruit] -= 1\n            if counts[left_fruit] == 0:\n                del counts[left_fruit]\n            left += 1\n        best = max(best, right - left + 1)\n\n    return best\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1) (at most 3 keys tracked at any time)"
+  },
+  "starterCode": "def total_fruit(fruits):\n    # your code here\n    pass\n",
+  "functionName": "total_fruit",
+  "paramNames": ["fruits"],
+  "testCases": [
+    {
+      "input": [[1, 2, 1]],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [[0, 1, 2, 2]],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [[1, 2, 3, 2, 2]],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [[0]],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [[3, 3, 3, 3]],
+      "expected": 4,
+      "isHidden": true
+    },
+    {
+      "input": [[1, 2, 3, 4, 5]],
+      "expected": 2,
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "id": "vertical-order-traversal-of-a-binary-tree",
+  "title": "Vertical Order Traversal of a Binary Tree",
+  "pattern": "trees",
+  "difficulty": "hard",
+  "companies": [
+    "Amazon",
+    "Facebook",
+    "Microsoft"
+  ],
+  "prompt": "Given the `root` of a binary tree, calculate each node's column position by assigning the root column 0, a left child one column to the left (column - 1), and a right child one column to the right (column + 1). Also assign each node a row, where the root is row 0 and each child is one row below its parent.\n\nReturn the vertical order traversal: group all node values by column from leftmost to rightmost; within a column, order values by row from top to bottom, and if multiple nodes share the same row and column, order them by their value in ascending order. The tree is given as a level-order array where `null` marks a missing child (the standard LeetCode serialization). Your function receives this array directly; the starter code includes a helper that builds the tree from it, so you only need to compute the grouped, ordered result.",
+  "examples": [
+    {
+      "input": "root = [3,9,20,null,null,15,7]",
+      "output": "[[9],[3,15],[20],[7]]",
+      "explanation": "Column -1 has just 9; column 0 has 3 (row 0) then 15 (row 2); column 1 has 20; column 2 has 7."
+    },
+    {
+      "input": "root = [1,2,3,4,5,6,7]",
+      "output": "[[4],[2],[1,5,6],[3],[7]]",
+      "explanation": "Nodes 5 and 6 land in the same column and row, so they're ordered by value: 5 before 6."
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [1, 1000]",
+    "0 <= Node.val <= 1000"
+  ],
+  "hints": [
+    "Do a traversal (BFS or DFS) that tracks, for every node, its (row, column) coordinates alongside its value.",
+    "Collect all (column, row, value) triples, then group them by column.",
+    "Within each column, sort entries by row first, and by value as a tiebreaker when rows also match; sort columns themselves from smallest to largest to produce the left-to-right output order."
+  ],
+  "solution": {
+    "approach": "Traverse the tree (BFS works well) while tracking each node's (row, column) coordinates: the root starts at (0, 0), a left child is (row+1, col-1), a right child is (row+1, col+1). Collect all (column, row, value) triples. Group them by column, and within each group sort primarily by row and secondarily by value (to break ties for nodes sharing a row and column). Finally output the groups' values ordered by column from smallest (leftmost) to largest (rightmost).",
+    "code": "from collections import defaultdict\n\n\nclass TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef vertical_traversal(root_arr):\n    root = build_tree(root_arr)\n    columns = defaultdict(list)\n    queue = [(root, 0, 0)]\n    while queue:\n        node, row, col = queue.pop(0)\n        columns[col].append((row, node.val))\n        if node.left:\n            queue.append((node.left, row + 1, col - 1))\n        if node.right:\n            queue.append((node.right, row + 1, col + 1))\n\n    result = []\n    for col in sorted(columns.keys()):\n        entries = sorted(columns[col])\n        result.append([val for _, val in entries])\n    return result\n",
+    "timeComplexity": "O(n log n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "from collections import defaultdict\n\n\nclass TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef vertical_traversal(root_arr):\n    root = build_tree(root_arr)\n    # your code here\n    pass\n",
+  "functionName": "vertical_traversal",
+  "paramNames": ["root_arr"],
+  "testCases": [
+    {
+      "input": [
+        [3, 9, 20, null, null, 15, 7]
+      ],
+      "expected": [[9], [3, 15], [20], [7]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3, 4, 5, 6, 7]
+      ],
+      "expected": [[4], [2], [1, 5, 6], [3], [7]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": [[1]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3, 4, 6, 5, 7]
+      ],
+      "expected": [[4], [2], [1, 5, 6], [3], [7]],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3, null, 5, 6, null]
+      ],
+      "expected": [[2], [1, 5, 6], [3]],
+      "isHidden": true
+    }
+  ]
+}

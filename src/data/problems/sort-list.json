@@ -1,0 +1,89 @@
+{
+  "id": "sort-list",
+  "title": "Sort List",
+  "pattern": "linked-list",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Google",
+    "Facebook"
+  ],
+  "prompt": "Given the `head` of a singly linked list, sort it in ascending order and return the sorted list. Try to achieve O(n log n) time and O(1) extra space (not counting recursion stack).\n\nThe list is given as an array (e.g. `[4,2,1,3]` represents `4 -> 2 -> 1 -> 3 -> null`). The starter code includes helpers to convert between the array and a linked-list node — build the actual list, sort it by manipulating `next` pointers, then convert back to an array to return.",
+  "examples": [
+    {
+      "input": "head = [4,2,1,3]",
+      "output": "[1,2,3,4]"
+    },
+    {
+      "input": "head = [-1,5,3,4,0]",
+      "output": "[-1,0,3,4,5]"
+    },
+    {
+      "input": "head = []",
+      "output": "[]"
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [0, 5 * 10^4]",
+    "-10^5 <= Node.val <= 10^5"
+  ],
+  "hints": [
+    "Insertion sort is easy on a linked list but only O(n^2) — to hit O(n log n), think about a divide-and-conquer approach that's naturally suited to lists.",
+    "Merge sort works well: split the list into two halves using slow/fast pointers, recursively sort each half, then merge the two sorted halves.",
+    "You already know how to merge two sorted linked lists — the only new part is finding the middle to split on, and remembering to cut the first half's tail so it doesn't still point into the second half."
+  ],
+  "solution": {
+    "approach": "Apply merge sort, which fits linked lists naturally since merging doesn't need random access. Find the middle of the list with slow/fast pointers, cut the list there into two halves, and recursively sort each half. Then merge the two sorted halves the same way as merging two sorted lists: repeatedly attach the smaller current head to the result's tail. Because splitting always halves the list and merging is linear, the recursion has O(log n) levels each doing O(n) merge work, giving O(n log n) overall.",
+    "code": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for v in arr:\n        node = ListNode(v)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef merge(l1, l2):\n    dummy = ListNode(0)\n    tail = dummy\n    while l1 and l2:\n        if l1.val <= l2.val:\n            tail.next = l1\n            l1 = l1.next\n        else:\n            tail.next = l2\n            l2 = l2.next\n        tail = tail.next\n    tail.next = l1 if l1 else l2\n    return dummy.next\n\n\ndef merge_sort(node):\n    if not node or not node.next:\n        return node\n\n    slow, fast = node, node.next\n    while fast and fast.next:\n        slow = slow.next\n        fast = fast.next.next\n\n    second = slow.next\n    slow.next = None\n\n    left = merge_sort(node)\n    right = merge_sort(second)\n    return merge(left, right)\n\n\ndef sort_list(head_arr):\n    head = arr_to_list(head_arr)\n    return list_to_arr(merge_sort(head))\n",
+    "timeComplexity": "O(n log n)",
+    "spaceComplexity": "O(log n) recursion stack"
+  },
+  "starterCode": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for v in arr:\n        node = ListNode(v)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef sort_list(head_arr):\n    head = arr_to_list(head_arr)\n    # your code here\n    pass\n",
+  "functionName": "sort_list",
+  "paramNames": ["head_arr"],
+  "testCases": [
+    {
+      "input": [
+        [4, 2, 1, 3]
+      ],
+      "expected": [1, 2, 3, 4],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [-1, 5, 3, 4, 0]
+      ],
+      "expected": [-1, 0, 3, 4, 5],
+      "isHidden": false
+    },
+    {
+      "input": [
+        []
+      ],
+      "expected": [],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": [1],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [2, 2, 1, 1]
+      ],
+      "expected": [1, 1, 2, 2],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [5, 4, 3, 2, 1]
+      ],
+      "expected": [1, 2, 3, 4, 5],
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "id": "magnetic-force-between-two-balls",
+  "title": "Magnetic Force Between Two Balls",
+  "pattern": "binary-search",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "In the universe Earth C-137, Rick has discovered a special form of magnetic force between two balls if they are put in his new invented basket. Rick has `n` empty baskets, the `i`-th basket is at `position[i]`, and he has `m` balls to distribute. He wants to distribute the balls into the baskets to maximize the minimum magnetic force between any two balls. The magnetic force between two balls at positions `x` and `y` is `abs(x - y)`. Given the integer array `position` and the integer `m`, return the required force.",
+  "examples": [
+    {
+      "input": "position = [1,2,3,4,7], m = 3",
+      "output": "3",
+      "explanation": "Placing the 3 balls at positions 1, 4, and 7 gives a minimum pairwise distance of 3, which is the maximum possible."
+    },
+    {
+      "input": "position = [5,4,3,2,1,1000000000], m = 2",
+      "output": "999999999"
+    }
+  ],
+  "constraints": [
+    "n == position.length",
+    "2 <= n <= 10^5",
+    "1 <= position[i] <= 10^9",
+    "all integers in position are distinct",
+    "2 <= m <= position.length"
+  ],
+  "hints": [
+    "Trying every possible minimum distance from 1 upward and checking whether it's achievable works, but the distance can be as large as 10^9, so a linear scan of distances is too slow.",
+    "Sort the positions first. For a fixed candidate minimum distance d, you can greedily place balls left to right, only placing a new ball when it's at least d away from the last placed one, and count how many balls fit.",
+    "The number of balls that fit is monotonically non-increasing as d grows, so binary search on d itself for the largest value where at least m balls fit."
+  ],
+  "solution": {
+    "approach": "Sort the positions, then binary search on the candidate minimum force d, ranging from 1 to the full span of positions. For a given d, greedily place the first ball at the first position and then scan left to right, placing the next ball only once the current position is at least d away from the last placed ball; count how many balls this greedy placement fits. This count is monotonically non-increasing as d increases, so binary search for the largest d for which at least m balls still fit, giving an O(n log(max position)) solution.",
+    "code": "def max_distance(position, m):\n    position.sort()\n\n    def balls_placed(d):\n        count = 1\n        last = position[0]\n        for p in position[1:]:\n            if p - last >= d:\n                count += 1\n                last = p\n        return count\n\n    lo, hi = 1, position[-1] - position[0]\n\n    while lo < hi:\n        mid = (lo + hi + 1) // 2\n        if balls_placed(mid) >= m:\n            lo = mid\n        else:\n            hi = mid - 1\n\n    return lo\n",
+    "timeComplexity": "O(n log(max(position)))",
+    "spaceComplexity": "O(1) excluding sort"
+  },
+  "starterCode": "def max_distance(position, m):\n    # your code here\n    pass\n",
+  "functionName": "max_distance",
+  "paramNames": ["position", "m"],
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 3, 4, 7],
+        3
+      ],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [5, 4, 3, 2, 1, 1000000000],
+        2
+      ],
+      "expected": 999999999,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2],
+        2
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 10, 100, 1000],
+        4
+      ],
+      "expected": 9,
+      "isHidden": true
+    }
+  ]
+}

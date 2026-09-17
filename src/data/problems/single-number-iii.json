@@ -1,0 +1,63 @@
+{
+  "id": "single-number-iii",
+  "title": "Single Number III",
+  "pattern": "greedy",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Facebook"
+  ],
+  "prompt": "Given an integer array `nums` in which exactly two elements appear only once and all other elements appear exactly twice, find the two elements that appear only once. You may return the answer in any order, and your algorithm should run in linear time with constant extra space.",
+  "examples": [
+    {
+      "input": "nums = [1,2,1,3,2,5]",
+      "output": "[3,5]",
+      "explanation": "3 and 5 are the two elements that appear only once (order may vary, e.g. [5,3] is also accepted)."
+    },
+    {
+      "input": "nums = [-1,0]",
+      "output": "[-1,0]"
+    }
+  ],
+  "constraints": [
+    "2 <= nums.length <= 3 * 10^4",
+    "Exactly two elements appear once and all other elements appear exactly twice"
+  ],
+  "hints": [
+    "XORing everything together cancels the duplicated pairs but mixes the two unique numbers together — how can you separate them?",
+    "The XOR of all numbers equals a XOR b, where a and b are the two unique numbers. Since a != b, that XOR is nonzero, so it has at least one set bit.",
+    "Pick any set bit of (a XOR b) and use it to split all numbers into two groups: those with that bit set and those without. a and b must land in different groups, and every duplicated pair lands together in the same group, so XORing each group separately recovers a and b."
+  ],
+  "solution": {
+    "approach": "XOR all numbers together to get xor_all = a ^ b, where a and b are the two unique values (all duplicated pairs cancel out). Since a != b, xor_all is nonzero, so isolate its lowest set bit with diff_bit = xor_all & (-xor_all). This bit must differ between a and b, so partition all numbers by whether that bit is set; every duplicated pair shares the same bit value there and lands in the same partition, canceling out, while a and b fall into different partitions. XOR each partition separately to recover a and b individually.",
+    "code": "def single_number(nums):\n    xor_all = 0\n    for num in nums:\n        xor_all ^= num\n    diff_bit = xor_all & (-xor_all)\n    a = 0\n    b = 0\n    for num in nums:\n        if num & diff_bit:\n            a ^= num\n        else:\n            b ^= num\n    return [a, b]\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def single_number(nums):\n    # your code here\n    pass\n",
+  "functionName": "single_number",
+  "paramNames": ["nums"],
+  "testCases": [
+    {
+      "input": [[1, 2, 1, 3, 2, 5]],
+      "expected": [3, 5],
+      "isHidden": false
+    },
+    {
+      "input": [[-1, 0]],
+      "expected": [-1, 0],
+      "isHidden": false
+    },
+    {
+      "input": [[4, 1, 4, 2]],
+      "expected": [1, 2],
+      "isHidden": true
+    },
+    {
+      "input": [[0, 1]],
+      "expected": [1, 0],
+      "isHidden": true
+    }
+  ]
+}

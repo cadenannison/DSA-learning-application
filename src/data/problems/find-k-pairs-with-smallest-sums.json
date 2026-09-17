@@ -1,0 +1,70 @@
+{
+  "id": "find-k-pairs-with-smallest-sums",
+  "title": "Find K Pairs with Smallest Sums",
+  "pattern": "heaps",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Bloomberg"
+  ],
+  "prompt": "You are given two integer arrays `nums1` and `nums2`, both sorted in ascending order, and an integer `k`. Define a pair `(u, v)` as one element from `nums1` and one from `nums2`. Find the `k` pairs with the smallest sums `u + v`, and return them as a list of `[u, v]` pairs, ordered from smallest sum to largest.",
+  "examples": [
+    {
+      "input": "nums1 = [1,7,11], nums2 = [2,4,6], k = 3",
+      "output": "[[1,2],[1,4],[1,6]]",
+      "explanation": "The 3 smallest-sum pairs are (1,2)=3, (1,4)=5, (1,6)=7."
+    },
+    {
+      "input": "nums1 = [1,1,2], nums2 = [1,2,3], k = 2",
+      "output": "[[1,1],[1,1]]"
+    }
+  ],
+  "constraints": [
+    "1 <= nums1.length, nums2.length <= 10^5",
+    "-10^9 <= nums1[i], nums2[i] <= 10^9",
+    "nums1 and nums2 are sorted in non-decreasing order",
+    "1 <= k <= 10^4"
+  ],
+  "hints": [
+    "Generating every possible pair and sorting them is O(n*m log(n*m)), far too slow when nums1 and nums2 are both large.",
+    "Because both arrays are sorted, the pair (nums1[0], nums2[0]) is guaranteed to have the smallest sum, and every 'next smallest' candidate pair only ever comes from advancing one index of an already-considered pair.",
+    "Use a min-heap seeded with pairs (nums1[i], nums2[0]) for the first min(k, len(nums1)) values of i. Each time you pop the smallest-sum pair (nums1[i], nums2[j]), push (nums1[i], nums2[j+1]) if it exists \u2014 this explores sums in increasing order without ever generating all n*m pairs."
+  ],
+  "solution": {
+    "approach": "Since both arrays are sorted, the globally smallest sum must pair nums1[0] with nums2[0]. More generally, if (nums1[i], nums2[j]) is a candidate, then (nums1[i], nums2[j+1]) is the next candidate that could follow it for that fixed i. Seed a min-heap with pairs (nums1[i], nums2[0]) for the first min(k, len(nums1)) indices i, keyed by sum. Repeatedly pop the smallest-sum pair, add it to the result, and if the popped pair's j index has a next element in nums2, push (nums1[i], nums2[j+1]) as the next candidate for that same i. This produces the k smallest sums in order while only ever holding O(k) candidates in the heap at once, without materializing the full n*m grid.",
+    "code": "import heapq\n\ndef find_k_pairs_with_smallest_sums(nums1, nums2, k):\n    if not nums1 or not nums2:\n        return []\n\n    heap = []\n    for i in range(min(k, len(nums1))):\n        heapq.heappush(heap, (nums1[i] + nums2[0], i, 0))\n\n    result = []\n    while heap and len(result) < k:\n        _, i, j = heapq.heappop(heap)\n        result.append([nums1[i], nums2[j]])\n        if j + 1 < len(nums2):\n            heapq.heappush(heap, (nums1[i] + nums2[j + 1], i, j + 1))\n\n    return result\n",
+    "timeComplexity": "O(k log k)",
+    "spaceComplexity": "O(k)"
+  },
+  "starterCode": "def find_k_pairs_with_smallest_sums(nums1, nums2, k):\n    # your code here\n    pass\n",
+  "functionName": "find_k_pairs_with_smallest_sums",
+  "paramNames": ["nums1", "nums2", "k"],
+  "testCases": [
+    {
+      "input": [[1, 7, 11], [2, 4, 6], 3],
+      "expected": [[1, 2], [1, 4], [1, 6]],
+      "isHidden": false
+    },
+    {
+      "input": [[1, 1, 2], [1, 2, 3], 2],
+      "expected": [[1, 1], [1, 1]],
+      "isHidden": false
+    },
+    {
+      "input": [[1, 2], [3], 3],
+      "expected": [[1, 3], [2, 3]],
+      "isHidden": true
+    },
+    {
+      "input": [[1], [1], 1],
+      "expected": [[1, 1]],
+      "isHidden": true
+    },
+    {
+      "input": [[-5, -3, 0], [-4, -2, 1], 2],
+      "expected": [[-5, -4], [-5, -2]],
+      "isHidden": true
+    }
+  ]
+}

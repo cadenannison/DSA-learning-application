@@ -1,0 +1,85 @@
+{
+  "id": "remove-element",
+  "title": "Remove Element",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Adobe"
+  ],
+  "prompt": "Given an integer array `nums` and an integer `val`, remove all occurrences of `val` in place. The order of the remaining elements may be changed. Return `k`, the number of elements not equal to `val`, after placing those elements at the front of `nums` (the rest of the array beyond `k` does not matter). You must do this using `O(1)` extra memory.",
+  "examples": [
+    {
+      "input": "nums = [3,2,2,3], val = 3",
+      "output": "2",
+      "explanation": "The first two elements can be [2,2]; k = 2."
+    },
+    {
+      "input": "nums = [0,1,2,2,3,0,4,2], val = 2",
+      "output": "5",
+      "explanation": "The first five elements can be [0,1,4,0,3] in some order; k = 5."
+    }
+  ],
+  "constraints": [
+    "0 <= nums.length <= 100",
+    "0 <= nums[i] <= 50",
+    "0 <= val <= 100"
+  ],
+  "hints": [
+    "Since order doesn't matter, you don't need to shift every element after a removal like you would for a strict in-place delete.",
+    "Use a write pointer that only advances when the current element should be kept.",
+    "For every index where nums[i] != val, copy it to the write pointer's slot and advance; elements equal to val are simply never copied forward, so they fall out of the kept prefix."
+  ],
+  "solution": {
+    "approach": "Since the order of surviving elements doesn't matter, use a write pointer starting at 0. Scan the array once; whenever the current element is not equal to val, copy it into nums[write] and increment write. Elements equal to val are simply skipped and never copied, so after one pass the first `write` slots hold exactly the elements that should remain, using only O(1) extra space.",
+    "code": "def remove_element(nums, val):\n    write = 0\n    for num in nums:\n        if num != val:\n            nums[write] = num\n            write += 1\n    return write\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def remove_element(nums, val):\n    # your code here\n    pass\n",
+  "functionName": "remove_element",
+  "paramNames": ["nums", "val"],
+  "testCases": [
+    {
+      "input": [
+        [3, 2, 2, 3],
+        3
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0, 1, 2, 2, 3, 0, 4, 2],
+        2
+      ],
+      "expected": 5,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [],
+        1
+      ],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 1, 1],
+        1
+      ],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [4, 5, 6],
+        1
+      ],
+      "expected": 3,
+      "isHidden": true
+    }
+  ]
+}

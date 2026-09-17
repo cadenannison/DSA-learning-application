@@ -1,0 +1,73 @@
+{
+  "id": "combination-sum-iii",
+  "title": "Combination Sum III",
+  "pattern": "backtracking",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Snapchat"
+  ],
+  "prompt": "Find all valid combinations of `k` numbers that sum up to `n` such that only numbers 1 through 9 are used, and each number is used at most once. Return a list of all possible valid combinations.\n\nFor deterministic comparison, sort each inner combination in ascending order, and sort the outer list of combinations lexicographically.",
+  "examples": [
+    {
+      "input": "k = 3, n = 7",
+      "output": "[[1,2,4]]",
+      "explanation": "1+2+4=7, and it's the only combination of 3 distinct numbers from 1-9 summing to 7."
+    },
+    {
+      "input": "k = 3, n = 9",
+      "output": "[[1,2,6],[1,3,5],[2,3,4]]"
+    },
+    {
+      "input": "k = 4, n = 1",
+      "output": "[]",
+      "explanation": "No combination of 4 distinct positive numbers can sum to as little as 1."
+    }
+  ],
+  "constraints": [
+    "2 <= k <= 9",
+    "1 <= n <= 60"
+  ],
+  "hints": [
+    "The search space is tiny and fixed \u2014 only digits 1 through 9, each usable at most once \u2014 so a direct backtrack over that range is efficient enough without any fancy pruning.",
+    "Backtrack with a forward-only start index over the range 1..9, tracking how many numbers you've picked and the remaining sum needed.",
+    "Stop a branch as soon as the path already has k numbers (check if remaining is exactly 0) or as soon as the remaining target goes negative or can no longer be reached \u2014 e.g. prune once the current candidate exceeds what's left."
+  ],
+  "solution": {
+    "approach": "Backtrack over the fixed digits 1 through 9 with a forward-only start index (each digit usable at most once, so recurse with start+1). At each call, if the path already has k numbers, check whether remaining is exactly 0 and record the path if so, then stop exploring further from this branch either way. Otherwise, try each digit from start to 9: if it exceeds the remaining sum, break immediately since larger digits are worse and digits are tried in increasing order. Add it to the path, recurse with the reduced remaining sum and one more number used, then backtrack.",
+    "code": "def combination_sum3(k, n):\n    result = []\n    path = []\n\n    def backtrack(start, remaining):\n        if len(path) == k:\n            if remaining == 0:\n                result.append(path[:])\n            return\n        for digit in range(start, 10):\n            if digit > remaining:\n                break\n            path.append(digit)\n            backtrack(digit + 1, remaining - digit)\n            path.pop()\n\n    backtrack(1, n)\n    result.sort()\n    return result\n",
+    "timeComplexity": "O(C(9, k)) \u2014 bounded by the fixed search space of digits 1-9",
+    "spaceComplexity": "O(k) recursion depth, plus output size"
+  },
+  "starterCode": "def combination_sum3(k, n):\n    # your code here\n    pass\n",
+  "functionName": "combination_sum3",
+  "paramNames": ["k", "n"],
+  "testCases": [
+    {
+      "input": [3, 7],
+      "expected": [[1, 2, 4]],
+      "isHidden": false
+    },
+    {
+      "input": [3, 9],
+      "expected": [[1, 2, 6], [1, 3, 5], [2, 3, 4]],
+      "isHidden": false
+    },
+    {
+      "input": [4, 1],
+      "expected": [],
+      "isHidden": false
+    },
+    {
+      "input": [2, 17],
+      "expected": [[8, 9]],
+      "isHidden": true
+    },
+    {
+      "input": [9, 45],
+      "expected": [[1, 2, 3, 4, 5, 6, 7, 8, 9]],
+      "isHidden": true
+    }
+  ]
+}

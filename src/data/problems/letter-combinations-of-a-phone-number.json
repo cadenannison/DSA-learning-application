@@ -1,0 +1,74 @@
+{
+  "id": "letter-combinations-of-a-phone-number",
+  "title": "Letter Combinations of a Phone Number",
+  "pattern": "backtracking",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Facebook",
+    "Microsoft",
+    "Uber"
+  ],
+  "prompt": "Given a string `digits` containing digits from `2` to `9` inclusive, return all possible letter combinations that the number could represent, using the standard telephone keypad mapping (2=\"abc\", 3=\"def\", 4=\"ghi\", 5=\"jkl\", 6=\"mno\", 7=\"pqrs\", 8=\"tuv\", 9=\"wxyz\"). If `digits` is empty, return an empty list.\n\nFor deterministic comparison, sort the resulting list of strings.",
+  "examples": [
+    {
+      "input": "digits = \"23\"",
+      "output": "[\"ad\",\"ae\",\"af\",\"bd\",\"be\",\"bf\",\"cd\",\"ce\",\"cf\"]",
+      "explanation": "2 maps to 'abc' and 3 maps to 'def', so every combination of one letter from each set, sorted."
+    },
+    {
+      "input": "digits = \"\"",
+      "output": "[]"
+    },
+    {
+      "input": "digits = \"2\"",
+      "output": "[\"a\",\"b\",\"c\"]"
+    }
+  ],
+  "constraints": [
+    "0 <= digits.length <= 4",
+    "digits[i] is a digit in the range ['2', '9']"
+  ],
+  "hints": [
+    "Each digit maps to a fixed small set of letters; the answer size is the product of the set sizes for each digit, so think of it as choosing one letter per digit position.",
+    "Backtrack position by position through `digits`: at each position, branch over every letter the current digit maps to.",
+    "Build the combination incrementally as you recurse, and only record it once you've made a choice for every digit (i.e. path length equals len(digits)). Handle the empty-input case separately since it should produce no combinations."
+  ],
+  "solution": {
+    "approach": "Use a fixed digit-to-letters mapping and backtrack over the positions of `digits`. At each recursive call, if the path length equals len(digits), a complete combination has been built, so record it (unless digits was empty, which yields no combinations at all). Otherwise, look up the letters for the digit at the current position and branch into a recursive call for each one, appending it to the path and popping it back off after returning. This explores every combination exactly once since each position independently contributes one letter.",
+    "code": "def letter_combinations(digits):\n    if not digits:\n        return []\n\n    mapping = {\n        '2': 'abc', '3': 'def', '4': 'ghi', '5': 'jkl',\n        '6': 'mno', '7': 'pqrs', '8': 'tuv', '9': 'wxyz'\n    }\n    result = []\n    path = []\n\n    def backtrack(index):\n        if index == len(digits):\n            result.append(''.join(path))\n            return\n        for letter in mapping[digits[index]]:\n            path.append(letter)\n            backtrack(index + 1)\n            path.pop()\n\n    backtrack(0)\n    result.sort()\n    return result\n",
+    "timeComplexity": "O(4^n * n) where n is len(digits)",
+    "spaceComplexity": "O(n) recursion depth, plus output size"
+  },
+  "starterCode": "def letter_combinations(digits):\n    # your code here\n    pass\n",
+  "functionName": "letter_combinations",
+  "paramNames": ["digits"],
+  "testCases": [
+    {
+      "input": ["23"],
+      "expected": ["ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"],
+      "isHidden": false
+    },
+    {
+      "input": [""],
+      "expected": [],
+      "isHidden": false
+    },
+    {
+      "input": ["2"],
+      "expected": ["a", "b", "c"],
+      "isHidden": false
+    },
+    {
+      "input": ["7"],
+      "expected": ["p", "q", "r", "s"],
+      "isHidden": true
+    },
+    {
+      "input": ["79"],
+      "expected": ["pw", "px", "py", "pz", "qw", "qx", "qy", "qz", "rw", "rx", "ry", "rz", "sw", "sx", "sy", "sz"],
+      "isHidden": true
+    }
+  ]
+}

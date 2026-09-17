@@ -1,0 +1,89 @@
+{
+  "id": "palindrome-linked-list",
+  "title": "Palindrome Linked List",
+  "pattern": "linked-list",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Facebook",
+    "Microsoft",
+    "Adobe"
+  ],
+  "prompt": "Given the `head` of a singly linked list, determine whether the list reads the same forward and backward (i.e. whether it is a palindrome).\n\nThe list is given as an array (e.g. `[1,2,2,1]` represents `1 -> 2 -> 2 -> 1 -> null`). The starter code includes helpers to convert between the array and a linked-list node — build the actual list, check the palindrome property by manipulating the nodes (not just the original array), and return `True` or `False`.",
+  "examples": [
+    {
+      "input": "head = [1,2,2,1]",
+      "output": "true"
+    },
+    {
+      "input": "head = [1,2]",
+      "output": "false"
+    },
+    {
+      "input": "head = [1]",
+      "output": "true"
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [1, 5 * 10^4]",
+    "0 <= Node.val <= 9"
+  ],
+  "hints": [
+    "Copying the values into an array and checking that array is a palindrome works, but can you do it with O(1) extra space?",
+    "Use slow/fast pointers to find the middle of the list, then reverse the second half in place.",
+    "Once the second half is reversed, walk it alongside the first half and compare values node by node — they should match all the way through."
+  ],
+  "solution": {
+    "approach": "Find the middle of the list with slow/fast pointers. Reverse the second half in place. Then walk the first half and the reversed second half together, comparing values at each step; if any pair differs, it's not a palindrome. Because the second half is reversed and the two pointers advance together, if the whole list is a palindrome every comparison must succeed until one half runs out.",
+    "code": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for val in arr:\n        node = ListNode(val)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef is_palindrome(head_arr):\n    head = arr_to_list(head_arr)\n    if not head or not head.next:\n        return True\n\n    slow, fast = head, head\n    while fast.next and fast.next.next:\n        slow = slow.next\n        fast = fast.next.next\n\n    prev = None\n    curr = slow.next\n    while curr:\n        nxt = curr.next\n        curr.next = prev\n        prev = curr\n        curr = nxt\n\n    first, second = head, prev\n    while second:\n        if first.val != second.val:\n            return False\n        first = first.next\n        second = second.next\n    return True\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1) auxiliary"
+  },
+  "starterCode": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for val in arr:\n        node = ListNode(val)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef is_palindrome(head_arr):\n    head = arr_to_list(head_arr)\n    # your code here\n    pass\n",
+  "functionName": "is_palindrome",
+  "paramNames": ["head_arr"],
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 2, 1]
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2]
+      ],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3, 2, 1]
+      ],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 1, 2, 1]
+      ],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [9, 9, 9, 9]
+      ],
+      "expected": true,
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "id": "plus-one",
+  "title": "Plus One",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Apple"
+  ],
+  "prompt": "You are given a large integer represented as an integer array `digits`, where each `digits[i]` is the `i`th digit of the integer from most significant to least significant, with no leading zeroes. Increment the large integer by one and return the resulting array of digits.",
+  "examples": [
+    {
+      "input": "digits = [1,2,3]",
+      "output": "[1,2,4]",
+      "explanation": "The array represents 123, incrementing gives 124."
+    },
+    {
+      "input": "digits = [4,3,2,1]",
+      "output": "[4,3,2,2]"
+    },
+    {
+      "input": "digits = [9,9]",
+      "output": "[1,0,0]",
+      "explanation": "99 + 1 = 100, which needs an extra leading digit."
+    }
+  ],
+  "constraints": [
+    "1 <= digits.length <= 100",
+    "0 <= digits[i] <= 9",
+    "digits does not contain leading zeroes (other than possibly a single zero itself)"
+  ],
+  "hints": [
+    "Converting the whole array to an integer, adding one, and converting back works but feels like cheating the digit-array representation — and can be unsafe for arbitrarily long numbers in other languages.",
+    "Adding one only cascades a carry through a suffix of 9s; everything before the first non-9 digit (from the right) is untouched.",
+    "Scan from the last digit backward: if it's less than 9, just increment it and return immediately; if it's 9, set it to 0 and continue the carry leftward. If the carry runs off the front, prepend a 1."
+  ],
+  "solution": {
+    "approach": "Walk the digits from right to left, simulating grade-school addition. If the current digit is less than 9, incrementing it absorbs the carry completely, so it can be returned immediately. If it's 9, it rolls over to 0 and the carry continues to the next digit left. If the carry propagates past the leftmost digit (the whole number was all 9s), prepend a 1 to represent the extra digit. This touches only the trailing run of 9s plus one digit, never needing a full numeric conversion.",
+    "code": "def plus_one(digits):\n    for i in range(len(digits) - 1, -1, -1):\n        if digits[i] < 9:\n            digits[i] += 1\n            return digits\n        digits[i] = 0\n\n    return [1] + digits\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1) extra space, excluding output"
+  },
+  "starterCode": "def plus_one(digits):\n    # your code here\n    pass\n",
+  "functionName": "plus_one",
+  "paramNames": ["digits"],
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 3]
+      ],
+      "expected": [1, 2, 4],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [4, 3, 2, 1]
+      ],
+      "expected": [4, 3, 2, 2],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [9, 9]
+      ],
+      "expected": [1, 0, 0],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0]
+      ],
+      "expected": [1],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [9]
+      ],
+      "expected": [1, 0],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 9, 9]
+      ],
+      "expected": [2, 0, 0],
+      "isHidden": true
+    }
+  ]
+}

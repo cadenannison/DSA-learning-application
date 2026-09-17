@@ -1,0 +1,75 @@
+{
+  "id": "cheapest-flights-within-k-stops",
+  "title": "Cheapest Flights Within K Stops",
+  "pattern": "graphs",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Bloomberg"
+  ],
+  "prompt": "There are `n` cities connected by some flights, given as `flights` where `flights[i] = [from_i, to_i, price_i]` indicates a flight from city `from_i` to city `to_i` with cost `price_i`.\n\nGiven `src`, `dst`, and `k`, return the cheapest price to travel from `src` to `dst` using at most `k` stops (i.e. at most `k + 1` flights/edges). If there is no such route, return `-1`.",
+  "examples": [
+    {
+      "input": "n = 4, flights = [[0,1,100],[1,2,100],[2,0,100],[1,3,600],[2,3,200]], src = 0, dst = 3, k = 1",
+      "output": "700",
+      "explanation": "0 -> 1 -> 3 costs 700 with 1 stop. The cheaper route 0 -> 1 -> 2 -> 3 costs 400 but uses 2 stops, which exceeds k = 1."
+    },
+    {
+      "input": "n = 3, flights = [[0,1,100],[1,2,100],[0,2,500]], src = 0, dst = 2, k = 1",
+      "output": "200",
+      "explanation": "0 -> 1 -> 2 costs 200 with exactly 1 stop, cheaper than the direct 500 flight."
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 100",
+    "0 <= flights.length <= (n * (n - 1) / 2)",
+    "flights[i].length == 3",
+    "0 <= from_i, to_i < n",
+    "from_i != to_i",
+    "1 <= price_i <= 10^4",
+    "0 <= src, dst, k < n",
+    "src != dst"
+  ],
+  "hints": [
+    "Plain Dijkstra doesn't directly work here because the constraint isn't on total edges globally — it's a hard cap on stops per path, and a 'shortest' path with too many stops might block a valid cheaper one.",
+    "Think of this as Bellman-Ford limited to k + 1 rounds of edge relaxation: after round i, dist[v] holds the cheapest cost to reach v using at most i edges.",
+    "Run exactly k + 1 relaxation passes over all edges, using a snapshot of the previous round's distances so you don't let a single pass chain together more edges than allowed."
+  ],
+  "solution": {
+    "approach": "This is a Bellman-Ford variant with a hard limit on the number of edges used. Maintain a distance array (cost from src), initialized to infinity except src = 0. Run exactly k + 1 rounds: in each round, relax every edge using distances from the START of that round (a fixed snapshot), so a single round only ever extends paths by one additional edge. This guarantees that after k + 1 rounds, dist[v] reflects the cheapest cost reachable within k + 1 edges (k stops), never accidentally chaining more hops together within one pass. If dst is still unreachable, return -1.",
+    "code": "def find_cheapest_price(n, flights, src, dst, k):\n    INF = float('inf')\n    dist = [INF] * n\n    dist[src] = 0\n\n    for _ in range(k + 1):\n        new_dist = dist[:]\n        for u, v, price in flights:\n            if dist[u] != INF and dist[u] + price < new_dist[v]:\n                new_dist[v] = dist[u] + price\n        dist = new_dist\n\n    return dist[dst] if dist[dst] != INF else -1\n",
+    "timeComplexity": "O(k * E)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def find_cheapest_price(n, flights, src, dst, k):\n    # your code here\n    pass\n",
+  "functionName": "find_cheapest_price",
+  "paramNames": ["n", "flights", "src", "dst", "k"],
+  "testCases": [
+    {
+      "input": [4, [[0, 1, 100], [1, 2, 100], [2, 0, 100], [1, 3, 600], [2, 3, 200]], 0, 3, 1],
+      "expected": 700,
+      "isHidden": false
+    },
+    {
+      "input": [3, [[0, 1, 100], [1, 2, 100], [0, 2, 500]], 0, 2, 1],
+      "expected": 200,
+      "isHidden": false
+    },
+    {
+      "input": [3, [[0, 1, 100], [1, 2, 100], [0, 2, 500]], 0, 2, 0],
+      "expected": 500,
+      "isHidden": false
+    },
+    {
+      "input": [2, [], 0, 1, 1],
+      "expected": -1,
+      "isHidden": true
+    },
+    {
+      "input": [5, [[0, 1, 5], [1, 2, 5], [0, 3, 2], [3, 1, 2], [1, 4, 1], [4, 2, 1]], 0, 2, 2],
+      "expected": 7,
+      "isHidden": true
+    }
+  ]
+}

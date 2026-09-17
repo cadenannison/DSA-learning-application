@@ -1,0 +1,66 @@
+{
+  "id": "trapping-rain-water-ii",
+  "title": "Trapping Rain Water II",
+  "pattern": "heaps",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Amazon",
+    "Bloomberg"
+  ],
+  "prompt": "Given an `m x n` integer matrix `heightMap` representing the height of each unit cell in a 2D elevation map, return the total volume of water it can trap after raining.\n\nWater can only be trapped if it is enclosed by higher (or equal) terrain on all sides, similar to the 1D trapping rain water problem but extended to two dimensions, where a cell's boundary is its four neighbors rather than just left and right.",
+  "examples": [
+    {
+      "input": "heightMap = [[1,4,3,1,3,2],[3,2,1,3,2,4],[2,3,3,2,3,1]]",
+      "output": "4",
+      "explanation": "The map traps 4 total units of water at the interior low points surrounded by higher terrain."
+    },
+    {
+      "input": "heightMap = [[3,3,3,3,3],[3,2,2,2,3],[3,2,1,2,3],[3,2,2,2,3],[3,3,3,3,3]]",
+      "output": "10",
+      "explanation": "The interior forms a bowl one layer at a time: the center (height 1) can hold up to height 3, the ring around it (height 2) can also hold up to height 3, totaling 10 units."
+    }
+  ],
+  "constraints": [
+    "m == heightMap.length",
+    "n == heightMap[i].length",
+    "1 <= m, n <= 200",
+    "0 <= heightMap[i][j] <= 2*10^5"
+  ],
+  "hints": [
+    "Water trapped at any interior cell depends on the lowest 'rim' surrounding it on all reachable paths to the outside — this is like a multi-source shortest-path problem where you always expand from the currently lowest boundary.",
+    "Start by pushing every border cell onto a min-heap (they can't trap water since they're the edge of the map), then repeatedly expand from the globally lowest boundary cell inward, like Dijkstra's algorithm using height as 'distance'.",
+    "When you pop the lowest boundary cell and visit an unvisited neighbor, the water level trapped at that neighbor is max(0, current_boundary_height - neighbor_height); then push the neighbor onto the heap with height max(current_boundary_height, neighbor_height), since that's the effective wall height going forward."
+  ],
+  "solution": {
+    "approach": "This generalizes trapping rain water to 2D using a Dijkstra-like sweep: water trapped at any cell is bounded by the lowest possible 'rim' along any path to the map's border, so we always want to expand outward from the currently-lowest known boundary. Push all border cells onto a min-heap keyed by height (they trap no water, being the edge) and mark them visited. Repeatedly pop the lowest cell and examine its unvisited neighbors: each neighbor traps max(0, current_height - neighbor_height) water, and is then pushed onto the heap with an effective height of max(current_height, neighbor_height) — representing that once we've moved past this cell, the wall containing water can never be lower than what we've already crossed. Summing all trapped amounts gives the total volume.",
+    "code": "import heapq\n\ndef trapping_rain_water_ii(height_map):\n    if not height_map or not height_map[0]:\n        return 0\n\n    m, n = len(height_map), len(height_map[0])\n    visited = [[False] * n for _ in range(m)]\n    heap = []\n\n    for i in range(m):\n        for j in range(n):\n            if i == 0 or i == m - 1 or j == 0 or j == n - 1:\n                heapq.heappush(heap, (height_map[i][j], i, j))\n                visited[i][j] = True\n\n    total = 0\n    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]\n\n    while heap:\n        height, x, y = heapq.heappop(heap)\n        for dx, dy in directions:\n            nx, ny = x + dx, y + dy\n            if 0 <= nx < m and 0 <= ny < n and not visited[nx][ny]:\n                visited[nx][ny] = True\n                total += max(0, height - height_map[nx][ny])\n                heapq.heappush(heap, (max(height, height_map[nx][ny]), nx, ny))\n\n    return total\n",
+    "timeComplexity": "O(m*n log(m*n))",
+    "spaceComplexity": "O(m*n)"
+  },
+  "starterCode": "def trapping_rain_water_ii(height_map):\n    # your code here\n    pass\n",
+  "functionName": "trapping_rain_water_ii",
+  "paramNames": ["height_map"],
+  "testCases": [
+    {
+      "input": [[[1, 4, 3, 1, 3, 2], [3, 2, 1, 3, 2, 4], [2, 3, 3, 2, 3, 1]]],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [[[3, 3, 3, 3, 3], [3, 2, 2, 2, 3], [3, 2, 1, 2, 3], [3, 2, 2, 2, 3], [3, 3, 3, 3, 3]]],
+      "expected": 10,
+      "isHidden": false
+    },
+    {
+      "input": [[[1, 2, 3], [4, 5, 6], [7, 8, 9]]],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [[[12, 13, 1, 12], [13, 4, 13, 12], [13, 8, 10, 12], [12, 13, 12, 12], [13, 13, 13, 13]]],
+      "expected": 14,
+      "isHidden": true
+    }
+  ]
+}

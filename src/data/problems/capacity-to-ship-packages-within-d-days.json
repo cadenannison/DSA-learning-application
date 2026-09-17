@@ -1,0 +1,87 @@
+{
+  "id": "capacity-to-ship-packages-within-d-days",
+  "title": "Capacity To Ship Packages Within D Days",
+  "pattern": "binary-search",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Meta"
+  ],
+  "prompt": "A conveyor belt has packages that must be shipped from one port to another within `days` days. The i-th package on the conveyor belt has a weight of `weights[i]`. Each day, packages are loaded onto a ship in the order given by `weights`, up to the ship's maximum weight capacity, without reordering the packages. Return the least weight capacity of the ship that will result in all packages being shipped within `days` days.",
+  "examples": [
+    {
+      "input": "weights = [1,2,3,4,5,6,7,8,9,10], days = 5",
+      "output": "15",
+      "explanation": "With capacity 15: day1=[1,2,3,4,5], day2=[6,7], day3=[8], day4=[9], day5=[10]."
+    },
+    {
+      "input": "weights = [3,2,2,4,1,4], days = 3",
+      "output": "6"
+    },
+    {
+      "input": "weights = [1,2,3,1,1], days = 4",
+      "output": "3"
+    }
+  ],
+  "constraints": [
+    "1 <= days <= weights.length <= 5 * 10^4",
+    "1 <= weights[i] <= 500"
+  ],
+  "hints": [
+    "The capacity must be at least the heaviest single package, and at most the sum of all packages (shipping everything in one day) — that range itself is a hint about how to search.",
+    "For a fixed capacity, you can greedily simulate loading: keep adding packages to the current day's load until the next one would exceed capacity, then start a new day. This tells you exactly how many days a given capacity requires.",
+    "The number of days required is monotonically non-increasing as capacity increases, so binary search on capacity itself using that simulation as the feasibility check."
+  ],
+  "solution": {
+    "approach": "Binary search over the possible ship capacities, bounded below by the heaviest package (anything less can never load it) and above by the sum of all weights (shipping everything in a single day). For a candidate capacity, greedily simulate the loading process to count how many days it would take; this day count is monotonically non-increasing as capacity grows, satisfying the binary search invariant. If the simulated days fit within the budget, the capacity is feasible so try smaller; otherwise increase the capacity. This finds the minimum feasible capacity in O(n log(sum of weights)) time.",
+    "code": "def ship_within_days(weights, days):\n    def days_needed(capacity):\n        count, current_load = 1, 0\n        for w in weights:\n            if current_load + w > capacity:\n                count += 1\n                current_load = 0\n            current_load += w\n        return count\n\n    lo, hi = max(weights), sum(weights)\n\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if days_needed(mid) <= days:\n            hi = mid\n        else:\n            lo = mid + 1\n\n    return lo\n",
+    "timeComplexity": "O(n log(sum(weights)))",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def ship_within_days(weights, days):\n    # your code here\n    pass\n",
+  "functionName": "ship_within_days",
+  "paramNames": ["weights", "days"],
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        5
+      ],
+      "expected": 15,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [3, 2, 2, 4, 1, 4],
+        3
+      ],
+      "expected": 6,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3, 1, 1],
+        4
+      ],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [5],
+        1
+      ],
+      "expected": 5,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        10
+      ],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

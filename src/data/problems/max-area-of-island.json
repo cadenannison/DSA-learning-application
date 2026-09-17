@@ -1,0 +1,82 @@
+{
+  "id": "max-area-of-island",
+  "title": "Max Area of Island",
+  "pattern": "bfs-dfs",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Facebook",
+    "Microsoft"
+  ],
+  "prompt": "You are given an `m x n` binary matrix `grid`. An island is a group of `1`s (land) connected 4-directionally (horizontal or vertical). You may assume all four edges of the grid are surrounded by water. The area of an island is the number of cells with value `1` in the island. Return the maximum area of an island in `grid`, or `0` if there is no island.",
+  "examples": [
+    {
+      "input": "grid = [[0,0,1,0,0],[0,0,1,1,1],[0,1,1,0,0],[0,0,0,0,0]]",
+      "output": "6",
+      "explanation": "The largest connected group of 1s has 6 cells."
+    },
+    {
+      "input": "grid = [[0,0,0]]",
+      "output": "0",
+      "explanation": "There is no land at all."
+    }
+  ],
+  "constraints": [
+    "m == grid.length",
+    "n == grid[i].length",
+    "1 <= m, n <= 50",
+    "grid[i][j] is 0 or 1"
+  ],
+  "hints": [
+    "This extends the classic number-of-islands flood fill: instead of just counting islands, you also need to know how big each one is.",
+    "Make the flood-fill (DFS or BFS) function return the count of cells it visited from the starting cell, rather than just marking them.",
+    "Scan every unvisited land cell, flood-fill from it to get that island's area, mark cells visited as you go, and keep a running maximum across all islands found."
+  ],
+  "solution": {
+    "approach": "Iterate over every cell; whenever an unvisited land cell is found, run a DFS/BFS flood-fill that marks each connected land cell as visited (e.g. by zeroing it) and counts how many cells it touched. That count is the area of that island. Track the maximum area seen across all flood-fills, which is the answer once the whole grid has been scanned.",
+    "code": "def max_area_of_island(grid):\n    rows, cols = len(grid), len(grid[0])\n\n    def dfs(r, c):\n        if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] == 0:\n            return 0\n        grid[r][c] = 0\n        return 1 + dfs(r + 1, c) + dfs(r - 1, c) + dfs(r, c + 1) + dfs(r, c - 1)\n\n    best = 0\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] == 1:\n                best = max(best, dfs(r, c))\n    return best\n",
+    "timeComplexity": "O(m * n)",
+    "spaceComplexity": "O(m * n) worst-case recursion depth"
+  },
+  "starterCode": "def max_area_of_island(grid):\n    # your code here\n    pass\n",
+  "functionName": "max_area_of_island",
+  "paramNames": ["grid"],
+  "testCases": [
+    {
+      "input": [
+        [[0, 0, 1, 0, 0], [0, 0, 1, 1, 1], [0, 1, 1, 0, 0], [0, 0, 0, 0, 0]]
+      ],
+      "expected": 6,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[0, 0, 0]]
+      ],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1]]
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[1, 1], [1, 1]]
+      ],
+      "expected": 4,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[1, 0, 1], [0, 0, 0], [1, 0, 1]]
+      ],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

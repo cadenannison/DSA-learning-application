@@ -1,0 +1,79 @@
+{
+  "id": "count-good-nodes-in-binary-tree",
+  "title": "Count Good Nodes in Binary Tree",
+  "pattern": "trees",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Microsoft"
+  ],
+  "prompt": "Given a binary tree `root`, a node X in the tree is called good if, on the path from the root to X, there are no nodes with a value greater than X's value. Return the number of good nodes in the tree.\n\nThe tree is given as a level-order array where `null` marks a missing child (the standard LeetCode serialization). Your function receives this array directly; the starter code includes a helper that builds the tree from it, so you only need to count the good nodes.",
+  "examples": [
+    {
+      "input": "root = [3,1,4,3,null,1,5]",
+      "output": "4",
+      "explanation": "The root (3) is always good. 4 is good (3 <= 4). The 3 under 1 is good (max so far is 3). 5 is good (max so far is 4). The 1s are not good."
+    },
+    {
+      "input": "root = [3,3,null,4,2]",
+      "output": "3",
+      "explanation": "Root 3 is good. Node 3 (left child) is good since 3 >= 3. Node 4 is good since 4 >= 3. Node 2 is not good since 4 > 2 appeared on the path."
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [1, 10^5]",
+    "0 <= Node.val <= 10^4"
+  ],
+  "hints": [
+    "As you traverse down from the root, carry along the maximum value seen so far on the current path.",
+    "A node is good exactly when its own value is greater than or equal to that running maximum from its ancestors.",
+    "Do a DFS passing the running max down to each recursive call, updating it (to max(running_max, node.val)) before passing it to the children, and sum up 1 for every good node encountered."
+  ],
+  "solution": {
+    "approach": "DFS from the root while threading a 'max value seen so far on this path' parameter. A node counts as good if its value is greater than or equal to that running maximum (initialized to negative infinity, or the root's own value). After counting, recurse into both children passing along the updated maximum (the larger of the running max and the current node's value).",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef good_nodes(root_arr):\n    root = build_tree(root_arr)\n\n    def dfs(node, max_so_far):\n        if node is None:\n            return 0\n        count = 1 if node.val >= max_so_far else 0\n        new_max = max(max_so_far, node.val)\n        count += dfs(node.left, new_max)\n        count += dfs(node.right, new_max)\n        return count\n\n    return dfs(root, float('-inf'))\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(h), h = tree height"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef good_nodes(root_arr):\n    root = build_tree(root_arr)\n    # your code here\n    pass\n",
+  "functionName": "good_nodes",
+  "paramNames": ["root_arr"],
+  "testCases": [
+    {
+      "input": [
+        [3, 1, 4, 3, null, 1, 5]
+      ],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [3, 3, null, 4, 2]
+      ],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [5, 4, 3, 2, 1]
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3, 4, 5]
+      ],
+      "expected": 5,
+      "isHidden": true
+    }
+  ]
+}

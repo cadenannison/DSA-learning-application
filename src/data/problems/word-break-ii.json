@@ -1,0 +1,68 @@
+{
+  "id": "word-break-ii",
+  "title": "Word Break II",
+  "pattern": "backtracking",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Facebook",
+    "Amazon",
+    "Uber"
+  ],
+  "prompt": "Given a string `s` and a dictionary of strings `wordDict`, add spaces in `s` to construct a sentence where each word is a valid dictionary word. Return all such possible sentences.\n\nNote that the same word in `wordDict` may be reused multiple times when segmenting.\n\nFor deterministic comparison, sort the resulting list of sentences.",
+  "examples": [
+    {
+      "input": "s = \"catsanddog\", wordDict = [\"cat\",\"cats\",\"and\",\"sand\",\"dog\"]",
+      "output": "[\"cat sand dog\",\"cats and dog\"]",
+      "explanation": "Both segmentations use only dictionary words and cover the whole string."
+    },
+    {
+      "input": "s = \"catsandog\", wordDict = [\"cats\",\"dog\",\"sand\",\"and\",\"cat\"]",
+      "output": "[]",
+      "explanation": "No valid segmentation exists for \"catsandog\"."
+    }
+  ],
+  "constraints": [
+    "1 <= s.length <= 20",
+    "1 <= wordDict.length <= 1000",
+    "1 <= wordDict[i].length <= 10",
+    "s and wordDict[i] consist of only lowercase English letters",
+    "All strings in wordDict are unique"
+  ],
+  "hints": [
+    "This is Word Break, but instead of a yes/no answer you need every valid segmentation — backtrack over cut positions, branching into every dictionary word that matches a prefix of the remaining string.",
+    "Many different starting positions will end up re-exploring segmentations of the same suffix of s — memoize the list of valid sentences for each starting index to avoid exponential blowup.",
+    "Put wordDict into a set for O(1) membership checks. At each position, try every prefix length up to the longest dictionary word, and only recurse into a prefix that is itself a dictionary word."
+  ],
+  "solution": {
+    "approach": "Put wordDict into a set for O(1) lookups. Define a memoized recursive function break_from(start) that returns the list of all valid sentences for the suffix s[start:]. Base case: start == len(s) returns [''] (one empty continuation). Otherwise, try every end position from start+1 to len(s): if s[start:end] is a dictionary word, recursively get all sentences for the remainder s[end:], and for each, prepend the current word (with a space if the remainder is non-empty) to form a full sentence for this suffix. Memoizing on start is what keeps this efficient, since without it, common suffixes get re-segmented repeatedly across different backtracking branches, causing exponential blowup even though there are only O(n) distinct suffixes.",
+    "code": "def word_break(s, word_dict):\n    words = set(word_dict)\n    memo = {}\n\n    def break_from(start):\n        if start in memo:\n            return memo[start]\n        if start == len(s):\n            return ['']\n        sentences = []\n        for end in range(start + 1, len(s) + 1):\n            piece = s[start:end]\n            if piece in words:\n                for rest in break_from(end):\n                    sentences.append(piece if not rest else piece + ' ' + rest)\n        memo[start] = sentences\n        return sentences\n\n    return sorted(break_from(0))\n",
+    "timeComplexity": "O(n^2) distinct suffix states times O(n) work per state, plus O(k) to build the k output sentences",
+    "spaceComplexity": "O(n * k) for memoized sentence lists, where k is the number of segmentations of a suffix"
+  },
+  "starterCode": "def word_break(s, word_dict):\n    # your code here\n    pass\n",
+  "functionName": "word_break",
+  "paramNames": ["s", "word_dict"],
+  "testCases": [
+    {
+      "input": ["catsanddog", ["cat", "cats", "and", "sand", "dog"]],
+      "expected": ["cat sand dog", "cats and dog"],
+      "isHidden": false
+    },
+    {
+      "input": ["catsandog", ["cats", "dog", "sand", "and", "cat"]],
+      "expected": [],
+      "isHidden": false
+    },
+    {
+      "input": ["pineapplepenapple", ["apple", "pen", "applepen", "pine", "pineapple"]],
+      "expected": ["pine apple pen apple", "pine applepen apple", "pineapple pen apple"],
+      "isHidden": true
+    },
+    {
+      "input": ["a", ["a"]],
+      "expected": ["a"],
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "id": "additive-number",
+  "title": "Additive Number",
+  "pattern": "backtracking",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "An additive number is a string whose digits can form an additive sequence: a sequence where each number (from the third one onward) is the sum of the two preceding numbers, and the sequence contains at least 3 numbers.\n\nGiven a string `num` containing only digits, return true if it is an additive number (i.e. some way of splitting `num` into 3 or more pieces forms an additive sequence). A valid piece may not have leading zeros unless it is exactly \"0\".",
+  "examples": [
+    {
+      "input": "num = \"112358\"",
+      "output": "true",
+      "explanation": "The sequence 1, 1, 2, 3, 5, 8 is additive: 1+1=2, 1+2=3, 2+3=5, 3+5=8."
+    },
+    {
+      "input": "num = \"199100199\"",
+      "output": "true",
+      "explanation": "The sequence 1, 99, 100, 199 is additive: 1+99=100, 99+100=199."
+    },
+    {
+      "input": "num = \"1023\"",
+      "output": "false"
+    }
+  ],
+  "constraints": [
+    "1 <= num.length <= 35",
+    "num consists only of digits"
+  ],
+  "hints": [
+    "Once the first two numbers of the sequence are fixed (by choosing where the first two cuts go), the entire rest of the sequence is fully determined \u2014 there's no more choice after that, only verification.",
+    "Backtrack only over the lengths of the FIRST two pieces; for each pair of choices, walk forward greedily computing next = a + b as a string, and check it matches the next digits of num exactly.",
+    "Reject any candidate piece that has a leading zero unless the piece is exactly \"0\" (this applies to all pieces including the first two and every derived one), and bound the search by noting neither of the first two pieces needs to be longer than half of num's length."
+  ],
+  "solution": {
+    "approach": "The only real branching point is choosing the lengths of the first two numbers in the sequence; everything after that is fully determined (each next number must equal the sum of the previous two), so this can be checked by direct simulation rather than further backtracking. Try every split of num into a first piece (from index 0) and second piece (immediately following), rejecting any piece with a leading zero (unless it's exactly \"0\"). Then repeatedly compute the string sum of the last two numbers and check it matches the next characters of num exactly (also validating length matches, since leading zero differences would make lengths mismatch); if a full match extends all the way to the end of num, this split produces a valid additive sequence. Trying all valid (first length, second length) pairs and returning true as soon as one produces a complete match covers all possible additive sequences.",
+    "code": "def is_additive_number(num):\n    n = len(num)\n\n    def valid_piece(piece):\n        return piece == \"0\" or piece[0] != \"0\"\n\n    def add_strings(a, b):\n        return str(int(a) + int(b))\n\n    for i in range(1, n):\n        first = num[:i]\n        if not valid_piece(first):\n            break\n        for j in range(i + 1, n):\n            second = num[i:j]\n            if not valid_piece(second):\n                break\n            a, b = first, second\n            pos = j\n            while pos < n:\n                expected = add_strings(a, b)\n                if num[pos:pos + len(expected)] != expected:\n                    break\n                pos += len(expected)\n                a, b = b, expected\n            if pos == n:\n                return True\n    return False\n",
+    "timeComplexity": "O(n^3) \u2014 O(n^2) choices for the first two piece lengths, O(n) work simulating each",
+    "spaceComplexity": "O(n) for the string sums built during simulation"
+  },
+  "starterCode": "def is_additive_number(num):\n    # your code here\n    pass\n",
+  "functionName": "is_additive_number",
+  "paramNames": ["num"],
+  "testCases": [
+    {
+      "input": ["112358"],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": ["199100199"],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": ["1023"],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": ["000"],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": ["1"],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": ["191010"],
+      "expected": false,
+      "isHidden": true
+    }
+  ]
+}

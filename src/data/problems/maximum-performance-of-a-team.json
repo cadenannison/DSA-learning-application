@@ -1,0 +1,71 @@
+{
+  "id": "maximum-performance-of-a-team",
+  "title": "Maximum Performance of a Team",
+  "pattern": "heaps",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "You are given `n` engineers, numbered from 0 to n-1, along with two integer arrays `speed` and `efficiency`, where `speed[i]` and `efficiency[i]` are the speed and efficiency of the i-th engineer. You are also given an integer `k`, the maximum team size.\n\nChoose at most `k` engineers to form a team such that the team's performance is maximized. A team's performance is the sum of its engineers' speeds, multiplied by the minimum efficiency among the engineers in that team. Return the maximum possible performance, modulo `10^9 + 7`.",
+  "examples": [
+    {
+      "input": "speed = [2,10,3,1,5,8], efficiency = [5,4,3,9,7,2], k = 2",
+      "output": "60",
+      "explanation": "Choose engineers 0 (speed 2, efficiency 5) and 4 (speed 5, efficiency 7): sum of speeds = 7, min efficiency = 5, performance = 35. Better: engineers 1 and 4: speeds sum 15, min efficiency 4, performance 60."
+    },
+    {
+      "input": "speed = [2,10,3,1,5,8], efficiency = [5,4,3,9,7,2], k = 3",
+      "output": "68"
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 10^5",
+    "speed.length == n",
+    "efficiency.length == n",
+    "1 <= speed[i] <= 10^5",
+    "1 <= efficiency[i] <= 10^8",
+    "1 <= k <= n"
+  ],
+  "hints": [
+    "As with maximum-subsequence-score-style problems, fix which engineer provides the 'minimum efficiency' factor and optimize the speed sum for the rest.",
+    "Sort engineers by efficiency descending. Processing in this order, every engineer considered so far has efficiency >= the current one, so the current engineer's efficiency is a valid minimum for any subset including it.",
+    "Maintain a min-heap of the speeds of at most k-1 previously considered engineers plus the current one (size <= k), and a running sum; whenever a new engineer would push the heap past size k, evict the smallest speed. After each addition, compute current_efficiency * running_speed_sum as a candidate answer."
+  ],
+  "solution": {
+    "approach": "Sort engineers by efficiency in descending order, so that processing them in this order guarantees every previously-processed engineer has efficiency >= the current one -- making the current engineer's efficiency a valid 'minimum' for any team formed from engineers seen so far (including itself). Maintain a min-heap of speeds for at most k engineers and a running sum of those speeds; for each engineer, add their speed to the heap and sum, and if the heap now exceeds size k, evict the smallest speed (least useful to keep) and subtract it from the sum. After each addition, the candidate performance is current_efficiency * running_speed_sum, and we track the best across all engineers processed. This works because fixing efficiency as the bottleneck and greedily keeping the k fastest engineers seen so far (by evicting the slowest when over capacity) always maximizes the speed sum for that efficiency threshold.",
+    "code": "import heapq\n\ndef maximum_performance_of_a_team(speed, efficiency, k):\n    MOD = 10 ** 9 + 7\n    engineers = sorted(zip(efficiency, speed), reverse=True)\n\n    heap = []\n    speed_sum = 0\n    best = 0\n\n    for eff, spd in engineers:\n        heapq.heappush(heap, spd)\n        speed_sum += spd\n\n        if len(heap) > k:\n            speed_sum -= heapq.heappop(heap)\n\n        best = max(best, speed_sum * eff)\n\n    return best % MOD\n",
+    "timeComplexity": "O(n log n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def maximum_performance_of_a_team(speed, efficiency, k):\n    # your code here\n    pass\n",
+  "functionName": "maximum_performance_of_a_team",
+  "paramNames": ["speed", "efficiency", "k"],
+  "testCases": [
+    {
+      "input": [[2, 10, 3, 1, 5, 8], [5, 4, 3, 9, 7, 2], 2],
+      "expected": 60,
+      "isHidden": false
+    },
+    {
+      "input": [[2, 10, 3, 1, 5, 8], [5, 4, 3, 9, 7, 2], 3],
+      "expected": 68,
+      "isHidden": false
+    },
+    {
+      "input": [[2, 8, 2], [2, 7, 1], 2],
+      "expected": 56,
+      "isHidden": true
+    },
+    {
+      "input": [[5], [10], 1],
+      "expected": 50,
+      "isHidden": true
+    },
+    {
+      "input": [[1, 1, 1], [1, 1, 1], 1],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

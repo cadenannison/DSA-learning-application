@@ -1,0 +1,71 @@
+{
+  "id": "top-k-frequent-words",
+  "title": "Top K Frequent Words",
+  "pattern": "heaps",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Bloomberg",
+    "Google"
+  ],
+  "prompt": "Given an array of strings `words` and an integer `k`, return the `k` most frequent strings, sorted by frequency from highest to lowest. For words with the same frequency, order them lexicographically (alphabetically ascending).",
+  "examples": [
+    {
+      "input": "words = [\"i\",\"love\",\"leetcode\",\"i\",\"love\",\"coding\"], k = 2",
+      "output": "[\"i\",\"love\"]",
+      "explanation": "\"i\" and \"love\" both appear twice, and \"coding\" and \"leetcode\" both appear once. Since \"i\" comes before \"love\" alphabetically, and both tie at frequency 2, \"i\" is listed first."
+    },
+    {
+      "input": "words = [\"the\",\"day\",\"is\",\"sunny\",\"the\",\"the\",\"the\",\"sunny\",\"is\",\"is\"], k = 4",
+      "output": "[\"the\",\"is\",\"sunny\",\"day\"]",
+      "explanation": "\"the\": 4, \"is\": 3, \"sunny\": 2, \"day\": 1, so ordering by frequency (desc) gives this exact result."
+    }
+  ],
+  "constraints": [
+    "1 <= words.length <= 500",
+    "1 <= words[i].length <= 10",
+    "words[i] consists of lowercase English letters",
+    "k is in the range [1, number of unique words]"
+  ],
+  "hints": [
+    "First count the frequency of every word with a hash map, just like counting frequencies of numbers.",
+    "You need a comparison that breaks frequency ties alphabetically — a heap ordered by (-frequency, word) naturally handles both criteria in a single key.",
+    "Push all (-count, word) pairs onto a min-heap (or use a max-heap by inverting the count); popping k times, in order, gives exactly the desired ranking because tuple comparison in Python compares lexicographically field by field."
+  ],
+  "solution": {
+    "approach": "Count each word's frequency with a hash map. Build a list of (-count, word) tuples — negating the count means a min-heap pops the highest frequency first, and Python's tuple comparison naturally breaks ties by comparing the word strings alphabetically ascending, which is exactly the tie-break rule needed. Heapify this list and pop k times to get the answer directly in the required order.",
+    "code": "import heapq\n\ndef top_k_frequent_words(words, k):\n    counts = {}\n    for w in words:\n        counts[w] = counts.get(w, 0) + 1\n\n    heap = [(-count, word) for word, count in counts.items()]\n    heapq.heapify(heap)\n\n    return [heapq.heappop(heap)[1] for _ in range(k)]\n",
+    "timeComplexity": "O(n log n) where n is the number of unique words",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def top_k_frequent_words(words, k):\n    # your code here\n    pass\n",
+  "functionName": "top_k_frequent_words",
+  "paramNames": ["words", "k"],
+  "testCases": [
+    {
+      "input": [["i", "love", "leetcode", "i", "love", "coding"], 2],
+      "expected": ["i", "love"],
+      "isHidden": false
+    },
+    {
+      "input": [["the", "day", "is", "sunny", "the", "the", "the", "sunny", "is", "is"], 4],
+      "expected": ["the", "is", "sunny", "day"],
+      "isHidden": false
+    },
+    {
+      "input": [["a"], 1],
+      "expected": ["a"],
+      "isHidden": true
+    },
+    {
+      "input": [["b", "a"], 2],
+      "expected": ["a", "b"],
+      "isHidden": true
+    },
+    {
+      "input": [["apple", "banana", "apple", "banana", "cherry"], 3],
+      "expected": ["apple", "banana", "cherry"],
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "id": "short-encoding-of-words",
+  "title": "Short Encoding of Words",
+  "pattern": "tries",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "A valid encoding of an array of `words` is any reference string `s` and array of indices `indices` such that: `s` ends with the `'#'` character, and for each index `indices[i]`, the substring of `s` starting at `indices[i]` and up to (but not including) the next `'#'` character equals `words[i]`.\n\nGiven an array of distinct strings `words`, return the length of the shortest reference string `s` possible for any valid encoding of `words`.",
+  "examples": [
+    {
+      "input": "words = [\"time\",\"me\",\"bell\"]",
+      "output": "10",
+      "explanation": "A valid encoding is s = \"time#bell#\" with indices = [0,2,5]. \"time#\" starts at index 0, \"me#\" (a suffix of \"time#\") starts at index 2, \"bell#\" starts at index 5."
+    },
+    {
+      "input": "words = [\"t\"]",
+      "output": "2",
+      "explanation": "A valid encoding is s = \"t#\" with indices = [0]."
+    }
+  ],
+  "constraints": [
+    "1 <= words.length <= 2000",
+    "1 <= words[i].length <= 7",
+    "words[i] consists of only lowercase letters"
+  ],
+  "hints": [
+    "A word only needs its own entry in the encoding if it isn't already a suffix of some other (longer) word in the list — suffixes can be 'absorbed' for free.",
+    "Reverse every word and insert the reversed strings into a trie; a word being absorbable as a suffix of another word corresponds exactly to its reversed form being a strict prefix of another reversed word in the trie.",
+    "After building the trie of reversed words, only words whose reversed trie node is a LEAF (no children) need to be counted in the answer — for each such word, add its length plus 1 (for the '#') to the total."
+  ],
+  "solution": {
+    "approach": "Reverse every word and insert the reversed strings into a trie. A word W is a suffix of another word V exactly when reverse(W) is a prefix of reverse(V), which in the trie means reverse(W)'s end node has further children extending it (i.e. is not a leaf). So only words whose reversed trie node ends at a leaf (no children below it) actually need their own separate entry in the encoding; every other word is already absorbed as a suffix of a longer one already counted. Summing (length + 1) for each such leaf-ending word gives the shortest total length, since deduplication also naturally happens: if two words are identical the trie only stores it once, but since input words are distinct, this doesn't reduce further.",
+    "code": "def minimum_length_encoding(words):\n    root = {}\n    word_end_node = {}\n\n    unique_words = list(set(words))\n\n    for word in unique_words:\n        node = root\n        for ch in reversed(word):\n            node = node.setdefault(ch, {})\n        word_end_node[word] = node\n\n    total = 0\n    for word in unique_words:\n        node = word_end_node[word]\n        if not node:\n            total += len(word) + 1\n\n    return total\n",
+    "timeComplexity": "O(sum of word lengths)",
+    "spaceComplexity": "O(sum of word lengths) for the trie"
+  },
+  "starterCode": "def minimum_length_encoding(words):\n    # your code here\n    pass\n",
+  "functionName": "minimum_length_encoding",
+  "paramNames": ["words"],
+  "testCases": [
+    {
+      "input": [["time", "me", "bell"]],
+      "expected": 10,
+      "isHidden": false
+    },
+    {
+      "input": [["t"]],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [["me", "time"]],
+      "expected": 5,
+      "isHidden": true
+    },
+    {
+      "input": [["a", "b", "c"]],
+      "expected": 6,
+      "isHidden": true
+    },
+    {
+      "input": [["abc", "bc", "c"]],
+      "expected": 4,
+      "isHidden": true
+    }
+  ]
+}

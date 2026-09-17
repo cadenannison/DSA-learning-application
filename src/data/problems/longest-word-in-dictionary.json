@@ -1,0 +1,69 @@
+{
+  "id": "longest-word-in-dictionary",
+  "title": "Longest Word in Dictionary",
+  "pattern": "tries",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "Given an array of strings `words` representing a dictionary, return the longest word in `words` that can be built one character at a time by other words in `words`. In other words, `word` qualifies only if every proper prefix of `word` (of length 1, 2, ..., len(word)-1) also appears in `words`.\n\nIf there is more than one qualifying word of the maximum length, return the lexicographically smallest one. If no word qualifies (not even a single character), return an empty string.",
+  "examples": [
+    {
+      "input": "words = [\"w\",\"wo\",\"wor\",\"worl\",\"world\"]",
+      "output": "\"world\"",
+      "explanation": "\"world\" is buildable one letter at a time via \"w\" -> \"wo\" -> \"wor\" -> \"worl\" -> \"world\", all present in words."
+    },
+    {
+      "input": "words = [\"a\",\"banana\",\"app\",\"appl\",\"ap\",\"apply\",\"apple\"]",
+      "output": "\"apple\"",
+      "explanation": "Both \"apple\" and \"apply\" are buildable and have the same length 5; \"apple\" is lexicographically smaller."
+    }
+  ],
+  "constraints": [
+    "1 <= words.length <= 1000",
+    "1 <= words[i].length <= 30",
+    "words[i] consists of lowercase English letters"
+  ],
+  "hints": [
+    "A word only qualifies if EVERY prefix of it (not just the immediate one) is also a full word in the list — checking that with a hash set repeatedly is possible but a trie makes the structure of 'buildable' explicit.",
+    "Insert all words into a trie, marking end-of-word nodes. A word is buildable exactly when every node along its path (excluding the root) is marked as an end-of-word node.",
+    "Do a DFS/BFS from the trie root that only continues into a child if that child is itself a word ending, tracking the longest (and lexicographically smallest on ties) word found along valid paths."
+  ],
+  "solution": {
+    "approach": "Insert every word into a trie, marking the end of each. Then traverse the trie starting from the root, but only allow descending into a child node if that child itself is marked as a word ending — that's exactly the condition that the prefix ending there is a real, previously-inserted word, enforcing the one-letter-at-a-time buildability requirement transitively. Track the best (longest, then lexicographically smallest) word seen during this restricted traversal. Sorting the input first and using a simple prefix-set check achieves the same result, but the trie traversal directly encodes the buildability chain.",
+    "code": "def longest_word_in_dictionary(words):\n    root = {'children': {}, 'is_end': False}\n\n    for word in words:\n        node = root\n        for ch in word:\n            node = node['children'].setdefault(ch, {'children': {}, 'is_end': False})\n        node['is_end'] = True\n\n    best = ['']\n\n    def dfs(node, path):\n        if len(path) > len(best[0]) or (len(path) == len(best[0]) and path < best[0]):\n            best[0] = path\n        for ch in sorted(node['children']):\n            child = node['children'][ch]\n            if child['is_end']:\n                dfs(child, path + ch)\n\n    dfs(root, '')\n    return best[0]\n",
+    "timeComplexity": "O(sum of word lengths)",
+    "spaceComplexity": "O(sum of word lengths) for the trie"
+  },
+  "starterCode": "def longest_word_in_dictionary(words):\n    # your code here\n    pass\n",
+  "functionName": "longest_word_in_dictionary",
+  "paramNames": ["words"],
+  "testCases": [
+    {
+      "input": [["w", "wo", "wor", "worl", "world"]],
+      "expected": "world",
+      "isHidden": false
+    },
+    {
+      "input": [["a", "banana", "app", "appl", "ap", "apply", "apple"]],
+      "expected": "apple",
+      "isHidden": false
+    },
+    {
+      "input": [["yo", "ew", "fc", "zrc", "yodn", "fcm", "qm", "qmo", "fcmz", "z", "ewq", "yod", "ewqz", "y"]],
+      "expected": "yodn",
+      "isHidden": true
+    },
+    {
+      "input": [["abc"]],
+      "expected": "",
+      "isHidden": true
+    },
+    {
+      "input": [["a"]],
+      "expected": "a",
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "id": "divide-two-integers",
+  "title": "Divide Two Integers",
+  "pattern": "greedy",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Facebook",
+    "Bloomberg"
+  ],
+  "prompt": "Given two integers `dividend` and `divisor`, divide them without using multiplication, division, or the modulo operator. The result should truncate toward zero, meaning fractional parts are discarded (e.g. 8.345 truncates to 8, and -2.7335 truncates to -2). Return the quotient, with the result clamped to the signed 32-bit integer range `[-2^31, 2^31 - 1]` (so `divisor = -1, dividend = -2^31` returns `2^31 - 1` instead of overflowing).",
+  "examples": [
+    {
+      "input": "dividend = 10, divisor = 3",
+      "output": "3",
+      "explanation": "10 / 3 = 3.333..., which truncates to 3."
+    },
+    {
+      "input": "dividend = 7, divisor = -3",
+      "output": "-2",
+      "explanation": "7 / -3 = -2.333..., which truncates to -2."
+    }
+  ],
+  "constraints": [
+    "-2^31 <= dividend, divisor <= 2^31 - 1",
+    "divisor != 0"
+  ],
+  "hints": [
+    "Repeatedly subtracting the divisor one at a time works but is far too slow for large dividends.",
+    "Instead of subtracting the divisor once per step, subtract the largest possible multiple of it at once using bit shifts — doubling the divisor each time is like binary search on how many times it fits.",
+    "For each attempt, find the largest k such that (divisor << k) fits into what's left of the dividend, subtract that chunk, add 2^k to the quotient, and repeat with the remainder until it's smaller than the divisor."
+  ],
+  "solution": {
+    "approach": "Work with absolute values and track the sign separately. Repeatedly find the largest shift k such that divisor shifted left by k bits still fits within the remaining dividend; subtracting that value at once accounts for 2^k copies of the divisor in a single step rather than subtracting one at a time, giving logarithmic rather than linear behavior. Add 2^k to the running quotient and reduce the remaining dividend by that chunk, repeating until the remainder is smaller than the divisor. Finally apply the correct sign and clamp the result to the 32-bit signed range.",
+    "code": "def divide(dividend, divisor):\n    INT_MAX = 2 ** 31 - 1\n    INT_MIN = -2 ** 31\n\n    if dividend == INT_MIN and divisor == -1:\n        return INT_MAX\n\n    negative = (dividend < 0) != (divisor < 0)\n    dividend, divisor = abs(dividend), abs(divisor)\n\n    quotient = 0\n    while dividend >= divisor:\n        temp = divisor\n        multiple = 1\n        while dividend >= (temp << 1):\n            temp <<= 1\n            multiple <<= 1\n        dividend -= temp\n        quotient += multiple\n\n    return -quotient if negative else quotient\n",
+    "timeComplexity": "O(log^2(dividend))",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def divide(dividend, divisor):\n    # your code here\n    pass\n",
+  "functionName": "divide",
+  "paramNames": ["dividend", "divisor"],
+  "testCases": [
+    {
+      "input": [10, 3],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [7, -3],
+      "expected": -2,
+      "isHidden": false
+    },
+    {
+      "input": [0, 1],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [-2147483648, -1],
+      "expected": 2147483647,
+      "isHidden": true
+    },
+    {
+      "input": [-2147483648, 1],
+      "expected": -2147483648,
+      "isHidden": true
+    },
+    {
+      "input": [1, 1],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

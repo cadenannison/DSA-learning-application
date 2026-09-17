@@ -1,0 +1,72 @@
+{
+  "id": "kth-largest-element-in-a-stream",
+  "title": "Kth Largest Element in a Stream",
+  "pattern": "heaps",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Facebook"
+  ],
+  "prompt": "The classic version of this problem defines a `KthLargest` class initialized with an integer `k` and an array `nums`, exposing an `add(val)` method that inserts `val` into the stream and returns the k-th largest element seen so far. Since this test harness calls a single pure function per test case rather than exercising a stateful object, we adapt it: implement `kth_largest_element_in_a_stream(k, nums, vals)`.\n\n`nums` is the initial collection of numbers already in the stream. `vals` is a list of numbers to add to the stream one at a time, in order. After each addition, record the k-th largest element among all numbers added so far (initial `nums` plus every `val` added up to and including the current one). Return a list of these results, one per entry in `vals`, in order. It is guaranteed that there are always at least `k` elements in the stream whenever a result is recorded.",
+  "examples": [
+    {
+      "input": "k = 3, nums = [4,5,8,2], vals = [3,5,10,9,4]",
+      "output": "[4,5,5,8,8]",
+      "explanation": "Start with [4,5,8,2]. Adding 3 -> [2,3,4,5,8], 3rd largest is 4. Adding 5 -> 3rd largest is 5. Adding 10 -> 3rd largest is 5. Adding 9 -> 3rd largest is 8. Adding 4 -> 3rd largest is 8."
+    },
+    {
+      "input": "k = 1, nums = [], vals = [-3,-2,-4,0,4]",
+      "output": "[-3,-2,-2,0,4]"
+    }
+  ],
+  "constraints": [
+    "1 <= k <= 10^4",
+    "0 <= nums.length <= 10^4",
+    "-10^4 <= nums[i] <= 10^4",
+    "1 <= vals.length <= 10^4",
+    "-10^4 <= vals[i] <= 10^4",
+    "At least k elements exist in the stream before the first result is recorded"
+  ],
+  "hints": [
+    "Recomputing the k-th largest from scratch after every addition by sorting would be O(n log n) per call \u2014 far too slow for repeated additions.",
+    "Maintain a min-heap of size k containing the k largest elements seen so far. The smallest element in that heap (the heap top) is always the k-th largest overall.",
+    "When a new value arrives, push it onto the heap; if the heap now has more than k elements, pop the smallest. The heap top after this is exactly the k-th largest."
+  ],
+  "solution": {
+    "approach": "Keep a min-heap that holds only the k largest elements seen so far. The smallest value in that heap is, by construction, the k-th largest overall. Seed the heap with the initial nums, trimming it down to size k. For each incoming value, push it in and pop the minimum if the heap exceeds size k, then read the heap top as the answer. Each operation is O(log k) instead of O(n log n) for a full re-sort.",
+    "code": "import heapq\n\ndef kth_largest_element_in_a_stream(k, nums, vals):\n    heap = list(nums)\n    heapq.heapify(heap)\n    while len(heap) > k:\n        heapq.heappop(heap)\n\n    def add(val):\n        heapq.heappush(heap, val)\n        if len(heap) > k:\n            heapq.heappop(heap)\n        return heap[0]\n\n    return [add(v) for v in vals]\n",
+    "timeComplexity": "O((n + m) log k) for n initial elements and m additions",
+    "spaceComplexity": "O(k)"
+  },
+  "starterCode": "def kth_largest_element_in_a_stream(k, nums, vals):\n    # your code here\n    pass\n",
+  "functionName": "kth_largest_element_in_a_stream",
+  "paramNames": ["k", "nums", "vals"],
+  "testCases": [
+    {
+      "input": [3, [4, 5, 8, 2], [3, 5, 10, 9, 4]],
+      "expected": [4, 5, 5, 8, 8],
+      "isHidden": false
+    },
+    {
+      "input": [1, [], [-3, -2, -4, 0, 4]],
+      "expected": [-3, -2, -2, 0, 4],
+      "isHidden": false
+    },
+    {
+      "input": [2, [0], [-1, 1, -2, 3]],
+      "expected": [-1, 0, 0, 1],
+      "isHidden": true
+    },
+    {
+      "input": [1, [5], [5, 5, 5]],
+      "expected": [5, 5, 5],
+      "isHidden": true
+    },
+    {
+      "input": [4, [7, 7, 7, 7], [7, 8, 9]],
+      "expected": [7, 7, 7],
+      "isHidden": true
+    }
+  ]
+}

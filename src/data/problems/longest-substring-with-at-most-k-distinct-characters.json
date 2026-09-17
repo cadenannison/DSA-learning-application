@@ -1,0 +1,70 @@
+{
+  "id": "longest-substring-with-at-most-k-distinct-characters",
+  "title": "Longest Substring with At Most K Distinct Characters",
+  "pattern": "sliding-window",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Meta",
+    "Snapchat"
+  ],
+  "prompt": "Given a string `s` and an integer `k`, return the length of the longest substring that contains at most `k` distinct characters.",
+  "examples": [
+    {
+      "input": "s = \"eceba\", k = 2",
+      "output": "3",
+      "explanation": "The substring \"ece\" has length 3 with 2 distinct characters, 'e' and 'c'."
+    },
+    {
+      "input": "s = \"aa\", k = 1",
+      "output": "2",
+      "explanation": "The substring \"aa\" has length 2 with 1 distinct character."
+    }
+  ],
+  "constraints": [
+    "1 <= s.length <= 10^5",
+    "0 <= k <= 50"
+  ],
+  "hints": [
+    "This generalizes the 'at most 2 distinct characters' problem — the same sliding window idea works for any k.",
+    "Use a sliding window with a hash map counting occurrences of each character currently inside it.",
+    "Expand the window to the right; whenever the map has more than k distinct keys, shrink from the left (decrementing counts, deleting a key once it hits zero) until at most k remain, tracking the max window length seen. Handle k = 0 as a special case with answer 0."
+  ],
+  "solution": {
+    "approach": "Maintain a sliding window with a hash map from character to its count inside the window. Expand the window by moving right and updating the map. Whenever the map holds more than k distinct characters, shrink from the left, decrementing the count of the character leaving and removing it from the map entirely once its count reaches zero, until at most k distinct characters remain. Track the maximum window length seen; if k is 0, no non-empty window can qualify, so the answer is 0.",
+    "code": "def length_of_longest_substring_k_distinct(s, k):\n    if k == 0:\n        return 0\n\n    counts = {}\n    left = 0\n    best = 0\n\n    for right, ch in enumerate(s):\n        counts[ch] = counts.get(ch, 0) + 1\n        while len(counts) > k:\n            left_ch = s[left]\n            counts[left_ch] -= 1\n            if counts[left_ch] == 0:\n                del counts[left_ch]\n            left += 1\n        best = max(best, right - left + 1)\n\n    return best\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(k)"
+  },
+  "starterCode": "def length_of_longest_substring_k_distinct(s, k):\n    # your code here\n    pass\n",
+  "functionName": "length_of_longest_substring_k_distinct",
+  "paramNames": ["s", "k"],
+  "testCases": [
+    {
+      "input": ["eceba", 2],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": ["aa", 1],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": ["a", 0],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": ["abcabcabc", 3],
+      "expected": 9,
+      "isHidden": true
+    },
+    {
+      "input": ["abcde", 10],
+      "expected": 5,
+      "isHidden": true
+    }
+  ]
+}

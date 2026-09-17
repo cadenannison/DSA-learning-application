@@ -1,0 +1,95 @@
+{
+  "id": "minimum-number-of-days-to-make-m-bouquets",
+  "title": "Minimum Number of Days to Make m Bouquets",
+  "pattern": "binary-search",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "Given an integer array `bloomDay`, an integer `m`, and an integer `k`, return the minimum number of days needed to make `m` bouquets from the garden, or `-1` if it is impossible. The garden consists of `n` flowers; the i-th flower will bloom on day `bloomDay[i]`. To make a bouquet you need `k` adjacent flowers from the garden that have all already bloomed, and a flower can only belong to one bouquet.",
+  "examples": [
+    {
+      "input": "bloomDay = [1,10,3,10,2], m = 3, k = 1",
+      "output": "3",
+      "explanation": "After day 3, the blooms are [x,_,x,_,x]. Picking any three of them makes 3 bouquets of 1 flower each."
+    },
+    {
+      "input": "bloomDay = [1,10,3,10,2], m = 3, k = 2",
+      "output": "-1",
+      "explanation": "There aren't enough adjacent flowers to make 3 bouquets of 2 flowers each, no matter how many days pass."
+    },
+    {
+      "input": "bloomDay = [7,7,7,7,12,7,7], m = 2, k = 3",
+      "output": "12"
+    }
+  ],
+  "constraints": [
+    "bloomDay.length == n",
+    "1 <= n <= 10^5",
+    "1 <= m",
+    "1 <= k <= n",
+    "1 <= bloomDay[i] <= 10^9"
+  ],
+  "hints": [
+    "If m * k is more than the total number of flowers, it's immediately impossible regardless of how many days pass.",
+    "For a fixed number of days, you know exactly which flowers have bloomed, and can greedily scan for runs of k or more consecutive bloomed flowers to count how many bouquets can be made.",
+    "The number of bouquets makeable is monotonically non-decreasing as days increase, so binary search on the day count over the range [min(bloomDay), max(bloomDay)] for the earliest day where m bouquets are achievable."
+  ],
+  "solution": {
+    "approach": "First rule out impossibility: if m * k exceeds the total flower count, no amount of waiting helps. Otherwise binary search over the possible day values, from the earliest to the latest bloom day. For a candidate day, scan the garden and greedily count consecutive runs of already-bloomed flowers, converting each run of length L into L // k bouquets; summing these gives the total bouquets makeable by that day. This total is monotonically non-decreasing in the day count, so binary search for the earliest day where the total reaches m, giving an O(n log(max(bloomDay))) solution.",
+    "code": "def min_days(bloom_day, m, k):\n    n = len(bloom_day)\n    if m * k > n:\n        return -1\n\n    def bouquets_by_day(day):\n        total, run = 0, 0\n        for b in bloom_day:\n            if b <= day:\n                run += 1\n                if run == k:\n                    total += 1\n                    run = 0\n            else:\n                run = 0\n        return total\n\n    lo, hi = min(bloom_day), max(bloom_day)\n\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if bouquets_by_day(mid) >= m:\n            hi = mid\n        else:\n            lo = mid + 1\n\n    return lo\n",
+    "timeComplexity": "O(n log(max(bloomDay)))",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def min_days(bloom_day, m, k):\n    # your code here\n    pass\n",
+  "functionName": "min_days",
+  "paramNames": ["bloom_day", "m", "k"],
+  "testCases": [
+    {
+      "input": [
+        [1, 10, 3, 10, 2],
+        3,
+        1
+      ],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 10, 3, 10, 2],
+        3,
+        2
+      ],
+      "expected": -1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [7, 7, 7, 7, 12, 7, 7],
+        2,
+        3
+      ],
+      "expected": 12,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1],
+        1,
+        1
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 1, 1, 1, 1, 1, 1],
+        1,
+        7
+      ],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

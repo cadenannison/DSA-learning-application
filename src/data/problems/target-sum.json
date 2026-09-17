@@ -1,0 +1,70 @@
+{
+  "id": "target-sum",
+  "title": "Target Sum",
+  "pattern": "backtracking",
+  "difficulty": "medium",
+  "companies": [
+    "Facebook",
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "You are given an integer array `nums` and an integer `target`. You want to build an expression out of `nums` by adding either a `+` or a `-` sign in front of each integer, then concatenate all the integers.\n\nFor example, if `nums = [2,1]`, you can form the expression `+2-1` or `-2+1`. Return the number of different expressions you can build that evaluate to `target`.",
+  "examples": [
+    {
+      "input": "nums = [1,1,1,1,1], target = 3",
+      "output": "5",
+      "explanation": "There are 5 ways to assign +/- to reach a sum of 3, e.g. -1+1+1+1+1, +1-1+1+1+1, etc."
+    },
+    {
+      "input": "nums = [1], target = 1",
+      "output": "1"
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 18",
+    "0 <= nums[i] <= 1000",
+    "0 <= sum(nums) <= 1000",
+    "-1000 <= target <= 1000"
+  ],
+  "hints": [
+    "Every element independently gets a + or - sign, so the brute-force search tree has 2^n leaves \u2014 backtracking naturally explores exactly this tree.",
+    "Recurse index by index, branching into 'add nums[i]' and 'subtract nums[i]' to a running sum, and only check whether the sum equals target once every index has been assigned a sign.",
+    "You can prune branches early: if the maximum possible remaining sum (sum of all remaining elements) can't make up the gap between the current running total and target even with all + signs, that branch is dead. This isn't required for the given constraints but bounds the search significantly."
+  ],
+  "solution": {
+    "approach": "Backtrack over the indices of nums, maintaining a running total. At each index, branch into two recursive calls: one adding nums[i] to the total, one subtracting it. When the index reaches the end of nums, check if the running total equals target and count it if so. Since every index independently contributes one of two signs, this explores exactly the 2^n possible expressions. A remaining-sum pruning check (comparing the best/worst case achievable from the remaining suffix against the gap to target) can cut the search further, though with n <= 18 plain backtracking is already fast enough.",
+    "code": "def find_target_sum_ways(nums, target):\n    n = len(nums)\n    count = 0\n\n    def backtrack(index, total):\n        nonlocal count\n        if index == n:\n            if total == target:\n                count += 1\n            return\n        backtrack(index + 1, total + nums[index])\n        backtrack(index + 1, total - nums[index])\n\n    backtrack(0, 0)\n    return count\n",
+    "timeComplexity": "O(2^n)",
+    "spaceComplexity": "O(n) recursion depth"
+  },
+  "starterCode": "def find_target_sum_ways(nums, target):\n    # your code here\n    pass\n",
+  "functionName": "find_target_sum_ways",
+  "paramNames": ["nums", "target"],
+  "testCases": [
+    {
+      "input": [[1, 1, 1, 1, 1], 3],
+      "expected": 5,
+      "isHidden": false
+    },
+    {
+      "input": [[1], 1],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [[1], 2],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [[0, 0, 0, 0, 0, 0, 0, 0, 1], 1],
+      "expected": 256,
+      "isHidden": true
+    },
+    {
+      "input": [[100], -100],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

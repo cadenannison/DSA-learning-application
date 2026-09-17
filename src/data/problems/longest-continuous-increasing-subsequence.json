@@ -1,0 +1,68 @@
+{
+  "id": "longest-continuous-increasing-subsequence",
+  "title": "Longest Continuous Increasing Subsequence",
+  "pattern": "sliding-window",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Microsoft"
+  ],
+  "prompt": "Given an unsorted array of integers `nums`, return the length of the longest contiguous subarray that is strictly increasing. A subarray is contiguous, unlike a general subsequence, so `nums[i] < nums[i+1]` must hold for every consecutive pair within it.",
+  "examples": [
+    {
+      "input": "nums = [1,3,5,4,7]",
+      "output": "3",
+      "explanation": "The longest continuous increasing subarray is [1,3,5], with length 3. Even though [1,3,5,7] would be longer as a subsequence, 5 and 7 are not adjacent."
+    },
+    {
+      "input": "nums = [2,2,2,2,2]",
+      "output": "1",
+      "explanation": "No two adjacent elements are strictly increasing, so the answer is 1."
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 10^4",
+    "-10^9 <= nums[i] <= 10^9"
+  ],
+  "hints": [
+    "This is a single left-to-right scan, not a search over all subarrays.",
+    "Maintain a window that grows as long as each new element continues the increasing run, and restarts the moment it doesn't.",
+    "Track the window's start index (or just its current length) and reset it to the current position whenever nums[i] <= nums[i-1]."
+  ],
+  "solution": {
+    "approach": "Walk through the array while maintaining the length of the current increasing run. Whenever the current element is greater than the previous one, the run extends by one; otherwise a new run starts at the current element. This is a sliding window whose left boundary resets to the current index every time the increasing property breaks. Track the maximum run length seen.",
+    "code": "def find_length_of_lcis(nums):\n    max_len = 1\n    current = 1\n    for i in range(1, len(nums)):\n        if nums[i] > nums[i - 1]:\n            current += 1\n            max_len = max(max_len, current)\n        else:\n            current = 1\n    return max_len\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def find_length_of_lcis(nums):\n    # your code here\n    pass\n",
+  "functionName": "find_length_of_lcis",
+  "paramNames": ["nums"],
+  "testCases": [
+    {
+      "input": [[1, 3, 5, 4, 7]],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [[2, 2, 2, 2, 2]],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [[1]],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [[1, 2, 3, 4, 5]],
+      "expected": 5,
+      "isHidden": true
+    },
+    {
+      "input": [[5, 4, 3, 2, 1]],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "id": "remove-covered-intervals",
+  "title": "Remove Covered Intervals",
+  "pattern": "intervals",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "Given an array `intervals` where `intervals[i] = [start_i, end_i]`, remove all intervals that are covered by another interval in the list. Interval `[a, b]` is covered by interval `[c, d]` if `c <= a` and `b <= d`. Return the number of remaining intervals after removing all covered ones.",
+  "examples": [
+    {
+      "input": "intervals = [[1,4],[3,6],[2,8]]",
+      "output": "2",
+      "explanation": "[3,6] is covered by [2,8], so it's removed. [1,4] and [2,8] remain."
+    },
+    {
+      "input": "intervals = [[1,4],[2,3]]",
+      "output": "1",
+      "explanation": "[2,3] is covered by [1,4]."
+    }
+  ],
+  "constraints": [
+    "1 <= intervals.length <= 1000",
+    "intervals[i].length == 2",
+    "0 <= start_i < end_i <= 5 * 10^4",
+    "all the start points of intervals are unique"
+  ],
+  "hints": [
+    "Sort the intervals so that if one interval could cover another, the covering one is guaranteed to come first among ties.",
+    "Sort by start ascending, and for equal starts, by end descending. This way, whenever two intervals share a start, the longer one is processed first and can never itself be covered by the shorter one that follows.",
+    "Walk the sorted intervals keeping track of the maximum end seen so far. An interval is covered exactly when its end is <= that running maximum (its start is already guaranteed <= the previous interval's start due to sort order)."
+  ],
+  "solution": {
+    "approach": "Sort intervals by start ascending, breaking ties by end descending. This ordering guarantees that if interval B could possibly be covered by an earlier interval A, A appears before B in the sorted order. Then sweep through, tracking the maximum end seen among intervals that have been kept. An interval is covered if its end is <= that running maximum end (since its start is already >= the start of the interval that produced that maximum, by sort order). Count intervals whose end exceeds the running maximum as the ones that survive.",
+    "code": "def remove_covered_intervals(intervals):\n    sorted_intervals = sorted(intervals, key=lambda p: (p[0], -p[1]))\n\n    count = 0\n    max_end = 0\n    for _, end in sorted_intervals:\n        if end > max_end:\n            count += 1\n            max_end = end\n\n    return count\n",
+    "timeComplexity": "O(n log n)",
+    "spaceComplexity": "O(n) for the sorted copy"
+  },
+  "starterCode": "def remove_covered_intervals(intervals):\n    # your code here\n    pass\n",
+  "functionName": "remove_covered_intervals",
+  "paramNames": ["intervals"],
+  "testCases": [
+    {
+      "input": [[[1, 4], [3, 6], [2, 8]]],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [[[1, 4], [2, 3]]],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [[[1, 4]]],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [[[0, 10], [5, 12], [1, 4]]],
+      "expected": 2,
+      "isHidden": true
+    },
+    {
+      "input": [[[1, 2], [1, 4], [3, 4]]],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

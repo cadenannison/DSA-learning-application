@@ -1,0 +1,81 @@
+{
+  "id": "replace-words",
+  "title": "Replace Words",
+  "pattern": "tries",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon",
+    "Bloomberg"
+  ],
+  "prompt": "In English, a *root* can have many words derived by adding a suffix, e.g. the root `an` produces `another` when followed by `other`. Given a `dictionary` of roots and a `sentence` (a string of lowercase words separated by single spaces), replace every derivative word in the sentence with its shortest matching root. If a word has more than one root in `dictionary` that matches its prefix, replace it with the shortest one. If a word has no matching root, leave it unchanged.\n\nReturn the resulting sentence after all replacements.",
+  "examples": [
+    {
+      "input": "dictionary = [\"cat\",\"bat\",\"rat\"], sentence = \"the cattle was rattled by the battery\"",
+      "output": "\"the cat was rat by the bat\"",
+      "explanation": "\"cattle\" starts with root \"cat\", \"rattled\" starts with root \"rat\", \"battery\" starts with root \"bat\"."
+    },
+    {
+      "input": "dictionary = [\"a\",\"b\",\"c\"], sentence = \"aadsfasf absfasf acewrewe\"",
+      "output": "\"a a a\"",
+      "explanation": "Every word in the sentence begins with one of the single-letter roots."
+    }
+  ],
+  "constraints": [
+    "1 <= dictionary.length <= 1000",
+    "1 <= dictionary[i].length <= 100",
+    "dictionary[i] consists of only lowercase letters",
+    "1 <= sentence.length <= 10^6",
+    "sentence consists of only lowercase letters and spaces",
+    "The number of words in sentence is in the range [1, 1000]",
+    "The length of each word in sentence is in the range [1, 1000]",
+    "Every two consecutive words in sentence will be separated by exactly one space",
+    "sentence does not have leading or trailing spaces"
+  ],
+  "hints": [
+    "Checking each sentence word against every dictionary root directly is O(words * roots * length), which is slow when the dictionary is large.",
+    "Insert all roots into a trie; then for each sentence word, walk down the trie following its letters and stop as soon as you hit a node marked as a root's end — that's the shortest matching root by construction.",
+    "If the trie walk runs off the end of a branch (no child for the next letter) before hitting a root marker, the word has no matching root and should be kept as-is."
+  ],
+  "solution": {
+    "approach": "Build a trie from the dictionary roots, marking end-of-root nodes. For each word in the sentence, walk the trie one character at a time; the first end-of-root marker encountered gives the shortest valid root (since we stop the instant we reach it, and trie depth corresponds directly to prefix length). If the walk exhausts the word or falls off the trie without hitting a marker, the original word is kept unchanged. Joining the results with spaces reconstructs the sentence.",
+    "code": "def replace_words(dictionary, sentence):\n    root_trie = {}\n    END = '$'\n    for root in dictionary:\n        node = root_trie\n        for ch in root:\n            node = node.setdefault(ch, {})\n        node[END] = True\n\n    def shortest_root(word):\n        node = root_trie\n        prefix = []\n        for ch in word:\n            if ch not in node:\n                return word\n            prefix.append(ch)\n            node = node[ch]\n            if END in node:\n                return ''.join(prefix)\n        return word\n\n    return ' '.join(shortest_root(w) for w in sentence.split(' '))\n",
+    "timeComplexity": "O(D + S) where D is total dictionary characters and S is total sentence characters",
+    "spaceComplexity": "O(D) for the trie"
+  },
+  "starterCode": "def replace_words(dictionary, sentence):\n    # your code here\n    pass\n",
+  "functionName": "replace_words",
+  "paramNames": ["dictionary", "sentence"],
+  "testCases": [
+    {
+      "input": [["cat", "bat", "rat"], "the cattle was rattled by the battery"],
+      "expected": "the cat was rat by the bat",
+      "isHidden": false
+    },
+    {
+      "input": [["a", "b", "c"], "aadsfasf absfasf acewrewe"],
+      "expected": "a a a",
+      "isHidden": false
+    },
+    {
+      "input": [["a", "aa", "aaa", "aaaa"], "a aa aaa aaaa"],
+      "expected": "a a a a",
+      "isHidden": false
+    },
+    {
+      "input": [["catt", "cat", "bat", "rat"], "the cattle was rattled by the battery"],
+      "expected": "the cat was rat by the bat",
+      "isHidden": true
+    },
+    {
+      "input": [["ab"], "abc xyz"],
+      "expected": "ab xyz",
+      "isHidden": true
+    },
+    {
+      "input": [[], "no roots here"],
+      "expected": "no roots here",
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "id": "all-paths-from-source-to-target",
+  "title": "All Paths From Source to Target",
+  "pattern": "backtracking",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Facebook"
+  ],
+  "prompt": "Given a directed acyclic graph (DAG) of `n` nodes labeled from `0` to `n - 1`, find all possible paths from node `0` to node `n - 1`, and return them in any order.\n\nThe graph is given as `graph`, where `graph[i]` is a list of all nodes you can visit from node `i` (i.e. there is a directed edge from node `i` to each node in `graph[i]`).\n\nFor deterministic comparison, sort the resulting list of paths.",
+  "examples": [
+    {
+      "input": "graph = [[1,2],[3],[3],[]]",
+      "output": "[[0,1,3],[0,2,3]]",
+      "explanation": "Both paths start at 0 and end at 3 (n-1), following the directed edges."
+    },
+    {
+      "input": "graph = [[4,3,1],[3,2,4],[3],[4],[]]",
+      "output": "[[0,1,2,3,4],[0,1,3,4],[0,1,4],[0,3,4],[0,4]]"
+    }
+  ],
+  "constraints": [
+    "2 <= graph.length <= 15",
+    "0 <= graph[i][j] < graph.length",
+    "graph[i] does not contain duplicate edges",
+    "The input graph is guaranteed to be a DAG (no cycles)"
+  ],
+  "hints": [
+    "Since the graph is acyclic, a plain DFS from node 0 can never loop forever, so you don't even need a visited set — just follow edges and backtrack.",
+    "Backtrack: add the current node to the path, and if it's the target (n-1), record a copy of the path; otherwise recurse into every neighbor listed in graph[current].",
+    "Remember to pop the current node off the path after exploring all its neighbors (or after recording it as the target) so sibling branches see the correct path prefix."
+  ],
+  "solution": {
+    "approach": "Because the graph is guaranteed acyclic, a straightforward DFS/backtrack from node 0 will always terminate without needing a visited set. Maintain a path list; add the current node, and if it equals n-1 (the target), record a copy of the path. Otherwise, recurse into every node listed in graph[current], exploring all of them (since we want ALL paths, not just one). After exploring all neighbors, pop the current node off before returning, so backtracking correctly restores the path for sibling recursive calls at higher levels.",
+    "code": "def all_paths_source_target(graph):\n    n = len(graph)\n    result = []\n    path = [0]\n\n    def backtrack(node):\n        if node == n - 1:\n            result.append(path[:])\n            return\n        for neighbor in graph[node]:\n            path.append(neighbor)\n            backtrack(neighbor)\n            path.pop()\n\n    backtrack(0)\n    result.sort()\n    return result\n",
+    "timeComplexity": "O(2^n * n) worst case over all DAGs on n nodes",
+    "spaceComplexity": "O(n) recursion depth, plus output size"
+  },
+  "starterCode": "def all_paths_source_target(graph):\n    # your code here\n    pass\n",
+  "functionName": "all_paths_source_target",
+  "paramNames": ["graph"],
+  "testCases": [
+    {
+      "input": [[[1, 2], [3], [3], []]],
+      "expected": [[0, 1, 3], [0, 2, 3]],
+      "isHidden": false
+    },
+    {
+      "input": [[[4, 3, 1], [3, 2, 4], [3], [4], []]],
+      "expected": [[0, 1, 2, 3, 4], [0, 1, 3, 4], [0, 1, 4], [0, 3, 4], [0, 4]],
+      "isHidden": false
+    },
+    {
+      "input": [[[1], []]],
+      "expected": [[0, 1]],
+      "isHidden": true
+    }
+  ]
+}

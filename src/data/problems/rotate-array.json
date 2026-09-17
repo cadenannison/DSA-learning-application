@@ -1,0 +1,84 @@
+{
+  "id": "rotate-array",
+  "title": "Rotate Array",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Google",
+    "Meta"
+  ],
+  "prompt": "Given an integer array `nums`, rotate the array to the right by `k` steps, where `k` is non-negative. Do this in place, using `O(1)` extra space beyond a few variables.",
+  "examples": [
+    {
+      "input": "nums = [1,2,3,4,5,6,7], k = 3",
+      "output": "[5,6,7,1,2,3,4]"
+    },
+    {
+      "input": "nums = [-1,-100,3,99], k = 2",
+      "output": "[3,99,-1,-100]"
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 10^5",
+    "-2^31 <= nums[i] <= 2^31 - 1",
+    "0 <= k <= 10^5"
+  ],
+  "hints": [
+    "Rotating one step at a time k times works but is O(n*k). Copying into a new array hits O(n) time but uses O(n) extra space — can you do it truly in place?",
+    "k can be larger than the array length, so the first move is always to reduce it: k %= len(nums).",
+    "A right rotation by k is the same as reversing the whole array, then reversing the first k elements, then reversing the remaining n-k elements — three reversals, each an O(1)-space two-pointer swap."
+  ],
+  "solution": {
+    "approach": "Normalize k with k %= len(nums) since rotating by the full length is a no-op. Then apply the reversal trick: reverse the entire array, which puts everything in the right relative rotated order but backward; then reverse the first k elements and the remaining n-k elements independently to fix each segment's internal order. Each reversal is a simple two-pointer swap done in place, so three linear-time reversals achieve the rotation in O(n) time and O(1) extra space, with no auxiliary array needed.",
+    "code": "def rotate(nums, k):\n    n = len(nums)\n    k %= n\n\n    def reverse(lo, hi):\n        while lo < hi:\n            nums[lo], nums[hi] = nums[hi], nums[lo]\n            lo += 1\n            hi -= 1\n\n    reverse(0, n - 1)\n    reverse(0, k - 1)\n    reverse(k, n - 1)\n    return nums\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def rotate(nums, k):\n    # your code here\n    pass\n",
+  "functionName": "rotate",
+  "paramNames": ["nums", "k"],
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 3, 4, 5, 6, 7],
+        3
+      ],
+      "expected": [5, 6, 7, 1, 2, 3, 4],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [-1, -100, 3, 99],
+        2
+      ],
+      "expected": [3, 99, -1, -100],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2],
+        3
+      ],
+      "expected": [2, 1],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1],
+        0
+      ],
+      "expected": [1],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3],
+        0
+      ],
+      "expected": [1, 2, 3],
+      "isHidden": true
+    }
+  ]
+}

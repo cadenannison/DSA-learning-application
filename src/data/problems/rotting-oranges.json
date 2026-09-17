@@ -1,0 +1,82 @@
+{
+  "id": "rotting-oranges",
+  "title": "Rotting Oranges",
+  "pattern": "bfs-dfs",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Bloomberg",
+    "Microsoft"
+  ],
+  "prompt": "You are given an `m x n` grid where each cell can have one of three values: `0` (empty), `1` (a fresh orange), or `2` (a rotten orange). Every minute, any fresh orange that is 4-directionally adjacent to a rotten orange also becomes rotten. Return the minimum number of minutes that must elapse until no cell has a fresh orange. If this is impossible, return `-1`.",
+  "examples": [
+    {
+      "input": "grid = [[2,1,1],[1,1,0],[0,1,1]]",
+      "output": "4",
+      "explanation": "Rot spreads outward from the initial rotten orange one layer per minute; it takes 4 minutes to reach every fresh orange."
+    },
+    {
+      "input": "grid = [[2,1,1],[0,1,1],[1,0,1]]",
+      "output": "-1",
+      "explanation": "The orange in the bottom-left corner is never adjacent to a rotten orange, so it can never rot."
+    }
+  ],
+  "constraints": [
+    "m == grid.length",
+    "n == grid[i].length",
+    "1 <= m, n <= 10",
+    "grid[i][j] is 0, 1, or 2"
+  ],
+  "hints": [
+    "This is a multi-source shortest-spread problem — think of every initially rotten orange as a BFS source that all start at time 0 simultaneously.",
+    "Push all rotten oranges into a BFS queue at once, then process level by level; each full level processed represents one minute passing.",
+    "After BFS completes, if any fresh orange was never reached, return -1; otherwise the number of minutes is the number of BFS levels it took to rot the last orange."
+  ],
+  "solution": {
+    "approach": "Treat every initially rotten orange as a BFS source and enqueue them all at once (multi-source BFS), also counting the total fresh oranges up front. Process the queue level by level: each level corresponds to exactly one minute, and every fresh neighbor found gets rotted, decremented from the fresh count, and enqueued for the next level. The number of levels processed until the queue empties is the elapsed time; if fresh oranges remain uninfected at the end, return -1, since they can never rot.",
+    "code": "from collections import deque\n\n\ndef oranges_rotting(grid):\n    rows, cols = len(grid), len(grid[0])\n    queue = deque()\n    fresh = 0\n\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] == 2:\n                queue.append((r, c))\n            elif grid[r][c] == 1:\n                fresh += 1\n\n    minutes = 0\n    while queue and fresh > 0:\n        for _ in range(len(queue)):\n            r, c = queue.popleft()\n            for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                nr, nc = r + dr, c + dc\n                if 0 <= nr < rows and 0 <= nc < cols and grid[nr][nc] == 1:\n                    grid[nr][nc] = 2\n                    fresh -= 1\n                    queue.append((nr, nc))\n        minutes += 1\n\n    return minutes if fresh == 0 else -1\n",
+    "timeComplexity": "O(m * n)",
+    "spaceComplexity": "O(m * n)"
+  },
+  "starterCode": "def oranges_rotting(grid):\n    # your code here\n    pass\n",
+  "functionName": "oranges_rotting",
+  "paramNames": ["grid"],
+  "testCases": [
+    {
+      "input": [
+        [[2, 1, 1], [1, 1, 0], [0, 1, 1]]
+      ],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[2, 1, 1], [0, 1, 1], [1, 0, 1]]
+      ],
+      "expected": -1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[0, 2]]
+      ],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[1]]
+      ],
+      "expected": -1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[0]]
+      ],
+      "expected": 0,
+      "isHidden": true
+    }
+  ]
+}

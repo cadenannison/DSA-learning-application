@@ -1,0 +1,80 @@
+{
+  "id": "next-greater-node-in-linked-list",
+  "title": "Next Greater Node in Linked List",
+  "pattern": "linked-list",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Bloomberg"
+  ],
+  "prompt": "You are given the `head` of a singly linked list with `n` nodes. For each node, find the value of the first node that comes after it with a strictly greater value. If no such node exists, that position's answer is `0`. Return the answers as an array indexed the same way as the list's node order.\n\nThe list is given as an array (e.g. `[2,1,5]` represents `2 -> 1 -> 5 -> null`). The starter code includes a helper to convert the array into a linked-list node — build the actual list, then compute the next-greater-value array.",
+  "examples": [
+    {
+      "input": "head = [2,1,5]",
+      "output": "[5,5,0]"
+    },
+    {
+      "input": "head = [2,7,4,3,5]",
+      "output": "[7,0,5,5,0]"
+    },
+    {
+      "input": "head = [1,7,5,1,9,2,5,1]",
+      "output": "[7,9,9,9,0,5,0,0]"
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [1, 10^4]",
+    "1 <= Node.val <= 10^9"
+  ],
+  "hints": [
+    "Checking every later node for each node gives O(n^2) — for a large list you'll want something closer to O(n).",
+    "This is the classic 'next greater element' pattern: process values left to right while maintaining a monotonic decreasing stack of indices.",
+    "When the current value is greater than the value at the index on top of the stack, that stack index has found its answer — pop it and record the current value, then keep checking the new top; otherwise push the current index."
+  ],
+  "solution": {
+    "approach": "Convert the list into an array of values (accessing it via the node structure), and use a monotonic stack holding indices whose next-greater value hasn't been found yet. Walk the values left to right; while the current value exceeds the value at the index on top of the stack, pop that index and record the current value as its answer. Push the current index onto the stack afterward. Any indices left on the stack when the scan finishes never find a greater value later, so their answer stays 0. Each index is pushed and popped at most once, giving linear time.",
+    "code": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for v in arr:\n        node = ListNode(v)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef next_larger_nodes(head_arr):\n    head = arr_to_list(head_arr)\n    values = []\n    node = head\n    while node:\n        values.append(node.val)\n        node = node.next\n\n    result = [0] * len(values)\n    stack = []\n    for i, val in enumerate(values):\n        while stack and values[stack[-1]] < val:\n            result[stack.pop()] = val\n        stack.append(i)\n\n    return result\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for v in arr:\n        node = ListNode(v)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef next_larger_nodes(head_arr):\n    head = arr_to_list(head_arr)\n    # your code here\n    pass\n",
+  "functionName": "next_larger_nodes",
+  "paramNames": ["head_arr"],
+  "testCases": [
+    {
+      "input": [
+        [2, 1, 5]
+      ],
+      "expected": [5, 5, 0],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [2, 7, 4, 3, 5]
+      ],
+      "expected": [7, 0, 5, 5, 0],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 7, 5, 1, 9, 2, 5, 1]
+      ],
+      "expected": [7, 9, 9, 9, 0, 5, 0, 0],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": [0],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [5, 4, 3, 2, 1]
+      ],
+      "expected": [0, 0, 0, 0, 0],
+      "isHidden": true
+    }
+  ]
+}

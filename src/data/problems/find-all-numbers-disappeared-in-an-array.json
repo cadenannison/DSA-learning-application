@@ -1,0 +1,78 @@
+{
+  "id": "find-all-numbers-disappeared-in-an-array",
+  "title": "Find All Numbers Disappeared in an Array",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Apple"
+  ],
+  "prompt": "Given an array `nums` of `n` integers where `nums[i]` is in the range `[1, n]`, return an array of all the integers in the range `[1, n]` that do not appear in `nums`. Solve it without using extra space (other than the output array) and in `O(n)` time — you may mutate the input array.",
+  "examples": [
+    {
+      "input": "nums = [4,3,2,7,8,2,3,1]",
+      "output": "[5,6]"
+    },
+    {
+      "input": "nums = [1,1]",
+      "output": "[2]"
+    }
+  ],
+  "constraints": [
+    "n == nums.length",
+    "1 <= n <= 10^5",
+    "1 <= nums[i] <= n"
+  ],
+  "hints": [
+    "A set of seen values gives O(n) time but O(n) extra space. Since values are bounded to [1, n], can the array itself store which values were seen?",
+    "Each value v in nums can be paired with index v-1. What if visiting a value left a 'mark' at that index?",
+    "For each number, negate the value at the index it points to (abs(num) - 1). Indices whose values remain positive at the end were never pointed to, meaning that index+1 is missing."
+  ],
+  "solution": {
+    "approach": "Since every value is in [1, n], each value v can be mapped to index v - 1. Walk the array and for each value, negate whatever is stored at its mapped index (using the absolute value to avoid re-reading an already-negated entry). After this pass, any index whose value is still positive was never 'pointed to' by any element, meaning index + 1 never appeared in the array. Collecting those indices gives the missing numbers using only the input array as storage.",
+    "code": "def find_disappeared_numbers(nums):\n    for num in nums:\n        idx = abs(num) - 1\n        if nums[idx] > 0:\n            nums[idx] = -nums[idx]\n\n    return [i + 1 for i, num in enumerate(nums) if num > 0]\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1) extra space, excluding the output array"
+  },
+  "starterCode": "def find_disappeared_numbers(nums):\n    # your code here\n    pass\n",
+  "functionName": "find_disappeared_numbers",
+  "paramNames": ["nums"],
+  "testCases": [
+    {
+      "input": [
+        [4, 3, 2, 7, 8, 2, 3, 1]
+      ],
+      "expected": [5, 6],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 1]
+      ],
+      "expected": [2],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3]
+      ],
+      "expected": [],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [2, 2]
+      ],
+      "expected": [1],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": [],
+      "isHidden": true
+    }
+  ]
+}

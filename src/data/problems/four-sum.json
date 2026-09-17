@@ -1,0 +1,83 @@
+{
+  "id": "four-sum",
+  "title": "4Sum",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Adobe",
+    "Google"
+  ],
+  "prompt": "Given an array `nums` of `n` integers and an integer `target`, return an array of all the unique quadruplets `[nums[a], nums[b], nums[c], nums[d]]` such that `a`, `b`, `c`, and `d` are distinct indices and `nums[a] + nums[b] + nums[c] + nums[d] == target`. The result must not contain duplicate quadruplets, and each quadruplet's elements should be sorted in ascending order. You may return the quadruplets in any order.",
+  "examples": [
+    {
+      "input": "nums = [1,0,-1,0,-2,2], target = 0",
+      "output": "[[-2,-1,1,2],[-2,0,0,2],[-1,0,0,1]]"
+    },
+    {
+      "input": "nums = [2,2,2,2,2], target = 8",
+      "output": "[[2,2,2,2]]"
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 200",
+    "-10^9 <= nums[i] <= 10^9",
+    "-10^9 <= target <= 10^9"
+  ],
+  "hints": [
+    "This extends 3Sum by one more nested loop — the naive way is O(n^4). Can the same two-pointer trick that reduced 3Sum to O(n^2) apply here too?",
+    "Sort the array first, then fix TWO indices with nested loops (skipping duplicates for each), and two-pointer scan the remainder for the last pair.",
+    "Watch for integer overflow-style intermediate sums in other languages, and prune early: if the smallest possible sum from the current position already exceeds target, or the largest possible sum is still below target, you can break or continue early."
+  ],
+  "solution": {
+    "approach": "Sort the array, then fix the first two indices i and j with nested loops (each skipping duplicate values to prevent repeat quadruplets), and for the remaining subarray run a two-pointer scan exactly like 3Sum: move lo right if the four-sum is too small, hi left if too large, and record matches while skipping duplicates on both pointers. This reduces the brute-force O(n^4) search to O(n^3), the same pattern extension that turns 2Sum into 3Sum applied one level further.",
+    "code": "def four_sum(nums, target):\n    nums.sort()\n    n = len(nums)\n    result = []\n\n    for i in range(n - 3):\n        if i > 0 and nums[i] == nums[i - 1]:\n            continue\n        for j in range(i + 1, n - 2):\n            if j > i + 1 and nums[j] == nums[j - 1]:\n                continue\n\n            lo, hi = j + 1, n - 1\n            while lo < hi:\n                total = nums[i] + nums[j] + nums[lo] + nums[hi]\n                if total < target:\n                    lo += 1\n                elif total > target:\n                    hi -= 1\n                else:\n                    result.append([nums[i], nums[j], nums[lo], nums[hi]])\n                    lo += 1\n                    hi -= 1\n                    while lo < hi and nums[lo] == nums[lo - 1]:\n                        lo += 1\n                    while lo < hi and nums[hi] == nums[hi + 1]:\n                        hi -= 1\n\n    return result\n",
+    "timeComplexity": "O(n^3)",
+    "spaceComplexity": "O(1) extra space, excluding output and sort space"
+  },
+  "starterCode": "def four_sum(nums, target):\n    # your code here\n    pass\n",
+  "functionName": "four_sum",
+  "paramNames": ["nums", "target"],
+  "testCases": [
+    {
+      "input": [
+        [1, 0, -1, 0, -2, 2],
+        0
+      ],
+      "expected": [[-2, -1, 1, 2], [-2, 0, 0, 2], [-1, 0, 0, 1]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [2, 2, 2, 2, 2],
+        8
+      ],
+      "expected": [[2, 2, 2, 2]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3, 4],
+        100
+      ],
+      "expected": [],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [0, 0, 0, 0],
+        0
+      ],
+      "expected": [[0, 0, 0, 0]],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [-3, -2, -1, 0, 0, 1, 2, 3],
+        0
+      ],
+      "expected": [[-3, -2, 2, 3], [-3, -1, 1, 3], [-3, 0, 0, 3], [-3, 0, 1, 2], [-2, -1, 0, 3], [-2, -1, 1, 2], [-2, 0, 0, 2], [-1, 0, 0, 1]],
+      "isHidden": true
+    }
+  ]
+}

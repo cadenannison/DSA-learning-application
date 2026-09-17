@@ -1,0 +1,71 @@
+{
+  "id": "minimum-number-of-refueling-stops",
+  "title": "Minimum Number of Refueling Stops",
+  "pattern": "heaps",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "A car travels from position `0` to position `target` along a straight road. The car starts with `startFuel` fuel, and travels 1 mile per unit of fuel. Along the way there are gas stations, given as `stations` where `stations[i] = [positioni, fueli]` means the i-th station is `positioni` miles from the start and has `fueli` fuel available. The car can stop at any subset of stations, in order, to refuel completely with that station's fuel (added to whatever fuel remains).\n\nReturn the minimum number of refueling stops needed to reach `target`, or `-1` if it's not possible.",
+  "examples": [
+    {
+      "input": "target = 100, startFuel = 10, stations = [[10,60],[20,30],[30,30],[60,40]]",
+      "output": "2",
+      "explanation": "Drive to station 0 (10 miles, using all 10 fuel), refuel to 60. Drive to station 3 (needs 50 more miles, have 60), refuel with 40 more to reach 50 fuel, enough to cover the remaining 40 miles to reach 100."
+    },
+    {
+      "input": "target = 1, startFuel = 1, stations = []",
+      "output": "0",
+      "explanation": "Starting fuel alone is enough, no stops needed."
+    }
+  ],
+  "constraints": [
+    "1 <= target, startFuel <= 10^9",
+    "0 <= stations.length <= 500",
+    "stations is sorted by increasing position",
+    "0 <= positioni < target",
+    "1 <= fueli < 10^9"
+  ],
+  "hints": [
+    "Trying every subset of stations to stop at is exponential — think about this greedily: drive as far as possible, and if you'd run out of fuel, imagine you could have refueled earlier at any station already passed.",
+    "Process stations in order of position, and each time you pass one, add its fuel value to a max-heap of 'available refuels', without committing to using it yet.",
+    "Whenever your current fuel isn't enough to reach the next station (or the target), pop the largest available refuel from the max-heap and add it to your fuel, counting a stop — this simulates having stopped there when it was actually needed, and greedily using the largest available option minimizes stop count. If the heap empties and you still can't proceed, return -1."
+  ],
+  "solution": {
+    "approach": "Process stations (and the target as a final checkpoint) in order of position. Track the furthest distance currently reachable given the fuel used so far. At each station, if it lies within reach, don't refuel immediately -- instead push its fuel value onto a max-heap of options 'available so far' without committing. Only when the next checkpoint is unreachable with current fuel do we greedily pop the largest available fuel option from the heap and apply it, counting a stop; this is optimal because delaying the refuel decision until it's forced, and then always choosing the largest available option, can never do worse than committing early, and never needs more stops than necessary. If the heap runs out while still short of the target, return -1.",
+    "code": "import heapq\n\ndef minimum_number_of_refueling_stops(target, start_fuel, stations):\n    stations = stations + [[target, 0]]\n    heap = []\n    stops = 0\n    fuel = start_fuel\n    prev_position = 0\n\n    for position, station_fuel in stations:\n        fuel -= (position - prev_position)\n        while fuel < 0 and heap:\n            fuel += -heapq.heappop(heap)\n            stops += 1\n        if fuel < 0:\n            return -1\n        heapq.heappush(heap, -station_fuel)\n        prev_position = position\n\n    return stops\n",
+    "timeComplexity": "O(n log n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def minimum_number_of_refueling_stops(target, start_fuel, stations):\n    # your code here\n    pass\n",
+  "functionName": "minimum_number_of_refueling_stops",
+  "paramNames": ["target", "start_fuel", "stations"],
+  "testCases": [
+    {
+      "input": [100, 10, [[10, 60], [20, 30], [30, 30], [60, 40]]],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [1, 1, []],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [100, 1, []],
+      "expected": -1,
+      "isHidden": true
+    },
+    {
+      "input": [100, 50, [[25, 25], [50, 50]]],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [10, 10, [[5, 100]]],
+      "expected": 0,
+      "isHidden": true
+    }
+  ]
+}

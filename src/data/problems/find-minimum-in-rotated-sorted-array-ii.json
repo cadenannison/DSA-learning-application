@@ -1,0 +1,90 @@
+{
+  "id": "find-minimum-in-rotated-sorted-array-ii",
+  "title": "Find Minimum in Rotated Sorted Array II",
+  "pattern": "binary-search",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Google"
+  ],
+  "prompt": "Suppose an array of length `n`, sorted in ascending order (this time possibly with duplicates), is rotated between 1 and n times. Given the rotated array `nums`, which may contain duplicates, return the minimum element. Minimize the number of operations where possible.",
+  "examples": [
+    {
+      "input": "nums = [1,3,5]",
+      "output": "1"
+    },
+    {
+      "input": "nums = [2,2,2,0,1]",
+      "output": "0"
+    },
+    {
+      "input": "nums = [1,1,1,0,1]",
+      "output": "0"
+    }
+  ],
+  "constraints": [
+    "n == nums.length",
+    "1 <= n <= 5000",
+    "-5000 <= nums[i] <= 5000",
+    "nums is sorted and then possibly rotated"
+  ],
+  "hints": [
+    "The duplicate-free version compares nums[mid] to nums[high] to decide which half holds the minimum, but duplicates create an ambiguous case where nums[mid] == nums[high].",
+    "When nums[mid] == nums[high], you can't tell which side the rotation point is on, but you can safely shrink the search space by one from the right without losing the answer, since nums[high] is a duplicate of a value you're already keeping.",
+    "Combine the standard rotated-array binary search with this fallback: nums[mid] > nums[high] means search right, nums[mid] < nums[high] means search left (inclusive of mid), and nums[mid] == nums[high] means just decrement high by one."
+  ],
+  "solution": {
+    "approach": "Use the same binary search as the duplicate-free rotated array problem, comparing nums[mid] to nums[high]. If nums[mid] > nums[high], the minimum must be to the right of mid, so move low to mid + 1. If nums[mid] < nums[high], the minimum is at mid or to its left, so move high to mid. The new case is nums[mid] == nums[high]: since the value at high is duplicated at mid, high can be safely decremented by one without eliminating the minimum, resolving the ambiguity at the cost of at most O(n) extra steps in adversarial all-duplicate inputs.",
+    "code": "def find_min(nums):\n    lo, hi = 0, len(nums) - 1\n\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if nums[mid] > nums[hi]:\n            lo = mid + 1\n        elif nums[mid] < nums[hi]:\n            hi = mid\n        else:\n            hi -= 1\n\n    return nums[lo]\n",
+    "timeComplexity": "O(log n) average, O(n) worst case with many duplicates",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def find_min(nums):\n    # your code here\n    pass\n",
+  "functionName": "find_min",
+  "paramNames": ["nums"],
+  "testCases": [
+    {
+      "input": [
+        [1, 3, 5]
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [2, 2, 2, 0, 1]
+      ],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 1, 1, 0, 1]
+      ],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 1, 1, 1, 1]
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [10, 1, 10, 10, 10]
+      ],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

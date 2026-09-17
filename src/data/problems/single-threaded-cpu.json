@@ -1,0 +1,68 @@
+{
+  "id": "single-threaded-cpu",
+  "title": "Single-Threaded CPU",
+  "pattern": "heaps",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "You are given `tasks`, a 2D integer array where `tasks[i] = [enqueueTimei, processingTimei]` means the i-th task becomes available at time `enqueueTimei` and needs `processingTimei` units of time to finish once started.\n\nYou have a single-threaded CPU that runs one task at a time, following these rules: if the CPU is idle and no tasks are available, it stays idle until the next task becomes available. If the CPU is idle and multiple tasks are available, it picks the task with the shortest processing time; ties are broken by picking the task with the smallest original index. Once a task starts, it runs to completion without interruption (non-preemptive).\n\nReturn the order in which the CPU processes the tasks, given as a list of original task indices.",
+  "examples": [
+    {
+      "input": "tasks = [[1,2],[2,4],[3,2],[4,1]]",
+      "output": "[0,2,3,1]",
+      "explanation": "At time 1, only task 0 is available, so it runs until time 3. At time 3, tasks 1, 2, 3 are all available; task 2 has the shortest processing time (2) among available shortest ties with task 3's time of 1 which is actually shorter, so task 3 runs first (time 1), then task 2 (time 2), then task 1."
+    },
+    {
+      "input": "tasks = [[7,10],[7,12],[7,5],[7,4],[7,2]]",
+      "output": "[4,3,2,0,1]",
+      "explanation": "All tasks become available at time 7 simultaneously, so they run in order of increasing processing time: 2,4,5,10,12 which are tasks 4,3,2,0,1."
+    }
+  ],
+  "constraints": [
+    "1 <= tasks.length <= 10^5",
+    "1 <= enqueueTimei, processingTimei <= 10^9"
+  ],
+  "hints": [
+    "Sort tasks by enqueue time first so you process availability in chronological order, but you also need fast access to 'shortest processing time among currently available tasks'.",
+    "Use a min-heap keyed by (processing_time, original_index) for tasks that have become available but haven't run yet.",
+    "Track the current time as a pointer; if no task is available in the heap, jump the clock forward to the next task's enqueue time instead of advancing one unit at a time."
+  ],
+  "solution": {
+    "approach": "Sort tasks by enqueue time and process them with a simulated clock plus a min-heap of (processing_time, original_index) for tasks currently available but not yet run. At each step, push every task whose enqueue time is now <= current time into the heap; if the heap is empty, no task is available, so fast-forward the clock to the next task's enqueue time instead of idling one unit at a time. Pop the heap's minimum (shortest processing time, tie-broken by index since tuples compare component-wise) to run next, advance the clock by its processing time, and record its index. This greedy choice is optimal because among available tasks, running the shortest one first never delays any other task's start relative to any other ordering, and it matches the problem's own tie-break rule.",
+    "code": "import heapq\n\ndef single_threaded_cpu(tasks):\n    n = len(tasks)\n    indexed = sorted(range(n), key=lambda i: tasks[i][0])\n\n    heap = []\n    time = tasks[indexed[0]][0]\n    i = 0\n    result = []\n\n    while i < n or heap:\n        while i < n and tasks[indexed[i]][0] <= time:\n            idx = indexed[i]\n            heapq.heappush(heap, (tasks[idx][1], idx))\n            i += 1\n\n        if not heap:\n            time = tasks[indexed[i]][0]\n            continue\n\n        proc_time, idx = heapq.heappop(heap)\n        time += proc_time\n        result.append(idx)\n\n    return result\n",
+    "timeComplexity": "O(n log n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def single_threaded_cpu(tasks):\n    # your code here\n    pass\n",
+  "functionName": "single_threaded_cpu",
+  "paramNames": ["tasks"],
+  "testCases": [
+    {
+      "input": [[[1, 2], [2, 4], [3, 2], [4, 1]]],
+      "expected": [0, 2, 3, 1],
+      "isHidden": false
+    },
+    {
+      "input": [[[7, 10], [7, 12], [7, 5], [7, 4], [7, 2]]],
+      "expected": [4, 3, 2, 0, 1],
+      "isHidden": false
+    },
+    {
+      "input": [[[1, 1]]],
+      "expected": [0],
+      "isHidden": true
+    },
+    {
+      "input": [[[1, 5], [10, 1]]],
+      "expected": [0, 1],
+      "isHidden": true
+    },
+    {
+      "input": [[[0, 3], [1, 9], [2, 6]]],
+      "expected": [0, 2, 1],
+      "isHidden": true
+    }
+  ]
+}

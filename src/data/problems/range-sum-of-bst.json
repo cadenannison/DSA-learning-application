@@ -1,0 +1,90 @@
+{
+  "id": "range-sum-of-bst",
+  "title": "Range Sum of BST",
+  "pattern": "trees",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Facebook"
+  ],
+  "prompt": "Given the `root` of a binary search tree and two integers `low` and `high`, return the sum of values of all nodes with a value in the inclusive range `[low, high]`.\n\nThe tree is given as a level-order array where `null` marks a missing child (the standard LeetCode serialization). Your function receives this array along with `low` and `high`; the starter code includes a helper that builds the tree from the array, so you only need to compute the range sum.",
+  "examples": [
+    {
+      "input": "root = [10,5,15,3,7,null,18], low = 7, high = 15",
+      "output": "32",
+      "explanation": "Nodes 7, 10, and 15 fall within [7, 15]: 7 + 10 + 15 = 32."
+    },
+    {
+      "input": "root = [10,5,15,3,7,13,18,1,null,6], low = 6, high = 10",
+      "output": "23",
+      "explanation": "Nodes 6, 7, and 10 fall within [6, 10]: 6 + 7 + 10 = 23."
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [1, 2 * 10^4]",
+    "1 <= Node.val <= 10^5",
+    "1 <= low <= high <= 10^5",
+    "All Node.val are unique"
+  ],
+  "hints": [
+    "You don't need to visit every node — the BST ordering property lets you skip entire subtrees that can't contain values in range.",
+    "If a node's value is less than low, its entire left subtree is also too small and can be skipped; if it's greater than high, its entire right subtree can be skipped.",
+    "At each node, add its value to the sum only if it falls within [low, high], then recurse into whichever children could still contain in-range values."
+  ],
+  "solution": {
+    "approach": "Exploit the BST property to prune subtrees that provably can't contain any value in [low, high]. At each node: if its value is below low, skip the left subtree entirely (everything there is even smaller); if above high, skip the right subtree entirely (everything there is even larger); otherwise add the node's value if it's in range and recurse into both children.",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef range_sum_bst(root_arr, low, high):\n    root = build_tree(root_arr)\n\n    def dfs(node):\n        if node is None:\n            return 0\n        if node.val < low:\n            return dfs(node.right)\n        if node.val > high:\n            return dfs(node.left)\n        return node.val + dfs(node.left) + dfs(node.right)\n\n    return dfs(root)\n",
+    "timeComplexity": "O(n) worst case, better with a balanced tree and a narrow range",
+    "spaceComplexity": "O(h), h = tree height"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef range_sum_bst(root_arr, low, high):\n    root = build_tree(root_arr)\n    # your code here\n    pass\n",
+  "functionName": "range_sum_bst",
+  "paramNames": ["root_arr", "low", "high"],
+  "testCases": [
+    {
+      "input": [
+        [10, 5, 15, 3, 7, null, 18],
+        7,
+        15
+      ],
+      "expected": 32,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [10, 5, 15, 3, 7, 13, 18, 1, null, 6],
+        6,
+        10
+      ],
+      "expected": 23,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [10, 5, 15],
+        1,
+        4
+      ],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1],
+        1,
+        1
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [10, 5, 15, 3, 7, null, 18],
+        1,
+        100
+      ],
+      "expected": 58,
+      "isHidden": true
+    }
+  ]
+}

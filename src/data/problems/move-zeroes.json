@@ -1,0 +1,78 @@
+{
+  "id": "move-zeroes",
+  "title": "Move Zeroes",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Meta",
+    "Bloomberg",
+    "Apple"
+  ],
+  "prompt": "Given an integer array `nums`, move all `0`s to the end of it while maintaining the relative order of the non-zero elements. You must do this in place without making a copy of the array, and you should minimize the total number of operations (writes) performed.",
+  "examples": [
+    {
+      "input": "nums = [0,1,0,3,12]",
+      "output": "[1,3,12,0,0]"
+    },
+    {
+      "input": "nums = [0]",
+      "output": "[0]"
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 10^4",
+    "-2^31 <= nums[i] <= 2^31 - 1"
+  ],
+  "hints": [
+    "You could build a new array of non-zeros then pad with zeroes, but that uses O(n) extra space. Can you do it in place?",
+    "Track a 'write' pointer marking where the next non-zero element belongs, and scan the array once with a 'read' pointer.",
+    "When you find a non-zero at the read pointer, swap it into the write pointer's slot and advance write — everything left of write is already compacted, and swapping (not overwriting) keeps zeros correctly shuffled to the back."
+  ],
+  "solution": {
+    "approach": "Maintain a slow pointer marking the next position that should hold a non-zero value. Scan with a fast pointer through the array; whenever a non-zero is found, swap it with the slow pointer's position and advance the slow pointer. Because the slow pointer never outruns the fast pointer, every swap either does nothing (both non-zero, same spot) or correctly relocates a zero further right, preserving relative order of non-zero elements in a single O(n) pass with O(1) extra space.",
+    "code": "def move_zeroes(nums):\n    write = 0\n    for read in range(len(nums)):\n        if nums[read] != 0:\n            nums[write], nums[read] = nums[read], nums[write]\n            write += 1\n    return nums\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def move_zeroes(nums):\n    # your code here\n    pass\n",
+  "functionName": "move_zeroes",
+  "paramNames": ["nums"],
+  "testCases": [
+    {
+      "input": [
+        [0, 1, 0, 3, 12]
+      ],
+      "expected": [1, 3, 12, 0, 0],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0]
+      ],
+      "expected": [0],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3]
+      ],
+      "expected": [1, 2, 3],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [0, 0, 1]
+      ],
+      "expected": [1, 0, 0],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [-1, 0, -2, 0, 5]
+      ],
+      "expected": [-1, -2, 5, 0, 0],
+      "isHidden": true
+    }
+  ]
+}

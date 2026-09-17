@@ -1,0 +1,74 @@
+{
+  "id": "furthest-building-you-can-reach",
+  "title": "Furthest Building You Can Reach",
+  "pattern": "heaps",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "You are given an integer array `heights` representing the heights of buildings, numbered from 0. You start at building 0 and move to the next building in order. Moving from building `i` to building `i+1` costs nothing if `heights[i] >= heights[i+1]`. Otherwise, you must use either a ladder or bricks: `heights[i+1] - heights[i]` bricks, or one ladder (which can cover any height difference regardless of size).\n\nGiven `bricks` and `ladders`, return the furthest building index (0-indexed) you can reach if you use the bricks and ladders optimally.",
+  "examples": [
+    {
+      "input": "heights = [4,2,7,6,9,14,12], bricks = 5, ladders = 1",
+      "output": "4",
+      "explanation": "The uphill climbs are 5 (building1->2), 3 (building3->4), and 5 (building4->5). Use the ladder on one climb of 5 and bricks (3+5=8, more than the 5 available) would fail for both remaining climbs, so bricks cover the climb of 3 (2 bricks left) but not the second climb of 5, leaving you stuck after reaching building 4."
+    },
+    {
+      "input": "heights = [4,12,2,7,3,18,20,3,19], bricks = 10, ladders = 2",
+      "output": "7"
+    }
+  ],
+  "constraints": [
+    "1 <= heights.length <= 10^5",
+    "1 <= heights[i] <= 10^6",
+    "0 <= bricks <= 10^9",
+    "0 <= ladders <= heights.length"
+  ],
+  "hints": [
+    "Since ladders cover any climb for free, they're most valuable saved for the largest climbs — but you don't know in advance which climbs will be the largest.",
+    "Use bricks for every climb as you go, but keep a min-heap of the climb sizes you've paid bricks for so far.",
+    "Whenever the number of climbs you've paid for exceeds the number of ladders available, refund the smallest brick payment made so far by converting it (conceptually) to have used a ladder there instead — this always leaves you with the most bricks possible for future climbs. Stop as soon as bricks go negative."
+  ],
+  "solution": {
+    "approach": "Walk through the buildings, and for every uphill climb, tentatively pay for it with bricks and push the climb size onto a min-heap. Whenever the heap size exceeds the number of ladders, that means more climbs have been brick-paid than there are ladders to cover, so refund the cheapest brick payment (the heap minimum) back into the bricks pool — effectively retroactively deciding a ladder was used there instead, since ladders are best reserved for the largest climbs. If bricks ever goes negative, the furthest reachable building is the one before the current climb.",
+    "code": "import heapq\n\ndef furthest_building_you_can_reach(heights, bricks, ladders):\n    heap = []\n\n    for i in range(len(heights) - 1):\n        diff = heights[i + 1] - heights[i]\n        if diff <= 0:\n            continue\n\n        heapq.heappush(heap, diff)\n        if len(heap) > ladders:\n            bricks -= heapq.heappop(heap)\n\n        if bricks < 0:\n            return i\n\n    return len(heights) - 1\n",
+    "timeComplexity": "O(n log n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def furthest_building_you_can_reach(heights, bricks, ladders):\n    # your code here\n    pass\n",
+  "functionName": "furthest_building_you_can_reach",
+  "paramNames": ["heights", "bricks", "ladders"],
+  "testCases": [
+    {
+      "input": [[4, 2, 7, 6, 9, 14, 12], 5, 1],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [[4, 12, 2, 7, 3, 18, 20, 3, 19], 10, 2],
+      "expected": 7,
+      "isHidden": false
+    },
+    {
+      "input": [[14, 3, 19, 3], 17, 0],
+      "expected": 3,
+      "isHidden": true
+    },
+    {
+      "input": [[1], 0, 0],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [[1, 2, 3, 4, 5], 0, 0],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [[1, 5, 1, 2, 3, 4, 10000], 4, 1],
+      "expected": 5,
+      "isHidden": true
+    }
+  ]
+}

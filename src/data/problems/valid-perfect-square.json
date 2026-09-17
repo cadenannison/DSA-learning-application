@@ -1,0 +1,74 @@
+{
+  "id": "valid-perfect-square",
+  "title": "Valid Perfect Square",
+  "pattern": "binary-search",
+  "difficulty": "easy",
+  "companies": [
+    "LinkedIn",
+    "Amazon"
+  ],
+  "prompt": "Given a positive integer `num`, return `true` if `num` is a perfect square, and `false` otherwise. You may not use any built-in library function such as `sqrt`.",
+  "examples": [
+    {
+      "input": "num = 16",
+      "output": "true"
+    },
+    {
+      "input": "num = 14",
+      "output": "false"
+    },
+    {
+      "input": "num = 1",
+      "output": "true"
+    }
+  ],
+  "constraints": [
+    "1 <= num <= 2^31 - 1"
+  ],
+  "hints": [
+    "Incrementing a counter and squaring it until you reach or pass num works, but takes O(sqrt(num)) time.",
+    "Since k*k grows monotonically with k, binary search on candidate roots in the range [1, num] instead of scanning linearly.",
+    "At each mid, compare mid*mid to num: if equal, it's a perfect square; if smaller, search higher; if larger, search lower."
+  ],
+  "solution": {
+    "approach": "Binary search over possible roots from 1 to num. Because mid*mid is monotonically increasing in mid, comparing mid*mid to num tells you unambiguously which half of the range to keep. If low and high converge without ever finding mid*mid == num, num is not a perfect square. This turns an O(sqrt(num)) scan into an O(log num) search.",
+    "code": "def is_perfect_square(num):\n    lo, hi = 1, num\n\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        sq = mid * mid\n        if sq == num:\n            return True\n        if sq < num:\n            lo = mid + 1\n        else:\n            hi = mid - 1\n\n    return False\n",
+    "timeComplexity": "O(log num)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def is_perfect_square(num):\n    # your code here\n    pass\n",
+  "functionName": "is_perfect_square",
+  "paramNames": ["num"],
+  "testCases": [
+    {
+      "input": [16],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [14],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [1],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [2147395600],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [2],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": [808201],
+      "expected": true,
+      "isHidden": true
+    }
+  ]
+}

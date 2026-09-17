@@ -1,0 +1,69 @@
+{
+  "id": "largest-number",
+  "title": "Largest Number",
+  "pattern": "greedy",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "LinkedIn",
+    "Airbnb"
+  ],
+  "prompt": "Given a list of non-negative integers `nums`, arrange them so that they form the largest possible number when concatenated together, and return that number as a string. Since the result may be very large, it should be returned as a string rather than an integer.",
+  "examples": [
+    {
+      "input": "nums = [10,2]",
+      "output": "\"210\"",
+      "explanation": "Arranging as \"2\" then \"10\" gives \"210\", which is larger than arranging \"10\" then \"2\" (\"102\")."
+    },
+    {
+      "input": "nums = [3,30,34,5,9]",
+      "output": "\"9534330\""
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 100",
+    "0 <= nums[i] <= 10^9"
+  ],
+  "hints": [
+    "Sorting numerically or as plain strings both fail \u2014 you need a comparison rule specific to concatenation order.",
+    "For two numbers a and b (as strings), compare which concatenation is larger: a + b versus b + a.",
+    "Sort all numbers (as strings) using that pairwise comparator so that a should come before b whenever a + b > b + a. Concatenate in that sorted order, and handle the all-zero edge case where the result would have leading zeros."
+  ],
+  "solution": {
+    "approach": "Convert every number to a string, then sort the strings with a custom comparator: string a should be placed before string b exactly when the concatenation a + b is lexicographically greater than b + a. This comparator is a valid total order for this purpose because it directly compares the two possible local orderings of any pair, and that pairwise-optimal choice composes into a globally optimal arrangement (this is the standard argument for exchange-based greedy proofs). After sorting, concatenate all strings; special-case the result being all zeros (e.g. input [0,0]) by returning \"0\" instead of \"000\".",
+    "code": "from functools import cmp_to_key\n\ndef largest_number(nums):\n    strs = list(map(str, nums))\n\n    def compare(a, b):\n        if a + b > b + a:\n            return -1\n        elif a + b < b + a:\n            return 1\n        return 0\n\n    strs.sort(key=cmp_to_key(compare))\n    result = ''.join(strs)\n    return '0' if result[0] == '0' else result\n",
+    "timeComplexity": "O(n log n) string comparisons",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def largest_number(nums):\n    # your code here\n    pass\n",
+  "functionName": "largest_number",
+  "paramNames": ["nums"],
+  "testCases": [
+    {
+      "input": [[10, 2]],
+      "expected": "210",
+      "isHidden": false
+    },
+    {
+      "input": [[3, 30, 34, 5, 9]],
+      "expected": "9534330",
+      "isHidden": false
+    },
+    {
+      "input": [[0, 0]],
+      "expected": "0",
+      "isHidden": true
+    },
+    {
+      "input": [[1]],
+      "expected": "1",
+      "isHidden": true
+    },
+    {
+      "input": [[121, 12]],
+      "expected": "12121",
+      "isHidden": true
+    }
+  ]
+}

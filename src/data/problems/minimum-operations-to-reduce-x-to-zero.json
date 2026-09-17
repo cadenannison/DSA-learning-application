@@ -1,0 +1,75 @@
+{
+  "id": "minimum-operations-to-reduce-x-to-zero",
+  "title": "Minimum Operations to Reduce X to Zero",
+  "pattern": "sliding-window",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Meta"
+  ],
+  "prompt": "You are given an integer array `nums` and an integer `x`. In one operation, you can either remove the leftmost or the rightmost element from the array `nums` and subtract its value from `x`. Note that this modifies the array for future operations. Return the minimum number of operations to reduce `x` to exactly `0`, or `-1` if it's not possible.",
+  "examples": [
+    {
+      "input": "nums = [1,1,4,2,3], x = 5",
+      "output": "2",
+      "explanation": "The optimal solution is to remove the last two elements to reduce x to 0."
+    },
+    {
+      "input": "nums = [5,6,7,8,9], x = 4",
+      "output": "-1",
+      "explanation": "No combination of prefix and suffix removals sums to 4."
+    },
+    {
+      "input": "nums = [3,2,20,1,1,3], x = 10",
+      "output": "5",
+      "explanation": "Remove the last three elements and the first two elements (5 operations) to reduce x to 10."
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 10^5",
+    "1 <= nums[i] <= 10^4",
+    "1 <= x <= 10^9"
+  ],
+  "hints": [
+    "Removing a prefix and a suffix that sum to x is the same as finding a contiguous middle subarray whose sum equals total_sum - x, and maximizing that middle subarray's length.",
+    "If total_sum - x is negative, it's immediately impossible. Otherwise use a sliding window to find the longest subarray with sum exactly equal to total_sum - x.",
+    "Expand the window to the right adding to a running sum; whenever the sum exceeds the target, shrink from the left. Whenever the sum exactly matches the target, record the window length — the answer is n minus the longest such window."
+  ],
+  "solution": {
+    "approach": "Removing some prefix and some suffix whose values sum to x is equivalent to keeping a contiguous middle subarray whose sum equals total_sum - x; the number of operations is n minus the length of that middle subarray, so we want to maximize its length. Since all values are positive, a sliding window works directly on the target sum: expand right and add to a running sum, and while the sum exceeds the target, shrink from the left. Every time the running sum exactly equals the target, update the best (longest) window length. If total_sum - x is negative or no such window exists, return -1; otherwise return n minus the best length.",
+    "code": "def min_operations(nums, x):\n    target = sum(nums) - x\n    if target < 0:\n        return -1\n    if target == 0:\n        return len(nums)\n\n    left = 0\n    window_sum = 0\n    best_len = -1\n\n    for right, num in enumerate(nums):\n        window_sum += num\n        while window_sum > target and left <= right:\n            window_sum -= nums[left]\n            left += 1\n        if window_sum == target:\n            best_len = max(best_len, right - left + 1)\n\n    return len(nums) - best_len if best_len != -1 else -1\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def min_operations(nums, x):\n    # your code here\n    pass\n",
+  "functionName": "min_operations",
+  "paramNames": ["nums", "x"],
+  "testCases": [
+    {
+      "input": [[1, 1, 4, 2, 3], 5],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [[5, 6, 7, 8, 9], 4],
+      "expected": -1,
+      "isHidden": false
+    },
+    {
+      "input": [[3, 2, 20, 1, 1, 3], 10],
+      "expected": 5,
+      "isHidden": false
+    },
+    {
+      "input": [[1], 1],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [[1, 1], 2],
+      "expected": 2,
+      "isHidden": true
+    }
+  ]
+}

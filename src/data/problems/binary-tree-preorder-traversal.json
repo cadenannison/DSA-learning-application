@@ -1,0 +1,78 @@
+{
+  "id": "binary-tree-preorder-traversal",
+  "title": "Binary Tree Preorder Traversal",
+  "pattern": "trees",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Facebook"
+  ],
+  "prompt": "Given the `root` of a binary tree, return the values of its nodes in pre-order traversal order (node, then left subtree, then right subtree).\n\nThe tree is given as a level-order array where `null` marks a missing child (the standard LeetCode serialization). Your function receives this array directly; the starter code includes a helper that builds the tree from it, so you only need to implement the traversal.",
+  "examples": [
+    {
+      "input": "root = [1,null,2,3]",
+      "output": "[1,2,3]",
+      "explanation": "Visit 1 first, then its right subtree, which visits 2 before its left child 3."
+    },
+    {
+      "input": "root = [1,2,3,4,5,null,8,null,null,6,7,9]",
+      "output": "[1,2,4,5,6,7,3,8,9]"
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [0, 100]",
+    "-100 <= Node.val <= 100"
+  ],
+  "hints": [
+    "Pre-order means: visit the current node first, then fully traverse the left subtree, then fully traverse the right subtree.",
+    "An iterative solution can use an explicit stack: push the root, then repeatedly pop a node, record its value, and push its right child before its left child (so left is processed first).",
+    "Pushing right before left is the key trick — since a stack is LIFO, this guarantees the left subtree gets popped and visited before the right one."
+  ],
+  "solution": {
+    "approach": "Use an explicit stack starting with the root. Repeatedly pop a node, record its value, then push its right child followed by its left child (if they exist) — pushing right first ensures left comes off the stack first, preserving the node-left-right visiting order without recursion.",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef preorder_traversal(root_arr):\n    root = build_tree(root_arr)\n    if root is None:\n        return []\n    result = []\n    stack = [root]\n    while stack:\n        node = stack.pop()\n        result.append(node.val)\n        if node.right:\n            stack.append(node.right)\n        if node.left:\n            stack.append(node.left)\n    return result\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(h), h = tree height"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef preorder_traversal(root_arr):\n    root = build_tree(root_arr)\n    # your code here\n    pass\n",
+  "functionName": "preorder_traversal",
+  "paramNames": ["root_arr"],
+  "testCases": [
+    {
+      "input": [
+        [1, null, 2, 3]
+      ],
+      "expected": [1, 2, 3],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3, 4, 5, null, 8, null, null, 6, 7, 9]
+      ],
+      "expected": [1, 2, 4, 5, 6, 7, 3, 8, 9],
+      "isHidden": false
+    },
+    {
+      "input": [
+        []
+      ],
+      "expected": [],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": [1],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2]
+      ],
+      "expected": [1, 2],
+      "isHidden": true
+    }
+  ]
+}

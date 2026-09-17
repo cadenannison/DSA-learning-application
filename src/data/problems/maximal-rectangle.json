@@ -1,0 +1,71 @@
+{
+  "id": "maximal-rectangle",
+  "title": "Maximal Rectangle",
+  "pattern": "dynamic-programming",
+  "difficulty": "hard",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Facebook",
+    "Microsoft"
+  ],
+  "prompt": "Given a `rows x cols` binary matrix `matrix` filled with 0s and 1s, find the largest rectangle containing only 1s, and return its area.",
+  "examples": [
+    {
+      "input": "matrix = [[\"1\",\"0\",\"1\",\"0\",\"0\"],[\"1\",\"0\",\"1\",\"1\",\"1\"],[\"1\",\"1\",\"1\",\"1\",\"1\"],[\"1\",\"0\",\"0\",\"1\",\"0\"]]",
+      "output": "6",
+      "explanation": "The largest all-1s rectangle has area 6, formed from the bottom two rows, columns 2-3 combined with row 2's column 4, effectively the 3x2 block in rows 1-2, columns 2-3 plus adjustments \u2014 concretely rows 1-2 columns 2-4 area 3x2=6."
+    },
+    {
+      "input": "matrix = [[\"0\"]]",
+      "output": "0"
+    }
+  ],
+  "constraints": [
+    "rows == matrix.length",
+    "cols == matrix[i].length",
+    "1 <= rows, cols <= 200",
+    "matrix[i][j] is '0' or '1'"
+  ],
+  "hints": [
+    "This problem reduces to a simpler one applied repeatedly: for each row, imagine it as the BASE of a histogram, where each column's bar height is how many consecutive 1s stack up ending at that row.",
+    "Maintain a 'heights' array across rows: heights[c] += 1 if matrix[r][c] == '1', else reset heights[c] = 0. After updating heights for row r, the largest rectangle ending at that row is the largest rectangle in that histogram.",
+    "Use the largest-rectangle-in-histogram technique (a monotonic increasing stack of bar indices) on each row's heights array, and track the overall best across all rows."
+  ],
+  "solution": {
+    "approach": "Reduce the 2D problem to the classic 'largest rectangle in histogram' problem applied once per row. Maintain a running heights array the width of the matrix: heights[c] counts the number of consecutive 1s ending at the current row in column c (incrementing on '1', resetting to 0 on '0'). After updating heights for row r, the largest all-1s rectangle whose bottom edge is row r is exactly the largest rectangle in that histogram, found using a monotonic increasing stack: push column indices while heights are increasing, and whenever a shorter bar is encountered, pop and compute the area of the popped bar treating it as the limiting height (width determined by the gap between the new stack top and the current index). Track the best area seen across all rows.",
+    "code": "def maximal_rectangle(matrix):\n    if not matrix or not matrix[0]:\n        return 0\n\n    cols = len(matrix[0])\n    heights = [0] * cols\n    best = 0\n\n    def largest_rectangle(hist):\n        stack = []\n        max_area = 0\n        for i, h in enumerate(hist + [0]):\n            while stack and hist[stack[-1]] >= h:\n                height = hist[stack.pop()]\n                width = i if not stack else i - stack[-1] - 1\n                max_area = max(max_area, height * width)\n            stack.append(i)\n        return max_area\n\n    for row in matrix:\n        for c in range(cols):\n            heights[c] = heights[c] + 1 if row[c] == '1' else 0\n        best = max(best, largest_rectangle(heights))\n\n    return best\n",
+    "timeComplexity": "O(rows * cols)",
+    "spaceComplexity": "O(cols)"
+  },
+  "starterCode": "def maximal_rectangle(matrix):\n    # your code here\n    pass\n",
+  "functionName": "maximal_rectangle",
+  "paramNames": ["matrix"],
+  "testCases": [
+    {
+      "input": [[["1", "0", "1", "0", "0"], ["1", "0", "1", "1", "1"], ["1", "1", "1", "1", "1"], ["1", "0", "0", "1", "0"]]],
+      "expected": 6,
+      "isHidden": false
+    },
+    {
+      "input": [[["0"]]],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [[["1"]]],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [[["1", "1"], ["1", "1"]]],
+      "expected": 4,
+      "isHidden": true
+    },
+    {
+      "input": [[["0", "0"], ["0", "0"]]],
+      "expected": 0,
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "id": "pascals-triangle",
+  "title": "Pascal's Triangle",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Apple",
+    "Microsoft"
+  ],
+  "prompt": "Given an integer `numRows`, return the first `numRows` of Pascal's triangle as a list of lists. In Pascal's triangle, each number is the sum of the two numbers directly above it, and each row starts and ends with `1`.",
+  "examples": [
+    {
+      "input": "numRows = 5",
+      "output": "[[1],[1,1],[1,2,1],[1,3,3,1],[1,4,6,4,1]]"
+    },
+    {
+      "input": "numRows = 1",
+      "output": "[[1]]"
+    }
+  ],
+  "constraints": [
+    "1 <= numRows <= 30"
+  ],
+  "hints": [
+    "There's a closed-form binomial coefficient formula, but it's easy to get precision or overflow issues wrong — building row by row is simpler and just as fast here.",
+    "Each new row can be derived entirely from the previous row's array.",
+    "Slide a window of two adjacent elements across the previous row and sum them to get each interior value of the next row, padding both ends with 1."
+  ],
+  "solution": {
+    "approach": "Build the triangle row by row. Each row begins and ends with 1, and every interior value at position j equals the sum of positions j-1 and j from the previous row (a classic prefix-pair scan across the prior row). Starting from [1] and repeatedly deriving the next row this way naturally reproduces Pascal's triangle without needing factorials or binomial coefficients.",
+    "code": "def generate(num_rows):\n    triangle = []\n    for i in range(num_rows):\n        row = [1] * (i + 1)\n        for j in range(1, i):\n            row[j] = triangle[i - 1][j - 1] + triangle[i - 1][j]\n        triangle.append(row)\n    return triangle\n",
+    "timeComplexity": "O(numRows^2)",
+    "spaceComplexity": "O(numRows^2) for the output"
+  },
+  "starterCode": "def generate(num_rows):\n    # your code here\n    pass\n",
+  "functionName": "generate",
+  "paramNames": ["num_rows"],
+  "testCases": [
+    {
+      "input": [5],
+      "expected": [[1], [1, 1], [1, 2, 1], [1, 3, 3, 1], [1, 4, 6, 4, 1]],
+      "isHidden": false
+    },
+    {
+      "input": [1],
+      "expected": [[1]],
+      "isHidden": false
+    },
+    {
+      "input": [2],
+      "expected": [[1], [1, 1]],
+      "isHidden": true
+    },
+    {
+      "input": [3],
+      "expected": [[1], [1, 1], [1, 2, 1]],
+      "isHidden": true
+    }
+  ]
+}

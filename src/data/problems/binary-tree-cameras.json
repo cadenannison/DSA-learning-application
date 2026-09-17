@@ -1,0 +1,79 @@
+{
+  "id": "binary-tree-cameras",
+  "title": "Binary Tree Cameras",
+  "pattern": "trees",
+  "difficulty": "hard",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Facebook"
+  ],
+  "prompt": "You are given the `root` of a binary tree. You want to install cameras on some of the nodes so that every node in the tree is monitored. A camera installed on a node can monitor its parent, itself, and its immediate children.\n\nReturn the minimum number of cameras needed to monitor all nodes in the tree. The tree is given as a level-order array where `null` marks a missing child (the standard LeetCode serialization). Your function receives this array directly; the starter code includes a helper that builds the tree from it, so you only need to compute the minimum number of cameras.",
+  "examples": [
+    {
+      "input": "root = [0,0,null,0,0]",
+      "output": "1",
+      "explanation": "One camera placed at the second-level node covers itself, its parent, and its two children."
+    },
+    {
+      "input": "root = [0,0,null,0,null,0,null,null,0]",
+      "output": "2",
+      "explanation": "Two cameras are needed to cover this longer chain."
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [1, 1000]",
+    "Node.val == 0 for every node (the input values are irrelevant to the camera problem itself)"
+  ],
+  "hints": [
+    "This is a greedy problem best solved bottom-up: it's always at least as good to place cameras as close to the leaves as possible, since a camera near the bottom can still cover its parent.",
+    "Classify each node (post-order) into one of three states: 'has a camera', 'covered but no camera', or 'not covered'. A leaf starts as 'not covered' (placing a camera there would be wasteful compared to placing it at the leaf's parent).",
+    "A node becomes 'not covered' only if it has no camera and at least one child is 'not covered' — in that case it must get a camera immediately (greedily, since delaying would leave the child unmonitored). A node becomes 'covered without a camera' if at least one child has a camera. Don't forget: if the root ends up 'not covered' after processing, it needs one more camera."
+  ],
+  "solution": {
+    "approach": "Use greedy post-order DFS with three states: 0 = not covered, 1 = covered but no camera, 2 = has a camera. Process leaves first (they start as 'not covered', since placing a camera at a leaf is never better than placing it at its parent). For each internal node, if either child is 'not covered', greedily place a camera here (this is optimal because that child would otherwise never get monitored by anything higher up in time). If no child needs a camera but at least one child already has one, this node is 'covered' for free. Otherwise it stays 'not covered', to be resolved by its own parent. After the traversal, if the root itself is still 'not covered', one final camera is needed there.",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\nNOT_COVERED, COVERED, HAS_CAMERA = 0, 1, 2\n\n\ndef min_camera_cover(root_arr):\n    root = build_tree(root_arr)\n    cameras = [0]\n\n    def dfs(node):\n        if node is None:\n            return COVERED\n        left_state = dfs(node.left)\n        right_state = dfs(node.right)\n        if left_state == NOT_COVERED or right_state == NOT_COVERED:\n            cameras[0] += 1\n            return HAS_CAMERA\n        if left_state == HAS_CAMERA or right_state == HAS_CAMERA:\n            return COVERED\n        return NOT_COVERED\n\n    if dfs(root) == NOT_COVERED:\n        cameras[0] += 1\n    return cameras[0]\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(h), h = tree height"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef min_camera_cover(root_arr):\n    root = build_tree(root_arr)\n    # your code here\n    pass\n",
+  "functionName": "min_camera_cover",
+  "paramNames": ["root_arr"],
+  "testCases": [
+    {
+      "input": [
+        [0, 0, null, 0, 0]
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0, 0, null, 0, null, 0, null, null, 0]
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0]
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0, 0]
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [0, null, 0, null, 0]
+      ],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

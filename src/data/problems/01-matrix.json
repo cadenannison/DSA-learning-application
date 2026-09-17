@@ -1,0 +1,83 @@
+{
+  "id": "01-matrix",
+  "title": "01 Matrix",
+  "pattern": "bfs-dfs",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon",
+    "Facebook"
+  ],
+  "prompt": "Given an `m x n` binary matrix `mat`, return the distance of the nearest `0` for each cell, where the distance between two adjacent cells (horizontal or vertical) is `1`.",
+  "examples": [
+    {
+      "input": "mat = [[0,0,0],[0,1,0],[0,0,0]]",
+      "output": "[[0,0,0],[0,1,0],[0,0,0]]",
+      "explanation": "The single 1 has a 0 directly adjacent in every direction, so its distance is 1."
+    },
+    {
+      "input": "mat = [[0,0,0],[0,1,0],[1,1,1]]",
+      "output": "[[0,0,0],[0,1,0],[1,2,1]]",
+      "explanation": "Distances are computed via 4-directional shortest paths to the nearest 0."
+    }
+  ],
+  "constraints": [
+    "m == mat.length",
+    "n == mat[i].length",
+    "1 <= m, n <= 10^4",
+    "1 <= m * n <= 10^4",
+    "mat[i][j] is 0 or 1",
+    "There is at least one 0 in mat"
+  ],
+  "hints": [
+    "Running BFS from every 1 to find its nearest 0 would be too slow — instead, start the search from all the 0s at once.",
+    "Use multi-source BFS: enqueue every 0 cell with distance 0, then expand outward, filling in each newly reached 1 cell's distance as current distance + 1.",
+    "Mark a cell's distance as soon as it's first reached (i.e., enqueued), since BFS guarantees the first time a cell is reached gives its shortest distance to any source."
+  ],
+  "solution": {
+    "approach": "Multi-source BFS starting from every 0 cell simultaneously computes each cell's shortest distance to the nearest 0 in a single pass. Initialize the answer grid with 0s at their own positions and enqueue them all; then repeatedly pop cells and relax their unvisited neighbors, assigning each newly visited 1 a distance of the popping cell's distance + 1. Because BFS expands in non-decreasing distance order, each cell's distance is finalized the first time it's reached.",
+    "code": "from collections import deque\n\n\ndef update_matrix(mat):\n    rows, cols = len(mat), len(mat[0])\n    dist = [[-1] * cols for _ in range(rows)]\n    queue = deque()\n\n    for r in range(rows):\n        for c in range(cols):\n            if mat[r][c] == 0:\n                dist[r][c] = 0\n                queue.append((r, c))\n\n    while queue:\n        r, c = queue.popleft()\n        for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n            nr, nc = r + dr, c + dc\n            if 0 <= nr < rows and 0 <= nc < cols and dist[nr][nc] == -1:\n                dist[nr][nc] = dist[r][c] + 1\n                queue.append((nr, nc))\n\n    return dist\n",
+    "timeComplexity": "O(m * n)",
+    "spaceComplexity": "O(m * n)"
+  },
+  "starterCode": "def update_matrix(mat):\n    # your code here\n    pass\n",
+  "functionName": "update_matrix",
+  "paramNames": ["mat"],
+  "testCases": [
+    {
+      "input": [
+        [[0, 0, 0], [0, 1, 0], [0, 0, 0]]
+      ],
+      "expected": [[0, 0, 0], [0, 1, 0], [0, 0, 0]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[0, 0, 0], [0, 1, 0], [1, 1, 1]]
+      ],
+      "expected": [[0, 0, 0], [0, 1, 0], [1, 2, 1]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[0]]
+      ],
+      "expected": [[0]],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[0, 1, 1, 1]]
+      ],
+      "expected": [[0, 1, 2, 3]],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[1, 0], [1, 1]]
+      ],
+      "expected": [[1, 0], [2, 1]],
+      "isHidden": true
+    }
+  ]
+}

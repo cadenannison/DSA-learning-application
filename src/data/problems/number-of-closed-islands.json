@@ -1,0 +1,79 @@
+{
+  "id": "number-of-closed-islands",
+  "title": "Number of Closed Islands",
+  "pattern": "bfs-dfs",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "ByteDance"
+  ],
+  "prompt": "You are given an `m x n` binary matrix `grid` where `0` represents land and `1` represents water. An island is a maximal 4-directionally connected group of `0`s. A closed island is an island that is totally enclosed by water (`1`s) — it does not touch the border of the grid on any side. Return the number of closed islands.",
+  "examples": [
+    {
+      "input": "grid = [[1,1,1,1,1,1,1,0],[1,0,0,0,0,1,1,0],[1,0,1,0,1,1,1,0],[1,0,0,0,0,1,0,1],[1,1,1,1,1,1,1,0]]",
+      "output": "2",
+      "explanation": "There are two islands of 0s that are completely surrounded by 1s and don't touch the grid border."
+    },
+    {
+      "input": "grid = [[0,0,1,1,0],[0,1,1,1,0],[0,1,1,0,0]]",
+      "output": "0",
+      "explanation": "Every island of land touches the border, so none are closed."
+    }
+  ],
+  "constraints": [
+    "1 <= grid.length, grid[i].length <= 100",
+    "grid[i][j] is 0 or 1"
+  ],
+  "hints": [
+    "An island touching the border can never be closed, no matter its shape — handle border-connected land first.",
+    "Flood-fill (DFS/BFS) from every land cell on the border and eliminate (flip to water) everything connected to it, so only interior islands remain.",
+    "After removing all border-connected land, count the remaining islands exactly like the classic number-of-islands problem — every one left is guaranteed closed."
+  ],
+  "solution": {
+    "approach": "First flood-fill from every land cell that sits on the grid's border, flipping all land connected to the border to water — none of that land can ever belong to a closed island. Once border-touching land is eliminated, any remaining land cell must belong to an island fully enclosed by water, so a standard flood-fill count over what's left directly gives the number of closed islands.",
+    "code": "def closed_island(grid):\n    rows, cols = len(grid), len(grid[0])\n\n    def dfs(r, c):\n        if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] == 1:\n            return\n        grid[r][c] = 1\n        dfs(r + 1, c)\n        dfs(r - 1, c)\n        dfs(r, c + 1)\n        dfs(r, c - 1)\n\n    for r in range(rows):\n        for c in range(cols):\n            if (r == 0 or r == rows - 1 or c == 0 or c == cols - 1) and grid[r][c] == 0:\n                dfs(r, c)\n\n    count = 0\n    for r in range(1, rows - 1):\n        for c in range(1, cols - 1):\n            if grid[r][c] == 0:\n                count += 1\n                dfs(r, c)\n    return count\n",
+    "timeComplexity": "O(m * n)",
+    "spaceComplexity": "O(m * n) worst-case recursion depth"
+  },
+  "starterCode": "def closed_island(grid):\n    # your code here\n    pass\n",
+  "functionName": "closed_island",
+  "paramNames": ["grid"],
+  "testCases": [
+    {
+      "input": [
+        [[1, 1, 1, 1, 1, 1, 1, 0], [1, 0, 0, 0, 0, 1, 1, 0], [1, 0, 1, 0, 1, 1, 1, 0], [1, 0, 0, 0, 0, 1, 0, 1], [1, 1, 1, 1, 1, 1, 1, 0]]
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[0, 0, 1, 1, 0], [0, 1, 1, 1, 0], [0, 1, 1, 0, 0]]
+      ],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1, 1, 1], [1, 0, 1], [1, 1, 1]]
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[0]]
+      ],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[1, 1, 1, 1], [1, 0, 0, 1], [1, 0, 0, 1], [1, 1, 1, 1]]
+      ],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

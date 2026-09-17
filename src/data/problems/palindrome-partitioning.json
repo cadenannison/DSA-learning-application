@@ -1,0 +1,64 @@
+{
+  "id": "palindrome-partitioning",
+  "title": "Palindrome Partitioning",
+  "pattern": "backtracking",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Facebook",
+    "Bloomberg"
+  ],
+  "prompt": "Given a string `s`, partition it such that every substring of the partition is a palindrome. Return all possible palindrome partitionings of `s`.\n\nFor deterministic comparison, sort the outer list of partitions (for example, by converting each partition to a tuple and sorting the list of tuples).",
+  "examples": [
+    {
+      "input": "s = \"aab\"",
+      "output": "[[\"a\",\"a\",\"b\"],[\"aa\",\"b\"]]",
+      "explanation": "Both partitions split \"aab\" entirely into palindromic pieces."
+    },
+    {
+      "input": "s = \"a\"",
+      "output": "[[\"a\"]]"
+    }
+  ],
+  "constraints": [
+    "1 <= s.length <= 16",
+    "s consists of only lowercase English letters"
+  ],
+  "hints": [
+    "At every position in the string, you're choosing where to make the next cut \u2014 that's the branching decision for backtracking.",
+    "From the current start position, try every possible end position for the next piece; only recurse into it if that substring s[start:end] is itself a palindrome.",
+    "Since a palindrome check on the same substring may get repeated across branches, consider caching is_palindrome(i, j) results (memoization) to avoid rechecking, though for the given constraints a direct check per candidate substring is also fast enough."
+  ],
+  "solution": {
+    "approach": "Backtrack over cut positions: at each start index, try every possible end index for the next piece (start+1 up to len(s)), and only recurse further if s[start:end] is a palindrome \u2014 this prunes the search tree so we never build a partition containing a non-palindromic piece. When start reaches the end of the string, the current path is a complete valid partitioning, so record a copy. Checking palindromes with simple string reversal comparison is fine given the small input size; for larger inputs this could be sped up with a precomputed palindrome table or memoized checks.",
+    "code": "def partition(s):\n    n = len(s)\n    result = []\n    path = []\n\n    def is_palindrome(sub):\n        return sub == sub[::-1]\n\n    def backtrack(start):\n        if start == n:\n            result.append(path[:])\n            return\n        for end in range(start + 1, n + 1):\n            piece = s[start:end]\n            if is_palindrome(piece):\n                path.append(piece)\n                backtrack(end)\n                path.pop()\n\n    backtrack(0)\n    result.sort(key=lambda partition_list: tuple(partition_list))\n    return result\n",
+    "timeComplexity": "O(n * 2^n) worst case",
+    "spaceComplexity": "O(n) recursion depth, plus output size"
+  },
+  "starterCode": "def partition(s):\n    # your code here\n    pass\n",
+  "functionName": "partition",
+  "paramNames": ["s"],
+  "testCases": [
+    {
+      "input": ["aab"],
+      "expected": [["a", "a", "b"], ["aa", "b"]],
+      "isHidden": false
+    },
+    {
+      "input": ["a"],
+      "expected": [["a"]],
+      "isHidden": false
+    },
+    {
+      "input": ["aba"],
+      "expected": [["a", "b", "a"], ["aba"]],
+      "isHidden": true
+    },
+    {
+      "input": ["aaa"],
+      "expected": [["a", "a", "a"], ["a", "aa"], ["aa", "a"], ["aaa"]],
+      "isHidden": true
+    }
+  ]
+}

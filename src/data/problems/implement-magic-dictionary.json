@@ -1,0 +1,73 @@
+{
+  "id": "implement-magic-dictionary",
+  "title": "Implement Magic Dictionary",
+  "pattern": "tries",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "A magic dictionary is built from a list of distinct words. It supports a `search(query)` operation that returns `true` if changing exactly one character of `query` (to a different character, not to itself) produces a word that exists in the dictionary. It returns `false` otherwise — in particular, the query itself matching a dictionary word with zero changes does not count.\n\nImplement `magic_dictionary_search(dictionary, queries)`: build the dictionary from `dictionary` up front, then return a list of booleans, one per entry in `queries`, indicating the search result for each.",
+  "examples": [
+    {
+      "input": "dictionary = [\"hello\",\"leetcode\"], queries = [\"hello\",\"hhllo\",\"hell\",\"leetcoded\"]",
+      "output": "[false,true,false,false]",
+      "explanation": "\"hello\" needs 0 changes to match itself, so it doesn't count. \"hhllo\" becomes \"hello\" with exactly one change. \"hell\" has different length from any word. \"leetcoded\" also has no length match."
+    },
+    {
+      "input": "dictionary = [\"a\",\"ab\"], queries = [\"a\",\"b\"]",
+      "output": "[false,true]",
+      "explanation": "\"a\" matches itself with 0 changes (doesn't count) and can't reach \"ab\" (different length). \"b\" becomes \"a\" with exactly one change."
+    }
+  ],
+  "constraints": [
+    "1 <= dictionary.length <= 100",
+    "1 <= dictionary[i].length <= 100",
+    "dictionary[i] consists of only lowercase English letters",
+    "All strings in dictionary are distinct",
+    "1 <= queries.length <= 100",
+    "1 <= queries[i].length <= 100",
+    "queries[i] consists of only lowercase English letters"
+  ],
+  "hints": [
+    "Comparing a query against every dictionary word of the same length directly works (and is fine given the small constraints), but a trie lets you prune shared prefixes and generalizes better.",
+    "Insert all dictionary words into a trie. Then do a DFS over the query alongside the trie, and allow exactly one position where you branch into a child whose character differs from the query's character at that spot.",
+    "Track whether you've already 'used up' your one allowed mismatch as you recurse; a match only counts if you land on an end-of-word node having used the mismatch exactly once, not zero times."
+  ],
+  "solution": {
+    "approach": "Build a trie from the dictionary words. To search a query, run a recursive DFS that walks the query alongside the trie while tracking how many mismatches have been used (0 or 1). At each position, if a child matches the query's character, recurse with the mismatch budget unchanged; additionally, if the budget still allows it (no mismatch used yet), recurse into every other child as a 'used a mismatch' branch. A search succeeds if any path reaches the end of the query at a word-end node having used exactly one mismatch — zero mismatches used means it's an exact match, which doesn't count.",
+    "code": "def magic_dictionary_search(dictionary, queries):\n    root = {'children': {}, 'is_end': False}\n\n    for word in dictionary:\n        node = root\n        for ch in word:\n            node = node['children'].setdefault(ch, {'children': {}, 'is_end': False})\n        node['is_end'] = True\n\n    def dfs(node, word, i, mismatches_used):\n        if i == len(word):\n            return mismatches_used == 1 and node['is_end']\n        ch = word[i]\n        for child_ch, child in node['children'].items():\n            if child_ch == ch:\n                if dfs(child, word, i + 1, mismatches_used):\n                    return True\n            elif mismatches_used == 0:\n                if dfs(child, word, i + 1, 1):\n                    return True\n        return False\n\n    return [dfs(root, q, 0, 0) for q in queries]\n",
+    "timeComplexity": "O(sum of dictionary word lengths) to build, O(26 * L) per query in the worst case",
+    "spaceComplexity": "O(total characters inserted)"
+  },
+  "starterCode": "def magic_dictionary_search(dictionary, queries):\n    # your code here\n    pass\n",
+  "functionName": "magic_dictionary_search",
+  "paramNames": ["dictionary", "queries"],
+  "testCases": [
+    {
+      "input": [["hello", "leetcode"], ["hello", "hhllo", "hell", "leetcoded"]],
+      "expected": [false, true, false, false],
+      "isHidden": false
+    },
+    {
+      "input": [["a", "ab"], ["a", "b"]],
+      "expected": [false, true],
+      "isHidden": false
+    },
+    {
+      "input": [["hello"], ["hallo", "hbllo", "hbxlo"]],
+      "expected": [true, true, false],
+      "isHidden": true
+    },
+    {
+      "input": [["abc"], ["abc"]],
+      "expected": [false],
+      "isHidden": true
+    },
+    {
+      "input": [["judge"], ["judgx", "juxge", "xudge", "judgxx"]],
+      "expected": [true, true, true, false],
+      "isHidden": true
+    }
+  ]
+}

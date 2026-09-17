@@ -1,0 +1,70 @@
+{
+  "id": "jump-game-ii",
+  "title": "Jump Game II",
+  "pattern": "greedy",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Microsoft",
+    "Meta"
+  ],
+  "prompt": "Given an integer array `nums` of length `n`, you start at index 0. Each element `nums[i]` represents the maximum jump length from index `i`. Return the minimum number of jumps needed to reach index `n - 1`. You may assume it is always possible to reach the last index.",
+  "examples": [
+    {
+      "input": "nums = [2,3,1,1,4]",
+      "output": "2",
+      "explanation": "Jump 1 step from index 0 to 1, then 3 steps to the last index."
+    },
+    {
+      "input": "nums = [2,3,0,1,4]",
+      "output": "2"
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 10^4",
+    "0 <= nums[i] <= 1000",
+    "It is guaranteed that you can reach nums[n - 1]"
+  ],
+  "hints": [
+    "A brute-force search over every possible jump sequence is exponential — think about processing jumps in levels, like BFS on an implicit graph.",
+    "Track the furthest index reachable using the current number of jumps, and the boundary of the current jump's range.",
+    "As you scan indices within the current jump's range, keep extending the furthest reachable index. When you reach the end of the current range, you're forced to take another jump, so increment the counter and set the new range boundary to the furthest you found."
+  ],
+  "solution": {
+    "approach": "Think of the traversal in jump levels, similar to BFS layers. Maintain the furthest index reachable so far, and the boundary marking the end of the range reachable with the current number of jumps. Scan through indices; at each one, update furthest = max(furthest, i + nums[i]). When i reaches the current boundary, that means all indices reachable with the current jump count have been explored, so a new jump is required: increment the jump count and move the boundary to furthest. This greedily always extends as far as possible within each jump level, and stops one jump before needing to process the last index itself.",
+    "code": "def jump(nums):\n    jumps = 0\n    current_end = 0\n    farthest = 0\n    for i in range(len(nums) - 1):\n        farthest = max(farthest, i + nums[i])\n        if i == current_end:\n            jumps += 1\n            current_end = farthest\n    return jumps\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def jump(nums):\n    # your code here\n    pass\n",
+  "functionName": "jump",
+  "paramNames": ["nums"],
+  "testCases": [
+    {
+      "input": [[2, 3, 1, 1, 4]],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [[2, 3, 0, 1, 4]],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [[0]],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [[1, 1, 1, 1]],
+      "expected": 3,
+      "isHidden": true
+    },
+    {
+      "input": [[5, 1, 1, 1, 1]],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

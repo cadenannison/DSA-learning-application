@@ -1,0 +1,86 @@
+{
+  "id": "wildcard-matching",
+  "title": "Wildcard Matching",
+  "pattern": "dynamic-programming",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Facebook",
+    "Amazon",
+    "Bloomberg"
+  ],
+  "prompt": "Given an input string `s` and a pattern `p`, implement wildcard pattern matching that supports `?` and `*`, where `?` matches any single character and `*` matches any sequence of characters, including the empty sequence. The matching must cover the entire input string, not just part of it.",
+  "examples": [
+    {
+      "input": "s = \"aa\", p = \"a\"",
+      "output": "false",
+      "explanation": "\"a\" does not match the entire string \"aa\"."
+    },
+    {
+      "input": "s = \"aa\", p = \"*\"",
+      "output": "true",
+      "explanation": "'*' matches any sequence, including \"aa\"."
+    },
+    {
+      "input": "s = \"cb\", p = \"?a\"",
+      "output": "false",
+      "explanation": "'?' matches 'c', but the second letter is 'a' in p while it's 'b' in s."
+    }
+  ],
+  "constraints": [
+    "0 <= s.length, p.length <= 2000",
+    "s consists of only lowercase English letters",
+    "p consists of only lowercase English letters, '?', or '*'"
+  ],
+  "hints": [
+    "Unlike regex '*', here '*' stands alone and can match any sequence of any length (including empty) by itself — no preceding character to repeat.",
+    "Define dp[i][j] = true if s[0:i] matches p[0:j]. If p[j-1] is '*', it can either match zero characters (dp[i][j-1]) or absorb one more character of s while still being available (dp[i-1][j]).",
+    "If p[j-1] is '?' or matches s[i-1] exactly, dp[i][j] = dp[i-1][j-1]. Base case: dp[0][j] is true only if p[0:j] is made entirely of '*' characters, since only '*' can match an empty string."
+  ],
+  "solution": {
+    "approach": "Define dp[i][j] as true if s[0:i] matches p[0:j]. dp[0][0] = True (empty matches empty). dp[0][j] is true only while p[0:j] consists entirely of '*' so far, since that's the only character able to match an empty remaining string. For general cells, if p[j-1] is '?' or exactly equals s[i-1], the match reduces to whether the prefixes before them matched: dp[i][j] = dp[i-1][j-1]. If p[j-1] is '*', it can match zero characters of s (dp[i][j-1], leaving the '*' unused) or it can absorb one more character of s while remaining available to absorb more (dp[i-1][j]) — either possibility being true makes dp[i][j] true, since '*' greedily covers any length. The answer is dp[len(s)][len(p)].",
+    "code": "def is_match(s, p):\n    m, n = len(s), len(p)\n    dp = [[False] * (n + 1) for _ in range(m + 1)]\n    dp[0][0] = True\n\n    for j in range(1, n + 1):\n        if p[j - 1] == '*':\n            dp[0][j] = dp[0][j - 1]\n\n    for i in range(1, m + 1):\n        for j in range(1, n + 1):\n            if p[j - 1] == '*':\n                dp[i][j] = dp[i][j - 1] or dp[i - 1][j]\n            elif p[j - 1] == '?' or p[j - 1] == s[i - 1]:\n                dp[i][j] = dp[i - 1][j - 1]\n\n    return dp[m][n]\n",
+    "timeComplexity": "O(m * n)",
+    "spaceComplexity": "O(m * n)"
+  },
+  "starterCode": "def is_match(s, p):\n    # your code here\n    pass\n",
+  "functionName": "is_match",
+  "paramNames": ["s", "p"],
+  "testCases": [
+    {
+      "input": ["aa", "a"],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": ["aa", "*"],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": ["cb", "?a"],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": ["adceb", "*a*b*"],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": ["", "*"],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": ["", ""],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": ["abc", ""],
+      "expected": false,
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "id": "search-a-2d-matrix-ii",
+  "title": "Search a 2D Matrix II",
+  "pattern": "binary-search",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Meta",
+    "Google",
+    "Apple"
+  ],
+  "prompt": "Write an efficient algorithm that searches for a value `target` in an `m x n` integer matrix `matrix`. Each row is sorted in ascending order from left to right, and each column is sorted in ascending order from top to bottom (unlike Search a 2D Matrix, rows do not necessarily connect end to end).",
+  "examples": [
+    {
+      "input": "matrix = [[1,4,7,11,15],[2,5,8,12,19],[3,6,9,16,22],[10,13,14,17,24],[18,21,23,26,30]], target = 5",
+      "output": "true"
+    },
+    {
+      "input": "matrix = [[1,4,7,11,15],[2,5,8,12,19],[3,6,9,16,22],[10,13,14,17,24],[18,21,23,26,30]], target = 20",
+      "output": "false"
+    }
+  ],
+  "constraints": [
+    "m == matrix.length",
+    "n == matrix[i].length",
+    "1 <= n, m <= 300",
+    "-10^9 <= matrix[i][j] <= 10^9",
+    "each row is sorted in ascending order",
+    "each column is sorted in ascending order"
+  ],
+  "hints": [
+    "Since rows don't connect end to end, you can't treat the whole matrix as one flat sorted array the way you could in the simpler 'Search a 2D Matrix' problem.",
+    "Instead of binary searching the whole matrix, start from a corner where moving in one direction increases values and moving in the other decreases them, like the top-right corner.",
+    "From the top-right cell, if the current value is bigger than target move left (eliminating a column), and if it's smaller move down (eliminating a row); repeat until found or you run off the matrix."
+  ],
+  "solution": {
+    "approach": "Start at the top-right corner, where moving left strictly decreases the value and moving down strictly increases it. At each step compare the current cell to target: if equal, found it; if the cell is larger than target, the entire column below (which is even larger) can't contain target, so move left; if it's smaller, the entire row to the left (which is even smaller) can't contain target, so move down. Each step eliminates a full row or column, so termination happens within O(m + n) steps.",
+    "code": "def search_matrix(matrix, target):\n    if not matrix or not matrix[0]:\n        return False\n\n    row, col = 0, len(matrix[0]) - 1\n\n    while row < len(matrix) and col >= 0:\n        val = matrix[row][col]\n        if val == target:\n            return True\n        if val > target:\n            col -= 1\n        else:\n            row += 1\n\n    return False\n",
+    "timeComplexity": "O(m + n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def search_matrix(matrix, target):\n    # your code here\n    pass\n",
+  "functionName": "search_matrix",
+  "paramNames": ["matrix", "target"],
+  "testCases": [
+    {
+      "input": [
+        [[1, 4, 7, 11, 15], [2, 5, 8, 12, 19], [3, 6, 9, 16, 22], [10, 13, 14, 17, 24], [18, 21, 23, 26, 30]],
+        5
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1, 4, 7, 11, 15], [2, 5, 8, 12, 19], [3, 6, 9, 16, 22], [10, 13, 14, 17, 24], [18, 21, 23, 26, 30]],
+        20
+      ],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[-5]],
+        -5
+      ],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[1, 1]],
+        0
+      ],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[1, 3], [2, 4]],
+        4
+      ],
+      "expected": true,
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "id": "interval-list-intersections",
+  "title": "Interval List Intersections",
+  "pattern": "intervals",
+  "difficulty": "medium",
+  "companies": [
+    "Meta",
+    "Google",
+    "Amazon",
+    "Bloomberg"
+  ],
+  "prompt": "You are given two lists of closed intervals, `first_list` and `second_list`, where each list is sorted by start value and each list's own intervals are pairwise disjoint (non-overlapping within the same list). Return the intersection of the two interval lists as a sorted list of intervals. The intersection of two closed intervals is empty if they don't overlap, or a closed interval covering the overlapping range if they do.",
+  "examples": [
+    {
+      "input": "first_list = [[0,2],[5,10],[13,23],[24,25]], second_list = [[1,5],[8,12],[15,24],[25,26]]",
+      "output": "[[1,2],[5,5],[8,10],[15,23],[24,24],[25,25]]",
+      "explanation": "Each overlapping region between an interval from the first list and one from the second is reported."
+    },
+    {
+      "input": "first_list = [[1,3],[5,9]], second_list = []",
+      "output": "[]",
+      "explanation": "An empty second list has no intersections with anything."
+    }
+  ],
+  "constraints": [
+    "0 <= first_list.length, second_list.length <= 1000",
+    "first_list.length + second_list.length >= 1",
+    "0 <= start < end <= 10^9",
+    "end of one interval < start of the next in each list"
+  ],
+  "hints": [
+    "Since both lists are already individually sorted and disjoint, you can merge-walk them with two pointers instead of sorting everything together.",
+    "For the current pair of intervals (one from each list), the overlap (if any) is [max(start1, start2), min(end1, end2)] — only add it to the result if that range is valid (start <= end).",
+    "After checking a pair, advance the pointer of whichever interval ends first — that interval can no longer overlap with anything upcoming from the other list."
+  ],
+  "solution": {
+    "approach": "Use two pointers, one into each list. At each step, compute the potential intersection of the current interval from each list as [max(start1, start2), min(end1, end2)]; if the resulting start is <= end, it's a valid intersection and gets appended to the result. Then advance the pointer belonging to whichever interval has the smaller end, since that interval is now fully consumed and cannot intersect with any future interval from the other list. Repeat until either pointer runs out.",
+    "code": "def interval_intersection(first_list, second_list):\n    result = []\n    i, j = 0, 0\n\n    while i < len(first_list) and j < len(second_list):\n        start1, end1 = first_list[i]\n        start2, end2 = second_list[j]\n\n        lo = max(start1, start2)\n        hi = min(end1, end2)\n        if lo <= hi:\n            result.append([lo, hi])\n\n        if end1 < end2:\n            i += 1\n        else:\n            j += 1\n\n    return result\n",
+    "timeComplexity": "O(m + n)",
+    "spaceComplexity": "O(m + n) for the output"
+  },
+  "starterCode": "def interval_intersection(first_list, second_list):\n    # your code here\n    pass\n",
+  "functionName": "interval_intersection",
+  "paramNames": ["first_list", "second_list"],
+  "testCases": [
+    {
+      "input": [[[0, 2], [5, 10], [13, 23], [24, 25]], [[1, 5], [8, 12], [15, 24], [25, 26]]],
+      "expected": [[1, 2], [5, 5], [8, 10], [15, 23], [24, 24], [25, 25]],
+      "isHidden": false
+    },
+    {
+      "input": [[[1, 3], [5, 9]], []],
+      "expected": [],
+      "isHidden": false
+    },
+    {
+      "input": [[], []],
+      "expected": [],
+      "isHidden": true
+    },
+    {
+      "input": [[[1, 7]], [[3, 10]]],
+      "expected": [[3, 7]],
+      "isHidden": true
+    },
+    {
+      "input": [[[3, 5], [9, 20]], [[4, 5], [7, 10], [11, 12], [14, 15], [16, 20]]],
+      "expected": [[4, 5], [9, 10], [11, 12], [14, 15], [16, 20]],
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "id": "diameter-of-binary-tree",
+  "title": "Diameter of Binary Tree",
+  "pattern": "trees",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Facebook",
+    "Microsoft",
+    "LinkedIn"
+  ],
+  "prompt": "Given the `root` of a binary tree, return the length of its diameter — the length (measured in number of edges) of the longest path between any two nodes in the tree. This path may or may not pass through the root.\n\nThe tree is given as a level-order array where `null` marks a missing child (the standard LeetCode serialization). Your function receives this array directly; the starter code includes a helper that builds the tree from it, so you only need to compute the diameter.",
+  "examples": [
+    {
+      "input": "root = [1,2,3,4,5]",
+      "output": "3",
+      "explanation": "The longest path is 4 -> 2 -> 1 -> 3 (or 5 -> 2 -> 1 -> 3), with 3 edges."
+    },
+    {
+      "input": "root = [1,2]",
+      "output": "1"
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [1, 10^4]",
+    "-100 <= Node.val <= 100"
+  ],
+  "hints": [
+    "The longest path through any given node equals the sum of the heights of its left and right subtrees — you don't need to enumerate all pairs of nodes.",
+    "Compute subtree heights bottom-up (post-order), and while doing so, track a running best for left_height + right_height at every node.",
+    "The final answer is the maximum of that node value over all nodes, not necessarily the one computed at the root."
+  ],
+  "solution": {
+    "approach": "Do a post-order DFS that computes the height of each subtree. While computing heights bottom-up, update a global best with left_height + right_height at every node — this represents the longest path passing through that node as its peak. Since heights are computed once per node in a single traversal, this is O(n), and taking the max over every node correctly handles paths that don't pass through the root.",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef diameter_of_binary_tree(root_arr):\n    root = build_tree(root_arr)\n    best = [0]\n\n    def height(node):\n        if node is None:\n            return 0\n        left_h = height(node.left)\n        right_h = height(node.right)\n        best[0] = max(best[0], left_h + right_h)\n        return 1 + max(left_h, right_h)\n\n    height(root)\n    return best[0]\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(h), h = tree height"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef diameter_of_binary_tree(root_arr):\n    root = build_tree(root_arr)\n    # your code here\n    pass\n",
+  "functionName": "diameter_of_binary_tree",
+  "paramNames": ["root_arr"],
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 3, 4, 5]
+      ],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2]
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3, 4, 5, null, null, 6]
+      ],
+      "expected": 4,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, null, 2, null, 3, null, 4]
+      ],
+      "expected": 3,
+      "isHidden": true
+    }
+  ]
+}

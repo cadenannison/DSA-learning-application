@@ -1,0 +1,63 @@
+{
+  "id": "employee-free-time",
+  "title": "Employee Free Time",
+  "pattern": "heaps",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Amazon",
+    "Facebook"
+  ],
+  "prompt": "We are given a list of `schedules`, one list of non-overlapping, sorted intervals per employee, where each interval `[start, end]` represents that employee's busy time. Return a list of finite intervals representing the common free time for all employees, also sorted, that is, time slots where every employee is free.\n\nWe don't need to output any free periods that extend to infinity at either end; only the bounded gaps between busy periods across the whole company count.",
+  "examples": [
+    {
+      "input": "schedules = [[[1,2],[5,6]],[[1,3]],[[4,10]]]",
+      "output": "[[3,4]]",
+      "explanation": "Merging all busy intervals across employees: [1,3] (from employee 1 and 2 combined), [4,10], [5,6] is inside [4,10]. The only gap between merged busy blocks is [3,4]."
+    },
+    {
+      "input": "schedules = [[[1,3],[6,7]],[[2,4]],[[2,5],[9,12]]]",
+      "output": "[[5,6],[7,9]]"
+    }
+  ],
+  "constraints": [
+    "1 <= schedules.length, schedules[i].length <= 50",
+    "0 <= schedules[i][j][0] < schedules[i][j][1] <= 10^8"
+  ],
+  "hints": [
+    "The company-wide free time is exactly the gaps between merged busy intervals once ALL employees' intervals are combined together — individual employee boundaries don't matter once merged.",
+    "Since each employee's own list is already sorted, this resembles the merge-k-sorted-lists problem: use a min-heap to merge all employees' interval lists into one globally sorted stream of intervals.",
+    "Pull intervals out of the heap in sorted order (by start time) and merge overlapping ones as you go, exactly like the merge-intervals problem; whenever there's a gap between the current merged interval's end and the next interval's start, that gap is a free-time slot."
+  ],
+  "solution": {
+    "approach": "Push every employee's first interval onto a min-heap keyed by (start, employee_index, interval_index), then repeatedly pop the smallest-start interval and push that employee's next interval (if any) — this merges all employees' sorted interval lists into one globally sorted stream, the same technique as merging k sorted lists. Track a running merged interval; each time the popped interval's start exceeds the running merged interval's end, that gap is company-wide free time, so record it, then start a new running merged interval; otherwise extend the running interval's end if the popped interval reaches further.",
+    "code": "import heapq\n\ndef employee_free_time(schedules):\n    heap = []\n    for i, employee in enumerate(schedules):\n        if employee:\n            heapq.heappush(heap, (employee[0][0], employee[0][1], i, 0))\n\n    result = []\n    prev_end = None\n\n    while heap:\n        start, end, emp_idx, interval_idx = heapq.heappop(heap)\n\n        if prev_end is not None and start > prev_end:\n            result.append([prev_end, start])\n\n        prev_end = max(prev_end, end) if prev_end is not None else end\n\n        if interval_idx + 1 < len(schedules[emp_idx]):\n            nxt = schedules[emp_idx][interval_idx + 1]\n            heapq.heappush(heap, (nxt[0], nxt[1], emp_idx, interval_idx + 1))\n\n    return result\n",
+    "timeComplexity": "O(N log k) where N is the total number of intervals and k is the number of employees",
+    "spaceComplexity": "O(k)"
+  },
+  "starterCode": "def employee_free_time(schedules):\n    # your code here\n    pass\n",
+  "functionName": "employee_free_time",
+  "paramNames": ["schedules"],
+  "testCases": [
+    {
+      "input": [[[[1, 2], [5, 6]], [[1, 3]], [[4, 10]]]],
+      "expected": [[3, 4]],
+      "isHidden": false
+    },
+    {
+      "input": [[[[1, 3], [6, 7]], [[2, 4]], [[2, 5], [9, 12]]]],
+      "expected": [[5, 6], [7, 9]],
+      "isHidden": false
+    },
+    {
+      "input": [[[[1, 5]], [[1, 5]]]],
+      "expected": [],
+      "isHidden": true
+    },
+    {
+      "input": [[[[1, 2]], [[3, 4]], [[5, 6]]]],
+      "expected": [[2, 3], [4, 5]],
+      "isHidden": true
+    }
+  ]
+}

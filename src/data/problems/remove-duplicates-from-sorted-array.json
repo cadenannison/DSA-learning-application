@@ -1,0 +1,81 @@
+{
+  "id": "remove-duplicates-from-sorted-array",
+  "title": "Remove Duplicates from Sorted Array",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Meta",
+    "Google"
+  ],
+  "prompt": "Given an integer array `nums` sorted in non-decreasing order, remove the duplicates in place so that each unique element appears only once. The relative order of elements should be kept. Return `k`, the number of unique elements, after placing the first `k` elements of `nums` in sorted, deduplicated order (the rest of the array beyond `k` does not matter). You must do this in place using `O(1)` extra memory.",
+  "examples": [
+    {
+      "input": "nums = [1,1,2]",
+      "output": "2",
+      "explanation": "The first two elements become [1,2]; k = 2."
+    },
+    {
+      "input": "nums = [0,0,1,1,1,2,2,3,3,4]",
+      "output": "5",
+      "explanation": "The first five elements become [0,1,2,3,4]; k = 5."
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 3 * 10^4",
+    "-100 <= nums[i] <= 100",
+    "nums is sorted in non-decreasing order"
+  ],
+  "hints": [
+    "Because it's sorted, every duplicate of a value sits directly next to it — you never need to search far to detect a repeat.",
+    "Use two pointers: one scanning the whole array, one marking the end of the deduplicated prefix built so far.",
+    "Only advance the write pointer and copy a value over when it differs from the last value kept, so duplicates get silently skipped."
+  ],
+  "solution": {
+    "approach": "Keep a slow pointer marking the boundary of the unique prefix built so far. Walk the array with a fast pointer; whenever nums[fast] differs from the last kept value (nums[slow - 1]), copy it into nums[slow] and advance slow. Sortedness guarantees all duplicates of a value are adjacent, so a single linear comparison against the last kept element is enough to detect and skip every repeat.",
+    "code": "def remove_duplicates(nums):\n    if not nums:\n        return 0\n\n    slow = 1\n    for fast in range(1, len(nums)):\n        if nums[fast] != nums[slow - 1]:\n            nums[slow] = nums[fast]\n            slow += 1\n\n    return slow\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def remove_duplicates(nums):\n    # your code here\n    pass\n",
+  "functionName": "remove_duplicates",
+  "paramNames": ["nums"],
+  "testCases": [
+    {
+      "input": [
+        [1, 1, 2]
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0, 0, 1, 1, 1, 2, 2, 3, 3, 4]
+      ],
+      "expected": 5,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 1, 1, 1]
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3, 4, 5]
+      ],
+      "expected": 5,
+      "isHidden": true
+    }
+  ]
+}

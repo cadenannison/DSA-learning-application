@@ -1,0 +1,79 @@
+{
+  "id": "sum-of-left-leaves",
+  "title": "Sum of Left Leaves",
+  "pattern": "trees",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Facebook",
+    "Bloomberg"
+  ],
+  "prompt": "Given the `root` of a binary tree, return the sum of all values of nodes that are left leaves. A left leaf is a node with no children that is the left child of its parent.\n\nThe tree is given as a level-order array where `null` marks a missing child (the standard LeetCode serialization). Your function receives this array directly; the starter code includes a helper that builds the tree from it, so you only need to compute the sum.",
+  "examples": [
+    {
+      "input": "root = [3,9,20,null,null,15,7]",
+      "output": "24",
+      "explanation": "The only left leaf is 9 (child of 3) ... wait, 15 is a left leaf too: 9 + 15 = 24."
+    },
+    {
+      "input": "root = [1]",
+      "output": "0",
+      "explanation": "The root has no parent, so even though it's a leaf, it can't be a left leaf."
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [1, 1000]",
+    "-1000 <= Node.val <= 1000"
+  ],
+  "hints": [
+    "You can't tell if a node is a leaf just by looking at it in isolation — you need to check from the parent whether the left child has no children of its own.",
+    "While traversing, whenever you visit a node and look at its left child, check whether that left child is itself a leaf (no left and no right child); if so, add its value directly instead of recursing further.",
+    "For every other case (a left child that isn't a leaf, or the right child in general), just recurse normally and sum the results from both subtrees."
+  ],
+  "solution": {
+    "approach": "Recurse through the tree; at each node, inspect its left child. If the left child exists and is itself a leaf (no children), add its value directly to the running sum. Otherwise, recurse into the left child normally to keep searching deeper. Always recurse into the right child normally, since a right child can never itself be a left leaf, but its subtree might contain some.",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef sum_of_left_leaves(root_arr):\n    root = build_tree(root_arr)\n\n    def dfs(node):\n        if node is None:\n            return 0\n        total = 0\n        if node.left:\n            if node.left.left is None and node.left.right is None:\n                total += node.left.val\n            else:\n                total += dfs(node.left)\n        total += dfs(node.right)\n        return total\n\n    return dfs(root)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(h), h = tree height"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef sum_of_left_leaves(root_arr):\n    root = build_tree(root_arr)\n    # your code here\n    pass\n",
+  "functionName": "sum_of_left_leaves",
+  "paramNames": ["root_arr"],
+  "testCases": [
+    {
+      "input": [
+        [3, 9, 20, null, null, 15, 7]
+      ],
+      "expected": 24,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3, 4, 5]
+      ],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2]
+      ],
+      "expected": 2,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, null, 2]
+      ],
+      "expected": 0,
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "id": "populating-next-right-pointers-in-each-node",
+  "title": "Populating Next Right Pointers in Each Node",
+  "pattern": "trees",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Facebook",
+    "Bloomberg"
+  ],
+  "prompt": "You are given a perfect binary tree (every level is completely filled, and every parent has exactly two children) where each `TreeNode` also has a `next` pointer, initially set to `None`. Populate each node's `next` pointer to point to its next right node on the same level. If there is no next right node, `next` should remain `None`.\n\nThe tree is given as a level-order array where `null` marks a missing child (the standard LeetCode serialization, though since this tree is perfect there won't be internal nulls except possibly for an empty tree). Your function receives this array directly and should return, for each node in level order, the value of the node it points to via `next` (or `null` if none), as a flat array (this captures the same information the `next` pointers would encode, in a form that's easy to check).",
+  "examples": [
+    {
+      "input": "root = [1,2,3,4,5,6,7]",
+      "output": "[null,3,null,5,6,7,null]",
+      "explanation": "In level order (1,2,3,4,5,6,7), node 1's next is null (last in its level), node 2's next is 3, node 3's next is null, node 4's next is 5, node 5's next is 6, node 6's next is 7, node 7's next is null."
+    },
+    {
+      "input": "root = []",
+      "output": "[]"
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [0, 2^12 - 1]",
+    "-1000 <= Node.val <= 1000",
+    "The tree is a perfect binary tree"
+  ],
+  "hints": [
+    "Because the tree is perfect, you can connect nodes level by level using the already-established next pointers from the previous level, without needing an extra queue.",
+    "For any node, its left child's next should point to its right child; its right child's next should point to its next node's left child (using the current node's own next pointer, which was set on the previous level).",
+    "Use two pointers: one ('leader') walks along the current level via next pointers, and for each leader, wire up its two children's next pointers, then move down a level once the current level is exhausted."
+  ],
+  "solution": {
+    "approach": "Exploit the tree being perfect: process level by level using O(1) extra space (beyond the traversal pointers) instead of a BFS queue. Keep a pointer to the leftmost node of the current level. For each node in that level (walked via its already-set next pointers), connect its left child's next to its right child, and its right child's next to the next node's left child (or None if there is no next node). Move to the next level by descending to the leftmost node's left child, repeating until a level has no children.",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None, next=None):\n        self.val = val\n        self.left = left\n        self.right = right\n        self.next = next\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef connect(root_arr):\n    root = build_tree(root_arr)\n    leftmost = root\n    while leftmost and leftmost.left:\n        node = leftmost\n        while node:\n            node.left.next = node.right\n            if node.next:\n                node.right.next = node.next.left\n            node = node.next\n        leftmost = leftmost.left\n\n    if root is None:\n        return []\n    result = []\n    queue = [root]\n    while queue:\n        node = queue.pop(0)\n        result.append(node.next.val if node.next else None)\n        if node.left:\n            queue.append(node.left)\n        if node.right:\n            queue.append(node.right)\n    return result\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1) extra space (excluding output)"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None, next=None):\n        self.val = val\n        self.left = left\n        self.right = right\n        self.next = next\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef connect(root_arr):\n    root = build_tree(root_arr)\n    # your code here: populate each node's `next` pointer in place\n    # then return, for each node in level order, node.next.val if node.next else None\n    pass\n",
+  "functionName": "connect",
+  "paramNames": ["root_arr"],
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 3, 4, 5, 6, 7]
+      ],
+      "expected": [null, 3, null, 5, 6, 7, null],
+      "isHidden": false
+    },
+    {
+      "input": [
+        []
+      ],
+      "expected": [],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": [null],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3]
+      ],
+      "expected": [null, 3, null],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+      ],
+      "expected": [null, 3, null, 5, 6, 7, null, 9, 10, 11, 12, 13, 14, 15, null],
+      "isHidden": true
+    }
+  ]
+}

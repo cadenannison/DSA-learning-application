@@ -1,0 +1,68 @@
+{
+  "id": "combinations",
+  "title": "Combinations",
+  "pattern": "backtracking",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Facebook"
+  ],
+  "prompt": "Given two integers `n` and `k`, return all possible combinations of `k` numbers chosen from the range `[1, n]`.\n\nFor deterministic comparison, sort each inner combination in ascending order, and sort the outer list of combinations lexicographically.",
+  "examples": [
+    {
+      "input": "n = 4, k = 2",
+      "output": "[[1,2],[1,3],[1,4],[2,3],[2,4],[3,4]]",
+      "explanation": "All 2-element subsets of {1,2,3,4}, sorted lexicographically."
+    },
+    {
+      "input": "n = 1, k = 1",
+      "output": "[[1]]"
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 20",
+    "1 <= k <= n"
+  ],
+  "hints": [
+    "This is just 'choose k of n', so the brute-force is checking all 2^n subsets and filtering by size \u2014 you can do much better by only ever building paths of length up to k.",
+    "Backtrack with a 'start' index that only moves forward, so you never generate the same combination twice in a different order.",
+    "Prune early: if the numbers remaining from 'start' to n aren't enough to fill out the rest of the combination to length k, stop exploring that branch."
+  ],
+  "solution": {
+    "approach": "Backtrack over a forward-only start index, building a path of chosen numbers. At each call, if the path already has k numbers, record a copy. Otherwise, try every number from 'start' to n: add it, recurse with start+1, then remove it (backtrack). To prune, skip numbers where there aren't enough remaining values left to reach length k \u2014 if (n - candidate + 1) < (k - len(path)), no valid completion exists starting there. Using a strictly increasing start index guarantees each k-combination is produced exactly once.",
+    "code": "def combine(n, k):\n    result = []\n    path = []\n\n    def backtrack(start):\n        if len(path) == k:\n            result.append(path[:])\n            return\n        needed = k - len(path)\n        for num in range(start, n - needed + 2):\n            path.append(num)\n            backtrack(num + 1)\n            path.pop()\n\n    backtrack(1)\n    result.sort()\n    return result\n",
+    "timeComplexity": "O(k * C(n, k))",
+    "spaceComplexity": "O(k) recursion depth, plus output size"
+  },
+  "starterCode": "def combine(n, k):\n    # your code here\n    pass\n",
+  "functionName": "combine",
+  "paramNames": ["n", "k"],
+  "testCases": [
+    {
+      "input": [4, 2],
+      "expected": [[1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]],
+      "isHidden": false
+    },
+    {
+      "input": [1, 1],
+      "expected": [[1]],
+      "isHidden": false
+    },
+    {
+      "input": [3, 3],
+      "expected": [[1, 2, 3]],
+      "isHidden": false
+    },
+    {
+      "input": [5, 1],
+      "expected": [[1], [2], [3], [4], [5]],
+      "isHidden": true
+    },
+    {
+      "input": [4, 4],
+      "expected": [[1, 2, 3, 4]],
+      "isHidden": true
+    }
+  ]
+}

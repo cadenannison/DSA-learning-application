@@ -1,0 +1,79 @@
+{
+  "id": "decode-string",
+  "title": "Decode String",
+  "pattern": "stacks-queues",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Facebook",
+    "Microsoft"
+  ],
+  "prompt": "Given an encoded string `s`, return its decoded string. The encoding rule is `k[encoded_string]`, where `encoded_string` inside the square brackets is repeated exactly `k` times. `k` is guaranteed to be a positive integer.\n\nEncodings can be nested, e.g. `3[a2[c]]` decodes to `accaccacc`. You may assume the input string is always valid, contains no extra whitespace, and square brackets are well-formed. Digits are only used for repeat counts `k`, never as part of the string to output.",
+  "examples": [
+    {
+      "input": "s = \"3[a]2[bc]\"",
+      "output": "aaabcbc"
+    },
+    {
+      "input": "s = \"3[a2[c]]\"",
+      "output": "accaccacc"
+    },
+    {
+      "input": "s = \"2[abc]3[cd]ef\"",
+      "output": "abcabccdcdcdef"
+    }
+  ],
+  "constraints": [
+    "1 <= s.length <= 30",
+    "s consists of lowercase English letters, digits, and square brackets '[]'",
+    "s is guaranteed to be a valid encoding",
+    "All integers in s are between 1 and 300"
+  ],
+  "hints": [
+    "Nested brackets mean you need to fully resolve an inner encoding before you know what to repeat for an outer one \u2014 that's a last-in-first-out dependency.",
+    "Use a stack that holds (previous_string_so_far, repeat_count) pairs, pushing a new frame whenever you see '[' and popping when you see ']'.",
+    "On ']', pop the count and previous string, then set current = previous + current * count \u2014 this correctly rebuilds the outer context after the inner bracket is fully decoded."
+  ],
+  "solution": {
+    "approach": "Walk the string maintaining a stack of (previous_string, repeat_count) frames plus a running current_string and current_number. Digits accumulate current_number. On '[', push (current_string, current_number) and reset both to build the bracketed segment fresh. On ']', pop the saved previous string and count, and set current_string = previous_string + current_string * count, splicing the fully-decoded inner segment back into its outer context. Regular letters just append to current_string. This correctly handles arbitrary nesting because each bracket level's context is preserved on the stack until its closing bracket.",
+    "code": "def decode_string(s):\n    stack = []\n    current_string = ''\n    current_num = 0\n\n    for ch in s:\n        if ch.isdigit():\n            current_num = current_num * 10 + int(ch)\n        elif ch == '[':\n            stack.append((current_string, current_num))\n            current_string = ''\n            current_num = 0\n        elif ch == ']':\n            prev_string, count = stack.pop()\n            current_string = prev_string + current_string * count\n        else:\n            current_string += ch\n\n    return current_string\n",
+    "timeComplexity": "O(n) where n is the length of the fully decoded output",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def decode_string(s):\n    # your code here\n    pass\n",
+  "functionName": "decode_string",
+  "paramNames": ["s"],
+  "testCases": [
+    {
+      "input": ["3[a]2[bc]"],
+      "expected": "aaabcbc",
+      "isHidden": false
+    },
+    {
+      "input": ["3[a2[c]]"],
+      "expected": "accaccacc",
+      "isHidden": false
+    },
+    {
+      "input": ["2[abc]3[cd]ef"],
+      "expected": "abcabccdcdcdef",
+      "isHidden": false
+    },
+    {
+      "input": ["abc"],
+      "expected": "abc",
+      "isHidden": true
+    },
+    {
+      "input": ["10[a]"],
+      "expected": "aaaaaaaaaa",
+      "isHidden": true
+    },
+    {
+      "input": ["2[2[a]b]"],
+      "expected": "aabaab",
+      "isHidden": true
+    }
+  ]
+}

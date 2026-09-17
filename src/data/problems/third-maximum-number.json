@@ -1,0 +1,90 @@
+{
+  "id": "third-maximum-number",
+  "title": "Third Maximum Number",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Microsoft"
+  ],
+  "prompt": "Given an integer array `nums`, return the third distinct maximum number in this array. If the third distinct maximum does not exist, return the maximum number instead. Solve it in `O(n)` time using `O(1)` extra space.",
+  "examples": [
+    {
+      "input": "nums = [3,2,1]",
+      "output": "1",
+      "explanation": "The distinct maximums are 3, 2, 1. The third maximum is 1."
+    },
+    {
+      "input": "nums = [1,2]",
+      "output": "2",
+      "explanation": "There is no third distinct maximum, so the maximum (2) is returned."
+    },
+    {
+      "input": "nums = [2,2,3,1]",
+      "output": "1",
+      "explanation": "Distinct values are 3, 2, 1. The third maximum is 1."
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 10^4",
+    "-2^31 <= nums[i] <= 2^31 - 1"
+  ],
+  "hints": [
+    "Sorting and deduplicating works but costs O(n log n) — can you track the answer in one linear pass instead?",
+    "You only ever need to remember the largest THREE distinct values seen so far, nothing more.",
+    "Maintain first, second, and third max as you scan; when a new number is larger than one of them (and distinct from it and any tracked value above it), shift the smaller ones down like an insertion step of size 3."
+  ],
+  "solution": {
+    "approach": "Track the top three distinct values seen so far (first, second, third), initialized to negative infinity. For each number, skip it if it equals one already tracked (to preserve distinctness), otherwise insert it into the correct slot and cascade the smaller tracked values down, discarding whatever falls off the bottom. After one pass, if third max was never filled (still negative infinity, or fewer than 3 distinct values existed), fall back to returning first max instead.",
+    "code": "def third_max(nums):\n    first = second = third = None\n\n    for num in nums:\n        if num in (first, second, third):\n            continue\n        if first is None or num > first:\n            first, second, third = num, first, second\n        elif second is None or num > second:\n            second, third = num, second\n        elif third is None or num > third:\n            third = num\n\n    return third if third is not None else first\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def third_max(nums):\n    # your code here\n    pass\n",
+  "functionName": "third_max",
+  "paramNames": ["nums"],
+  "testCases": [
+    {
+      "input": [
+        [3, 2, 1]
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2]
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [2, 2, 3, 1]
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [5]
+      ],
+      "expected": 5,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 1, 1, 1]
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [-2, -1, 0]
+      ],
+      "expected": -2,
+      "isHidden": true
+    }
+  ]
+}

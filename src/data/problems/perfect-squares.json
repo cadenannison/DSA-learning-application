@@ -1,0 +1,73 @@
+{
+  "id": "perfect-squares",
+  "title": "Perfect Squares",
+  "pattern": "dynamic-programming",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Bloomberg"
+  ],
+  "prompt": "Given an integer `n`, return the least number of perfect square numbers (like `1, 4, 9, 16, ...`) that sum to exactly `n`.",
+  "examples": [
+    {
+      "input": "n = 12",
+      "output": "3",
+      "explanation": "12 = 4 + 4 + 4."
+    },
+    {
+      "input": "n = 13",
+      "output": "2",
+      "explanation": "13 = 4 + 9."
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 10^4"
+  ],
+  "hints": [
+    "This is structurally identical to the coin change problem, where the 'coins' available are all perfect squares up to n.",
+    "Define dp[i] as the fewest perfect squares summing to i. dp[0] = 0, and for every i, try subtracting every perfect square <= i.",
+    "dp[i] = 1 + min(dp[i - j*j]) over all j where j*j <= i. Precompute the list of usable perfect squares once before filling the table."
+  ],
+  "solution": {
+    "approach": "This is coin change in disguise, where the available 'coin' denominations are every perfect square up to n. Build dp[i] = the minimum count of perfect squares summing to i, with dp[0] = 0. For every i from 1 to n, try every square j*j <= i and take dp[i] = min(dp[i], dp[i - j*j] + 1) \u2014 using that square once and falling back on the best solution for the remainder. The answer is dp[n]. Since every dp[i] is reachable (1 alone is a perfect square, so worst case i uses i ones), there's no unreachable/-1 case to handle here unlike general coin change.",
+    "code": "def num_squares(n):\n    dp = [0] + [float('inf')] * n\n\n    for i in range(1, n + 1):\n        j = 1\n        while j * j <= i:\n            dp[i] = min(dp[i], dp[i - j * j] + 1)\n            j += 1\n\n    return dp[n]\n",
+    "timeComplexity": "O(n * sqrt(n))",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def num_squares(n):\n    # your code here\n    pass\n",
+  "functionName": "num_squares",
+  "paramNames": ["n"],
+  "testCases": [
+    {
+      "input": [12],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [13],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [1],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [4],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [7],
+      "expected": 4,
+      "isHidden": true
+    },
+    {
+      "input": [9999],
+      "expected": 4,
+      "isHidden": true
+    }
+  ]
+}

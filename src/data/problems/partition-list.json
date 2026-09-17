@@ -1,0 +1,83 @@
+{
+  "id": "partition-list",
+  "title": "Partition List",
+  "pattern": "linked-list",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Bloomberg"
+  ],
+  "prompt": "Given the `head` of a singly linked list and an integer `x`, partition the list so that all nodes with values less than `x` come before all nodes with values greater than or equal to `x`. You must preserve the original relative order of the nodes within each of the two partitions.\n\nThe list is given as an array (e.g. `[1,4,3,2,5,2]` represents `1 -> 4 -> 3 -> 2 -> 5 -> 2 -> null`). The starter code includes helpers to convert between the array and a linked-list node — build the actual list, partition it by manipulating `next` pointers, then convert back to an array to return.",
+  "examples": [
+    {
+      "input": "head = [1,4,3,2,5,2], x = 3",
+      "output": "[1,2,2,4,3,5]"
+    },
+    {
+      "input": "head = [2,1], x = 2",
+      "output": "[1,2]"
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [0, 200]",
+    "-100 <= Node.val <= 100",
+    "-200 <= x <= 200"
+  ],
+  "hints": [
+    "Sorting or otherwise reordering the whole list would break the requirement to preserve each partition's relative order — think about building two separate chains instead.",
+    "Walk the list once, appending each node to one of two separate chains depending on whether its value is less than x or not.",
+    "After the single pass, splice the two chains together: the 'less than x' chain's tail connects to the head of the 'greater or equal' chain, and don't forget to null-terminate the final tail."
+  ],
+  "solution": {
+    "approach": "Build two separate chains while making a single pass through the list: a 'before' chain collecting nodes with value < x, and an 'after' chain collecting the rest, each using a dummy head so appending is uniform. Because nodes are appended to whichever chain matches in the order they're encountered, each chain preserves the original relative order internally. Finally, connect the before-chain's tail to the after-chain's head, and terminate the after-chain's tail with null to avoid an accidental cycle from a leftover pointer.",
+    "code": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for v in arr:\n        node = ListNode(v)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef partition(head_arr, x):\n    head = arr_to_list(head_arr)\n    before_dummy = ListNode(0)\n    after_dummy = ListNode(0)\n    before, after = before_dummy, after_dummy\n\n    node = head\n    while node:\n        if node.val < x:\n            before.next = node\n            before = before.next\n        else:\n            after.next = node\n            after = after.next\n        node = node.next\n\n    after.next = None\n    before.next = after_dummy.next\n\n    return list_to_arr(before_dummy.next)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1) auxiliary (excluding the returned list)"
+  },
+  "starterCode": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for v in arr:\n        node = ListNode(v)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef partition(head_arr, x):\n    head = arr_to_list(head_arr)\n    # your code here\n    pass\n",
+  "functionName": "partition",
+  "paramNames": ["head_arr", "x"],
+  "testCases": [
+    {
+      "input": [
+        [1, 4, 3, 2, 5, 2],
+        3
+      ],
+      "expected": [1, 2, 2, 4, 3, 5],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [2, 1],
+        2
+      ],
+      "expected": [1, 2],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [],
+        0
+      ],
+      "expected": [],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3],
+        10
+      ],
+      "expected": [1, 2, 3],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [5, 4, 3, 2, 1],
+        0
+      ],
+      "expected": [5, 4, 3, 2, 1],
+      "isHidden": true
+    }
+  ]
+}

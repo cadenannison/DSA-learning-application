@@ -1,0 +1,72 @@
+{
+  "id": "car-pooling",
+  "title": "Car Pooling",
+  "pattern": "intervals",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Uber",
+    "Google"
+  ],
+  "prompt": "There is a car with `capacity` empty seats traveling in one direction only (it cannot turn around). You are given an array `trips` where `trips[i] = [num_passengers, from, to]` indicates that the `i`-th trip has `num_passengers` passengers who get picked up at road position `from` and dropped off at road position `to`. Return `True` if it is possible to pick up and drop off all passengers for all the given trips without the car's total passenger count ever exceeding `capacity` at any point, or `False` otherwise.",
+  "examples": [
+    {
+      "input": "trips = [[2,1,5],[3,3,7]], capacity = 4",
+      "output": "false",
+      "explanation": "Between positions 3 and 5, both trips are active: 2 + 3 = 5 passengers, exceeding capacity 4."
+    },
+    {
+      "input": "trips = [[2,1,5],[3,3,7]], capacity = 5",
+      "output": "true",
+      "explanation": "The peak overlap is 5 passengers, which exactly fits the capacity."
+    }
+  ],
+  "constraints": [
+    "1 <= trips.length <= 1000",
+    "trips[i].length == 3",
+    "1 <= num_passengers <= 100",
+    "0 <= from < to <= 1000",
+    "1 <= capacity <= 10^5"
+  ],
+  "hints": [
+    "This is really asking for the maximum number of passengers in the car at any single point along the road — like counting maximum overlapping intervals, but weighted by passenger count instead of counting 1 per interval.",
+    "Instead of a heap, use a difference array (or a sorted list of position deltas): add `num_passengers` at `from` and subtract it at `to`, since a passenger leaves at their drop-off position.",
+    "Sweep through positions in increasing order, accumulating the running passenger delta. If at any point the running total exceeds capacity, return False immediately."
+  ],
+  "solution": {
+    "approach": "Model each trip as a +num_passengers event at position `from` and a -num_passengers event at position `to` (the passenger has left by the drop-off point, so it should not count as overlapping with a pickup at that same position). Sort all events by position, sweep through them accumulating a running passenger count, and if it ever exceeds capacity, return False. This works because the running sum at any position exactly equals the number of passengers physically in the car passing that point on the road.",
+    "code": "def car_pooling(trips, capacity):\n    events = []\n    for passengers, start, end in trips:\n        events.append((start, passengers))\n        events.append((end, -passengers))\n\n    events.sort()\n\n    current = 0\n    for _, delta in events:\n        current += delta\n        if current > capacity:\n            return False\n\n    return True\n",
+    "timeComplexity": "O(n log n)",
+    "spaceComplexity": "O(n) for the events list"
+  },
+  "starterCode": "def car_pooling(trips, capacity):\n    # your code here\n    pass\n",
+  "functionName": "car_pooling",
+  "paramNames": ["trips", "capacity"],
+  "testCases": [
+    {
+      "input": [[[2, 1, 5], [3, 3, 7]], 4],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [[[2, 1, 5], [3, 3, 7]], 5],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [[[3, 2, 7], [3, 7, 9], [8, 3, 9]], 10],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": [[[2, 1, 5]], 1],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": [[[9, 3, 4]], 10],
+      "expected": true,
+      "isHidden": true
+    }
+  ]
+}

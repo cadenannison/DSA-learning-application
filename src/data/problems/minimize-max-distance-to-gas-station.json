@@ -1,0 +1,67 @@
+{
+  "id": "minimize-max-distance-to-gas-station",
+  "title": "Minimize Max Distance to Gas Station",
+  "pattern": "binary-search",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "You are given an integer array `stations` sorted in ascending order representing positions of gas stations on a number line, and an integer `k`. You should add `k` new gas stations, which can be placed anywhere on the number line (not necessarily at integer positions), to minimize the maximum distance between adjacent gas stations after all additions. Return the smallest possible value of that maximum distance, rounded to 6 decimal places (`round(answer, 6)`).",
+  "examples": [
+    {
+      "input": "stations = [1,2,3,4,5,6,7,8,9,10], k = 9",
+      "output": "0.5"
+    },
+    {
+      "input": "stations = [23,24,36,39,46,56,57,65,84,98], k = 1",
+      "output": "14.0"
+    }
+  ],
+  "constraints": [
+    "10 <= stations.length <= 2000",
+    "0 <= stations[i] <= 10^8",
+    "stations is sorted in strictly increasing order",
+    "1 <= k <= 10^6"
+  ],
+  "hints": [
+    "For a fixed maximum allowed gap D, you can compute exactly how many extra stations each existing gap needs: ceil(gap / D) - 1, summed over all gaps.",
+    "That total number of stations needed is monotonically non-increasing as D increases (a looser allowed gap needs fewer new stations), which is the structure binary search on a real-valued answer needs.",
+    "Binary search on D over a continuous range (e.g. [0, max gap]) for many iterations (or until the interval is smaller than the required precision) rather than looking for an exact stopping condition, since D is a real number, not an integer."
+  ],
+  "solution": {
+    "approach": "Binary search on the real-valued answer D, the maximum allowed distance between adjacent stations. For a candidate D, each existing gap of length `gap` needs floor(gap / D) additional stations placed evenly inside it to ensure no sub-gap exceeds D (equivalently ceil(gap/D) - 1 new stations, though floor(gap/D) works cleanly since gap/D exactly integer doesn't need an extra). Summing this over all gaps gives the total stations required for that D, which is monotonically non-increasing in D. Because D is continuous rather than integral, binary search for a fixed number of iterations (or until the range shrinks below the required precision, e.g. 1e-6) instead of using an integer stopping condition.",
+    "code": "def min_max_gas_dist(stations, k):\n    gaps = [stations[i + 1] - stations[i] for i in range(len(stations) - 1)]\n\n    def stations_needed(d):\n        return sum(int(gap / d) for gap in gaps)\n\n    lo, hi = 0.0, max(gaps)\n\n    for _ in range(100):\n        mid = (lo + hi) / 2\n        if stations_needed(mid) > k:\n            lo = mid\n        else:\n            hi = mid\n\n    return round(hi, 6)\n",
+    "timeComplexity": "O(n log(max_gap / epsilon))",
+    "spaceComplexity": "O(n) for the gaps list"
+  },
+  "starterCode": "def min_max_gas_dist(stations, k):\n    # your code here\n    pass\n",
+  "functionName": "min_max_gas_dist",
+  "paramNames": ["stations", "k"],
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        9
+      ],
+      "expected": 0.5,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [23, 24, 36, 39, 46, 56, 57, 65, 84, 98],
+        1
+      ],
+      "expected": 14.0,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0, 10],
+        1
+      ],
+      "expected": 5.0,
+      "isHidden": true
+    }
+  ]
+}

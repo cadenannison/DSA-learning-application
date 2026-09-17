@@ -1,0 +1,75 @@
+{
+  "id": "find-in-mountain-array",
+  "title": "Find in Mountain Array",
+  "pattern": "binary-search",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "You are given a mountain array `arr` (strictly increases to a single peak and then strictly decreases). Implement `find_in_mountain_array(target, arr)`, which should behave as if it only had access to a `MountainArray` interface exposing `get(index)` and `length()` (treat `arr` as data the interface wraps internally, not something to index directly), and must minimize the number of calls to `get`. Return the minimum index such that the value at that index equals `target`, or `-1` if it doesn't exist.",
+  "examples": [
+    {
+      "input": "arr = [1,2,3,4,5,3,1], target = 3",
+      "output": "2",
+      "explanation": "3 exists at indices 2 and 5, but the minimum index is 2."
+    },
+    {
+      "input": "arr = [0,1,2,4,2,1], target = 3",
+      "output": "-1"
+    }
+  ],
+  "constraints": [
+    "3 <= arr.length <= 10^4",
+    "0 <= target <= 10^9",
+    "0 <= arr[i] <= 10^9"
+  ],
+  "hints": [
+    "Calling get on every index to scan for target works but is O(n) calls, and the interface is deliberately designed to make you minimize calls.",
+    "First binary search for the peak index using the same slope trick as Peak Index in a Mountain Array: compare mountainArr.get(mid) to mountainArr.get(mid + 1).",
+    "Once you have the peak, the array left of (and including) it is strictly increasing and the array from the peak onward is strictly decreasing — binary search each half separately (reversing the comparison for the decreasing half) and return the smaller valid index found."
+  ],
+  "solution": {
+    "approach": "Wrap the given plain array in a small MountainArray-like object exposing only get and length, mirroring the real interface. First locate the peak index with a binary search on slope: compare mountain_arr.get(mid) to mountain_arr.get(mid + 1) — if increasing, the peak is to the right, otherwise it's at mid or to the left. This splits the array into a strictly increasing prefix [0, peak] and a strictly decreasing suffix [peak, n-1]. Binary search the increasing prefix normally for target; if found there, that's the minimum index. Otherwise binary search the decreasing suffix with an inverted comparison. Each of the three binary searches costs O(log n) calls to get.",
+    "code": "class MountainArray:\n    def __init__(self, arr):\n        self.arr = arr\n\n    def get(self, index):\n        return self.arr[index]\n\n    def length(self):\n        return len(self.arr)\n\n\ndef find_in_mountain_array(target, arr):\n    mountain_arr = MountainArray(arr)\n    n = mountain_arr.length()\n\n    lo, hi = 0, n - 1\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if mountain_arr.get(mid) < mountain_arr.get(mid + 1):\n            lo = mid + 1\n        else:\n            hi = mid\n    peak = lo\n\n    lo, hi = 0, peak\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        val = mountain_arr.get(mid)\n        if val == target:\n            return mid\n        if val < target:\n            lo = mid + 1\n        else:\n            hi = mid - 1\n\n    lo, hi = peak, n - 1\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        val = mountain_arr.get(mid)\n        if val == target:\n            return mid\n        if val > target:\n            lo = mid + 1\n        else:\n            hi = mid - 1\n\n    return -1\n",
+    "timeComplexity": "O(log n) calls to get",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "class MountainArray:\n    def __init__(self, arr):\n        self.arr = arr\n\n    def get(self, index):\n        return self.arr[index]\n\n    def length(self):\n        return len(self.arr)\n\n\ndef find_in_mountain_array(target, arr):\n    mountain_arr = MountainArray(arr)\n    # your code here\n    pass\n",
+  "functionName": "find_in_mountain_array",
+  "paramNames": ["target", "arr"],
+  "testCases": [
+    {
+      "input": [
+        3,
+        [1, 2, 3, 4, 5, 3, 1]
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        3,
+        [0, 1, 2, 4, 2, 1]
+      ],
+      "expected": -1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        5,
+        [1, 2, 3, 4, 5]
+      ],
+      "expected": 4,
+      "isHidden": true
+    },
+    {
+      "input": [
+        1,
+        [1, 2, 3]
+      ],
+      "expected": 0,
+      "isHidden": true
+    }
+  ]
+}

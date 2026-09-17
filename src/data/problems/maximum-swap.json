@@ -1,0 +1,67 @@
+{
+  "id": "maximum-swap",
+  "title": "Maximum Swap",
+  "pattern": "greedy",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "Given a non-negative integer `num`, you may swap two digits at most once to obtain the maximum valued number possible. Return the maximum valued number you can achieve.",
+  "examples": [
+    {
+      "input": "num = 2736",
+      "output": "7236",
+      "explanation": "Swapping the 2 and the 7 gives 7236, which is the maximum achievable with one swap."
+    },
+    {
+      "input": "num = 9973",
+      "output": "9973",
+      "explanation": "No swap improves the number, so the answer is the number itself."
+    }
+  ],
+  "constraints": [
+    "0 <= num <= 10^8"
+  ],
+  "hints": [
+    "Trying every pair of digit positions to swap works but think about which single swap is provably best.",
+    "For each digit from left to right, you want to swap it with the largest digit to its right that is bigger than it, and among ties for that largest digit, the rightmost occurrence.",
+    "Precompute, for every digit value 0-9, the last (rightmost) index at which it occurs in the number. Then scan left to right; at each position, check from digit 9 down to the current digit+1 whether a larger digit exists later in the string, and perform the first such beneficial swap found."
+  ],
+  "solution": {
+    "approach": "Convert num to a list of digit characters. For each digit value 0-9, record the last index at which it appears. Scan the digits left to right; at each position i, look for the largest digit value greater than digits[i] whose last occurrence is at some index j > i, checking digit values from 9 down to digits[i] + 1. The first position where such a larger digit is found to the right is the best possible place for a single swap, because swapping the leftmost improvable position with the largest available digit (using its rightmost occurrence to avoid disturbing other digits) maximizes the resulting number. Perform that one swap and stop, since a second swap could never help after already maximizing the leading differing digit.",
+    "code": "def maximum_swap(num):\n    digits = list(str(num))\n    last = {int(d): i for i, d in enumerate(digits)}\n\n    for i, d in enumerate(digits):\n        for candidate in range(9, int(d), -1):\n            if last.get(candidate, -1) > i:\n                j = last[candidate]\n                digits[i], digits[j] = digits[j], digits[i]\n                return int(''.join(digits))\n\n    return num\n",
+    "timeComplexity": "O(n) where n is the number of digits (bounded work per digit since only 10 digit values exist)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def maximum_swap(num):\n    # your code here\n    pass\n",
+  "functionName": "maximum_swap",
+  "paramNames": ["num"],
+  "testCases": [
+    {
+      "input": [2736],
+      "expected": 7236,
+      "isHidden": false
+    },
+    {
+      "input": [9973],
+      "expected": 9973,
+      "isHidden": false
+    },
+    {
+      "input": [0],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [98368],
+      "expected": 98863,
+      "isHidden": true
+    },
+    {
+      "input": [1993],
+      "expected": 9913,
+      "isHidden": true
+    }
+  ]
+}

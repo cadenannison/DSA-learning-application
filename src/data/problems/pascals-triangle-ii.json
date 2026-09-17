@@ -1,0 +1,69 @@
+{
+  "id": "pascals-triangle-ii",
+  "title": "Pascal's Triangle II",
+  "pattern": "dynamic-programming",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Microsoft"
+  ],
+  "prompt": "Given an integer `row_index`, return the `row_index`-th (0-indexed) row of Pascal's triangle. In Pascal's triangle, each number is the sum of the two numbers directly above it (with missing entries outside the triangle treated as 0).",
+  "examples": [
+    {
+      "input": "row_index = 3",
+      "output": "[1,3,3,1]"
+    },
+    {
+      "input": "row_index = 0",
+      "output": "[1]"
+    },
+    {
+      "input": "row_index = 1",
+      "output": "[1,1]"
+    }
+  ],
+  "constraints": [
+    "0 <= row_index <= 33"
+  ],
+  "hints": [
+    "You could build every row from row 0 up to row_index, storing each full row, but you only ever need the row before the current one.",
+    "Start with row = [1], and repeatedly build the next row from the current one: new row length grows by one each time, with 1s on both ends.",
+    "You can even update a single row array in place if you iterate from the end back toward the front, so you don't overwrite a value you still need."
+  ],
+  "solution": {
+    "approach": "Build the triangle row by row, but only keep the current row instead of the whole triangle, since each row depends only on the one before it. Start with row = [1]. To build the next row from the current one, walk from the right end toward the left, updating row[j] = row[j] + row[j-1] (this in-place, right-to-left order works because row[j-1] hasn't been overwritten yet), then append the trailing 1. Repeat row_index times. This is a rolling 1D DP over Pascal's recurrence, needing only O(row_index) space instead of storing the full 2D triangle.",
+    "code": "def get_row(row_index):\n    row = [1]\n    for _ in range(row_index):\n        row.append(1)\n        for j in range(len(row) - 2, 0, -1):\n            row[j] += row[j - 1]\n    return row\n",
+    "timeComplexity": "O(row_index^2)",
+    "spaceComplexity": "O(row_index)"
+  },
+  "starterCode": "def get_row(row_index):\n    # your code here\n    pass\n",
+  "functionName": "get_row",
+  "paramNames": ["row_index"],
+  "testCases": [
+    {
+      "input": [3],
+      "expected": [1, 3, 3, 1],
+      "isHidden": false
+    },
+    {
+      "input": [0],
+      "expected": [1],
+      "isHidden": false
+    },
+    {
+      "input": [1],
+      "expected": [1, 1],
+      "isHidden": false
+    },
+    {
+      "input": [4],
+      "expected": [1, 4, 6, 4, 1],
+      "isHidden": true
+    },
+    {
+      "input": [5],
+      "expected": [1, 5, 10, 10, 5, 1],
+      "isHidden": true
+    }
+  ]
+}

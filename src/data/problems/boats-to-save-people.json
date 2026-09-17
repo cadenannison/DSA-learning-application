@@ -1,0 +1,72 @@
+{
+  "id": "boats-to-save-people",
+  "title": "Boats to Save People",
+  "pattern": "greedy",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Meta"
+  ],
+  "prompt": "You are given an array `people` where `people[i]` is the weight of the `i`-th person, and an infinite number of boats where each boat can carry at most `limit` weight. Each boat carries at most two people at the same time, provided the sum of their weights is at most `limit`. Return the minimum number of boats required to carry every person across.",
+  "examples": [
+    {
+      "input": "people = [1,2], limit = 3",
+      "output": "1",
+      "explanation": "Both people fit in a single boat since 1 + 2 = 3 <= limit."
+    },
+    {
+      "input": "people = [3,2,2,1], limit = 3",
+      "output": "3",
+      "explanation": "One boat takes (1,2), one takes (2), and one takes (3)."
+    },
+    {
+      "input": "people = [3,5,3,4], limit = 5",
+      "output": "4"
+    }
+  ],
+  "constraints": [
+    "1 <= people.length <= 5 * 10^4",
+    "1 <= people[i] <= limit <= 3 * 10^4"
+  ],
+  "hints": [
+    "Trying every pairing combination is exponential — sorting the weights first exposes a simpler structure.",
+    "Sort the array and use two pointers, one at the lightest person and one at the heaviest.",
+    "Always try to pair the heaviest remaining person with the lightest remaining person. If they fit together, send both; if the heaviest alone already needs the whole boat, send them alone. This never wastes capacity, since the lightest person is the easiest to pair with anyone."
+  ],
+  "solution": {
+    "approach": "Sort people by weight and use two pointers, left at the lightest and right at the heaviest unassigned person. For each boat, always try to include the heaviest remaining person, since they're the hardest to pair; check whether the lightest remaining person can join them without exceeding the limit. If so, both leave together and both pointers move inward; otherwise the heaviest person must go alone and only the right pointer moves. This greedy pairing is optimal because the lightest person is the best possible partner for the heaviest one — if even the lightest can't join them, no one can.",
+    "code": "def num_rescue_boats(people, limit):\n    people.sort()\n    left = 0\n    right = len(people) - 1\n    boats = 0\n    while left <= right:\n        if people[left] + people[right] <= limit:\n            left += 1\n        right -= 1\n        boats += 1\n    return boats\n",
+    "timeComplexity": "O(n log n)",
+    "spaceComplexity": "O(1) (ignoring sort space)"
+  },
+  "starterCode": "def num_rescue_boats(people, limit):\n    # your code here\n    pass\n",
+  "functionName": "num_rescue_boats",
+  "paramNames": ["people", "limit"],
+  "testCases": [
+    {
+      "input": [[1, 2], 3],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [[3, 2, 2, 1], 3],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [[3, 5, 3, 4], 5],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [[1], 1],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [[5, 5, 5, 5], 5],
+      "expected": 4,
+      "isHidden": true
+    }
+  ]
+}

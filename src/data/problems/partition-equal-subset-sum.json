@@ -1,0 +1,70 @@
+{
+  "id": "partition-equal-subset-sum",
+  "title": "Partition Equal Subset Sum",
+  "pattern": "dynamic-programming",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Facebook",
+    "Bloomberg"
+  ],
+  "prompt": "Given an integer array `nums`, return true if it's possible to partition the array into two subsets such that the sum of the elements in both subsets is equal, or false otherwise.",
+  "examples": [
+    {
+      "input": "nums = [1,5,11,5]",
+      "output": "true",
+      "explanation": "The array can be partitioned into [1,5,5] and [11], both summing to 11."
+    },
+    {
+      "input": "nums = [1,2,3,5]",
+      "output": "false",
+      "explanation": "The array cannot be partitioned into two equal-sum subsets."
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 200",
+    "1 <= nums[i] <= 100"
+  ],
+  "hints": [
+    "If the total sum is odd, it's immediately impossible to split into two equal halves — handle that first.",
+    "Otherwise, the problem reduces to: does some subset of nums sum to exactly total / 2? This is the classic 0/1 knapsack subset-sum question.",
+    "Define dp[s] = true if some subset sums to exactly s. Process each number once, and for each, update reachable sums from high to low so you don't reuse the same number twice in one pass."
+  ],
+  "solution": {
+    "approach": "If the total sum is odd, an equal partition is impossible, so return False immediately. Otherwise the question becomes: can some subset of nums sum to exactly target = total // 2 (the other subset then automatically sums to the same value)? This is 0/1 subset-sum: maintain a boolean array dp where dp[s] means sum s is achievable using items processed so far. For each number, update dp from high sums down to low (s from target down to num) so each number is only used once per pass, setting dp[s] = dp[s] or dp[s - num]. The answer is dp[target].",
+    "code": "def can_partition(nums):\n    total = sum(nums)\n    if total % 2 != 0:\n        return False\n\n    target = total // 2\n    dp = [False] * (target + 1)\n    dp[0] = True\n\n    for num in nums:\n        for s in range(target, num - 1, -1):\n            if dp[s - num]:\n                dp[s] = True\n\n    return dp[target]\n",
+    "timeComplexity": "O(n * target) where target = sum(nums) / 2",
+    "spaceComplexity": "O(target)"
+  },
+  "starterCode": "def can_partition(nums):\n    # your code here\n    pass\n",
+  "functionName": "can_partition",
+  "paramNames": ["nums"],
+  "testCases": [
+    {
+      "input": [[1, 5, 11, 5]],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [[1, 2, 3, 5]],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [[1, 1]],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [[1]],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": [[100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100]],
+      "expected": true,
+      "isHidden": true
+    }
+  ]
+}

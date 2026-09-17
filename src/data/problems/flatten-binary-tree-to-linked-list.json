@@ -1,0 +1,78 @@
+{
+  "id": "flatten-binary-tree-to-linked-list",
+  "title": "Flatten Binary Tree to Linked List",
+  "pattern": "trees",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Facebook"
+  ],
+  "prompt": "Given the `root` of a binary tree, flatten it in place into a \"linked list\" that uses the same `TreeNode` structure: every node's `left` child becomes `None`, and the `right` child pointer chains to the next node in the sequence. The resulting linked-list order must match the tree's pre-order traversal.\n\nThe tree is given as a level-order array where `null` marks a missing child (the standard LeetCode serialization). Your function receives this array directly; the starter code includes a helper that builds the tree from it. After flattening in place, return the result as a level-order array (using the provided `tree_to_level_order` helper) so it can be checked for equality — a correctly flattened tree will serialize as a right-only chain.",
+  "examples": [
+    {
+      "input": "root = [1,2,5,3,4,null,6]",
+      "output": "[1,null,2,null,3,null,4,null,5,null,6]",
+      "explanation": "The flattened list follows pre-order: 1,2,3,4,5,6, with every node's left set to null and right pointing to the next node."
+    },
+    {
+      "input": "root = []",
+      "output": "[]"
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [0, 2000]",
+    "-100 <= Node.val <= 100"
+  ],
+  "hints": [
+    "The final order must match pre-order traversal (node, left subtree, right subtree) — think about how to rewire pointers to produce that chain in place.",
+    "Try processing the tree in reverse pre-order (right, left, node) while keeping a reference to 'the node processed most recently,' then link the current node's right to it and set left to None.",
+    "Because you process right before left in this reversed order, by the time you visit a node, its correct 'next' pointer (from the real pre-order) has already been assembled from previously visited nodes."
+  ],
+  "solution": {
+    "approach": "Traverse in reverse pre-order — right subtree first, then left subtree, then the current node — using recursion, while maintaining a running 'previous' pointer initialized to None. At each node (visited last in this reversed order), set its right child to the running previous pointer and its left child to None, then update previous to this node. Because right and left subtrees are already fully flattened and linked by the time a node is processed, this rewires the whole tree into the correct pre-order chain in a single pass.",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef tree_to_level_order(root):\n    if root is None:\n        return []\n    result = []\n    queue = [root]\n    while queue:\n        node = queue.pop(0)\n        if node is None:\n            result.append(None)\n            continue\n        result.append(node.val)\n        queue.append(node.left)\n        queue.append(node.right)\n    while result and result[-1] is None:\n        result.pop()\n    return result\n\n\ndef flatten(root_arr):\n    root = build_tree(root_arr)\n    prev = [None]\n\n    def dfs(node):\n        if node is None:\n            return\n        dfs(node.right)\n        dfs(node.left)\n        node.right = prev[0]\n        node.left = None\n        prev[0] = node\n\n    dfs(root)\n    return tree_to_level_order(root)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(h), h = tree height"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef tree_to_level_order(root):\n    if root is None:\n        return []\n    result = []\n    queue = [root]\n    while queue:\n        node = queue.pop(0)\n        if node is None:\n            result.append(None)\n            continue\n        result.append(node.val)\n        queue.append(node.left)\n        queue.append(node.right)\n    while result and result[-1] is None:\n        result.pop()\n    return result\n\n\ndef flatten(root_arr):\n    root = build_tree(root_arr)\n    # your code here (modify the tree in place)\n    # then return tree_to_level_order(root)\n    pass\n",
+  "functionName": "flatten",
+  "paramNames": ["root_arr"],
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 5, 3, 4, null, 6]
+      ],
+      "expected": [1, null, 2, null, 3, null, 4, null, 5, null, 6],
+      "isHidden": false
+    },
+    {
+      "input": [
+        []
+      ],
+      "expected": [],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0]
+      ],
+      "expected": [0],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2]
+      ],
+      "expected": [1, null, 2],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, null, 2, null, 3]
+      ],
+      "expected": [1, null, 2, null, 3],
+      "isHidden": true
+    }
+  ]
+}

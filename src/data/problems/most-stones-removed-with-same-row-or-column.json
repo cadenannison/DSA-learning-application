@@ -1,0 +1,64 @@
+{
+  "id": "most-stones-removed-with-same-row-or-column",
+  "title": "Most Stones Removed with Same Row or Column",
+  "pattern": "graphs",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "On a 2D plane, we place `n` stones at integer coordinates, with `stones[i] = [xi, yi]` representing the location of the `i`th stone. No two stones share the same coordinates.\n\nA stone can be removed if it shares either the same row or the same column as another stone that has not yet been removed. Return the largest possible number of stones that can be removed.",
+  "examples": [
+    {
+      "input": "stones = [[0,0],[0,1],[1,0],[1,2],[2,1],[2,2]]",
+      "output": "5",
+      "explanation": "One valid order removes 5 stones, always leaving exactly 1 stone standing per connected group of stones."
+    },
+    {
+      "input": "stones = [[0,0],[0,2],[1,1],[2,0],[2,2]]",
+      "output": "3",
+      "explanation": "These 5 stones form a single connected group (via shared rows/columns), so 5 - 1 = 4... but stone [1,1] shares no row/col directly with the corners except through the group, leaving 2 separate groups summing to 3 removable stones."
+    }
+  ],
+  "constraints": [
+    "1 <= stones.length <= 1000",
+    "0 <= xi, yi <= 10^4",
+    "No two stones are at the same coordinate point"
+  ],
+  "hints": [
+    "Think of each stone as a node, connected to any other stone sharing its row or column. Within one connected component, you can always remove stones one at a time until only one remains.",
+    "You don't need to build explicit stone-to-stone edges — union each stone with a shared 'row bucket' and 'column bucket' identifier (e.g. row index and a distinctly offset column index) to group connected stones efficiently.",
+    "The answer is total stones minus the number of connected components, since exactly one stone must remain per component."
+  ],
+  "solution": {
+    "approach": "Two stones are connected (directly or transitively) if they share a row or column, and within any connected group you can always remove all stones but one (repeatedly remove any stone that still shares a row/column with a remaining one). So the maximum removable count is n minus the number of connected components. To find components efficiently without building an O(n^2) stone-to-stone graph, union each stone's row id with its column id (using a distinct offset, e.g. ~y, to keep row and column namespaces disjoint) -- stones sharing a row or column end up unioned into the same component through these shared axis nodes.",
+    "code": "def remove_stones(stones):\n    parent = {}\n\n    def find(x):\n        parent.setdefault(x, x)\n        while parent[x] != x:\n            parent[x] = parent[parent[x]]\n            x = parent[x]\n        return x\n\n    def union(a, b):\n        parent[find(a)] = find(b)\n\n    for x, y in stones:\n        union(x, ~y)\n\n    roots = {find(x) for x, y in stones}\n    return len(stones) - len(roots)\n",
+    "timeComplexity": "O(n * alpha(n)), alpha = inverse Ackermann (effectively O(n))",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def remove_stones(stones):\n    # your code here\n    pass\n",
+  "functionName": "remove_stones",
+  "paramNames": ["stones"],
+  "testCases": [
+    {
+      "input": [[[0, 0], [0, 1], [1, 0], [1, 2], [2, 1], [2, 2]]],
+      "expected": 5,
+      "isHidden": false
+    },
+    {
+      "input": [[[0, 0], [0, 2], [1, 1], [2, 0], [2, 2]]],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [[[0, 0]]],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [[[0, 0], [1, 1], [2, 2]]],
+      "expected": 0,
+      "isHidden": true
+    }
+  ]
+}

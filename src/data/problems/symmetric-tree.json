@@ -1,0 +1,87 @@
+{
+  "id": "symmetric-tree",
+  "title": "Symmetric Tree",
+  "pattern": "trees",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Bloomberg",
+    "LinkedIn"
+  ],
+  "prompt": "Given the `root` of a binary tree, check whether it is a mirror of itself around its center (i.e., symmetric around the vertical axis through the root).\n\nThe tree is given as a level-order array where `null` marks a missing child (the standard LeetCode serialization). Your function receives this array directly; the starter code includes a helper that builds the tree from it, so you only need to implement the symmetry check.",
+  "examples": [
+    {
+      "input": "root = [1,2,2,3,4,4,3]",
+      "output": "true",
+      "explanation": "The left subtree [2,3,4] mirrors the right subtree [2,4,3]."
+    },
+    {
+      "input": "root = [1,2,2,null,3,null,3]",
+      "output": "false",
+      "explanation": "The inner values (3 on the left's right side, 3 on the right's right side) don't mirror correctly."
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [1, 1000]",
+    "-100 <= Node.val <= 100"
+  ],
+  "hints": [
+    "A tree is symmetric if its left and right subtrees are mirror images of each other — not identical, mirrored.",
+    "Write a helper that compares two subtrees for mirror symmetry: their root values must match, and the left of one must mirror the right of the other, and vice versa.",
+    "isMirror(a, b) = a.val == b.val and isMirror(a.left, b.right) and isMirror(a.right, b.left); two None nodes mirror trivially, one None and one non-None never do."
+  ],
+  "solution": {
+    "approach": "Build the tree, then recursively compare the left and right subtrees for mirror symmetry via a helper is_mirror(a, b): both None is symmetric, exactly one None is not, otherwise their values must match and a's left must mirror b's right while a's right mirrors b's left. Call this on root.left and root.right.",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef is_symmetric(root_arr):\n    root = build_tree(root_arr)\n\n    def is_mirror(a, b):\n        if a is None and b is None:\n            return True\n        if a is None or b is None:\n            return False\n        return a.val == b.val and is_mirror(a.left, b.right) and is_mirror(a.right, b.left)\n\n    if root is None:\n        return True\n    return is_mirror(root.left, root.right)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(h), h = tree height"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef is_symmetric(root_arr):\n    root = build_tree(root_arr)\n    # your code here\n    pass\n",
+  "functionName": "is_symmetric",
+  "paramNames": ["root_arr"],
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 2, 3, 4, 4, 3]
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 2, null, 3, null, 3]
+      ],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 2]
+      ],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 2, null, 3, 3, null]
+      ],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [2, 3, 3, 4, 5, 5, 4, null, null, null, null, null, null, null, null]
+      ],
+      "expected": true,
+      "isHidden": true
+    }
+  ]
+}

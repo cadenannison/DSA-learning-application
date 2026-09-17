@@ -1,0 +1,99 @@
+{
+  "id": "find-smallest-letter-greater-than-target",
+  "title": "Find Smallest Letter Greater Than Target",
+  "pattern": "binary-search",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "You are given an array of characters `letters` that is sorted in non-decreasing order, and a character `target`. There are at least two distinct characters in `letters`. Return the smallest character in `letters` that is strictly greater than `target`. If no such character exists, wrap around and return the first character in `letters`.",
+  "examples": [
+    {
+      "input": "letters = [\"c\",\"f\",\"j\"], target = \"a\"",
+      "output": "\"c\"",
+      "explanation": "The smallest character greater than 'a' is 'c'."
+    },
+    {
+      "input": "letters = [\"c\",\"f\",\"j\"], target = \"c\"",
+      "output": "\"f\"",
+      "explanation": "The answer must be strictly greater than target, so 'c' itself doesn't count."
+    },
+    {
+      "input": "letters = [\"c\",\"f\",\"j\"], target = \"j\"",
+      "output": "\"c\"",
+      "explanation": "No character in letters is greater than 'j', so wrap around to the first character."
+    }
+  ],
+  "constraints": [
+    "2 <= letters.length <= 10^4",
+    "letters[i] is a lowercase English letter",
+    "letters is sorted in non-decreasing order",
+    "letters contains at least two distinct characters",
+    "target is a lowercase English letter"
+  ],
+  "hints": [
+    "Scanning left to right for the first letter greater than target works in O(n), but the array is sorted, which suggests binary search.",
+    "Binary search for the leftmost index where letters[mid] > target.",
+    "If that search runs off the end of the array without finding one, wrap around by returning letters[0]; using modulo on the final index handles both cases uniformly."
+  ],
+  "solution": {
+    "approach": "Binary search for the first index where letters[mid] is strictly greater than target. Whenever letters[mid] > target, that's a candidate answer, so record its index and continue searching left for an even earlier one; otherwise search right. Because the array can wrap around, taking the final index modulo the array length naturally returns letters[0] when no letter exceeds target.",
+    "code": "def next_greatest_letter(letters, target):\n    lo, hi = 0, len(letters)\n\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if letters[mid] <= target:\n            lo = mid + 1\n        else:\n            hi = mid\n\n    return letters[lo % len(letters)]\n",
+    "timeComplexity": "O(log n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def next_greatest_letter(letters, target):\n    # your code here\n    pass\n",
+  "functionName": "next_greatest_letter",
+  "paramNames": ["letters", "target"],
+  "testCases": [
+    {
+      "input": [
+        ["c", "f", "j"],
+        "a"
+      ],
+      "expected": "c",
+      "isHidden": false
+    },
+    {
+      "input": [
+        ["c", "f", "j"],
+        "c"
+      ],
+      "expected": "f",
+      "isHidden": false
+    },
+    {
+      "input": [
+        ["c", "f", "j"],
+        "j"
+      ],
+      "expected": "c",
+      "isHidden": false
+    },
+    {
+      "input": [
+        ["c", "c"],
+        "a"
+      ],
+      "expected": "c",
+      "isHidden": true
+    },
+    {
+      "input": [
+        ["e", "e", "e", "e", "e", "e", "n", "n", "n", "n"],
+        "e"
+      ],
+      "expected": "n",
+      "isHidden": true
+    },
+    {
+      "input": [
+        ["a", "b"],
+        "z"
+      ],
+      "expected": "a",
+      "isHidden": true
+    }
+  ]
+}

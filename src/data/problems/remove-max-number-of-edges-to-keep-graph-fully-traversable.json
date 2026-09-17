@@ -1,0 +1,66 @@
+{
+  "id": "remove-max-number-of-edges-to-keep-graph-fully-traversable",
+  "title": "Remove Max Number of Edges to Keep Graph Fully Traversable",
+  "pattern": "graphs",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "Alice and Bob have an undirected graph of `n` nodes labeled `1` to `n`. Each edge has one of three types: type 1 can only be traversed by Alice, type 2 can only be traversed by Bob, and type 3 can be traversed by both. Edges are given as `edges[i] = [typei, ui, vi]`.\n\nRemove the maximum number of edges so that after removal, the graph can still be fully traversed by both Alice and Bob (each starting from any node, they must be able to reach every other node using only edges available to them). Return the maximum number of edges that can be removed, or `-1` if it is impossible for both Alice and Bob to fully traverse the graph.",
+  "examples": [
+    {
+      "input": "n = 4, edges = [[3,1,2],[3,2,3],[1,1,3],[1,2,4],[1,1,2],[2,3,4]]",
+      "output": "2",
+      "explanation": "Removing edges [1,1,2] and [1,1,3] (redundant type-1 edges) still leaves both Alice and Bob able to reach every node."
+    },
+    {
+      "input": "n = 4, edges = [[3,2,3],[1,1,2],[2,3,4]]",
+      "output": "-1",
+      "explanation": "Even using every edge, Alice can never reach node 4, so full traversal by both is impossible regardless of what's removed."
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 10^5",
+    "1 <= edges.length <= min(10^5, 3 * n * (n - 1) / 2)",
+    "edges[i].length == 3",
+    "1 <= typei <= 3",
+    "1 <= ui < vi <= n"
+  ],
+  "hints": [
+    "To maximize removed edges, minimize the edges kept: think in reverse — greedily add only the edges that are actually necessary to keep both graphs connected.",
+    "Type 3 (shared) edges are the most valuable since one edge helps both Alice's and Bob's connectivity at once — process those first using two separate Union-Find structures (one for Alice, one for Bob), unioning in both whenever it connects new components in either.",
+    "After using all useful shared edges, separately add type-1 edges to Alice's Union-Find and type-2 edges to Bob's, keeping only the ones that connect previously separate components. An edge is 'useful' (must be kept) exactly when it merges two components that weren't already connected; every edge that doesn't need to be kept can be removed. If either Alice's or Bob's final Union-Find isn't a single connected component, return -1."
+  ],
+  "solution": {
+    "approach": "To maximize removed edges, minimize kept edges by greedily building two spanning structures (one for Alice, one for Bob) using Union-Find, and only keeping an edge when it actually reduces the component count in a structure that needs it. Shared (type 3) edges are strictly more valuable than single-owner edges since they can serve both people, so process them first, unioning in both Alice's and Bob's Union-Find simultaneously and counting it as 'used' if it helps either one. Then process type-1 edges only in Alice's structure and type-2 edges only in Bob's, again counting an edge as used only if it connects two previously separate components. Total edges kept is the number of useful unions; removable edges = total edges - useful edges. If, after processing everything, either Alice's or Bob's structure has more than one component, full traversal is impossible, so return -1.",
+    "code": "def max_num_edges_to_remove(n, edges):\n    class DSU:\n        def __init__(self, size):\n            self.parent = list(range(size + 1))\n            self.components = size\n\n        def find(self, x):\n            while self.parent[x] != x:\n                self.parent[x] = self.parent[self.parent[x]]\n                x = self.parent[x]\n            return x\n\n        def union(self, a, b):\n            root_a, root_b = self.find(a), self.find(b)\n            if root_a == root_b:\n                return False\n            self.parent[root_a] = root_b\n            self.components -= 1\n            return True\n\n    alice = DSU(n)\n    bob = DSU(n)\n    used = 0\n\n    for t, u, v in edges:\n        if t == 3:\n            a_used = alice.union(u, v)\n            b_used = bob.union(u, v)\n            if a_used or b_used:\n                used += 1\n\n    for t, u, v in edges:\n        if t == 1:\n            if alice.union(u, v):\n                used += 1\n        elif t == 2:\n            if bob.union(u, v):\n                used += 1\n\n    if alice.components != 1 or bob.components != 1:\n        return -1\n\n    return len(edges) - used\n",
+    "timeComplexity": "O(E * alpha(n)), alpha = inverse Ackermann (effectively O(E))",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def max_num_edges_to_remove(n, edges):\n    # your code here\n    pass\n",
+  "functionName": "max_num_edges_to_remove",
+  "paramNames": ["n", "edges"],
+  "testCases": [
+    {
+      "input": [4, [[3, 1, 2], [3, 2, 3], [1, 1, 3], [1, 2, 4], [1, 1, 2], [2, 3, 4]]],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [4, [[3, 2, 3], [1, 1, 2], [2, 3, 4]]],
+      "expected": -1,
+      "isHidden": false
+    },
+    {
+      "input": [2, [[1, 1, 2], [2, 1, 2], [3, 1, 2]]],
+      "expected": 2,
+      "isHidden": true
+    },
+    {
+      "input": [1, []],
+      "expected": 0,
+      "isHidden": true
+    }
+  ]
+}

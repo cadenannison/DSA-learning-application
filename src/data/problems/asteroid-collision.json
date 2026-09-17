@@ -1,0 +1,75 @@
+{
+  "id": "asteroid-collision",
+  "title": "Asteroid Collision",
+  "pattern": "stacks-queues",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Bloomberg"
+  ],
+  "prompt": "We are given an array `asteroids` of integers representing asteroids in a row, all moving at the same speed. For each asteroid, the absolute value represents its size, and the sign represents its direction (positive meaning right, negative meaning left). Each asteroid moves at the same speed.\n\nFind out the state of the asteroids after all collisions: two asteroids moving in the same direction will never meet; when two asteroids moving toward each other meet, the smaller one explodes (if both are the same size, both explode); an asteroid moving right will never meet another moving right, and one moving left will never meet another moving left going the same way, but a right-moving asteroid followed later by a left-moving one will eventually collide.",
+  "examples": [
+    {
+      "input": "asteroids = [5,10,-5]",
+      "output": "[5,10]",
+      "explanation": "The 10 and -5 collide, resulting in 10 (the larger asteroid survives). The 5 and 10 never collide since they move in the same direction."
+    },
+    {
+      "input": "asteroids = [8,-8]",
+      "output": "[]",
+      "explanation": "The 8 and -8 collide and both explode since they're equal size."
+    },
+    {
+      "input": "asteroids = [10,2,-5]",
+      "output": "[10]",
+      "explanation": "The 2 and -5 collide, -5 survives (bigger); then 10 and -5 collide, 10 survives (bigger)."
+    }
+  ],
+  "constraints": [
+    "2 <= asteroids.length <= 10^4",
+    "-1000 <= asteroids[i] <= 1000",
+    "asteroids[i] != 0"
+  ],
+  "hints": [
+    "A collision can only happen between a right-moving asteroid that appears before a left-moving one \u2014 and one collision's survivor can immediately trigger another collision with what's already behind it.",
+    "Process asteroids left to right, keeping the surviving asteroids so far on a stack.",
+    "A new left-moving asteroid only threatens the stack's top if the top is right-moving and smaller; keep resolving collisions with the stack top (popping destroyed asteroids) in a loop until the new asteroid is destroyed, survives outright, or the stack top is left-moving/empty."
+  ],
+  "solution": {
+    "approach": "Process asteroids left to right, maintaining a stack of surviving asteroids so far. A collision can only occur when the current asteroid is moving left (negative) and the stack's top is moving right (positive) — anything else is safe to just push. When that condition holds, repeatedly compare the current asteroid's size against the stack top: if the top is smaller, pop it (destroyed) and keep checking; if equal, pop the top and destroy the current asteroid too; if the top is bigger, the current asteroid is destroyed and nothing is pushed. If the loop empties the stack or hits a left-moving top without the current asteroid being destroyed, push it.",
+    "code": "def asteroid_collision(asteroids):\n    stack = []\n    for a in asteroids:\n        alive = True\n        while alive and a < 0 and stack and stack[-1] > 0:\n            if stack[-1] < -a:\n                stack.pop()\n                continue\n            elif stack[-1] == -a:\n                stack.pop()\n            alive = False\n        if alive:\n            stack.append(a)\n    return stack\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def asteroid_collision(asteroids):\n    # your code here\n    pass\n",
+  "functionName": "asteroid_collision",
+  "paramNames": ["asteroids"],
+  "testCases": [
+    {
+      "input": [[5, 10, -5]],
+      "expected": [5, 10],
+      "isHidden": false
+    },
+    {
+      "input": [[8, -8]],
+      "expected": [],
+      "isHidden": false
+    },
+    {
+      "input": [[10, 2, -5]],
+      "expected": [10],
+      "isHidden": false
+    },
+    {
+      "input": [[-2, -1, 1, 2]],
+      "expected": [-2, -1, 1, 2],
+      "isHidden": true
+    },
+    {
+      "input": [[1, -2, -2, -2]],
+      "expected": [-2, -2, -2],
+      "isHidden": true
+    }
+  ]
+}

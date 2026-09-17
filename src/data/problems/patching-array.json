@@ -1,0 +1,75 @@
+{
+  "id": "patching-array",
+  "title": "Patching Array",
+  "pattern": "greedy",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "Given a sorted integer array `nums` and an integer `n`, add patches (additional numbers) to `nums` so that any number in the range `[1, n]` (inclusive) can be formed by the sum of some subsequence of the elements in the resulting array. Return the minimum number of patches required.",
+  "examples": [
+    {
+      "input": "nums = [1,3], n = 6",
+      "output": "1",
+      "explanation": "Adding 2 gives [1,2,3], whose subsequence sums cover 1, 2, 3, 4 (1+3), 5 (2+3), and 6 (1+2+3), all of [1,6]."
+    },
+    {
+      "input": "nums = [1,5,10], n = 20",
+      "output": "2",
+      "explanation": "Adding 2 and 4 covers all sums up to 20."
+    },
+    {
+      "input": "nums = [1,2,2], n = 5",
+      "output": "0",
+      "explanation": "The existing array already covers every sum from 1 to 5."
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 1000",
+    "1 <= nums[i] <= 10^4",
+    "nums is sorted in ascending order",
+    "1 <= n <= 2^31 - 1"
+  ],
+  "hints": [
+    "Think about maintaining an invariant: 'miss', the smallest positive sum that cannot yet be formed from the array elements processed so far.",
+    "If the next available number in nums is greater than miss, no combination of the numbers processed so far can produce miss, so you must patch with miss itself, which exactly doubles the reachable range (new miss becomes 2 * miss).",
+    "If the next number in nums is less than or equal to miss, you can safely include it without patching, since it extends the reachable range to at least miss + nums[i]. Process nums and inserted patches together in increasing order, updating miss until miss exceeds n."
+  ],
+  "solution": {
+    "approach": "Maintain miss, the smallest positive integer not yet guaranteed representable as a subsequence sum, starting at 1. Walk through nums with a pointer: if the current array element is less than or equal to miss, it can be safely incorporated without a patch, extending the reachable range so miss becomes miss + nums[i]. If the current array element is greater than miss (or the array is exhausted), no existing or future larger elements can help reach miss, so patch with miss itself; this is optimal since patching with any smaller number wouldn't close the gap, and patching with exactly miss doubles the guaranteed reachable range to 2 * miss, maximizing coverage per patch. Repeat until miss exceeds n, counting patches added.",
+    "code": "def min_patches(nums, n):\n    patches = 0\n    miss = 1\n    i = 0\n    while miss <= n:\n        if i < len(nums) and nums[i] <= miss:\n            miss += nums[i]\n            i += 1\n        else:\n            miss += miss\n            patches += 1\n    return patches\n",
+    "timeComplexity": "O(m + log n) where m is the length of nums",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def min_patches(nums, n):\n    # your code here\n    pass\n",
+  "functionName": "min_patches",
+  "paramNames": ["nums", "n"],
+  "testCases": [
+    {
+      "input": [[1, 3], 6],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [[1, 5, 10], 20],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [[1, 2, 2], 5],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [[], 7],
+      "expected": 3,
+      "isHidden": true
+    },
+    {
+      "input": [[2], 5],
+      "expected": 2,
+      "isHidden": true
+    }
+  ]
+}

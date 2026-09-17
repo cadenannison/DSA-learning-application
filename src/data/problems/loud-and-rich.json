@@ -1,0 +1,70 @@
+{
+  "id": "loud-and-rich",
+  "title": "Loud and Rich",
+  "pattern": "graphs",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "There are `n` people numbered `0` to `n - 1`, each with a distinct amount of money and a distinct level of quietness. You are given `richer`, where `richer[i] = [ai, bi]` means person `ai` has more money than person `bi`. You are also given `quiet`, where `quiet[i]` is the quietness level of person `i` (lower value means quieter). The `richer` relationships are guaranteed to be consistent (no contradictions).\n\nFor each person `x`, find the quietest person among all people who have money greater than or equal to person `x`'s money (this always includes `x` themself). Return an array `answer` where `answer[x]` is the label of that quietest person.",
+  "examples": [
+    {
+      "input": "richer = [[1,0],[2,1],[3,1],[3,7],[4,3],[5,3],[6,3]], quiet = [3,2,5,4,6,1,7,0]",
+      "output": "[5,5,2,5,4,5,6,7]",
+      "explanation": "For person 0, everyone at least as rich as 0 is {0,1,2,3,4,5,6,7} (0 is richest-adjacent through chains), and the quietest among them is person 5 (quiet=1)."
+    },
+    {
+      "input": "richer = [], quiet = [0]",
+      "output": "[0]",
+      "explanation": "With only one person and no richer relationships, that person is trivially the answer for themself."
+    }
+  ],
+  "constraints": [
+    "n == quiet.length",
+    "1 <= n <= 500",
+    "0 <= quiet[i] < n",
+    "All the values of quiet are unique",
+    "0 <= richer.length <= n * (n - 1) / 2",
+    "richer[i].length == 2",
+    "0 <= ai, bi < n",
+    "ai != bi",
+    "The observations in richer are all logically consistent"
+  ],
+  "hints": [
+    "Build a directed graph where an edge from a to b means a is richer than b — you need, for each node, the minimum quiet value across all nodes reachable by following edges 'a is richer than b' backwards from b (i.e. all people at least as rich).",
+    "This is naturally solved with memoized DFS: answer(x) is the quietest among x itself and answer(richer_person) for every person directly richer than x.",
+    "Process each node's answer once and cache it, recursing into richer neighbors first (since their answers must be finalized before you can take the minimum over them) — this avoids recomputation across overlapping subproblems, similar to a topological/DAG DP."
+  ],
+  "solution": {
+    "approach": "Build a graph with edges from richer person to poorer person reversed: for edge a is richer than b, store an adjacency entry so we can walk from b to all people known to be at least as rich as b. Then compute answer(x) via memoized DFS: it starts as x itself (always a candidate, quiet[x]), and for every person p directly richer than x, recursively compute answer(p) and take whichever of the current best and answer(p) has lower quietness. Memoization ensures each node's answer is computed once even though multiple nodes may share richer ancestors, turning what looks like exponential path exploration into linear work over the DAG.",
+    "code": "def loud_and_rich(richer, quiet):\n    n = len(quiet)\n    graph = [[] for _ in range(n)]\n    for a, b in richer:\n        graph[b].append(a)  # b -> a: a is richer than b\n\n    answer = [-1] * n\n\n    def dfs(person):\n        if answer[person] != -1:\n            return answer[person]\n        best = person\n        for richer_person in graph[person]:\n            candidate = dfs(richer_person)\n            if quiet[candidate] < quiet[best]:\n                best = candidate\n        answer[person] = best\n        return best\n\n    for person in range(n):\n        dfs(person)\n\n    return answer\n",
+    "timeComplexity": "O(V + E)",
+    "spaceComplexity": "O(V + E)"
+  },
+  "starterCode": "def loud_and_rich(richer, quiet):\n    # your code here\n    pass\n",
+  "functionName": "loud_and_rich",
+  "paramNames": ["richer", "quiet"],
+  "testCases": [
+    {
+      "input": [[[1, 0], [2, 1], [3, 1], [3, 7], [4, 3], [5, 3], [6, 3]], [3, 2, 5, 4, 6, 1, 7, 0]],
+      "expected": [5, 5, 2, 5, 4, 5, 6, 7],
+      "isHidden": false
+    },
+    {
+      "input": [[], [0]],
+      "expected": [0],
+      "isHidden": false
+    },
+    {
+      "input": [[[0, 1]], [1, 0]],
+      "expected": [0, 1],
+      "isHidden": true
+    },
+    {
+      "input": [[[0, 1], [1, 2]], [2, 1, 0]],
+      "expected": [0, 1, 2],
+      "isHidden": true
+    }
+  ]
+}

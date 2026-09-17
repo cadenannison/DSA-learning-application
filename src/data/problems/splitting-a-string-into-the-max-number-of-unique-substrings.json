@@ -1,0 +1,73 @@
+{
+  "id": "splitting-a-string-into-the-max-number-of-unique-substrings",
+  "title": "Splitting a String Into the Max Number of Unique Substrings",
+  "pattern": "backtracking",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "Given a string `s`, return the maximum number of unique substrings that the given string can be split into.\n\nYou can split string `s` into any list of non-empty substrings, where the concatenation of the substrings forms the original string. However, you must split the substrings such that all of them are unique.",
+  "examples": [
+    {
+      "input": "s = \"ababccc\"",
+      "output": "5",
+      "explanation": "One way to split into 5 unique substrings is [\"a\",\"b\",\"ab\",\"c\",\"cc\"]."
+    },
+    {
+      "input": "s = \"aba\"",
+      "output": "2",
+      "explanation": "One way to split into 2 unique substrings is [\"a\",\"ba\"]."
+    },
+    {
+      "input": "s = \"aa\"",
+      "output": "1",
+      "explanation": "Splitting into [\"a\",\"a\"] repeats \"a\", so the only unique split is the whole string as one piece."
+    }
+  ],
+  "constraints": [
+    "1 <= s.length <= 16",
+    "s contains only lowercase English letters"
+  ],
+  "hints": [
+    "You're deciding where to cut the string next, and each resulting piece must not repeat a piece already chosen \u2014 that's a backtracking search over cut points plus a 'seen pieces' set.",
+    "At each position, try every possible length for the next piece; only recurse into it if it's not already in the set of pieces used so far in this path.",
+    "Track the best (maximum) count of pieces found across all complete splits explored, and prune trivially impossible branches (e.g. remaining length too short to add more unique pieces than the current best could ever exceed) if needed for speed, though the small input size (<=16) makes plain backtracking fast enough."
+  ],
+  "solution": {
+    "approach": "Backtrack over cut positions while maintaining a set of substrings already used in the current path. At each position, try every possible next piece length; skip a piece if it's already in the used set (since it would violate uniqueness), otherwise add it to the set, recurse from the new position, then remove it from the set (backtrack) before trying a different length. Track the maximum path length (number of pieces) seen across all complete splits (paths that consume the entire string). Given the small constraint (s.length <= 16), this exhaustive backtracking search with a used-set prune is fast enough without needing more advanced bounding.",
+    "code": "def max_unique_split(s):\n    n = len(s)\n    used = set()\n    best = 0\n\n    def backtrack(start):\n        nonlocal best\n        if start == n:\n            best = max(best, len(used))\n            return\n        for end in range(start + 1, n + 1):\n            piece = s[start:end]\n            if piece in used:\n                continue\n            used.add(piece)\n            backtrack(end)\n            used.remove(piece)\n\n    backtrack(0)\n    return best\n",
+    "timeComplexity": "O(2^n * n) worst case",
+    "spaceComplexity": "O(n) recursion depth and set size"
+  },
+  "starterCode": "def max_unique_split(s):\n    # your code here\n    pass\n",
+  "functionName": "max_unique_split",
+  "paramNames": ["s"],
+  "testCases": [
+    {
+      "input": ["ababccc"],
+      "expected": 5,
+      "isHidden": false
+    },
+    {
+      "input": ["aba"],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": ["aa"],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": ["a"],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": ["wwwzfvedwfvhsww"],
+      "expected": 11,
+      "isHidden": true
+    }
+  ]
+}

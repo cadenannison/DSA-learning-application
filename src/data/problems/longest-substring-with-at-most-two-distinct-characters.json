@@ -1,0 +1,69 @@
+{
+  "id": "longest-substring-with-at-most-two-distinct-characters",
+  "title": "Longest Substring with At Most Two Distinct Characters",
+  "pattern": "sliding-window",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Meta",
+    "Google"
+  ],
+  "prompt": "Given a string `s`, return the length of the longest substring that contains at most two distinct characters.",
+  "examples": [
+    {
+      "input": "s = \"eceba\"",
+      "output": "3",
+      "explanation": "The substring \"ece\" has length 3 with 2 distinct characters, 'e' and 'c'."
+    },
+    {
+      "input": "s = \"ccaabbb\"",
+      "output": "5",
+      "explanation": "The substring \"aabbb\" has length 5 with 2 distinct characters, 'a' and 'b'."
+    }
+  ],
+  "constraints": [
+    "1 <= s.length <= 10^5",
+    "s consists of English letters"
+  ],
+  "hints": [
+    "Checking every substring for the distinct-character-count constraint independently is O(n^2) or worse.",
+    "Use a sliding window with a hash map counting occurrences of each character currently inside it.",
+    "Expand the window to the right, and whenever the map has more than 2 distinct keys, shrink from the left (decrementing counts, deleting a key once it hits zero) until only 2 remain, tracking the max window length seen."
+  ],
+  "solution": {
+    "approach": "Maintain a sliding window with a hash map from character to its count inside the window. Expand the window by moving right and updating the map. Whenever the map holds more than 2 distinct characters, shrink from the left, decrementing the count of the character leaving and removing it from the map entirely once its count reaches zero, until at most 2 distinct characters remain. Track the maximum window length seen throughout.",
+    "code": "def length_of_longest_substring_two_distinct(s):\n    counts = {}\n    left = 0\n    best = 0\n\n    for right, ch in enumerate(s):\n        counts[ch] = counts.get(ch, 0) + 1\n        while len(counts) > 2:\n            left_ch = s[left]\n            counts[left_ch] -= 1\n            if counts[left_ch] == 0:\n                del counts[left_ch]\n            left += 1\n        best = max(best, right - left + 1)\n\n    return best\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1) (at most 3 keys tracked at any time)"
+  },
+  "starterCode": "def length_of_longest_substring_two_distinct(s):\n    # your code here\n    pass\n",
+  "functionName": "length_of_longest_substring_two_distinct",
+  "paramNames": ["s"],
+  "testCases": [
+    {
+      "input": ["eceba"],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": ["ccaabbb"],
+      "expected": 5,
+      "isHidden": false
+    },
+    {
+      "input": [""],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": ["a"],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": ["aaaa"],
+      "expected": 4,
+      "isHidden": true
+    }
+  ]
+}

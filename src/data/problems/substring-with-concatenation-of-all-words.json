@@ -1,0 +1,77 @@
+{
+  "id": "substring-with-concatenation-of-all-words",
+  "title": "Substring with Concatenation of All Words",
+  "pattern": "sliding-window",
+  "difficulty": "hard",
+  "companies": [
+    "Amazon",
+    "Meta",
+    "Microsoft",
+    "Google"
+  ],
+  "prompt": "You are given a string `s` and an array of strings `words`, all of which have the same length. A concatenated substring in `s` is a substring that contains all the strings of `words` concatenated in any order, and without any characters in between. Return all the starting indices of concatenated substrings in `s`. You may return the answer in any order.",
+  "examples": [
+    {
+      "input": "s = \"barfoothefoobarman\", words = [\"foo\",\"bar\"]",
+      "output": "[0,9]",
+      "explanation": "The substring starting at index 0 is \"barfoo\", which is \"bar\" and \"foo\" concatenated. The substring starting at index 9 is \"foobar\"."
+    },
+    {
+      "input": "s = \"wordgoodgoodgoodbestword\", words = [\"word\",\"good\",\"best\",\"word\"]",
+      "output": "[]",
+      "explanation": "No concatenation of all four words (in any order) appears as a contiguous substring."
+    },
+    {
+      "input": "s = \"barfoofoobarthefoobarman\", words = [\"bar\",\"foo\",\"the\"]",
+      "output": "[6,9,12]"
+    }
+  ],
+  "constraints": [
+    "1 <= s.length <= 10^4",
+    "1 <= words.length <= 5000",
+    "1 <= words[i].length <= 30",
+    "s and words[i] consist of lowercase English letters",
+    "All words[i] have the same length"
+  ],
+  "hints": [
+    "Because every word has the same fixed length, you can think of the substring as a sequence of equal-size 'super characters' (whole words) rather than individual letters.",
+    "For each of the wordLen possible starting offsets (0 to wordLen - 1), slide a window that always contains a whole number of words, using a frequency map to track which words are currently in the window.",
+    "As you extend the window by one word at a time, if a word isn't in the required word count map at all, reset the window to start right after it; if a word's count in the window exceeds its required count, shrink from the left (removing whole words) until it's valid again; when the window holds exactly totalWords words, record its start."
+  ],
+  "solution": {
+    "approach": "Since all words share the same length wordLen, valid concatenations align on word boundaries starting at one of wordLen possible offsets. For each offset, slide a window in word-sized steps: maintain a running count of words currently in the window. Extend the window by one word; if that word isn't needed at all, reset the window to start fresh after it; if the word's count in the window exceeds what's needed, shrink from the left one word at a time until it's within bounds. Whenever the window holds exactly len(words) words (matching the total count required), record the window's starting index. Running this for every offset covers all possible alignments in O(n * wordLen) overall.",
+    "code": "def find_substring(s, words):\n    if not s or not words:\n        return []\n\n    word_len = len(words[0])\n    num_words = len(words)\n    total_len = word_len * num_words\n    n = len(s)\n    if total_len > n:\n        return []\n\n    need = {}\n    for w in words:\n        need[w] = need.get(w, 0) + 1\n\n    result = []\n\n    for offset in range(word_len):\n        left = offset\n        count = 0\n        window = {}\n\n        for start in range(offset, n - word_len + 1, word_len):\n            word = s[start:start + word_len]\n\n            if word in need:\n                window[word] = window.get(word, 0) + 1\n                count += 1\n\n                while window[word] > need[word]:\n                    left_word = s[left:left + word_len]\n                    window[left_word] -= 1\n                    count -= 1\n                    left += word_len\n\n                if count == num_words:\n                    result.append(left)\n                    left_word = s[left:left + word_len]\n                    window[left_word] -= 1\n                    count -= 1\n                    left += word_len\n            else:\n                window.clear()\n                count = 0\n                left = start + word_len\n\n    return sorted(result)\n",
+    "timeComplexity": "O(n * wordLen)",
+    "spaceComplexity": "O(num_words * wordLen)"
+  },
+  "starterCode": "def find_substring(s, words):\n    # your code here\n    pass\n",
+  "functionName": "find_substring",
+  "paramNames": ["s", "words"],
+  "testCases": [
+    {
+      "input": ["barfoothefoobarman", ["foo", "bar"]],
+      "expected": [0, 9],
+      "isHidden": false
+    },
+    {
+      "input": ["wordgoodgoodgoodbestword", ["word", "good", "best", "word"]],
+      "expected": [],
+      "isHidden": false
+    },
+    {
+      "input": ["barfoofoobarthefoobarman", ["bar", "foo", "the"]],
+      "expected": [6, 9, 12],
+      "isHidden": false
+    },
+    {
+      "input": ["a", ["a"]],
+      "expected": [0],
+      "isHidden": true
+    },
+    {
+      "input": ["aaaaaaaaaaaaaa", ["aa", "aa"]],
+      "expected": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "id": "basic-calculator-ii",
+  "title": "Basic Calculator II",
+  "pattern": "stacks-queues",
+  "difficulty": "medium",
+  "companies": [
+    "Facebook",
+    "Amazon",
+    "LinkedIn",
+    "Microsoft"
+  ],
+  "prompt": "Given a string `s` representing an arithmetic expression, evaluate it and return its value as an integer. The expression contains non-negative integers, and the operators `+`, `-`, `*`, `/` (integer division that truncates toward zero), with no parentheses. `s` may contain spaces. Assume the expression is always valid and intermediate/final results fit in a 32-bit signed integer.",
+  "examples": [
+    {
+      "input": "s = \"3+2*2\"",
+      "output": "7"
+    },
+    {
+      "input": "s = \" 3/2 \"",
+      "output": "1"
+    },
+    {
+      "input": "s = \" 3+5 / 2 \"",
+      "output": "5"
+    }
+  ],
+  "constraints": [
+    "1 <= s.length <= 3 * 10^5",
+    "s consists of integers and operators ('+', '-', '*', '/') separated by some number of spaces",
+    "s represents a valid expression",
+    "All intermediate results and the final answer fit in a 32-bit signed integer"
+  ],
+  "hints": [
+    "Without parentheses, operator precedence (* and / bind tighter than + and -) is the only real complication.",
+    "Use a stack of already-resolved terms: push a number for '+' (or its negation for '-'), but for '*' and '/', pop the previous term and immediately combine it with the current number before pushing the result back.",
+    "This way, by the time you reach the end of the string, only '+' and '-' terms remain unresolved on the stack, so the final answer is simply their sum."
+  ],
+  "solution": {
+    "approach": "Parse the expression left to right, tracking the current number being built and the operator that preceded it (starting with '+'). Whenever a new operator or the end of the string is reached, resolve the just-finished number against the previous operator: push it for '+', push its negation for '-', or for '*'/'/', pop the last pushed term and combine it with the current number before pushing the combined result. This immediately resolves high-precedence operators, so only addable terms remain on the stack, and the final answer is their sum.",
+    "code": "def calculate(s):\n    stack = []\n    num = 0\n    op = '+'\n    s = s + '+'  # sentinel to flush the last number\n\n    for ch in s:\n        if ch.isdigit():\n            num = num * 10 + int(ch)\n        elif ch == ' ':\n            continue\n        else:\n            if op == '+':\n                stack.append(num)\n            elif op == '-':\n                stack.append(-num)\n            elif op == '*':\n                stack.append(stack.pop() * num)\n            elif op == '/':\n                stack.append(int(stack.pop() / num))\n            op = ch\n            num = 0\n\n    return sum(stack)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def calculate(s):\n    # your code here\n    pass\n",
+  "functionName": "calculate",
+  "paramNames": ["s"],
+  "testCases": [
+    {
+      "input": ["3+2*2"],
+      "expected": 7,
+      "isHidden": false
+    },
+    {
+      "input": [" 3/2 "],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [" 3+5 / 2 "],
+      "expected": 5,
+      "isHidden": false
+    },
+    {
+      "input": ["1"],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": ["14-3/2"],
+      "expected": 13,
+      "isHidden": true
+    },
+    {
+      "input": ["0-4/2"],
+      "expected": -2,
+      "isHidden": true
+    }
+  ]
+}

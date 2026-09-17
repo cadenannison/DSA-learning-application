@@ -1,0 +1,63 @@
+{
+  "id": "my-calendar-ii",
+  "title": "My Calendar II",
+  "pattern": "intervals",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "Design a `MyCalendarTwo` class to track events, allowing double bookings but never a triple booking. A double booking is when two events have a non-empty intersection; a triple booking is when three events all share some common moment. Implement `book(start, end)`, representing an event during the half-open interval `[start, end)`. Return `True` and add the event if booking it would not create a triple booking anywhere; otherwise return `False` and do not add it.",
+  "examples": [
+    {
+      "input": "book(10,20)->true, book(50,60)->true, book(10,40)->true, book(5,15)->false, book(5,10)->true, book(25,55)->true",
+      "output": "[true, true, true, false, true, true]",
+      "explanation": "book(5,15) fails because [10,15) would already be double-booked by [10,20) and [10,40), making it a triple booking."
+    }
+  ],
+  "constraints": [
+    "0 <= start < end <= 10^9",
+    "at most 1000 calls will be made to book"
+  ],
+  "hints": [
+    "Track not just the booked events, but also the regions that are already double-booked, since a new event is illegal exactly when it overlaps a double-booked region.",
+    "When a new booking is accepted, any overlap it creates with existing single bookings becomes a new double-booked region — compute those overlap ranges using max(start) and min(end).",
+    "Maintain two lists: all bookings, and all currently double-booked ranges. Reject a new event if it overlaps any double-booked range; otherwise add its overlaps with existing bookings to the double-booked list, then add the event itself."
+  ],
+  "solution": {
+    "approach": "Keep two lists: `bookings` (every accepted event) and `overlaps` (regions currently covered by exactly two events). To book a new event, first check it against every entry in `overlaps` — if it intersects any of them, accepting it would create a triple booking, so reject. Otherwise, for every existing booking that intersects the new event, compute their overlap range [max(starts), min(ends)] and add it to `overlaps` (this correctly captures the new double-booked regions). Finally add the new event to `bookings` and accept it.",
+    "code": "class MyCalendarTwo:\n    def __init__(self):\n        self.bookings = []\n        self.overlaps = []\n\n    def book(self, start, end):\n        for s, e in self.overlaps:\n            if start < e and s < end:\n                return False\n\n        for s, e in self.bookings:\n            lo, hi = max(start, s), min(end, e)\n            if lo < hi:\n                self.overlaps.append((lo, hi))\n\n        self.bookings.append((start, end))\n        return True\n\n\ndef my_calendar_two(operations, args):\n    calendar = MyCalendarTwo()\n    results = []\n    for op, arg in zip(operations, args):\n        if op == 'book':\n            results.append(calendar.book(arg[0], arg[1]))\n    return results\n",
+    "timeComplexity": "O(n) per booking, O(n^2) overall for n calls",
+    "spaceComplexity": "O(n) to store bookings and overlaps"
+  },
+  "starterCode": "def my_calendar_two(operations, args):\n    # operations is a list of method names (always 'book' after construction)\n    # args is a list of argument lists for each operation, e.g. [[10, 20], [15, 25]]\n    # return a list of the boolean results of each book() call, in order\n    # your code here\n    pass\n",
+  "functionName": "my_calendar_two",
+  "paramNames": ["operations", "args"],
+  "testCases": [
+    {
+      "input": [["book", "book", "book", "book", "book", "book"], [[10, 20], [50, 60], [10, 40], [5, 15], [5, 10], [25, 55]]],
+      "expected": [true, true, true, false, true, true],
+      "isHidden": false
+    },
+    {
+      "input": [["book"], [[0, 10]]],
+      "expected": [true],
+      "isHidden": false
+    },
+    {
+      "input": [["book", "book", "book"], [[0, 10], [0, 10], [0, 10]]],
+      "expected": [true, true, false],
+      "isHidden": true
+    },
+    {
+      "input": [["book", "book"], [[1, 5], [5, 10]]],
+      "expected": [true, true],
+      "isHidden": true
+    },
+    {
+      "input": [["book", "book", "book", "book"], [[10, 20], [10, 20], [10, 20], [10, 20]]],
+      "expected": [true, true, false, false],
+      "isHidden": true
+    }
+  ]
+}

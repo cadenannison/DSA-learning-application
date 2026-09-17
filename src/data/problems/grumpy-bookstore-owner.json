@@ -1,0 +1,69 @@
+{
+  "id": "grumpy-bookstore-owner",
+  "title": "Grumpy Bookstore Owner",
+  "pattern": "sliding-window",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "There is one bookstore owner who has a store open for `n` minutes. Every minute, some number of customers enter the store, given by an array `customers` of length `n` where `customers[i]` is the number of customers entering at minute `i`, and all those customers leave at the end of that minute. On some minutes the owner is grumpy, given by a binary array `grumpy` of length `n` where `grumpy[i] == 1` means the owner is grumpy during minute `i`. When the owner is grumpy, the customers entering that minute do not become satisfied; otherwise they do. The bookstore owner knows a secret technique to keep themselves not grumpy for `minutes` consecutive minutes, but can only use it once. Return the maximum number of customers that can be satisfied throughout the day.",
+  "examples": [
+    {
+      "input": "customers = [1,0,1,2,1,1,7,5], grumpy = [0,1,0,1,0,1,0,1], minutes = 3",
+      "output": "16",
+      "explanation": "The owner uses the technique during minutes 3 to 5 (customers 2,1,1), keeping those customers satisfied. Combined with the customers already satisfied when not grumpy (1+1+1+7=10), the total is 10 + (2+1+1) = 16."
+    },
+    {
+      "input": "customers = [1], grumpy = [0], minutes = 1",
+      "output": "1"
+    }
+  ],
+  "constraints": [
+    "n == customers.length == grumpy.length",
+    "1 <= minutes <= n <= 2 * 10^4",
+    "0 <= customers[i] <= 1000",
+    "grumpy[i] is either 0 or 1"
+  ],
+  "hints": [
+    "Start by counting all customers who are already satisfied (minutes where grumpy is 0) — that's a fixed baseline regardless of where the technique is used.",
+    "The technique can only add the customers lost during a window of `minutes` consecutive grumpy minutes, so you want the window of size `minutes` that maximizes the number of otherwise-lost customers.",
+    "Use a fixed-size sliding window over the 'lost customers' values (customers[i] if grumpy[i] == 1 else 0), and track the best window sum; add that to the baseline satisfied count."
+  ],
+  "solution": {
+    "approach": "First compute the baseline of customers already satisfied when the owner isn't grumpy — this doesn't depend on where the technique is applied. Then, define the 'recoverable' customers at each minute as customers[i] if grumpy[i] is 1, else 0 (those are the ones lost that the technique could save). Slide a fixed-size window of length `minutes` over this recoverable array, tracking the maximum window sum with the standard running-sum technique. The answer is the baseline plus this maximum recoverable sum, since the best use of the one-time technique is over whichever window recovers the most otherwise-lost customers.",
+    "code": "def max_satisfied(customers, grumpy, minutes):\n    n = len(customers)\n    baseline = sum(c for c, g in zip(customers, grumpy) if g == 0)\n\n    window = sum(customers[i] for i in range(minutes) if grumpy[i] == 1)\n    best_window = window\n\n    for i in range(minutes, n):\n        if grumpy[i] == 1:\n            window += customers[i]\n        if grumpy[i - minutes] == 1:\n            window -= customers[i - minutes]\n        best_window = max(best_window, window)\n\n    return baseline + best_window\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def max_satisfied(customers, grumpy, minutes):\n    # your code here\n    pass\n",
+  "functionName": "max_satisfied",
+  "paramNames": ["customers", "grumpy", "minutes"],
+  "testCases": [
+    {
+      "input": [[1, 0, 1, 2, 1, 1, 7, 5], [0, 1, 0, 1, 0, 1, 0, 1], 3],
+      "expected": 16,
+      "isHidden": false
+    },
+    {
+      "input": [[1], [0], 1],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [[1, 1, 1], [1, 1, 1], 3],
+      "expected": 3,
+      "isHidden": true
+    },
+    {
+      "input": [[4, 10, 10], [1, 1, 0], 2],
+      "expected": 24,
+      "isHidden": true
+    },
+    {
+      "input": [[2, 2, 2], [0, 0, 0], 1],
+      "expected": 6,
+      "isHidden": true
+    }
+  ]
+}

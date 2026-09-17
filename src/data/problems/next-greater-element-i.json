@@ -1,0 +1,69 @@
+{
+  "id": "next-greater-element-i",
+  "title": "Next Greater Element I",
+  "pattern": "stacks-queues",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Meta"
+  ],
+  "prompt": "You are given two arrays `nums1` and `nums2` with no duplicate values, where `nums1` is a subset of `nums2`. For each element `nums1[i]`, find the index of that value in `nums2`, then find the first element to the right of it in `nums2` that is strictly greater. If no such element exists, the answer for that value is `-1`.\n\nReturn an array `ans` where `ans[i]` is the next greater element for `nums1[i]` as described above.",
+  "examples": [
+    {
+      "input": "nums1 = [4,1,2], nums2 = [1,3,4,2]",
+      "output": "[-1,3,-1]",
+      "explanation": "For 4, there's nothing to its right in nums2, so -1. For 1, the next greater to its right is 3. For 2, there's nothing greater to its right, so -1."
+    },
+    {
+      "input": "nums1 = [2,4], nums2 = [1,2,3,4]",
+      "output": "[3,-1]"
+    }
+  ],
+  "constraints": [
+    "1 <= nums1.length <= nums2.length <= 1000",
+    "0 <= nums1[i], nums2[i] <= 10^4",
+    "All integers in nums1 and nums2 are unique",
+    "All the integers of nums1 also appear in nums2"
+  ],
+  "hints": [
+    "Checking every pair for each query gives O(n*m) — you can precompute every element's next-greater in one pass over nums2.",
+    "Use a monotonic decreasing stack while scanning nums2: whenever the current number is bigger than the stack's top, that top has just found its next greater element.",
+    "Store each resolved (value -> next greater) pair in a hash map as you pop the stack, then answer nums1 queries with O(1) lookups."
+  ],
+  "solution": {
+    "approach": "Scan nums2 once while maintaining a monotonically decreasing stack of values that haven't found their next greater element yet. When the current number exceeds the stack's top, pop it and record current number as its next greater in a hash map — repeat until the stack top is no longer smaller. Push the current number. Any value left on the stack at the end has no next greater (-1). Finally, map each nums1 value through this hash map (defaulting to -1).",
+    "code": "def next_greater_element(nums1, nums2):\n    next_greater = {}\n    stack = []\n    for num in nums2:\n        while stack and stack[-1] < num:\n            next_greater[stack.pop()] = num\n        stack.append(num)\n    return [next_greater.get(num, -1) for num in nums1]\n",
+    "timeComplexity": "O(n + m)",
+    "spaceComplexity": "O(m)"
+  },
+  "starterCode": "def next_greater_element(nums1, nums2):\n    # your code here\n    pass\n",
+  "functionName": "next_greater_element",
+  "paramNames": ["nums1", "nums2"],
+  "testCases": [
+    {
+      "input": [[4, 1, 2], [1, 3, 4, 2]],
+      "expected": [-1, 3, -1],
+      "isHidden": false
+    },
+    {
+      "input": [[2, 4], [1, 2, 3, 4]],
+      "expected": [3, -1],
+      "isHidden": false
+    },
+    {
+      "input": [[1], [1]],
+      "expected": [-1],
+      "isHidden": true
+    },
+    {
+      "input": [[3, 1], [3, 4, 1]],
+      "expected": [4, -1],
+      "isHidden": true
+    },
+    {
+      "input": [[5, 4, 3, 2, 1], [1, 2, 3, 4, 5]],
+      "expected": [-1, 5, 4, 3, 2],
+      "isHidden": true
+    }
+  ]
+}

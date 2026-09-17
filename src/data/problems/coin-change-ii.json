@@ -1,0 +1,71 @@
+{
+  "id": "coin-change-ii",
+  "title": "Coin Change II",
+  "pattern": "dynamic-programming",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Bloomberg"
+  ],
+  "prompt": "You are given an integer `amount` and an array of coin denominations `coins`, where you have an unlimited supply of each coin. Return the number of distinct combinations that make up `amount`. Two combinations are different if the number of coins used of at least one denomination differs (order does not matter). Return 0 if the amount cannot be made up by any combination of coins.",
+  "examples": [
+    {
+      "input": "amount = 5, coins = [1,2,5]",
+      "output": "4",
+      "explanation": "The combinations are: 5=5, 5=2+2+1, 5=2+1+1+1, 5=1+1+1+1+1."
+    },
+    {
+      "input": "amount = 3, coins = [2]",
+      "output": "0",
+      "explanation": "No combination of 2s sums to 3."
+    }
+  ],
+  "constraints": [
+    "1 <= coins.length <= 300",
+    "1 <= coins[i] <= 5000",
+    "All values of coins are unique",
+    "0 <= amount <= 5000"
+  ],
+  "hints": [
+    "This asks for the COUNT of combinations, not the minimum number of coins — the recurrence looks similar to Coin Change I but the loop order matters here.",
+    "Define dp[a] = number of ways to make amount a. If you loop coins on the outside and amounts on the inside, each coin is considered as a whole group before moving to the next, which naturally avoids counting permutations (like 1+2 and 2+1) as different combinations.",
+    "dp[0] = 1 (one way to make 0: use no coins). For each coin, for each amount a >= coin, dp[a] += dp[a - coin]."
+  ],
+  "solution": {
+    "approach": "Counting combinations (order doesn't matter) requires a different loop order than the minimum-coins variant. dp[a] represents the number of ways to make amount a using coins considered so far, with dp[0] = 1 (the empty combination). Process coins in the OUTER loop and amounts in the inner loop: for each coin, update dp[a] += dp[a - coin] for every a from coin up to amount. Fixing the coin in the outer loop ensures each combination is only counted once, regardless of the order the coins would be picked in, since by the time a coin is 'available' every dp[a] built from it already reflects some fixed count of earlier coins used first. The final answer is dp[amount].",
+    "code": "def change(amount, coins):\n    dp = [0] * (amount + 1)\n    dp[0] = 1\n\n    for coin in coins:\n        for a in range(coin, amount + 1):\n            dp[a] += dp[a - coin]\n\n    return dp[amount]\n",
+    "timeComplexity": "O(amount * len(coins))",
+    "spaceComplexity": "O(amount)"
+  },
+  "starterCode": "def change(amount, coins):\n    # your code here\n    pass\n",
+  "functionName": "change",
+  "paramNames": ["amount", "coins"],
+  "testCases": [
+    {
+      "input": [5, [1, 2, 5]],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [3, [2]],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [0, [1, 2, 3]],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [10, [10]],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [500, [1, 2, 5]],
+      "expected": 12701,
+      "isHidden": true
+    }
+  ]
+}

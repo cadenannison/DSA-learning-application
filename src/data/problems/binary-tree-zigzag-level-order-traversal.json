@@ -1,0 +1,79 @@
+{
+  "id": "binary-tree-zigzag-level-order-traversal",
+  "title": "Binary Tree Zigzag Level Order Traversal",
+  "pattern": "trees",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "LinkedIn",
+    "Bloomberg"
+  ],
+  "prompt": "Given the `root` of a binary tree, return the values of its nodes grouped level by level, but alternating direction: the first level left-to-right, the next right-to-left, and so on, zigzagging back and forth.\n\nThe tree is given as a level-order array where `null` marks a missing child (the standard LeetCode serialization). Your function receives this array directly; the starter code includes a helper that builds the tree from it, so you only need to implement the zigzag grouping.",
+  "examples": [
+    {
+      "input": "root = [3,9,20,null,null,15,7]",
+      "output": "[[3],[20,9],[15,7]]",
+      "explanation": "Level 0 reads left-to-right (3). Level 1 reads right-to-left (20,9). Level 2 reads left-to-right again (15,7)."
+    },
+    {
+      "input": "root = [1]",
+      "output": "[[1]]"
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [0, 2000]",
+    "-100 <= Node.val <= 100"
+  ],
+  "hints": [
+    "Start with standard level-order BFS, collecting each level's values into a list exactly like normal level order traversal.",
+    "The only difference from plain level order is that every other level needs to be reversed before being added to the result.",
+    "Keep a boolean flag that flips after every level; when it indicates a 'reverse' level, reverse that level's list before appending it to the result."
+  ],
+  "solution": {
+    "approach": "Perform standard BFS level order traversal, collecting each level's values left-to-right using the queue as usual. Track a flag that toggles after every level; whenever the flag indicates the current level should be reversed, reverse the level's list before appending it to the result. This is simpler and avoids needing a deque with alternating push directions.",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef zigzag_level_order(root_arr):\n    root = build_tree(root_arr)\n    if root is None:\n        return []\n\n    result = []\n    queue = [root]\n    left_to_right = True\n    while queue:\n        level_size = len(queue)\n        level_vals = []\n        for _ in range(level_size):\n            node = queue.pop(0)\n            level_vals.append(node.val)\n            if node.left:\n                queue.append(node.left)\n            if node.right:\n                queue.append(node.right)\n        if not left_to_right:\n            level_vals.reverse()\n        result.append(level_vals)\n        left_to_right = not left_to_right\n    return result\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef zigzag_level_order(root_arr):\n    root = build_tree(root_arr)\n    # your code here\n    pass\n",
+  "functionName": "zigzag_level_order",
+  "paramNames": ["root_arr"],
+  "testCases": [
+    {
+      "input": [
+        [3, 9, 20, null, null, 15, 7]
+      ],
+      "expected": [[3], [20, 9], [15, 7]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": [[1]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        []
+      ],
+      "expected": [],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3, 4, 5, 6, 7]
+      ],
+      "expected": [[1], [3, 2], [4, 5, 6, 7]],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3, 4, 5, null, 6]
+      ],
+      "expected": [[1], [3, 2], [4, 5, 6]],
+      "isHidden": true
+    }
+  ]
+}

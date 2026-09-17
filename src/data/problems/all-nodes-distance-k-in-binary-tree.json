@@ -1,0 +1,91 @@
+{
+  "id": "all-nodes-distance-k-in-binary-tree",
+  "title": "All Nodes Distance K in Binary Tree",
+  "pattern": "trees",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Facebook"
+  ],
+  "prompt": "Given the `root` of a binary tree, the value of a `target` node in that tree, and an integer `k`, return the values of all nodes that are exactly distance `k` from the target node, in any order. Distance is measured in number of edges, and edges can be traversed in either direction (up to a parent or down to a child).\n\nThe tree is given as a level-order array where `null` marks a missing child (the standard LeetCode serialization). Your function receives this array along with `target` and `k`; the starter code includes a helper that builds the tree from the array, so you only need to find the nodes at that distance. Return the result sorted in ascending order for deterministic checking.",
+  "examples": [
+    {
+      "input": "root = [3,5,1,6,2,0,8,null,null,7,4], target = 5, k = 2",
+      "output": "[7,4,1]",
+      "explanation": "From node 5, the nodes at distance 2 are 7 and 4 (its grandchildren) and 1 (its sibling, reached via the shared parent 3)."
+    },
+    {
+      "input": "root = [1], target = 1, k = 3",
+      "output": "[]"
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [1, 500]",
+    "0 <= Node.val <= 500",
+    "All node values are unique",
+    "target is the value of a node in the tree",
+    "0 <= k <= 1000"
+  ],
+  "hints": [
+    "A binary tree only has downward pointers, but this problem needs to move upward too — first build a way to know each node's parent.",
+    "Do one pass (DFS or BFS) to record every node's parent in a hash map, effectively turning the tree into an undirected graph.",
+    "Once parents are known, run a BFS starting from the target node, treating left child, right child, AND parent as neighbors, and stop expanding once you've taken k steps — everything in the frontier at that point is your answer."
+  ],
+  "solution": {
+    "approach": "First do a DFS or BFS over the tree to build a value-to-parent map, which lets every node reach its parent in O(1). This turns the tree into an undirected graph where each node connects to its left child, right child, and parent. Then run a standard BFS from the target node, expanding to all three kinds of neighbors and tracking visited nodes to avoid cycles, stopping after exactly k expansions. The nodes remaining in the BFS frontier at that point are exactly the nodes at distance k.",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef distance_k(root_arr, target, k):\n    root = build_tree(root_arr)\n\n    parent = {}\n    target_node = [None]\n\n    def map_parents(node, par):\n        if node is None:\n            return\n        parent[node] = par\n        if node.val == target:\n            target_node[0] = node\n        map_parents(node.left, node)\n        map_parents(node.right, node)\n\n    map_parents(root, None)\n\n    visited = {target_node[0]}\n    queue = [target_node[0]]\n    distance = 0\n    while queue and distance < k:\n        next_queue = []\n        for node in queue:\n            for neighbor in (node.left, node.right, parent[node]):\n                if neighbor is not None and neighbor not in visited:\n                    visited.add(neighbor)\n                    next_queue.append(neighbor)\n        queue = next_queue\n        distance += 1\n\n    return sorted(node.val for node in queue)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef distance_k(root_arr, target, k):\n    root = build_tree(root_arr)\n    # your code here\n    # return sorted list of values at distance k from the node with value `target`\n    pass\n",
+  "functionName": "distance_k",
+  "paramNames": ["root_arr", "target", "k"],
+  "testCases": [
+    {
+      "input": [
+        [3, 5, 1, 6, 2, 0, 8, null, null, 7, 4],
+        5,
+        2
+      ],
+      "expected": [1, 4, 7],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1],
+        1,
+        3
+      ],
+      "expected": [],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1],
+        1,
+        0
+      ],
+      "expected": [1],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [3, 5, 1, 6, 2, 0, 8, null, null, 7, 4],
+        3,
+        1
+      ],
+      "expected": [1, 5],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3, 4],
+        4,
+        3
+      ],
+      "expected": [3],
+      "isHidden": true
+    }
+  ]
+}

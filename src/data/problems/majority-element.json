@@ -1,0 +1,80 @@
+{
+  "id": "majority-element",
+  "title": "Majority Element",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Adobe",
+    "Zillow"
+  ],
+  "prompt": "Given an array `nums` of size `n`, return the majority element: the element that appears more than `n / 2` times. You may assume the majority element always exists in the array. Try to solve it in linear time and `O(1)` extra space.",
+  "examples": [
+    {
+      "input": "nums = [3,2,3]",
+      "output": "3"
+    },
+    {
+      "input": "nums = [2,2,1,1,1,2,2]",
+      "output": "2"
+    }
+  ],
+  "constraints": [
+    "n == nums.length",
+    "1 <= n <= 5 * 10^4",
+    "-2^31 <= nums[i] <= 2^31 - 1",
+    "A majority element always exists in nums"
+  ],
+  "hints": [
+    "A hash map counting frequencies works in O(n) time but O(n) space — can you avoid the extra map?",
+    "Since the majority element appears more than n/2 times, it can survive being 'cancelled out' one-for-one against every other distinct value combined.",
+    "Keep a running candidate and a count. When count hits 0, pick a new candidate; increment count for matches, decrement for mismatches — this is the Boyer-Moore voting algorithm."
+  ],
+  "solution": {
+    "approach": "Use Boyer-Moore voting: maintain a candidate and a count starting at 0. For each number, if count is 0, adopt it as the new candidate; then increment count if the number matches the candidate, otherwise decrement. Because the true majority element outnumbers all others combined, it can never be fully cancelled out, so whatever candidate survives to the end must be the majority element. This runs in one O(n) pass with O(1) space.",
+    "code": "def majority_element(nums):\n    candidate = None\n    count = 0\n\n    for num in nums:\n        if count == 0:\n            candidate = num\n        count += 1 if num == candidate else -1\n\n    return candidate\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def majority_element(nums):\n    # your code here\n    pass\n",
+  "functionName": "majority_element",
+  "paramNames": ["nums"],
+  "testCases": [
+    {
+      "input": [
+        [3, 2, 3]
+      ],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [2, 2, 1, 1, 1, 2, 2]
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [6, 5, 5]
+      ],
+      "expected": 5,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [-1, -1, -1, 2, 2]
+      ],
+      "expected": -1,
+      "isHidden": true
+    }
+  ]
+}

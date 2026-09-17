@@ -1,0 +1,81 @@
+{
+  "id": "island-perimeter",
+  "title": "Island Perimeter",
+  "pattern": "bfs-dfs",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Facebook"
+  ],
+  "prompt": "You are given an `m x n` grid `grid` where `grid[i][j] = 1` represents land and `grid[i][j] = 0` represents water. The grid cells are connected horizontally/vertically (not diagonally). The grid is completely surrounded by water, contains exactly one island (one or more connected land cells), and has no lakes (water inside the island that isn't connected to the surrounding water). Determine the perimeter of the island.",
+  "examples": [
+    {
+      "input": "grid = [[0,1,0,0],[1,1,1,0],[0,1,0,0],[1,1,0,0]]",
+      "output": "16",
+      "explanation": "Tracing the boundary of the connected land cells gives a total perimeter of 16."
+    },
+    {
+      "input": "grid = [[1]]",
+      "output": "4",
+      "explanation": "A single land cell has all four sides exposed to water."
+    }
+  ],
+  "constraints": [
+    "m == grid.length",
+    "n == grid[i].length",
+    "1 <= m, n <= 100",
+    "grid[i][j] is 0 or 1"
+  ],
+  "hints": [
+    "Brute force: for every land cell, count how many of its four sides touch water or the grid boundary — that's the perimeter contribution of that cell.",
+    "You don't need a visited set or flood-fill at all here, since there's exactly one island; a single pass over every cell suffices.",
+    "For each land cell, a side contributes 1 to the perimeter exactly when the neighbor in that direction is out of bounds or is water — sum this over all four directions for every land cell."
+  ],
+  "solution": {
+    "approach": "Scan every cell. For each land cell, check its four neighbors (up, down, left, right); each neighbor that is out of bounds or water contributes exactly one unit of exposed edge to the perimeter. Summing this over all land cells gives the total perimeter directly, since shared edges between two land cells never get counted (each contributes 0 to both sides).",
+    "code": "def island_perimeter(grid):\n    rows, cols = len(grid), len(grid[0])\n    perimeter = 0\n\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] == 1:\n                for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                    nr, nc = r + dr, c + dc\n                    if nr < 0 or nr >= rows or nc < 0 or nc >= cols or grid[nr][nc] == 0:\n                        perimeter += 1\n\n    return perimeter\n",
+    "timeComplexity": "O(m * n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def island_perimeter(grid):\n    # your code here\n    pass\n",
+  "functionName": "island_perimeter",
+  "paramNames": ["grid"],
+  "testCases": [
+    {
+      "input": [
+        [[0, 1, 0, 0], [1, 1, 1, 0], [0, 1, 0, 0], [1, 1, 0, 0]]
+      ],
+      "expected": 16,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1]]
+      ],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1, 0]]
+      ],
+      "expected": 4,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[1, 1], [1, 1]]
+      ],
+      "expected": 8,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[0, 1, 0], [1, 1, 1], [0, 1, 0]]
+      ],
+      "expected": 12,
+      "isHidden": true
+    }
+  ]
+}

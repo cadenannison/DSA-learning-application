@@ -1,0 +1,69 @@
+{
+  "id": "unique-paths-iii",
+  "title": "Unique Paths III",
+  "pattern": "backtracking",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "You are given an `m x n` integer array `grid` where `grid[i][j]` can be:\n- `1` marking the starting square (there is exactly one),\n- `2` marking the ending square (there is exactly one),\n- `0` a square you can walk over, or\n- `-1` an obstacle you cannot walk over.\n\nReturn the number of 4-directional paths from the starting square to the ending square that walk over every non-obstacle square exactly once.",
+  "examples": [
+    {
+      "input": "grid = [[1,0,0,0],[0,0,0,0],[0,0,2,-1]]",
+      "output": "2",
+      "explanation": "There are exactly 2 distinct paths that visit every walkable square exactly once and end on the '2' square."
+    },
+    {
+      "input": "grid = [[1,0,0,0],[0,0,0,0],[0,0,0,2]]",
+      "output": "4"
+    },
+    {
+      "input": "grid = [[0,1],[2,0]]",
+      "output": "0",
+      "explanation": "Every non-obstacle square must be visited, but there's no way to cover both remaining squares in a single simple path from start to end here."
+    }
+  ],
+  "constraints": [
+    "1 <= m, n <= 20",
+    "1 <= m * n <= 20",
+    "grid[i][j] is -1, 0, 1, or 2",
+    "There is exactly one starting square and one ending square"
+  ],
+  "hints": [
+    "First count how many non-obstacle squares (0s, plus the start and end) must be visited in total — a valid path must touch all of them exactly once, which is a strong constraint you can check incrementally.",
+    "DFS/backtrack from the start square, moving in 4 directions into cells that are in-bounds, not an obstacle, and not already visited in the current path; mark cells visited on the way in and unmark them on the way out (backtrack).",
+    "A path only counts as a solution when you land on the ending square AND you've visited exactly the required number of squares so far — reaching the end early (skipping some walkable squares) must not be counted."
+  ],
+  "solution": {
+    "approach": "First scan the grid to find the start position and count the number of empty (0) squares that must be visited along the way. Then DFS/backtrack from the start: at each step, try moving to each of the 4 neighbors that are in-bounds and not an obstacle (-1). Mark the current cell visited by temporarily overwriting it with -1 before recursing, and restore it after (standard backtracking), tracking how many empty squares have been visited so far. A path is only counted when we step onto the end cell (2) AND the count of visited empty squares equals the required total — this ensures we count only paths that cover every walkable square exactly once, not paths that reach the end early while skipping squares.",
+    "code": "def unique_paths_iii(grid):\n    rows, cols = len(grid), len(grid[0])\n    start = None\n    empty_count = 0\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] == 1:\n                start = (r, c)\n            if grid[r][c] == 0:\n                empty_count += 1\n\n    count = 0\n\n    def backtrack(r, c, visited):\n        nonlocal count\n        if grid[r][c] == 2:\n            if visited == empty_count:\n                count += 1\n            return\n        original = grid[r][c]\n        grid[r][c] = -1\n        for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n            nr, nc = r + dr, c + dc\n            if 0 <= nr < rows and 0 <= nc < cols and grid[nr][nc] != -1:\n                backtrack(nr, nc, visited + (1 if grid[nr][nc] == 0 else 0))\n        grid[r][c] = original\n\n    backtrack(start[0], start[1], 0)\n    return count\n",
+    "timeComplexity": "O(3^k) where k is the number of empty squares, since each step has at most 3 non-backward directions",
+    "spaceComplexity": "O(m*n) recursion depth"
+  },
+  "starterCode": "def unique_paths_iii(grid):\n    # your code here\n    pass\n",
+  "functionName": "unique_paths_iii",
+  "paramNames": ["grid"],
+  "testCases": [
+    {
+      "input": [[[1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 2, -1]]],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [[[1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 2]]],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [[[0, 1], [2, 0]]],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [[[1, 2]]],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

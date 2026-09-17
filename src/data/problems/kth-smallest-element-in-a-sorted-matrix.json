@@ -1,0 +1,79 @@
+{
+  "id": "kth-smallest-element-in-a-sorted-matrix",
+  "title": "Kth Smallest Element in a Sorted Matrix",
+  "pattern": "binary-search",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Meta",
+    "Bloomberg"
+  ],
+  "prompt": "Given an `n x n` matrix `matrix` where each row and each column is sorted in ascending order, return the k-th smallest element in the matrix (counted as the k-th smallest in sorted order across the entire matrix, not the k-th distinct element).",
+  "examples": [
+    {
+      "input": "matrix = [[1,5,9],[10,11,13],[12,13,15]], k = 8",
+      "output": "13",
+      "explanation": "The sorted order of the matrix elements is [1,5,9,10,11,12,13,13,15], and the 8th smallest is 13."
+    },
+    {
+      "input": "matrix = [[-5]], k = 1",
+      "output": "-5"
+    }
+  ],
+  "constraints": [
+    "n == matrix.length == matrix[i].length",
+    "1 <= n <= 300",
+    "-10^9 <= matrix[i][j] <= 10^9",
+    "each row and column of matrix is sorted in ascending order",
+    "1 <= k <= n^2"
+  ],
+  "hints": [
+    "Merging all n sorted rows into one sorted list and indexing into it works but costs O(n^2 log n) or more.",
+    "Instead of searching positions, binary search on the value itself: pick a candidate value and count how many matrix elements are <= it, which can be done in O(n) using the sorted-rows-and-columns structure (like a staircase walk from the bottom-left).",
+    "That count is monotonically non-decreasing as the candidate value increases, so binary search the value range [matrix[0][0], matrix[n-1][n-1]] for the smallest value whose count is >= k."
+  ],
+  "solution": {
+    "approach": "Binary search on the value range between the matrix's minimum and maximum elements rather than on positions. For a candidate value, count how many matrix elements are less than or equal to it in O(n) time by walking from the bottom-left corner: move right while the current cell is <= the candidate (adding all elements above it in that column), and move up otherwise. This count is monotonically non-decreasing in the candidate value, so binary search for the smallest value whose count is at least k, which is guaranteed to be an actual matrix element and thus the k-th smallest.",
+    "code": "def kth_smallest(matrix, k):\n    n = len(matrix)\n\n    def count_less_equal(x):\n        count = 0\n        row, col = n - 1, 0\n        while row >= 0 and col < n:\n            if matrix[row][col] <= x:\n                count += row + 1\n                col += 1\n            else:\n                row -= 1\n        return count\n\n    lo, hi = matrix[0][0], matrix[n - 1][n - 1]\n\n    while lo < hi:\n        mid = lo + (hi - lo) // 2\n        if count_less_equal(mid) < k:\n            lo = mid + 1\n        else:\n            hi = mid\n\n    return lo\n",
+    "timeComplexity": "O(n log(max - min))",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def kth_smallest(matrix, k):\n    # your code here\n    pass\n",
+  "functionName": "kth_smallest",
+  "paramNames": ["matrix", "k"],
+  "testCases": [
+    {
+      "input": [
+        [[1, 5, 9], [10, 11, 13], [12, 13, 15]],
+        8
+      ],
+      "expected": 13,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[-5]],
+        1
+      ],
+      "expected": -5,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1, 2], [1, 3]],
+        2
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[1, 3, 5], [6, 7, 12], [11, 14, 14]],
+        6
+      ],
+      "expected": 11,
+      "isHidden": true
+    }
+  ]
+}

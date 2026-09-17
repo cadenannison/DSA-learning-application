@@ -1,0 +1,68 @@
+{
+  "id": "total-cost-to-hire-k-workers",
+  "title": "Total Cost to Hire K Workers",
+  "pattern": "heaps",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "You are given a 0-indexed integer array `costs` where `costs[i]` is the cost of hiring the i-th worker, and two integers `k` and `candidates`.\n\nYou want to hire exactly `k` workers total, in `k` hiring sessions. In each session, you can only choose a worker from the first `candidates` workers or the last `candidates` workers still remaining in the pool (workers already hired are removed from the pool, and the remaining workers keep their relative order). Among those currently visible candidates, hire the one with the smallest cost, breaking ties by choosing the worker with the smallest original index.\n\nReturn the total cost to hire exactly `k` workers.",
+  "examples": [
+    {
+      "input": "costs = [17,12,10,2,7,2,11,20,8], k = 3, candidates = 4",
+      "output": "11",
+      "explanation": "Visible pool initially: first 4 = [17,12,10,2], last 4 = [7,2,11,20]. Cheapest visible is 2 at index 3 (before the other 2 at index 5, since it comes first) -- hire it, cost so far 2. Continue picking cheapest visible each round until 3 are hired, totaling 11."
+    },
+    {
+      "input": "costs = [1,2,4,1], k = 3, candidates = 3",
+      "output": "4"
+    }
+  ],
+  "constraints": [
+    "1 <= costs.length <= 10^5",
+    "1 <= costs[i] <= 10^5",
+    "1 <= k, candidates <= costs.length"
+  ],
+  "hints": [
+    "Re-scanning the front and back windows for the minimum on every hiring round is expensive if done naively — use heaps to get the minimum quickly.",
+    "Maintain two min-heaps: one seeded with the first `candidates` workers (by cost, index), one seeded with the last `candidates` workers, using two pointers to track how far each side has consumed from the middle.",
+    "Each round, compare the mins of both heaps (breaking ties by index), hire the cheaper one, remove it, and refill that side's heap with the next unconsidered worker from the middle (if any remain) so both windows always represent the current visible pool."
+  ],
+  "solution": {
+    "approach": "Use two pointers, `left` and `right`, marking the boundary of workers not yet placed into either heap, and two min-heaps of (cost, index) representing the currently visible front-window and back-window candidates. Seed each heap with up to `candidates` workers from its respective side (stopping if the pointers cross, so no worker is double-counted). For each of the k hiring rounds, compare the two heaps' minimums (or use whichever is non-empty), hire the cheaper (ties broken naturally by index since tuples compare component-wise), add its cost, and refill that heap from the middle if any unconsidered workers remain. This keeps each round O(log candidates) instead of rescanning both windows.",
+    "code": "import heapq\n\ndef total_cost_to_hire_k_workers(costs, k, candidates):\n    n = len(costs)\n    left, right = 0, n - 1\n    left_heap, right_heap = [], []\n\n    while len(left_heap) < candidates and left <= right:\n        heapq.heappush(left_heap, (costs[left], left))\n        left += 1\n\n    while len(right_heap) < candidates and left <= right:\n        heapq.heappush(right_heap, (costs[right], right))\n        right -= 1\n\n    total = 0\n    for _ in range(k):\n        if right_heap and (not left_heap or right_heap[0][0] < left_heap[0][0]):\n            cost, _ = heapq.heappop(right_heap)\n            total += cost\n            if left <= right:\n                heapq.heappush(right_heap, (costs[right], right))\n                right -= 1\n        elif left_heap:\n            cost, _ = heapq.heappop(left_heap)\n            total += cost\n            if left <= right:\n                heapq.heappush(left_heap, (costs[left], left))\n                left += 1\n\n    return total\n",
+    "timeComplexity": "O(n log candidates)",
+    "spaceComplexity": "O(candidates)"
+  },
+  "starterCode": "def total_cost_to_hire_k_workers(costs, k, candidates):\n    # your code here\n    pass\n",
+  "functionName": "total_cost_to_hire_k_workers",
+  "paramNames": ["costs", "k", "candidates"],
+  "testCases": [
+    {
+      "input": [[17, 12, 10, 2, 7, 2, 11, 20, 8], 3, 4],
+      "expected": 11,
+      "isHidden": false
+    },
+    {
+      "input": [[1, 2, 4, 1], 3, 3],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [[5], 1, 1],
+      "expected": 5,
+      "isHidden": true
+    },
+    {
+      "input": [[1, 1, 1, 1], 4, 1],
+      "expected": 4,
+      "isHidden": true
+    },
+    {
+      "input": [[10, 20, 30, 40, 50], 2, 2],
+      "expected": 30,
+      "isHidden": true
+    }
+  ]
+}

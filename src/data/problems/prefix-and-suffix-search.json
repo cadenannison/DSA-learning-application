@@ -1,0 +1,72 @@
+{
+  "id": "prefix-and-suffix-search",
+  "title": "Prefix and Suffix Search",
+  "pattern": "tries",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "Design a structure built from an array of `words`, supporting a `search(prefix, suffix)` query that returns the largest index `i` such that `words[i]` has the given `prefix` as a prefix AND the given `suffix` as a suffix. If there is no such word, return -1.\n\nYou'll implement this as a single function `run_wordfilter_ops(words, queries)`, where `words` builds the structure up front and `queries` is a list of `[prefix, suffix]` pairs. Return a list of the search results, in order, one per query, matching the exact convention used by `implement-trie`'s `run_trie_ops`.",
+  "examples": [
+    {
+      "input": "words = [\"apple\"], queries = [[\"a\",\"e\"],[\"b\",\"\"]]",
+      "output": "[0,-1]",
+      "explanation": "\"apple\" starts with \"a\" and ends with \"e\", matching index 0. No word starts with \"b\", so the second query returns -1."
+    },
+    {
+      "input": "words = [\"apple\",\"applx\",\"applz\"], queries = [[\"a\",\"e\"],[\"ap\",\"\"]]",
+      "output": "[0,2]",
+      "explanation": "Only index 0 (\"apple\") ends with \"e\". All three words start with \"ap\", and since any suffix (empty string) matches, the LARGEST matching index 2 is returned."
+    }
+  ],
+  "constraints": [
+    "1 <= words.length <= 10^4",
+    "1 <= words[i].length <= 7",
+    "1 <= queries.length <= 10^4",
+    "0 <= prefix.length, suffix.length <= 7",
+    "words[i], prefix, and suffix consist of lowercase English letters only",
+    "All words[i] are distinct"
+  ],
+  "hints": [
+    "The classic trick: instead of searching prefix and suffix separately, build combined keys of the form suffix + '#' + prefix (or word + '#' + word repeated with rotations) so a single trie lookup can test both conditions at once.",
+    "Concretely, for each word, insert every combined string `word[i:] + '#' + word` for all suffix-starting-positions i into one trie, storing the word's index at each inserted node (overwriting with the latest, i.e. largest, index since words are processed in order).",
+    "A query becomes a single trie walk on the string `suffix + '#' + prefix`; the index stored at the node you land on (if the path exists) is the answer, since later insertions overwrite earlier indices at shared nodes, naturally keeping the largest matching index."
+  ],
+  "solution": {
+    "approach": "For each word at index i, generate all combined strings of the form word[j:] + '#' + word for every starting position j from 0 to len(word) (this covers every possible suffix of the word paired with the full word as a prefix source). Insert each combined string into a trie, and at every node along its path, record the word's index i — since indices are processed in increasing order, later (larger) indices simply overwrite earlier ones stored at the same node, so any node ends up holding the largest index of any word whose suffix+'#'+prefix combination passes through it. A query (prefix, suffix) is then answered by walking the trie along suffix + '#' + prefix and returning the index stored at the final node, or -1 if the path doesn't exist.",
+    "code": "def run_wordfilter_ops(words, queries):\n    root = {}\n\n    for idx, word in enumerate(words):\n        n = len(word)\n        for j in range(n + 1):\n            combined = word[j:] + '#' + word\n            node = root\n            node[-1] = idx\n            for ch in combined:\n                node = node.setdefault(ch, {})\n                node[-1] = idx\n\n    def search(prefix, suffix):\n        combined = suffix + '#' + prefix\n        node = root\n        for ch in combined:\n            if ch not in node:\n                return -1\n            node = node[ch]\n        return node.get(-1, -1)\n\n    return [search(p, s) for p, s in queries]\n",
+    "timeComplexity": "O(sum of word_length^2) to build, O(prefix_length + suffix_length) per query",
+    "spaceComplexity": "O(sum of word_length^2) for the trie"
+  },
+  "starterCode": "def run_wordfilter_ops(words, queries):\n    # your code here\n    pass\n",
+  "functionName": "run_wordfilter_ops",
+  "paramNames": ["words", "queries"],
+  "testCases": [
+    {
+      "input": [["apple"], [["a", "e"], ["b", ""]]],
+      "expected": [0, -1],
+      "isHidden": false
+    },
+    {
+      "input": [["apple", "applx", "applz"], [["a", "e"], ["ap", ""]]],
+      "expected": [0, 2],
+      "isHidden": false
+    },
+    {
+      "input": [["cat", "bat", "rat"], [["", "at"], ["c", "t"], ["", ""]]],
+      "expected": [2, 0, 2],
+      "isHidden": true
+    },
+    {
+      "input": [["a"], [["a", "a"], ["", ""]]],
+      "expected": [0, 0],
+      "isHidden": true
+    },
+    {
+      "input": [["dog", "doge", "dogs"], [["dog", "s"], ["dog", "e"], ["dog", "x"]]],
+      "expected": [2, 1, -1],
+      "isHidden": true
+    }
+  ]
+}

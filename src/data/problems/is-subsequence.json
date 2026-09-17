@@ -1,0 +1,68 @@
+{
+  "id": "is-subsequence",
+  "title": "Is Subsequence",
+  "pattern": "greedy",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Adobe",
+    "Google"
+  ],
+  "prompt": "Given two strings `s` and `t`, return `true` if `s` is a subsequence of `t`, meaning the characters of `s` appear in `t` in the same relative order (not necessarily contiguously), and `false` otherwise.",
+  "examples": [
+    {
+      "input": "s = \"abc\", t = \"ahbgdc\"",
+      "output": "true"
+    },
+    {
+      "input": "s = \"axc\", t = \"ahbgdc\"",
+      "output": "false"
+    }
+  ],
+  "constraints": [
+    "0 <= s.length <= 100",
+    "0 <= t.length <= 10^4",
+    "s and t consist only of lowercase English letters"
+  ],
+  "hints": [
+    "You never need to backtrack \u2014 once you match a character of s, always take the earliest possible matching character in t.",
+    "Use two pointers, one for s and one for t, both starting at 0.",
+    "Advance the t pointer every step; advance the s pointer only when the characters match. If the s pointer reaches the end of s, every character was matched in order, so s is a subsequence."
+  ],
+  "solution": {
+    "approach": "Greedily walk through t with a pointer for s alongside. For every character of t, if it matches the current unmatched character of s, advance the s pointer. Always taking the earliest available match in t is optimal because using an earlier occurrence can never make it harder to match the remaining characters of s later. If the s pointer reaches the end of s, all characters were matched in order, confirming s is a subsequence of t.",
+    "code": "def is_subsequence(s, t):\n    i = 0\n    for char in t:\n        if i < len(s) and s[i] == char:\n            i += 1\n    return i == len(s)\n",
+    "timeComplexity": "O(n) where n is the length of t",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def is_subsequence(s, t):\n    # your code here\n    pass\n",
+  "functionName": "is_subsequence",
+  "paramNames": ["s", "t"],
+  "testCases": [
+    {
+      "input": ["abc", "ahbgdc"],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": ["axc", "ahbgdc"],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": ["", "ahbgdc"],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": ["abc", ""],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": ["abc", "abc"],
+      "expected": true,
+      "isHidden": true
+    }
+  ]
+}

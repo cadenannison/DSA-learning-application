@@ -1,0 +1,78 @@
+{
+  "id": "design-linked-list",
+  "title": "Design Linked List",
+  "pattern": "linked-list",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft"
+  ],
+  "prompt": "Design your own singly linked list implementation supporting: `get(index)` (the value at `index`, or `-1` if out of range), `addAtHead(val)`, `addAtTail(val)`, `addAtIndex(index, val)` (inserts before the node currently at `index`; inserting at `index` equal to the list's length appends at the tail; an index greater than the length is a no-op; a negative index is treated as inserting at the head), and `deleteAtIndex(index)` (removes the node at `index` if it's valid, otherwise does nothing). The list is 0-indexed.\n\nYou'll implement this as a single function `runLinkedListOps(ops)`, where `ops` is an array of `[operationName, args...]` entries applied in order to one list instance: `addAtHead`, `addAtTail`, `addAtIndex`, and `deleteAtIndex` never produce output, while `get` pushes its return value onto the output array. Return the output array.",
+  "examples": [
+    {
+      "input": "ops = [[\"addAtHead\",1],[\"addAtTail\",3],[\"addAtIndex\",1,2],[\"get\",0],[\"get\",1],[\"get\",2],[\"deleteAtIndex\",0],[\"get\",0]]",
+      "output": "[1,2,3,2]",
+      "explanation": "addAtHead(1) -> [1]. addAtTail(3) -> [1,3]. addAtIndex(1,2) -> [1,2,3]. get(0)=1, get(1)=2, get(2)=3. deleteAtIndex(0) -> [2,3]. get(0)=2."
+    },
+    {
+      "input": "ops = [[\"addAtHead\",7],[\"addAtHead\",2],[\"addAtHead\",1],[\"addAtIndex\",3,0],[\"deleteAtIndex\",2],[\"get\",0],[\"get\",1],[\"get\",2]]",
+      "output": "[1,2,0]",
+      "explanation": "addAtHead(7) -> [7]. addAtHead(2) -> [2,7]. addAtHead(1) -> [1,2,7]. addAtIndex(3,0) appends since index equals the length -> [1,2,7,0]. deleteAtIndex(2) removes the node at index 2 (value 7) -> [1,2,0]. get(0)=1, get(1)=2, get(2)=0."
+    }
+  ],
+  "constraints": [
+    "0 <= index, val <= 1000",
+    "At most 2000 total calls across all operations"
+  ],
+  "hints": [
+    "A dummy head node before the real first node removes the need to special-case insertions or deletions at position 0.",
+    "For get/addAtIndex/deleteAtIndex, you need to walk from the dummy head the right number of steps to reach the node just before the target position.",
+    "Keep a running size count so you can quickly reject out-of-range indices without an extra traversal, and so addAtIndex(length, val) — appending — is handled the same way as any other valid index."
+  ],
+  "solution": {
+    "approach": "Maintain a dummy head node and a size counter. Every operation reduces to walking from the dummy the correct number of steps to reach the node just before the target position, then reading or rewiring `next` pointers there. get(index) and deleteAtIndex(index) are no-ops/return -1 when index is out of [0, size), addAtIndex clamps negative indices to 0 and rejects index > size, and addAtHead/addAtTail are just addAtIndex(0, val) and addAtIndex(size, val) respectively. Keeping size updated on every insert/delete makes every operation O(index) instead of needing a separate length-counting pass.",
+    "code": "class Node:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\n\nclass MyLinkedList:\n    def __init__(self):\n        self.dummy = Node()\n        self.size = 0\n\n    def get(self, index):\n        if index < 0 or index >= self.size:\n            return -1\n        curr = self.dummy.next\n        for _ in range(index):\n            curr = curr.next\n        return curr.val\n\n    def addAtHead(self, val):\n        self.addAtIndex(0, val)\n\n    def addAtTail(self, val):\n        self.addAtIndex(self.size, val)\n\n    def addAtIndex(self, index, val):\n        if index > self.size:\n            return\n        index = max(index, 0)\n        prev = self.dummy\n        for _ in range(index):\n            prev = prev.next\n        prev.next = Node(val, prev.next)\n        self.size += 1\n\n    def deleteAtIndex(self, index):\n        if index < 0 or index >= self.size:\n            return\n        prev = self.dummy\n        for _ in range(index):\n            prev = prev.next\n        prev.next = prev.next.next\n        self.size -= 1\n\n\ndef run_linked_list_ops(ops):\n    ll = MyLinkedList()\n    output = []\n    for op in ops:\n        name = op[0]\n        if name == 'get':\n            output.append(ll.get(op[1]))\n        elif name == 'addAtHead':\n            ll.addAtHead(op[1])\n        elif name == 'addAtTail':\n            ll.addAtTail(op[1])\n        elif name == 'addAtIndex':\n            ll.addAtIndex(op[1], op[2])\n        elif name == 'deleteAtIndex':\n            ll.deleteAtIndex(op[1])\n    return output\n",
+    "timeComplexity": "O(index) per operation",
+    "spaceComplexity": "O(n) for the stored elements"
+  },
+  "starterCode": "class Node:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\n\nclass MyLinkedList:\n    def __init__(self):\n        self.dummy = Node()\n        self.size = 0\n\n    def get(self, index):\n        # your code here\n        pass\n\n    def addAtHead(self, val):\n        # your code here\n        pass\n\n    def addAtTail(self, val):\n        # your code here\n        pass\n\n    def addAtIndex(self, index, val):\n        # your code here\n        pass\n\n    def deleteAtIndex(self, index):\n        # your code here\n        pass\n\n\ndef run_linked_list_ops(ops):\n    ll = MyLinkedList()\n    output = []\n    for op in ops:\n        name = op[0]\n        if name == 'get':\n            output.append(ll.get(op[1]))\n        elif name == 'addAtHead':\n            ll.addAtHead(op[1])\n        elif name == 'addAtTail':\n            ll.addAtTail(op[1])\n        elif name == 'addAtIndex':\n            ll.addAtIndex(op[1], op[2])\n        elif name == 'deleteAtIndex':\n            ll.deleteAtIndex(op[1])\n    return output\n",
+  "functionName": "run_linked_list_ops",
+  "paramNames": ["ops"],
+  "testCases": [
+    {
+      "input": [
+        [["addAtHead", 7], ["addAtHead", 2], ["addAtHead", 1], ["addAtIndex", 3, 0], ["deleteAtIndex", 2], ["get", 0], ["get", 1], ["get", 2]]
+      ],
+      "expected": [1, 2, 0],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [["addAtHead", 1], ["addAtTail", 3], ["addAtIndex", 1, 2], ["get", 0], ["get", 1], ["get", 2], ["deleteAtIndex", 0], ["get", 0]]
+      ],
+      "expected": [1, 2, 3, 2],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [["get", 0]]
+      ],
+      "expected": [-1],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [["addAtTail", 1], ["addAtIndex", 5, 9], ["get", 1]]
+      ],
+      "expected": [-1],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [["addAtHead", 1], ["deleteAtIndex", 0], ["get", 0]]
+      ],
+      "expected": [-1],
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "id": "russian-doll-envelopes",
+  "title": "Russian Doll Envelopes",
+  "pattern": "binary-search",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Amazon",
+    "Microsoft"
+  ],
+  "prompt": "You are given a 2D array of integers `envelopes` where `envelopes[i] = [wi, hi]` represents the width and height of an envelope. One envelope can fit into another if and only if both the width and height of one envelope are strictly greater than the width and height of the other. Return the maximum number of envelopes you can Russian doll (nest one inside the other, arbitrarily many levels deep).",
+  "examples": [
+    {
+      "input": "envelopes = [[5,4],[6,4],[6,7],[2,3]]",
+      "output": "3",
+      "explanation": "The maximum nesting chain is [2,3] => [5,4] => [6,7]."
+    },
+    {
+      "input": "envelopes = [[1,1],[1,1],[1,1]]",
+      "output": "1"
+    }
+  ],
+  "constraints": [
+    "1 <= envelopes.length <= 10^5",
+    "envelopes[i].length == 2",
+    "1 <= wi, hi <= 10^5"
+  ],
+  "hints": [
+    "This looks like a 2D version of longest increasing subsequence, but a naive O(n^2) LIS on both dimensions is too slow for n up to 10^5.",
+    "Sort envelopes by width ascending, and for ties, sort by height descending. Sorting height descending on tied widths prevents same-width envelopes from being counted in the same increasing chain.",
+    "After that sort, the problem reduces to finding the longest strictly increasing subsequence of heights, which can be done in O(n log n) using binary search to maintain the smallest possible tail height for each subsequence length."
+  ],
+  "solution": {
+    "approach": "Sort envelopes by width ascending; for envelopes with equal width, sort by height descending so that no two same-width envelopes can ever be part of the same increasing height subsequence (since one can't nest inside the other anyway). After this sort, the answer is exactly the length of the longest strictly increasing subsequence of the height sequence. Compute that with the O(n log n) patience-sorting technique: maintain a list of the smallest tail height achievable for each subsequence length, and for each new height, binary search for the first tail >= it and replace that tail (or append if none found). The final length of that tails list is the answer.",
+    "code": "import bisect\n\ndef max_envelopes(envelopes):\n    envelopes.sort(key=lambda e: (e[0], -e[1]))\n    heights = [h for _, h in envelopes]\n\n    tails = []\n    for h in heights:\n        idx = bisect.bisect_left(tails, h)\n        if idx == len(tails):\n            tails.append(h)\n        else:\n            tails[idx] = h\n\n    return len(tails)\n",
+    "timeComplexity": "O(n log n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def max_envelopes(envelopes):\n    # your code here\n    pass\n",
+  "functionName": "max_envelopes",
+  "paramNames": ["envelopes"],
+  "testCases": [
+    {
+      "input": [
+        [[5, 4], [6, 4], [6, 7], [2, 3]]
+      ],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1, 1], [1, 1], [1, 1]]
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1, 1]]
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[4, 5], [4, 6], [6, 7], [2, 3], [1, 1]]
+      ],
+      "expected": 4,
+      "isHidden": true
+    }
+  ]
+}

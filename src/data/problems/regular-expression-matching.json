@@ -1,0 +1,84 @@
+{
+  "id": "regular-expression-matching",
+  "title": "Regular Expression Matching",
+  "pattern": "dynamic-programming",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Facebook",
+    "Amazon",
+    "Microsoft",
+    "Uber"
+  ],
+  "prompt": "Given an input string `s` and a pattern `p`, implement regular expression matching that supports `.` and `*` with the following semantics: `.` matches any single character, and `*` matches zero or more of the preceding element. The matching must cover the entire input string, not just part of it.",
+  "examples": [
+    {
+      "input": "s = \"aa\", p = \"a\"",
+      "output": "false",
+      "explanation": "\"a\" alone does not match the entire string \"aa\"."
+    },
+    {
+      "input": "s = \"aa\", p = \"a*\"",
+      "output": "true",
+      "explanation": "'*' means zero or more of the preceding element 'a', so \"a*\" can match \"aa\"."
+    },
+    {
+      "input": "s = \"ab\", p = \".*\"",
+      "output": "true",
+      "explanation": "\".*\" means zero or more of any character, which covers \"ab\"."
+    }
+  ],
+  "constraints": [
+    "1 <= s.length <= 20",
+    "1 <= p.length <= 30",
+    "s consists of lowercase English letters only",
+    "p consists of lowercase English letters, '.', and '*'",
+    "It is guaranteed for each appearance of the character '*', there will be a previous valid character to match"
+  ],
+  "hints": [
+    "Think recursively: does the pattern match the string starting at some position i in s and j in p? Break it down by looking at what p[j] and p[j+1] are.",
+    "Define dp[i][j] = true if s[i:] matches p[j:]. If p[j+1] is '*', you have two choices: skip the 'x*' entirely (zero occurrences), or, if s[i] matches p[j], consume one character of s and stay at the same pattern position (one or more occurrences).",
+    "If p[j+1] is not '*', it's a simple one-to-one check: s[i] must match p[j] (accounting for '.'), and then recurse on i+1, j+1. Build the table from the end of both strings backward, or memoize the recursion."
+  ],
+  "solution": {
+    "approach": "Define dp[i][j] as true if s[i:] fully matches p[j:]. Build the table from the back: dp[len(s)][len(p)] = True (empty matches empty). Work backward through i and j. When p[j] is followed by '*', two options exist: treat 'char*' as matching zero occurrences (dp[i][j] = dp[i][j+2]), or, if s[i] matches p[j] (either equal or p[j] is '.'), consume one character of s while keeping the same pattern position, since '*' can repeat (dp[i][j] = dp[i+1][j]). Either possibility being true makes dp[i][j] true. Without a following '*', it's a direct character match: dp[i][j] is true only if s[i] matches p[j] AND dp[i+1][j+1] is true. This correctly handles that '*' operates on the single preceding pattern token and can absorb any number of matching characters greedily or not at all.",
+    "code": "def is_match(s, p):\n    m, n = len(s), len(p)\n    dp = [[False] * (n + 1) for _ in range(m + 1)]\n    dp[m][n] = True\n\n    for i in range(m, -1, -1):\n        for j in range(n - 1, -1, -1):\n            first_match = i < m and (p[j] == s[i] or p[j] == '.')\n\n            if j + 1 < n and p[j + 1] == '*':\n                dp[i][j] = dp[i][j + 2] or (first_match and dp[i + 1][j])\n            else:\n                dp[i][j] = first_match and dp[i + 1][j + 1]\n\n    return dp[0][0]\n",
+    "timeComplexity": "O(m * n)",
+    "spaceComplexity": "O(m * n)"
+  },
+  "starterCode": "def is_match(s, p):\n    # your code here\n    pass\n",
+  "functionName": "is_match",
+  "paramNames": ["s", "p"],
+  "testCases": [
+    {
+      "input": ["aa", "a"],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": ["aa", "a*"],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": ["ab", ".*"],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": ["mississippi", "mis*is*p*."],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": ["aab", "c*a*b"],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": ["", "a*"],
+      "expected": true,
+      "isHidden": true
+    }
+  ]
+}

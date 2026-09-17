@@ -1,0 +1,91 @@
+{
+  "id": "minesweeper",
+  "title": "Minesweeper",
+  "pattern": "bfs-dfs",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "You are given an `m x n` char matrix `board` representing a Minesweeper game, where `'M'` marks an unrevealed mine, `'E'` an unrevealed empty square, `'B'` a revealed blank square with no adjacent mines, a digit `'1'` to `'8'` a revealed square with that many adjacent mines, and `'X'` a revealed mine. You are also given a click position `(clickr, clickc)`. Reveal the clicked square following these rules: if it is a mine, reveal it as `'X'` and stop. If it is an empty square with no adjacent mines, reveal it as `'B'` and recursively auto-reveal all 8 neighboring unrevealed squares the same way. If it is an empty square with at least one adjacent mine, reveal it as the digit representing that count and stop expanding from it. Return the updated board.",
+  "examples": [
+    {
+      "input": "board = [[\"E\",\"E\",\"E\",\"E\",\"E\"],[\"E\",\"E\",\"M\",\"E\",\"E\"],[\"E\",\"E\",\"E\",\"E\",\"E\"],[\"E\",\"E\",\"E\",\"E\",\"E\"]], clickr = 3, clickc = 0",
+      "output": "[[\"B\",\"1\",\"E\",\"1\",\"B\"],[\"B\",\"1\",\"M\",\"1\",\"B\"],[\"B\",\"1\",\"1\",\"1\",\"B\"],[\"B\",\"B\",\"B\",\"B\",\"B\"]]",
+      "explanation": "Clicking the bottom-left cell (an empty square with 0 adjacent mines) triggers a flood-fill reveal outward until every reachable square has been revealed as blank or a mine count."
+    },
+    {
+      "input": "board = [[\"B\",\"1\",\"M\"],[\"B\",\"1\",\"M\"],[\"B\",\"B\",\"B\"]], clickr = 1, clickc = 2",
+      "output": "[[\"B\",\"1\",\"M\"],[\"B\",\"1\",\"X\"],[\"B\",\"B\",\"B\"]]",
+      "explanation": "The clicked square is a mine, so it is revealed as 'X' and nothing else changes."
+    }
+  ],
+  "constraints": [
+    "m == board.length",
+    "n == board[i].length",
+    "1 <= m, n <= 50",
+    "board[i][j] is 'M', 'E', 'B', 'X', or a digit '1' to '8'",
+    "board[clickr][clickc] is 'M' or 'E'"
+  ],
+  "hints": [
+    "Handle the mine-click case first as a trivial base case: reveal it as 'X' and return immediately.",
+    "For an empty cell, count adjacent mines among all 8 neighbors; if that count is greater than 0, reveal the digit and stop — don't expand further from a numbered cell.",
+    "Only when the adjacent mine count is exactly 0 do you reveal 'B' and recursively flood-fill (DFS/BFS) into all 8 unrevealed ('E') neighbors, repeating the same logic at each one."
+  ],
+  "solution": {
+    "approach": "If the clicked cell is a mine, reveal it as 'X' and stop — no further reveals happen. Otherwise, count mines among the cell's 8 neighbors. If that count is positive, reveal the digit and stop expanding, since a numbered cell is a boundary. If the count is 0, reveal 'B' and recursively apply the same click logic to every unrevealed neighbor, which is exactly a flood-fill that only continues through zero-mine-count cells and naturally stops at numbered boundaries.",
+    "code": "def update_board(board, clickr, clickc):\n    rows, cols = len(board), len(board[0])\n\n    if board[clickr][clickc] == 'M':\n        board[clickr][clickc] = 'X'\n        return board\n\n    directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]\n\n    def count_mines(r, c):\n        count = 0\n        for dr, dc in directions:\n            nr, nc = r + dr, c + dc\n            if 0 <= nr < rows and 0 <= nc < cols and board[nr][nc] == 'M':\n                count += 1\n        return count\n\n    def reveal(r, c):\n        if board[r][c] != 'E':\n            return\n        mines = count_mines(r, c)\n        if mines > 0:\n            board[r][c] = str(mines)\n            return\n        board[r][c] = 'B'\n        for dr, dc in directions:\n            nr, nc = r + dr, c + dc\n            if 0 <= nr < rows and 0 <= nc < cols:\n                reveal(nr, nc)\n\n    reveal(clickr, clickc)\n    return board\n",
+    "timeComplexity": "O(m * n)",
+    "spaceComplexity": "O(m * n) worst-case recursion depth"
+  },
+  "starterCode": "def update_board(board, clickr, clickc):\n    # your code here\n    pass\n",
+  "functionName": "update_board",
+  "paramNames": ["board", "clickr", "clickc"],
+  "testCases": [
+    {
+      "input": [
+        [["E", "E", "E", "E", "E"], ["E", "E", "M", "E", "E"], ["E", "E", "E", "E", "E"], ["E", "E", "E", "E", "E"]],
+        3,
+        0
+      ],
+      "expected": [["B", "1", "E", "1", "B"], ["B", "1", "M", "1", "B"], ["B", "1", "1", "1", "B"], ["B", "B", "B", "B", "B"]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [["B", "1", "M"], ["B", "1", "M"], ["B", "B", "B"]],
+        1,
+        2
+      ],
+      "expected": [["B", "1", "M"], ["B", "1", "X"], ["B", "B", "B"]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [["M"]],
+        0,
+        0
+      ],
+      "expected": [["X"]],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [["E", "M"], ["E", "E"]],
+        1,
+        0
+      ],
+      "expected": [["E", "M"], ["1", "E"]],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [["E", "E"], ["E", "E"]],
+        0,
+        0
+      ],
+      "expected": [["B", "B"], ["B", "B"]],
+      "isHidden": true
+    }
+  ]
+}

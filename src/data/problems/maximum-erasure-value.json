@@ -1,0 +1,68 @@
+{
+  "id": "maximum-erasure-value",
+  "title": "Maximum Erasure Value",
+  "pattern": "sliding-window",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "You are given an array of positive integers `nums` and want to erase a subarray containing unique elements the most. A subarray is a contiguous, non-empty sequence of elements within an array. Return the maximum score you can get by erasing exactly one subarray of unique elements, where the score of a subarray is the sum of its elements.",
+  "examples": [
+    {
+      "input": "nums = [4,2,4,5,6]",
+      "output": "17",
+      "explanation": "The subarray [2,4,5,6] has the maximum score, which is 17."
+    },
+    {
+      "input": "nums = [5,2,1,2,5,2,1,2,5]",
+      "output": "8",
+      "explanation": "The subarray [5,2,1] or [1,2,5] has the maximum score, which is 8."
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 10^5",
+    "1 <= nums[i] <= 10^4"
+  ],
+  "hints": [
+    "You need the maximum-sum contiguous subarray subject to a 'no duplicates inside the window' constraint — this is a classic variable-size sliding window.",
+    "Maintain a window with a hash set of the values it currently contains, plus a running sum.",
+    "Expand the window to the right; if the new element already exists in the window, shrink from the left (removing elements from both the set and the running sum) until the duplicate is gone, then update the best sum seen."
+  ],
+  "solution": {
+    "approach": "Use a sliding window with a hash set tracking which values are currently inside it, and a running sum of the window's elements. Expand the window by moving the right pointer forward; whenever the incoming value is already in the set, shrink from the left (removing values from the set and subtracting them from the sum) until the duplicate is resolved. After each expansion, update the best sum seen, since the current window is guaranteed to have all-unique elements.",
+    "code": "def maximum_unique_subarray(nums):\n    seen = set()\n    left = 0\n    window_sum = 0\n    best = 0\n\n    for right, num in enumerate(nums):\n        while num in seen:\n            seen.remove(nums[left])\n            window_sum -= nums[left]\n            left += 1\n        seen.add(num)\n        window_sum += num\n        best = max(best, window_sum)\n\n    return best\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def maximum_unique_subarray(nums):\n    # your code here\n    pass\n",
+  "functionName": "maximum_unique_subarray",
+  "paramNames": ["nums"],
+  "testCases": [
+    {
+      "input": [[4, 2, 4, 5, 6]],
+      "expected": 17,
+      "isHidden": false
+    },
+    {
+      "input": [[5, 2, 1, 2, 5, 2, 1, 2, 5]],
+      "expected": 8,
+      "isHidden": false
+    },
+    {
+      "input": [[1]],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [[1, 1, 1, 1]],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [[1, 2, 3, 4, 5]],
+      "expected": 15,
+      "isHidden": true
+    }
+  ]
+}

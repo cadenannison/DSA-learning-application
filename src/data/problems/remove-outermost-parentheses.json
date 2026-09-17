@@ -1,0 +1,69 @@
+{
+  "id": "remove-outermost-parentheses",
+  "title": "Remove Outermost Parentheses",
+  "pattern": "stacks-queues",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "A valid parentheses string is either empty, `(A)` where `A` is a valid parentheses string, or `AB` where `A` and `B` are valid parentheses strings concatenated together. A valid parentheses string `s` can always be uniquely decomposed into a sequence of primitive valid parentheses strings, where a primitive string is one that cannot be split into two non-empty valid parentheses strings.\n\nGiven a valid parentheses string `s`, remove the outermost parentheses of every primitive string in its decomposition, then return the resulting string.",
+  "examples": [
+    {
+      "input": "s = \"(()())(())\"",
+      "output": "()()()",
+      "explanation": "The primitive decomposition is \"(()())\" + \"(())\". Removing the outer parens of each gives \"()()\" + \"()\" = \"()()()\"."
+    },
+    {
+      "input": "s = \"(()())(())(()(()))\"",
+      "output": "()()()()(())",
+      "explanation": "The primitive decomposition is \"(()())\" + \"(())\" + \"(()(()))\", giving \"()()\" + \"()\" + \"()(())\"."
+    }
+  ],
+  "constraints": [
+    "1 <= s.length <= 10^5",
+    "s[i] is either '(' or ')'",
+    "s is a valid parentheses string"
+  ],
+  "hints": [
+    "You need to detect where each primitive block starts and ends \u2014 track how deeply nested you currently are.",
+    "Keep a running depth counter: increment on '(' and decrement on ')'. A primitive block's outermost pair is exactly the character that takes depth from 0 to 1, and the one that brings it back from 1 to 0.",
+    "Append every character except those two boundary characters (depth 0-to-1 opens and depth 1-to-0 closes) to the result."
+  ],
+  "solution": {
+    "approach": "Track nesting depth with a counter as a stand-in for an explicit stack (depth == stack size). For each '(', only include it in the output if depth is already > 0 (i.e. it's not an outermost opener) before incrementing depth. For each ')', decrement depth first, then only include it if depth is still > 0 (i.e. it wasn't the outermost closer). This skips exactly the two outermost characters of every primitive block while keeping everything inside.",
+    "code": "def remove_outer_parentheses(s):\n    result = []\n    depth = 0\n    for ch in s:\n        if ch == '(':\n            if depth > 0:\n                result.append(ch)\n            depth += 1\n        else:\n            depth -= 1\n            if depth > 0:\n                result.append(ch)\n    return ''.join(result)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def remove_outer_parentheses(s):\n    # your code here\n    pass\n",
+  "functionName": "remove_outer_parentheses",
+  "paramNames": ["s"],
+  "testCases": [
+    {
+      "input": ["(()())(())"],
+      "expected": "()()()",
+      "isHidden": false
+    },
+    {
+      "input": ["(()())(())(()(()))"],
+      "expected": "()()()()(())",
+      "isHidden": false
+    },
+    {
+      "input": ["()()"],
+      "expected": "",
+      "isHidden": false
+    },
+    {
+      "input": ["()"],
+      "expected": "",
+      "isHidden": true
+    },
+    {
+      "input": ["((()))"],
+      "expected": "(())",
+      "isHidden": true
+    }
+  ]
+}

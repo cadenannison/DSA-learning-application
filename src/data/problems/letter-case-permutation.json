@@ -1,0 +1,68 @@
+{
+  "id": "letter-case-permutation",
+  "title": "Letter Case Permutation",
+  "pattern": "backtracking",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Microsoft"
+  ],
+  "prompt": "Given a string `s`, form every possible string by transforming each letter individually to be lowercase or uppercase (digits are left unchanged), and return all such strings.\n\nFor deterministic comparison, sort the resulting list of strings.",
+  "examples": [
+    {
+      "input": "s = \"a1b2\"",
+      "output": "[\"A1B2\",\"A1b2\",\"a1B2\",\"a1b2\"]",
+      "explanation": "Each of the two letters ('a' and 'b') can independently be upper or lower case, giving 2*2=4 strings, sorted."
+    },
+    {
+      "input": "s = \"3z4\"",
+      "output": "[\"3Z4\",\"3z4\"]"
+    }
+  ],
+  "constraints": [
+    "1 <= s.length <= 12",
+    "s consists of lowercase English letters, uppercase English letters, and digits"
+  ],
+  "hints": [
+    "Digits contribute no branching at all; only letters create a choice, so the naive count of outputs is 2^(number of letters).",
+    "Backtrack character by character: at each index, if it's a digit, just append it and move on; if it's a letter, branch into two recursive calls, one with it lowercased and one uppercased.",
+    "Build the string incrementally (e.g. via a list of chosen characters) and only record a complete result once you've made a decision for every index."
+  ],
+  "solution": {
+    "approach": "Recurse over the string index by index, building up a path of chosen characters. When the current character is a digit, there's no choice, so append it as-is and recurse to the next index. When it's a letter, branch: recurse once with it lowercased and once with it uppercased. Once the path covers every index, join it into a string and record it. Since every index contributes exactly one character to every path, this generates exactly 2^(letter count) strings with no duplicates.",
+    "code": "def letter_case_permutation(s):\n    result = []\n    path = []\n\n    def backtrack(index):\n        if index == len(s):\n            result.append(''.join(path))\n            return\n        ch = s[index]\n        if ch.isalpha():\n            path.append(ch.lower())\n            backtrack(index + 1)\n            path.pop()\n            path.append(ch.upper())\n            backtrack(index + 1)\n            path.pop()\n        else:\n            path.append(ch)\n            backtrack(index + 1)\n            path.pop()\n\n    backtrack(0)\n    result.sort()\n    return result\n",
+    "timeComplexity": "O(n * 2^L) where L is the number of letters in s",
+    "spaceComplexity": "O(n * 2^L) for the output"
+  },
+  "starterCode": "def letter_case_permutation(s):\n    # your code here\n    pass\n",
+  "functionName": "letter_case_permutation",
+  "paramNames": ["s"],
+  "testCases": [
+    {
+      "input": ["a1b2"],
+      "expected": ["A1B2", "A1b2", "a1B2", "a1b2"],
+      "isHidden": false
+    },
+    {
+      "input": ["3z4"],
+      "expected": ["3Z4", "3z4"],
+      "isHidden": false
+    },
+    {
+      "input": ["12345"],
+      "expected": ["12345"],
+      "isHidden": false
+    },
+    {
+      "input": ["a"],
+      "expected": ["A", "a"],
+      "isHidden": true
+    },
+    {
+      "input": ["ab"],
+      "expected": ["AB", "Ab", "aB", "ab"],
+      "isHidden": true
+    }
+  ]
+}

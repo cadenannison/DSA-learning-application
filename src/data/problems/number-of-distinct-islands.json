@@ -1,0 +1,81 @@
+{
+  "id": "number-of-distinct-islands",
+  "title": "Number of Distinct Islands",
+  "pattern": "bfs-dfs",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Facebook"
+  ],
+  "prompt": "You are given an `m x n` binary matrix `grid`. An island is a group of `1`s connected 4-directionally. Two islands are considered the same if and only if one island can be translated (shifted, without rotating or reflecting) to exactly match the other. Return the number of distinct islands.",
+  "examples": [
+    {
+      "input": "grid = [[1,1,0,0,0],[1,1,0,0,0],[0,0,0,1,1],[0,0,0,1,1]]",
+      "output": "1",
+      "explanation": "Both islands are 2x2 squares, so they are the same shape once translated onto each other."
+    },
+    {
+      "input": "grid = [[1,1,0,1,1],[1,0,0,0,0],[0,0,0,0,1],[1,1,0,1,1]]",
+      "output": "3",
+      "explanation": "There are three islands with distinct shapes even after accounting for translation."
+    }
+  ],
+  "constraints": [
+    "m == grid.length",
+    "n == grid[i].length",
+    "1 <= m, n <= 50",
+    "grid[i][j] is 0 or 1"
+  ],
+  "hints": [
+    "You need a way to describe an island's shape that is independent of where it sits in the grid — absolute coordinates won't work since translation should count as the same shape.",
+    "During a DFS/BFS flood-fill from an island's first cell (r0, c0), record each visited cell's position relative to (r0, c0), e.g. (r - r0, c - c0).",
+    "Convert each island's set of relative coordinates into a hashable signature (e.g. a tuple or sorted string) and add it to a set of seen shapes; the answer is the size of that set."
+  ],
+  "solution": {
+    "approach": "For each unvisited land cell, run a DFS that records the path of moves (or relative coordinates) taken to visit every cell of that island, always measured relative to the island's starting cell. This relative encoding is invariant under translation, so two islands with the same shape produce the identical signature regardless of their absolute position. Collecting all signatures in a set and returning its size gives the count of distinct shapes.",
+    "code": "def num_distinct_islands(grid):\n    rows, cols = len(grid), len(grid[0])\n    shapes = set()\n\n    def dfs(r, c, r0, c0, path):\n        if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] == 0:\n            return\n        grid[r][c] = 0\n        path.append((r - r0, c - c0))\n        dfs(r + 1, c, r0, c0, path)\n        dfs(r - 1, c, r0, c0, path)\n        dfs(r, c + 1, r0, c0, path)\n        dfs(r, c - 1, r0, c0, path)\n\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] == 1:\n                path = []\n                dfs(r, c, r, c, path)\n                shapes.add(tuple(path))\n    return len(shapes)\n",
+    "timeComplexity": "O(m * n)",
+    "spaceComplexity": "O(m * n)"
+  },
+  "starterCode": "def num_distinct_islands(grid):\n    # your code here\n    pass\n",
+  "functionName": "num_distinct_islands",
+  "paramNames": ["grid"],
+  "testCases": [
+    {
+      "input": [
+        [[1, 1, 0, 0, 0], [1, 1, 0, 0, 0], [0, 0, 0, 1, 1], [0, 0, 0, 1, 1]]
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1, 1, 0, 1, 1], [1, 0, 0, 0, 0], [0, 0, 0, 0, 1], [1, 1, 0, 1, 1]]
+      ],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[0, 0, 0]]
+      ],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[1]]
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[1, 1, 0, 0], [0, 0, 0, 0], [0, 0, 1, 1]]
+      ],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

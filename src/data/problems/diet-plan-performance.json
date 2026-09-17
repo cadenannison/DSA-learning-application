@@ -1,0 +1,73 @@
+{
+  "id": "diet-plan-performance",
+  "title": "Diet Plan Performance",
+  "pattern": "sliding-window",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon"
+  ],
+  "prompt": "A dieter consumes `calories[i]` calories on the `i`th day. For every consecutive sequence of `k` days (a window), the dieter's total calories for that window is compared against `lower` and `upper` bounds: if the total is less than `lower`, they lose 1 point; if the total is greater than `upper`, they gain 1 point; otherwise no change. Return the dieter's total points after all windows of `k` consecutive days have been evaluated.",
+  "examples": [
+    {
+      "input": "calories = [1,2,3,4,5], k = 1, lower = 3, upper = 3",
+      "output": "0",
+      "explanation": "Each day is its own window of size 1. Days with calories 1 and 2 each lose a point (-2), days with 4 and 5 each gain a point (+2), and the day with 3 changes nothing. Net: 0."
+    },
+    {
+      "input": "calories = [3,2], k = 2, lower = 0, upper = 1",
+      "output": "1",
+      "explanation": "Only one window [3,2], sum = 5 > upper = 1, so +1 point."
+    },
+    {
+      "input": "calories = [6,5,0,0], k = 2, lower = 1, upper = 5",
+      "output": "0",
+      "explanation": "Window [6,5] sums to 11 > 5 (+1). Window [5,0] sums to 5, within bounds (0). Window [0,0] sums to 0 < 1 (-1). Net: 0."
+    }
+  ],
+  "constraints": [
+    "1 <= k <= calories.length <= 10^5",
+    "0 <= calories[i] <= 20000",
+    "0 <= lower <= upper"
+  ],
+  "hints": [
+    "There are length(calories) - k + 1 windows; summing each one independently is O(n*k).",
+    "Maintain a running sum for a fixed-size window of length k, updating it in O(1) as the window slides.",
+    "At each window position, compare the running sum to lower and upper to update the point total, then slide by adding the new right element and subtracting the leaving left element."
+  ],
+  "solution": {
+    "approach": "Use a fixed-size sliding window of length k. Compute the sum of the first window directly, score it against lower/upper, then slide the window one day at a time: add the newly entering day's calories and subtract the day that left the window, keeping the sum update O(1). Score each window the same way and accumulate the total points.",
+    "code": "def diet_plan_performance(calories, k, lower, upper):\n    points = 0\n    window_sum = sum(calories[:k])\n\n    def score(total):\n        if total < lower:\n            return -1\n        if total > upper:\n            return 1\n        return 0\n\n    points += score(window_sum)\n    for i in range(k, len(calories)):\n        window_sum += calories[i] - calories[i - k]\n        points += score(window_sum)\n\n    return points\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def diet_plan_performance(calories, k, lower, upper):\n    # your code here\n    pass\n",
+  "functionName": "diet_plan_performance",
+  "paramNames": ["calories", "k", "lower", "upper"],
+  "testCases": [
+    {
+      "input": [[1, 2, 3, 4, 5], 1, 3, 3],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [[3, 2], 2, 0, 1],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [[6, 5, 0, 0], 2, 1, 5],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [[1, 1, 1], 3, 0, 10],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [[10, 10, 10], 1, 5, 8],
+      "expected": 3,
+      "isHidden": true
+    }
+  ]
+}

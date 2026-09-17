@@ -1,0 +1,87 @@
+{
+  "id": "delete-node-in-a-bst",
+  "title": "Delete Node in a BST",
+  "pattern": "trees",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Facebook",
+    "Microsoft"
+  ],
+  "prompt": "Given the `root` of a binary search tree and an integer `key`, delete the node with the value `key` from the tree, preserving the BST property, and return the (possibly changed) root.\n\nThe tree is given as a level-order array where `null` marks a missing child (the standard LeetCode serialization). Your function receives this array and `key`; the starter code includes a helper that builds the tree from the array. Return the resulting tree serialized to a level-order array using the provided `tree_to_level_order` helper.",
+  "examples": [
+    {
+      "input": "root = [5,3,6,2,4,null,7], key = 3",
+      "output": "[5,4,6,2,null,null,7]",
+      "explanation": "Node 3 has two children (2 and 4); it's replaced by its in-order successor (4), and 4 is removed from its original spot."
+    },
+    {
+      "input": "root = [5,3,6,2,4,null,7], key = 0",
+      "output": "[5,3,6,2,4,null,7]",
+      "explanation": "Key 0 isn't in the tree, so it's returned unchanged."
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [0, 10^4]",
+    "-10^5 <= Node.val <= 10^5",
+    "Each node has a unique value",
+    "root is a valid binary search tree",
+    "-10^5 <= key <= 10^5"
+  ],
+  "hints": [
+    "First locate the node using BST search (go left or right by comparing key to the current node's value).",
+    "Deleting a node with zero or one child is easy: splice it out by returning its single child (or None) to its parent.",
+    "Deleting a node with two children is the hard case: replace its value with its in-order successor (the minimum of its right subtree), then recursively delete that successor's original node from the right subtree (which now has at most one child, reducing to an easier case)."
+  ],
+  "solution": {
+    "approach": "Recursively search for the key using BST ordering. If the key is smaller than the current node, recurse left; if larger, recurse right; assign the result back to preserve any structural change beneath. Once the node to delete is found: if it has no left child, replace it with its right child (handles zero or one right child); if it has no right child, replace it with its left child; if it has both children, find the minimum value in its right subtree (in-order successor), overwrite the current node's value with it, then recursively delete that successor value from the right subtree.",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef tree_to_level_order(root):\n    if root is None:\n        return []\n    result = []\n    queue = [root]\n    while queue:\n        node = queue.pop(0)\n        if node is None:\n            result.append(None)\n            continue\n        result.append(node.val)\n        queue.append(node.left)\n        queue.append(node.right)\n    while result and result[-1] is None:\n        result.pop()\n    return result\n\n\ndef delete_node(root_arr, key):\n    root = build_tree(root_arr)\n\n    def delete(node, key):\n        if node is None:\n            return None\n        if key < node.val:\n            node.left = delete(node.left, key)\n        elif key > node.val:\n            node.right = delete(node.right, key)\n        else:\n            if node.left is None:\n                return node.right\n            if node.right is None:\n                return node.left\n            successor = node.right\n            while successor.left:\n                successor = successor.left\n            node.val = successor.val\n            node.right = delete(node.right, successor.val)\n        return node\n\n    new_root = delete(root, key)\n    return tree_to_level_order(new_root)\n",
+    "timeComplexity": "O(h), h = tree height",
+    "spaceComplexity": "O(h)"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef tree_to_level_order(root):\n    if root is None:\n        return []\n    result = []\n    queue = [root]\n    while queue:\n        node = queue.pop(0)\n        if node is None:\n            result.append(None)\n            continue\n        result.append(node.val)\n        queue.append(node.left)\n        queue.append(node.right)\n    while result and result[-1] is None:\n        result.pop()\n    return result\n\n\ndef delete_node(root_arr, key):\n    root = build_tree(root_arr)\n    # your code here\n    # Delete the node with value `key`, then return tree_to_level_order(root)\n    pass\n",
+  "functionName": "delete_node",
+  "paramNames": ["root_arr", "key"],
+  "testCases": [
+    {
+      "input": [
+        [5, 3, 6, 2, 4, null, 7],
+        3
+      ],
+      "expected": [5, 4, 6, 2, null, null, 7],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [5, 3, 6, 2, 4, null, 7],
+        0
+      ],
+      "expected": [5, 3, 6, 2, 4, null, 7],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [],
+        0
+      ],
+      "expected": [],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1],
+        1
+      ],
+      "expected": [],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [5, 3, 6, 2, 4, null, 7],
+        5
+      ],
+      "expected": [6, 3, 7, 2, 4],
+      "isHidden": true
+    }
+  ]
+}

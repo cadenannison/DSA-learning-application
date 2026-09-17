@@ -1,0 +1,70 @@
+{
+  "id": "permutation-in-string",
+  "title": "Permutation in String",
+  "pattern": "sliding-window",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Meta",
+    "Bloomberg"
+  ],
+  "prompt": "Given two strings `s1` and `s2`, return `true` if `s2` contains a permutation of `s1` as a contiguous substring, or `false` otherwise. In other words, check whether some substring of `s2` is an anagram of `s1`.",
+  "examples": [
+    {
+      "input": "s1 = \"ab\", s2 = \"eidbaooo\"",
+      "output": "true",
+      "explanation": "\"ba\" is a substring of s2 and is a permutation of \"ab\"."
+    },
+    {
+      "input": "s1 = \"ab\", s2 = \"eidboaoo\"",
+      "output": "false",
+      "explanation": "No substring of s2 is a permutation of \"ab\"."
+    }
+  ],
+  "constraints": [
+    "1 <= s1.length, s2.length <= 10^4",
+    "s1 and s2 consist of lowercase English letters only"
+  ],
+  "hints": [
+    "A permutation of s1 is just any arrangement with the exact same character frequency counts as s1 — you don't need to generate permutations.",
+    "Use a fixed-size sliding window of length len(s1) over s2, and compare the window's character frequency count to s1's frequency count.",
+    "Instead of comparing full frequency maps at every position (which is slow), track a single 'matches' counter of how many of the 26 letters currently have equal counts in both windows, updating it incrementally as the window slides by one character at a time."
+  ],
+  "solution": {
+    "approach": "Build a frequency count of s1 and of the first window of s2 with the same length. Slide the window one character at a time: when adding the incoming character makes its count match s1's requirement, or removing the outgoing character makes its count match, increment a 'matches' counter; if either move breaks a previous match, decrement it. When matches reaches 26 (all letter counts equal), a permutation is present in the current window. This avoids recomparing full frequency maps at every shift.",
+    "code": "def check_inclusion(s1, s2):\n    n1, n2 = len(s1), len(s2)\n    if n1 > n2:\n        return False\n\n    need = [0] * 26\n    window = [0] * 26\n    for ch in s1:\n        need[ord(ch) - ord('a')] += 1\n    for i in range(n1):\n        window[ord(s2[i]) - ord('a')] += 1\n\n    if window == need:\n        return True\n\n    for i in range(n1, n2):\n        window[ord(s2[i]) - ord('a')] += 1\n        window[ord(s2[i - n1]) - ord('a')] -= 1\n        if window == need:\n            return True\n\n    return False\n",
+    "timeComplexity": "O(n2 * 26) which simplifies to O(n2)",
+    "spaceComplexity": "O(1) (fixed 26-letter arrays)"
+  },
+  "starterCode": "def check_inclusion(s1, s2):\n    # your code here\n    pass\n",
+  "functionName": "check_inclusion",
+  "paramNames": ["s1", "s2"],
+  "testCases": [
+    {
+      "input": ["ab", "eidbaooo"],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": ["ab", "eidboaoo"],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": ["adc", "dcda"],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": ["ab", "a"],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": ["a", "ab"],
+      "expected": true,
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "id": "maximum-number-of-removable-characters",
+  "title": "Maximum Number of Removable Characters",
+  "pattern": "binary-search",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "You are given two strings `s` and `p` where `p` is a subsequence of `s`, and an array `removable` containing distinct indices of `s` that can be removed, listed in the order they should be removed. Find the maximum value `k` (0 <= k <= removable.length) such that after removing the first `k` characters from `s` (using the indices in `removable`), `p` is still a subsequence of the resulting string `s`. Return that maximum `k`.",
+  "examples": [
+    {
+      "input": "s = \"abcacb\", p = \"ab\", removable = [3,1,0]",
+      "output": "2",
+      "explanation": "After removing the characters at indices 3 and 1, s becomes \"accb\", and \"ab\" is still a subsequence. Removing the character at index 0 as well would eliminate the required 'a'."
+    },
+    {
+      "input": "s = \"abcbddddd\", p = \"abcd\", removable = [3,2,1,4,5,6]",
+      "output": "1"
+    }
+  ],
+  "constraints": [
+    "1 <= p.length <= s.length <= 10^5",
+    "0 <= removable.length < s.length",
+    "removable.length == length of a subset of distinct indices of s",
+    "p is a subsequence of s"
+  ],
+  "hints": [
+    "Checking each prefix length k from 0 upward and verifying whether p is still a subsequence after removing those k characters would work, but you can do better than testing every k one at a time.",
+    "Whether p remains a subsequence after removing the first k indices from removable is a monotonic property: if it fails for some k, it fails for every larger k too, since more characters have been removed.",
+    "Binary search on k itself over the range [0, removable.length], using a standard O(n) subsequence check as the feasibility test at each candidate k."
+  ],
+  "solution": {
+    "approach": "The feasibility of p remaining a subsequence after removing the first k characters (by removable order) is monotonic in k: removing more characters can only make it harder, never easier, for p to still be a subsequence. This means binary search applies directly to k. For a candidate k, mark the first k indices from removable as deleted, then run a standard two-pointer subsequence check between s (skipping deleted positions) and p in O(n) time. Binary searching over k with this check gives an O(n log(removable.length)) solution overall.",
+    "code": "def maximum_removals(s, p, removable):\n    def is_subsequence_after_removal(k):\n        removed = set(removable[:k])\n        j = 0\n        for i, ch in enumerate(s):\n            if i in removed:\n                continue\n            if j < len(p) and ch == p[j]:\n                j += 1\n        return j == len(p)\n\n    lo, hi = 0, len(removable)\n\n    while lo < hi:\n        mid = (lo + hi + 1) // 2\n        if is_subsequence_after_removal(mid):\n            lo = mid\n        else:\n            hi = mid - 1\n\n    return lo\n",
+    "timeComplexity": "O(n log(removable.length))",
+    "spaceComplexity": "O(removable.length) for the removed-index set"
+  },
+  "starterCode": "def maximum_removals(s, p, removable):\n    # your code here\n    pass\n",
+  "functionName": "maximum_removals",
+  "paramNames": ["s", "p", "removable"],
+  "testCases": [
+    {
+      "input": [
+        "abcacb",
+        "ab",
+        [3, 1, 0]
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        "abcbddddd",
+        "abcd",
+        [3, 2, 1, 4, 5, 6]
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        "abcbddddd",
+        "abcd",
+        []
+      ],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [
+        "aaa",
+        "a",
+        [0, 1, 2]
+      ],
+      "expected": 2,
+      "isHidden": true
+    }
+  ]
+}

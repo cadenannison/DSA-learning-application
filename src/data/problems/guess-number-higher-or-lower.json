@@ -1,0 +1,67 @@
+{
+  "id": "guess-number-higher-or-lower",
+  "title": "Guess Number Higher or Lower",
+  "pattern": "binary-search",
+  "difficulty": "easy",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "You are playing a guessing game. A number from `1` to `n` was picked, given to you as `pick`. Implement `guess_number(n, pick)`, which should behave as if it only had access to a three-way `guess(num)` check (treat `pick` as data the checker uses internally, not something to read directly): it returns `-1` if `num` is higher than the picked number, `1` if `num` is lower, and `0` if `num` equals the picked number. Return the picked number, minimizing the number of calls to `guess`.",
+  "examples": [
+    {
+      "input": "n = 10, pick = 6",
+      "output": "6",
+      "explanation": "The API tells you whether 6 is too high or too low relative to each guess until you land on 6."
+    },
+    {
+      "input": "n = 1, pick = 1",
+      "output": "1"
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 2^31 - 1",
+    "1 <= pick <= n"
+  ],
+  "hints": [
+    "Guessing every number from 1 upward works but takes O(n) calls in the worst case.",
+    "The guess API gives a three-way comparison against a sorted range [1, n], exactly like comparing to the middle element in a sorted array.",
+    "Binary search the range: guess the midpoint, and use the -1/1/0 result to discard half the remaining range each time."
+  ],
+  "solution": {
+    "approach": "Treat [1, n] as a sorted search space and binary search it using the guess API as the comparator. Wrap the given `pick` value in a `guess(num)` function that mirrors the real API's three-way comparison. Guess the midpoint; if the API says it's too high, search the lower half; if too low, search the upper half; if the guess returns 0, that's the picked number. Each call halves the remaining range, giving O(log n) calls instead of a linear scan.",
+    "code": "def guess_number(n, pick):\n    def guess(num):\n        if num > pick:\n            return -1\n        if num < pick:\n            return 1\n        return 0\n\n    lo, hi = 1, n\n\n    while lo <= hi:\n        mid = lo + (hi - lo) // 2\n        result = guess(mid)\n        if result == 0:\n            return mid\n        if result < 0:\n            hi = mid - 1\n        else:\n            lo = mid + 1\n\n    return -1\n",
+    "timeComplexity": "O(log n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def guess_number(n, pick):\n    def guess(num):\n        if num > pick:\n            return -1\n        if num < pick:\n            return 1\n        return 0\n\n    # your code here\n    pass\n",
+  "functionName": "guess_number",
+  "paramNames": ["n", "pick"],
+  "testCases": [
+    {
+      "input": [10, 6],
+      "expected": 6,
+      "isHidden": false
+    },
+    {
+      "input": [1, 1],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [2, 1],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [2, 2],
+      "expected": 2,
+      "isHidden": true
+    },
+    {
+      "input": [100, 99],
+      "expected": 99,
+      "isHidden": true
+    }
+  ]
+}

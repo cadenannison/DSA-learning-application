@@ -1,0 +1,90 @@
+{
+  "id": "two-sum-ii-input-array-is-sorted",
+  "title": "Two Sum II - Input Array Is Sorted",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Meta",
+    "Microsoft",
+    "Apple"
+  ],
+  "prompt": "Given a 1-indexed array of integers `numbers` that is already sorted in non-decreasing order, find two numbers such that they add up to a specific `target`. Return the indices of the two numbers, `index1` and `index2`, added by one such that `1 <= index1 < index2 <= numbers.length`. You may assume each input has exactly one solution, and you may not use the same element twice. Your solution must use only constant extra space.",
+  "examples": [
+    {
+      "input": "numbers = [2,7,11,15], target = 9",
+      "output": "[1,2]",
+      "explanation": "numbers[0] + numbers[1] = 2 + 7 = 9, returned as 1-indexed [1,2]."
+    },
+    {
+      "input": "numbers = [2,3,4], target = 6",
+      "output": "[1,3]"
+    },
+    {
+      "input": "numbers = [-1,0], target = -1",
+      "output": "[1,2]"
+    }
+  ],
+  "constraints": [
+    "2 <= numbers.length <= 3 * 10^4",
+    "-1000 <= numbers[i] <= 1000",
+    "numbers is sorted in non-decreasing order",
+    "Exactly one valid answer exists"
+  ],
+  "hints": [
+    "A hash map gives O(n) time and O(n) space like the unsorted version, but the array being sorted lets you drop the extra space.",
+    "With two pointers starting at each end, the sum only moves in one predictable direction as you move a pointer.",
+    "If the current sum is too small, the left pointer must move right (only way to increase); if too large, the right pointer must move left — sortedness guarantees you never skip the answer."
+  ],
+  "solution": {
+    "approach": "Use two pointers, lo at the start and hi at the end. Since the array is sorted, if numbers[lo] + numbers[hi] is less than target, the only way to increase the sum is to move lo rightward; if it's greater, the only way to decrease it is to move hi leftward. This monotonic property means neither pointer ever needs to backtrack, giving an O(n) scan with O(1) extra space instead of the O(n) space a hash map would use.",
+    "code": "def two_sum(numbers, target):\n    lo, hi = 0, len(numbers) - 1\n\n    while lo < hi:\n        total = numbers[lo] + numbers[hi]\n        if total == target:\n            return [lo + 1, hi + 1]\n        elif total < target:\n            lo += 1\n        else:\n            hi -= 1\n\n    return []\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def two_sum(numbers, target):\n    # your code here\n    pass\n",
+  "functionName": "two_sum",
+  "paramNames": ["numbers", "target"],
+  "testCases": [
+    {
+      "input": [
+        [2, 7, 11, 15],
+        9
+      ],
+      "expected": [1, 2],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [2, 3, 4],
+        6
+      ],
+      "expected": [1, 3],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [-1, 0],
+        -1
+      ],
+      "expected": [1, 2],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3, 4, 4, 9, 56, 90],
+        8
+      ],
+      "expected": [4, 5],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3, 4, 4, 9, 56, 90],
+        13
+      ],
+      "expected": [4, 6],
+      "isHidden": true
+    }
+  ]
+}

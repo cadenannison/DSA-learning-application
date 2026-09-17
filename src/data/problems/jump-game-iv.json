@@ -1,0 +1,68 @@
+{
+  "id": "jump-game-iv",
+  "title": "Jump Game IV",
+  "pattern": "greedy",
+  "difficulty": "hard",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "Given an array of integers `arr`, you are initially positioned at the first index of the array. In one step you can jump from index `i` to index `i + 1`, index `i - 1`, or any index `j` where `arr[i] == arr[j]` and `i != j`. Return the minimum number of steps required to reach the last index of the array.",
+  "examples": [
+    {
+      "input": "arr = [100,-23,-23,404,100,23,23,23,3,404]",
+      "output": "3",
+      "explanation": "One optimal path: index 0 -> index 4 (same value 100) -> index 3 (adjacent) -> index 9 (same value 404), taking 3 steps."
+    },
+    {
+      "input": "arr = [7]",
+      "output": "0",
+      "explanation": "Start already at the last index."
+    }
+  ],
+  "constraints": [
+    "1 <= arr.length <= 5 * 10^4",
+    "-10^8 <= arr[i] <= 10^8"
+  ],
+  "hints": [
+    "This is a shortest-path problem on an implicit graph where edges connect adjacent indices and indices sharing the same value — BFS finds the minimum steps naturally.",
+    "Group indices by their value first, so that from any index you can instantly look up every other index reachable via an equal-value jump.",
+    "Run BFS from index 0. When you visit an index, explore i-1, i+1, and all other indices with the same value. After using a value group once, clear it out (e.g. remove it from the map) so you never re-explore that entire group again, which is what keeps the algorithm from degrading to O(n^2) on inputs with many duplicate values."
+  ],
+  "solution": {
+    "approach": "Model the array as an implicit graph: index i connects to i-1, i+1, and every other index j with arr[j] == arr[i]. Run BFS from index 0, since BFS explores nodes in order of increasing distance and therefore finds the minimum number of steps to reach the last index. Precompute a map from value to the list of indices holding that value so equal-value jumps can be looked up in O(1). The key optimization is that once a value group has been used to expand the frontier, it's cleared from the map immediately, because visiting all of them at their first opportunity (the earliest, i.e. shortest-step, BFS layer that reaches any of them) is always optimal, and leaving the group in place would let later BFS layers rediscover the same many-index group repeatedly, causing O(n^2) blowup on inputs with heavy duplicate values.",
+    "code": "from collections import defaultdict, deque\n\ndef min_jumps(arr):\n    n = len(arr)\n    if n == 1:\n        return 0\n\n    value_to_indices = defaultdict(list)\n    for i, val in enumerate(arr):\n        value_to_indices[val].append(i)\n\n    visited = [False] * n\n    visited[0] = True\n    queue = deque([0])\n    steps = 0\n\n    while queue:\n        for _ in range(len(queue)):\n            i = queue.popleft()\n            if i == n - 1:\n                return steps\n\n            neighbors = value_to_indices[arr[i]]\n            neighbors.append(i + 1)\n            if i - 1 >= 0:\n                neighbors.append(i - 1)\n\n            for j in neighbors:\n                if 0 <= j < n and not visited[j]:\n                    visited[j] = True\n                    queue.append(j)\n\n            value_to_indices[arr[i]] = []\n\n        steps += 1\n\n    return steps\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def min_jumps(arr):\n    # your code here\n    pass\n",
+  "functionName": "min_jumps",
+  "paramNames": ["arr"],
+  "testCases": [
+    {
+      "input": [[100, -23, -23, 404, 100, 23, 23, 23, 3, 404]],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [[7]],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [[7, 7, 7, 7, 7, 7, 7]],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [[6, 1, 9]],
+      "expected": 2,
+      "isHidden": true
+    },
+    {
+      "input": [[1, 2]],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "id": "first-bad-version",
+  "title": "First Bad Version",
+  "pattern": "binary-search",
+  "difficulty": "easy",
+  "companies": [
+    "Facebook",
+    "Amazon",
+    "Google",
+    "Bloomberg"
+  ],
+  "prompt": "You are a product manager tasked with finding which version of a product broke. You have `n` versions labeled `1` to `n`, and you know that once a version is bad, every version after it is also bad. You are given the first bad version, `bad`, as an integer (representing what an `is_bad_version(version)` API would tell you internally). Implement `first_bad_version(n, bad)`, which should behave as if it only had access to a boolean `is_bad_version` check (treat `bad` as data the checker uses internally, not something to read directly), and return the first bad version while calling that check as few times as possible.",
+  "examples": [
+    {
+      "input": "n = 5, bad = 4",
+      "output": "4",
+      "explanation": "Versions 1-3 are good, versions 4-5 are bad, so the first bad version is 4."
+    },
+    {
+      "input": "n = 1, bad = 1",
+      "output": "1"
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 2^31 - 1",
+    "The bad version, once it exists, makes every later version bad too"
+  ],
+  "hints": [
+    "Calling is_bad_version on every version from 1 to n finds the answer in O(n) calls, but the good/bad split is monotonic, which suggests something faster.",
+    "Because all versions before the first bad one are good and all versions from it onward are bad, this is a search over a boolean array with a single false-to-true transition.",
+    "Binary search for that transition point: if mid is bad, the answer is mid or earlier; if mid is good, the answer is strictly later."
+  ],
+  "solution": {
+    "approach": "The versions form a monotonic sequence of good...good, bad...bad, so binary search for the boundary. Wrap the given `bad` threshold in a simple `is_bad_version(version)` check (version >= bad), exactly mirroring the real API. At each step check mid: if it's bad, the first bad version is mid or something smaller, so move high to mid; if it's good, the first bad version must be later, so move low to mid + 1. When low equals high, that index is the first bad version, found in O(log n) calls instead of O(n).",
+    "code": "def first_bad_version(n, bad):\n    def is_bad_version(version):\n        return version >= bad\n\n    lo, hi = 1, n\n\n    while lo < hi:\n        mid = lo + (hi - lo) // 2\n        if is_bad_version(mid):\n            hi = mid\n        else:\n            lo = mid + 1\n\n    return lo\n",
+    "timeComplexity": "O(log n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def first_bad_version(n, bad):\n    def is_bad_version(version):\n        return version >= bad\n\n    # your code here\n    pass\n",
+  "functionName": "first_bad_version",
+  "paramNames": ["n", "bad"],
+  "testCases": [
+    {
+      "input": [5, 4],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [1, 1],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [10, 1],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [10, 10],
+      "expected": 10,
+      "isHidden": true
+    },
+    {
+      "input": [2, 2],
+      "expected": 2,
+      "isHidden": true
+    }
+  ]
+}

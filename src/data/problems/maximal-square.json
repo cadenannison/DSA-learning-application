@@ -1,0 +1,71 @@
+{
+  "id": "maximal-square",
+  "title": "Maximal Square",
+  "pattern": "dynamic-programming",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Facebook",
+    "Apple"
+  ],
+  "prompt": "Given an `m x n` binary matrix `matrix` filled with 0s and 1s, find the largest square containing only 1s, and return its area.",
+  "examples": [
+    {
+      "input": "matrix = [[\"1\",\"0\",\"1\",\"0\",\"0\"],[\"1\",\"0\",\"1\",\"1\",\"1\"],[\"1\",\"1\",\"1\",\"1\",\"1\"],[\"1\",\"0\",\"0\",\"1\",\"0\"]]",
+      "output": "4",
+      "explanation": "The largest all-1s square has side length 2, giving area 4."
+    },
+    {
+      "input": "matrix = [[\"0\",\"1\"],[\"1\",\"0\"]]",
+      "output": "1"
+    }
+  ],
+  "constraints": [
+    "m == matrix.length",
+    "n == matrix[i].length",
+    "1 <= m, n <= 300",
+    "matrix[i][j] is '0' or '1'"
+  ],
+  "hints": [
+    "Checking every possible square explicitly is expensive — instead think about what determines the largest square that can have its bottom-right corner at a given cell.",
+    "Define dp[r][c] as the side length of the largest all-1s square whose bottom-right corner is at (r, c). If matrix[r][c] is '0', dp[r][c] = 0.",
+    "If matrix[r][c] is '1', the square can only be as large as the smallest of its three neighbors (up, left, diagonal up-left) allow, plus one: dp[r][c] = min(dp[r-1][c], dp[r][c-1], dp[r-1][c-1]) + 1."
+  ],
+  "solution": {
+    "approach": "Define dp[r][c] as the side length of the largest square of all 1s whose bottom-right corner sits at (r, c). If matrix[r][c] is '0', no square can end there, so dp[r][c] = 0. If it's '1', extending a square to end at (r, c) requires ALL three of the square directly above, to the left, and diagonally above-left to already support a square of at least that size — the limiting neighbor caps how far the square can grow, so dp[r][c] = min(dp[r-1][c], dp[r][c-1], dp[r-1][c-1]) + 1 (treating out-of-bounds neighbors as 0, which naturally handles the first row/column). Track the maximum dp value seen; the answer is that maximum squared (side length to area).",
+    "code": "def maximal_square(matrix):\n    m, n = len(matrix), len(matrix[0])\n    dp = [[0] * n for _ in range(m)]\n    best = 0\n\n    for r in range(m):\n        for c in range(n):\n            if matrix[r][c] == '1':\n                if r == 0 or c == 0:\n                    dp[r][c] = 1\n                else:\n                    dp[r][c] = min(dp[r - 1][c], dp[r][c - 1], dp[r - 1][c - 1]) + 1\n                best = max(best, dp[r][c])\n\n    return best * best\n",
+    "timeComplexity": "O(m * n)",
+    "spaceComplexity": "O(m * n)"
+  },
+  "starterCode": "def maximal_square(matrix):\n    # your code here\n    pass\n",
+  "functionName": "maximal_square",
+  "paramNames": ["matrix"],
+  "testCases": [
+    {
+      "input": [[["1", "0", "1", "0", "0"], ["1", "0", "1", "1", "1"], ["1", "1", "1", "1", "1"], ["1", "0", "0", "1", "0"]]],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [[["0", "1"], ["1", "0"]]],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [[["0"]]],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [[["1"]]],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [[["1", "1", "1"], ["1", "1", "1"], ["1", "1", "1"]]],
+      "expected": 9,
+      "isHidden": true
+    }
+  ]
+}

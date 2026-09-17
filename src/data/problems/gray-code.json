@@ -1,0 +1,61 @@
+{
+  "id": "gray-code",
+  "title": "Gray Code",
+  "pattern": "greedy",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Microsoft"
+  ],
+  "prompt": "An n-bit Gray code sequence is a sequence of `2^n` integers where every integer is in the range `[0, 2^n - 1]`, the sequence begins with `0`, every integer appears exactly once, every two adjacent integers (including the last and first) differ by exactly one bit, and the first and last integers also differ by exactly one bit. Given an integer `n`, return any valid n-bit Gray code sequence.",
+  "examples": [
+    {
+      "input": "n = 2",
+      "output": "[0,1,3,2]",
+      "explanation": "00, 01, 11, 10 -- each adjacent pair (including wraparound from 10 back to 00) differs by exactly one bit."
+    },
+    {
+      "input": "n = 1",
+      "output": "[0,1]"
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 16"
+  ],
+  "hints": [
+    "You could try to construct the sequence recursively by mirroring a smaller Gray code sequence, but there's a direct formula.",
+    "The binary-reflected Gray code has a closed form: converting a regular binary number i to its Gray code equivalent uses a simple bitwise trick.",
+    "The Gray code for integer i is i XOR (i right-shifted by 1). Generating this for i from 0 to 2^n - 1 produces a valid n-bit Gray code sequence directly, since consecutive values of i always map to codes differing by exactly one bit."
+  ],
+  "solution": {
+    "approach": "Use the standard binary-to-Gray-code conversion formula: gray(i) = i ^ (i >> 1). This works because incrementing i changes its lowest differing bit and everything below in a way that, after XORing with the shifted version, only a single bit flips between consecutive codes. Applying this formula for every i from 0 to 2^n - 1 produces the full valid Gray code sequence, including that the wraparound from the last value back to 0 also differs by exactly one bit, which follows from mirror symmetry of the construction.",
+    "code": "def gray_code(n):\n    return [i ^ (i >> 1) for i in range(1 << n)]\n",
+    "timeComplexity": "O(2^n)",
+    "spaceComplexity": "O(2^n) for the output"
+  },
+  "starterCode": "def gray_code(n):\n    # your code here\n    pass\n",
+  "functionName": "gray_code",
+  "paramNames": ["n"],
+  "testCases": [
+    {
+      "input": [2],
+      "expected": [0, 1, 3, 2],
+      "isHidden": false
+    },
+    {
+      "input": [1],
+      "expected": [0, 1],
+      "isHidden": false
+    },
+    {
+      "input": [0],
+      "expected": [0],
+      "isHidden": true
+    },
+    {
+      "input": [3],
+      "expected": [0, 1, 3, 2, 6, 7, 5, 4],
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "id": "accounts-merge",
+  "title": "Accounts Merge",
+  "pattern": "graphs",
+  "difficulty": "medium",
+  "companies": [
+    "Facebook",
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "Given a list `accounts` where `accounts[i]` is a list of strings, with `accounts[i][0]` being a name and the rest being emails belonging to that account, merge accounts that belong to the same person. Two accounts belong to the same person if they share at least one common email address (accounts belonging to the same person may not initially have the same name).\n\nAfter merging, return the accounts in the following format: the first element of each account is the name, followed by all the merged account's emails sorted in ascending order. The accounts themselves can be returned in any order.",
+  "examples": [
+    {
+      "input": "accounts = [[\"John\",\"johnsmith@mail.com\",\"john_newyork@mail.com\"],[\"John\",\"johnsmith@mail.com\",\"john00@mail.com\"],[\"Mary\",\"mary@mail.com\"],[\"John\",\"johnnybravo@mail.com\"]]",
+      "output": "[[\"John\",\"john00@mail.com\",\"john_newyork@mail.com\",\"johnsmith@mail.com\"],[\"Mary\",\"mary@mail.com\"],[\"John\",\"johnnybravo@mail.com\"]]",
+      "explanation": "The first two John accounts share johnsmith@mail.com so they merge; Mary and the third John (johnnybravo) share no emails with anyone, so they stay separate."
+    },
+    {
+      "input": "accounts = [[\"Gabe\",\"Gabe0@m.co\",\"Gabe3@m.co\",\"Gabe1@m.co\"],[\"Kevin\",\"Kevin3@m.co\",\"Kevin5@m.co\",\"Kevin0@m.co\"],[\"Ethan\",\"Ethan5@m.co\",\"Ethan4@m.co\",\"Ethan0@m.co\"]]",
+      "output": "[[\"Gabe\",\"Gabe0@m.co\",\"Gabe1@m.co\",\"Gabe3@m.co\"],[\"Kevin\",\"Kevin0@m.co\",\"Kevin3@m.co\",\"Kevin5@m.co\"],[\"Ethan\",\"Ethan0@m.co\",\"Ethan4@m.co\",\"Ethan5@m.co\"]]",
+      "explanation": "No accounts share any email, so each stays its own group, just with sorted emails."
+    }
+  ],
+  "constraints": [
+    "1 <= accounts.length <= 1000",
+    "2 <= accounts[i].length <= 10",
+    "1 <= accounts[i][j].length <= 30",
+    "accounts[i][0] consists of English letters",
+    "accounts[i][j] (for j > 0) is a valid email"
+  ],
+  "hints": [
+    "Think of every email as a node; two emails in the same account are connected. Accounts belonging to the same person form a connected component across shared emails.",
+    "Union-Find is a natural fit: for each account, union all of its emails together with the first email.",
+    "After all unions, group emails by their root parent, sort each group, and prepend that group's name (any account containing one of the emails supplies the name — they're guaranteed consistent within a merged group)."
+  ],
+  "solution": {
+    "approach": "Map every distinct email to a unique id, and use Union-Find where each account unions all of its own emails together (e.g. with its first email as an anchor). This correctly merges accounts transitively -- if account A shares an email with B, and B shares a different email with C, all three end up in the same component even though A and C share nothing directly. After processing every account, group emails by their root, sort each group's emails, and attach the owner's name (looked up from any account containing one of that group's emails) to build the final merged list.",
+    "code": "def accounts_merge(accounts):\n    parent = {}\n\n    def find(x):\n        parent.setdefault(x, x)\n        while parent[x] != x:\n            parent[x] = parent[parent[x]]\n            x = parent[x]\n        return x\n\n    def union(a, b):\n        root_a, root_b = find(a), find(b)\n        if root_a != root_b:\n            parent[root_a] = root_b\n\n    email_to_name = {}\n    for account in accounts:\n        name = account[0]\n        first_email = account[1]\n        for email in account[1:]:\n            email_to_name[email] = name\n            union(first_email, email)\n\n    groups = {}\n    for email in email_to_name:\n        root = find(email)\n        groups.setdefault(root, []).append(email)\n\n    result = []\n    for root, emails in groups.items():\n        result.append([email_to_name[root]] + sorted(emails))\n    return result\n",
+    "timeComplexity": "O(N * K * log(N * K)), N = number of accounts, K = max emails per account (dominated by sorting)",
+    "spaceComplexity": "O(N * K)"
+  },
+  "starterCode": "def accounts_merge(accounts):\n    # your code here\n    pass\n",
+  "functionName": "accounts_merge",
+  "paramNames": ["accounts"],
+  "testCases": [
+    {
+      "input": [[["John", "johnsmith@mail.com", "john_newyork@mail.com"], ["John", "johnsmith@mail.com", "john00@mail.com"], ["Mary", "mary@mail.com"], ["John", "johnnybravo@mail.com"]]],
+      "expected": [["John", "john00@mail.com", "john_newyork@mail.com", "johnsmith@mail.com"], ["Mary", "mary@mail.com"], ["John", "johnnybravo@mail.com"]],
+      "isHidden": false
+    },
+    {
+      "input": [[["Gabe", "Gabe0@m.co", "Gabe3@m.co", "Gabe1@m.co"], ["Kevin", "Kevin3@m.co", "Kevin5@m.co", "Kevin0@m.co"], ["Ethan", "Ethan5@m.co", "Ethan4@m.co", "Ethan0@m.co"]]],
+      "expected": [["Gabe", "Gabe0@m.co", "Gabe1@m.co", "Gabe3@m.co"], ["Kevin", "Kevin0@m.co", "Kevin3@m.co", "Kevin5@m.co"], ["Ethan", "Ethan0@m.co", "Ethan4@m.co", "Ethan5@m.co"]],
+      "isHidden": false
+    },
+    {
+      "input": [[["A", "a1@m.co", "a2@m.co"], ["B", "a2@m.co", "a3@m.co"], ["C", "a3@m.co", "a4@m.co"]]],
+      "expected": [["C", "a1@m.co", "a2@m.co", "a3@m.co", "a4@m.co"]],
+      "isHidden": true
+    }
+  ]
+}

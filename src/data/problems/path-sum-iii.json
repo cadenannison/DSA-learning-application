@@ -1,0 +1,84 @@
+{
+  "id": "path-sum-iii",
+  "title": "Path Sum III",
+  "pattern": "trees",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Facebook",
+    "Google"
+  ],
+  "prompt": "Given the `root` of a binary tree and an integer `targetSum`, return the number of paths where the sum of the values along the path equals `targetSum`. A path does not need to start at the root or end at a leaf, but it must travel only downward (parent to child nodes).\n\nThe tree is given as a level-order array where `null` marks a missing child (the standard LeetCode serialization). Your function receives this array and `targetSum`; the starter code includes a helper that builds the tree from the array, so you only need to count the qualifying paths.",
+  "examples": [
+    {
+      "input": "root = [10,5,-3,3,2,null,11,3,-2,null,1], targetSum = 8",
+      "output": "3",
+      "explanation": "Three downward paths sum to 8: 5->3, 5->2->1, and -3->11."
+    },
+    {
+      "input": "root = [5,4,8,11,null,13,4,7,2,null,null,5,1], targetSum = 22",
+      "output": "3"
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [0, 1000]",
+    "-10^9 <= Node.val <= 10^9",
+    "-1000 <= targetSum <= 1000"
+  ],
+  "hints": [
+    "A brute-force approach checks every node as a potential path start, giving O(n^2) — think about how prefix sums can speed this up, like in Subarray Sum Equals K.",
+    "As you DFS down from the root, keep a running prefix sum from the root to the current node, and a hash map counting how many times each prefix sum value has occurred on the current root-to-node path.",
+    "The number of valid paths ending at the current node equals the count of (running_sum - targetSum) already seen in the prefix map; remember to decrement that map entry when backtracking out of a node so sibling branches don't see stale counts."
+  ],
+  "solution": {
+    "approach": "Treat this like Subarray Sum Equals K but on a tree path instead of an array. Maintain a running prefix sum from the root to the current node during DFS, and a hash map of how many times each prefix sum value has appeared so far along the current root-to-node path. At each node, the number of valid downward paths ending here equals the count of (running_sum - targetSum) already recorded in the map (since removing that earlier prefix leaves exactly targetSum). Increment the map for the current running sum before recursing into children, and decrement it (backtrack) after both children are processed, since prefix sums from a different branch shouldn't count.",
+    "code": "from collections import defaultdict\n\n\nclass TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef path_sum_iii(root_arr, target_sum):\n    root = build_tree(root_arr)\n    prefix_counts = defaultdict(int)\n    prefix_counts[0] = 1\n    count = [0]\n\n    def dfs(node, running_sum):\n        if node is None:\n            return\n        running_sum += node.val\n        count[0] += prefix_counts[running_sum - target_sum]\n        prefix_counts[running_sum] += 1\n        dfs(node.left, running_sum)\n        dfs(node.right, running_sum)\n        prefix_counts[running_sum] -= 1\n\n    dfs(root, 0)\n    return count[0]\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(h), h = tree height"
+  },
+  "starterCode": "from collections import defaultdict\n\n\nclass TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef path_sum_iii(root_arr, target_sum):\n    root = build_tree(root_arr)\n    # your code here\n    pass\n",
+  "functionName": "path_sum_iii",
+  "paramNames": ["root_arr", "target_sum"],
+  "testCases": [
+    {
+      "input": [
+        [10, 5, -3, 3, 2, null, 11, 3, -2, null, 1],
+        8
+      ],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [5, 4, 8, 11, null, 13, 4, 7, 2, null, null, 5, 1],
+        22
+      ],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1],
+        1
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [],
+        0
+      ],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2],
+        1
+      ],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

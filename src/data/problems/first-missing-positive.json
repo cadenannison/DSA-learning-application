@@ -1,0 +1,89 @@
+{
+  "id": "first-missing-positive",
+  "title": "First Missing Positive",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "hard",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Meta",
+    "Google"
+  ],
+  "prompt": "Given an unsorted integer array `nums`, return the smallest missing positive integer. You must implement an algorithm that runs in `O(n)` time and uses `O(1)` auxiliary space.",
+  "examples": [
+    {
+      "input": "nums = [1,2,0]",
+      "output": "3"
+    },
+    {
+      "input": "nums = [3,4,-1,1]",
+      "output": "2"
+    },
+    {
+      "input": "nums = [7,8,9,11,12]",
+      "output": "1"
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 10^5",
+    "-2^31 <= nums[i] <= 2^31 - 1"
+  ],
+  "hints": [
+    "Sorting first gives an easy O(n log n) solution, and a hash set gives O(n) time but O(n) space — the O(1) space requirement means you need to reuse the array itself as your data structure.",
+    "The answer must be in the range [1, n+1], since there are only n slots — if all of 1..n are present, the answer is n+1.",
+    "Use cyclic sort: place each value v (where 1 <= v <= n) at index v-1 by repeatedly swapping it into position; afterward, scan for the first index i where nums[i] != i+1 — that index+1 is the answer."
+  ],
+  "solution": {
+    "approach": "The answer must lie in [1, n+1] since there are only n elements. Use cyclic sort: for each position, if the value there is in range [1, n] and not already at its correct home (index value-1), swap it into that home position, repeating until the current position holds a correctly-placed value or an out-of-range one. After this pass, every value v in [1, n] that exists in the array sits at index v-1. A final scan finds the first index i where nums[i] != i+1; that i+1 is the first missing positive. If every index matches, the answer is n+1. Each element is swapped at most once into its final home, keeping the whole process O(n) time and O(1) extra space.",
+    "code": "def first_missing_positive(nums):\n    n = len(nums)\n\n    for i in range(n):\n        while 1 <= nums[i] <= n and nums[nums[i] - 1] != nums[i]:\n            target = nums[i] - 1\n            nums[i], nums[target] = nums[target], nums[i]\n\n    for i in range(n):\n        if nums[i] != i + 1:\n            return i + 1\n\n    return n + 1\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def first_missing_positive(nums):\n    # your code here\n    pass\n",
+  "functionName": "first_missing_positive",
+  "paramNames": ["nums"],
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 0]
+      ],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [3, 4, -1, 1]
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [7, 8, 9, 11, 12]
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        []
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": 2,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3]
+      ],
+      "expected": 4,
+      "isHidden": true
+    }
+  ]
+}

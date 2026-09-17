@@ -1,0 +1,75 @@
+{
+  "id": "longest-palindromic-subsequence",
+  "title": "Longest Palindromic Subsequence",
+  "pattern": "dynamic-programming",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Microsoft",
+    "Adobe"
+  ],
+  "prompt": "Given a string `s`, return the length of the longest palindromic subsequence in `s`. A subsequence is a sequence derived by deleting zero or more characters without changing the order of the remaining characters.",
+  "examples": [
+    {
+      "input": "s = \"bbbab\"",
+      "output": "4",
+      "explanation": "One longest palindromic subsequence is \"bbbb\"."
+    },
+    {
+      "input": "s = \"cbbd\"",
+      "output": "2",
+      "explanation": "One longest palindromic subsequence is \"bb\"."
+    }
+  ],
+  "constraints": [
+    "1 <= s.length <= 1000",
+    "s consists only of lowercase English letters"
+  ],
+  "hints": [
+    "A neat trick: the longest palindromic subsequence of s is exactly the longest common subsequence of s and its reverse.",
+    "Alternatively, think directly in terms of substring bounds: define dp[i][j] as the longest palindromic subsequence within s[i..j]. If s[i] == s[j], those two characters can bookend whatever palindrome is inside s[i+1..j-1].",
+    "If s[i] != s[j], the best you can do is the better of dropping one end or the other: max(dp[i+1][j], dp[i][j-1]). Fill the table by increasing substring length, since dp[i][j] depends on shorter subranges."
+  ],
+  "solution": {
+    "approach": "Define dp[i][j] as the length of the longest palindromic subsequence within s[i..j] (inclusive). Every single character is a palindrome of length 1, so dp[i][i] = 1. Fill the table by increasing substring length: if s[i] == s[j], those matching ends can wrap around the best palindrome strictly inside them, so dp[i][j] = dp[i+1][j-1] + 2 (treating dp[i+1][j-1] as 0 when i+1 > j-1). If they don't match, the best is whichever of dropping the left or right character does better: dp[i][j] = max(dp[i+1][j], dp[i][j-1]). The final answer is dp[0][n-1]. This is equivalent to running Longest Common Subsequence between s and its reverse, but computing it directly avoids building the reversed string.",
+    "code": "def longest_palindrome_subseq(s):\n    n = len(s)\n    dp = [[0] * n for _ in range(n)]\n    for i in range(n):\n        dp[i][i] = 1\n\n    for length in range(2, n + 1):\n        for i in range(n - length + 1):\n            j = i + length - 1\n            if s[i] == s[j]:\n                dp[i][j] = dp[i + 1][j - 1] + 2 if i + 1 <= j - 1 else 2\n            else:\n                dp[i][j] = max(dp[i + 1][j], dp[i][j - 1])\n\n    return dp[0][n - 1]\n",
+    "timeComplexity": "O(n^2)",
+    "spaceComplexity": "O(n^2)"
+  },
+  "starterCode": "def longest_palindrome_subseq(s):\n    # your code here\n    pass\n",
+  "functionName": "longest_palindrome_subseq",
+  "paramNames": ["s"],
+  "testCases": [
+    {
+      "input": ["bbbab"],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": ["cbbd"],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": ["a"],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": ["aaaa"],
+      "expected": 4,
+      "isHidden": true
+    },
+    {
+      "input": ["abcde"],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": ["agbdba"],
+      "expected": 5,
+      "isHidden": true
+    }
+  ]
+}

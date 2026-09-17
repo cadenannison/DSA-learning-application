@@ -1,0 +1,70 @@
+{
+  "id": "minimum-window-subsequence",
+  "title": "Minimum Window Subsequence",
+  "pattern": "sliding-window",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Meta",
+    "Amazon"
+  ],
+  "prompt": "Given strings `s1` and `s2`, return the minimum contiguous substring of `s1` such that `s2` is a subsequence of that substring (i.e., the characters of `s2` appear in the substring in order, though not necessarily consecutively). If no such substring exists, return the empty string `\"\"`. If there are multiple minimum-length substrings, return the one whose left index is smallest.",
+  "examples": [
+    {
+      "input": "s1 = \"abcdebdde\", s2 = \"bde\"",
+      "output": "\"bcde\"",
+      "explanation": "\"bcde\" is the shortest substring of s1 containing \"bde\" as a subsequence. \"deb\" is not valid because b appears before d and e in it out of order."
+    },
+    {
+      "input": "s1 = \"jmeqksfrsdcmsiwvaovztaqenprpvnbstl\", s2 = \"u\"",
+      "output": "\"\"",
+      "explanation": "s2 contains a character 'u' that doesn't appear in s1 at all."
+    }
+  ],
+  "constraints": [
+    "1 <= s1.length <= 2 * 10^4",
+    "1 <= s2.length <= 100",
+    "s1 and s2 consist of lowercase English letters"
+  ],
+  "hints": [
+    "Unlike Minimum Window Substring, order matters here since s2 must appear as a subsequence, not just a set of characters — a frequency-count window won't work directly.",
+    "Use a two-pointer sweep: advance a pointer through s1 matching characters of s2 in order until all of s2 is matched, marking the end of a candidate window.",
+    "Once s2 is fully matched ending at some index, walk backward from there matching s2 in reverse to find the tightest possible start of the window, then continue scanning s1 from just after that window's start to look for an even better (shorter) window."
+  ],
+  "solution": {
+    "approach": "Scan s1 with a pointer j while matching characters of s2 in order with pointer i. Once i reaches the end of s2 (a full match found ending at position j), that gives a valid but possibly loose window. To tighten it, walk backward from j matching s2 in reverse to find the true rightmost possible start of a minimal window ending at j. Record this window if it's the shortest seen so far, then resume the forward scan from just after that window's start (not from j+1) to find the next candidate, since a shorter window may still start within the current match region. This two-pass expand-then-contract technique runs in O(len(s1) * len(s2)) in the worst case, which is efficient given the constraints.",
+    "code": "def min_window(s1, s2):\n    n, m = len(s1), len(s2)\n    best_len = float('inf')\n    best_start = -1\n\n    i = 0\n    while i < n:\n        j = 0\n        start = i\n        while i < n:\n            if s1[i] == s2[j]:\n                j += 1\n                if j == m:\n                    break\n            i += 1\n        if j < m:\n            break\n\n        end = i\n        j = m - 1\n        while j >= 0:\n            if s1[i] == s2[j]:\n                j -= 1\n            i -= 1\n        i += 1\n\n        if end - i + 1 < best_len:\n            best_len = end - i + 1\n            best_start = i\n\n        i += 1\n\n    return \"\" if best_start == -1 else s1[best_start:best_start + best_len]\n",
+    "timeComplexity": "O(n * m) worst case, where n = len(s1), m = len(s2)",
+    "spaceComplexity": "O(1) extra"
+  },
+  "starterCode": "def min_window(s1, s2):\n    # your code here\n    pass\n",
+  "functionName": "min_window",
+  "paramNames": ["s1", "s2"],
+  "testCases": [
+    {
+      "input": ["abcdebdde", "bde"],
+      "expected": "bcde",
+      "isHidden": false
+    },
+    {
+      "input": ["jmeqksfrsdcmsiwvaovztaqenprpvnbstl", "u"],
+      "expected": "",
+      "isHidden": false
+    },
+    {
+      "input": ["abc", "abc"],
+      "expected": "abc",
+      "isHidden": true
+    },
+    {
+      "input": ["abc", "d"],
+      "expected": "",
+      "isHidden": true
+    },
+    {
+      "input": ["fjkabcdefgh", "def"],
+      "expected": "def",
+      "isHidden": true
+    }
+  ]
+}

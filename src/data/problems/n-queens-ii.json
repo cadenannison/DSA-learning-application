@@ -1,0 +1,66 @@
+{
+  "id": "n-queens-ii",
+  "title": "N-Queens II",
+  "pattern": "backtracking",
+  "difficulty": "hard",
+  "companies": [
+    "Amazon",
+    "Microsoft"
+  ],
+  "prompt": "The n-queens puzzle asks you to place n chess queens on an n x n chessboard so that no two queens attack each other (no two queens share a row, column, or diagonal). Given an integer `n`, return the number of distinct solutions to the n-queens puzzle.\n\nUnlike a variant that returns the actual board layouts, here you only need the count of valid arrangements, but you should still solve it with the same row-by-row backtracking used to enumerate boards \u2014 an O(1) closed-form doesn't exist for this problem.",
+  "examples": [
+    {
+      "input": "n = 4",
+      "output": "2",
+      "explanation": "There are exactly 2 distinct ways to place 4 non-attacking queens on a 4x4 board."
+    },
+    {
+      "input": "n = 1",
+      "output": "1"
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 9"
+  ],
+  "hints": [
+    "No two queens can share a row, so you can place exactly one queen per row and recurse row by row, choosing a column for each.",
+    "Track which columns and which diagonals are already occupied. For an n x n board, a cell (row, col) lies on diagonal (row - col) and anti-diagonal (row + col) \u2014 use sets (or bitmasks) to mark these as taken.",
+    "Backtrack: at each row, try every column not already blocked by an occupied column or diagonal; place the queen, recurse to the next row, then unmark on backtrack. When every row has a queen, increment the solution counter."
+  ],
+  "solution": {
+    "approach": "Place queens one row at a time via backtracking, since a valid solution can never have two queens sharing a row. Track three sets: occupied columns, occupied diagonals (row - col is constant along a top-left-to-bottom-right diagonal), and occupied anti-diagonals (row + col is constant along a top-right-to-bottom-left diagonal). At each row, try every column; if the column and both diagonals through that cell are free, place the queen (add to all three sets), recurse to the next row, then remove from all three sets to backtrack. Reaching row == n means a full valid placement was found, so increment the counter. This is identical in structure to full N-Queens, just counting instead of recording boards.",
+    "code": "def total_n_queens(n):\n    cols = set()\n    diagonals = set()\n    anti_diagonals = set()\n    count = 0\n\n    def backtrack(row):\n        nonlocal count\n        if row == n:\n            count += 1\n            return\n        for col in range(n):\n            diag = row - col\n            anti_diag = row + col\n            if col in cols or diag in diagonals or anti_diag in anti_diagonals:\n                continue\n            cols.add(col)\n            diagonals.add(diag)\n            anti_diagonals.add(anti_diag)\n            backtrack(row + 1)\n            cols.remove(col)\n            diagonals.remove(diag)\n            anti_diagonals.remove(anti_diag)\n\n    backtrack(0)\n    return count\n",
+    "timeComplexity": "O(n!) worst case",
+    "spaceComplexity": "O(n) for the recursion stack and tracking sets"
+  },
+  "starterCode": "def total_n_queens(n):\n    # your code here\n    pass\n",
+  "functionName": "total_n_queens",
+  "paramNames": ["n"],
+  "testCases": [
+    {
+      "input": [4],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [1],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [2],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [7],
+      "expected": 40,
+      "isHidden": true
+    },
+    {
+      "input": [8],
+      "expected": 92,
+      "isHidden": true
+    }
+  ]
+}

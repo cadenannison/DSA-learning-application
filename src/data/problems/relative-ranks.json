@@ -1,0 +1,70 @@
+{
+  "id": "relative-ranks",
+  "title": "Relative Ranks",
+  "pattern": "heaps",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Facebook"
+  ],
+  "prompt": "You are given an integer array `score` where `score[i]` is the score of the i-th athlete in a competition, and all scores are guaranteed to be unique. The athletes are ranked from highest score to lowest score. The athlete with the highest score receives the rank `\"Gold Medal\"`, the second highest `\"Silver Medal\"`, and the third highest `\"Bronze Medal\"`. For the 4th place athlete onward, their rank is simply their placement number as a string (e.g. `\"4\"`).\n\nReturn an array `answer` where `answer[i]` is the rank of the i-th athlete, matching the original order of `score`.",
+  "examples": [
+    {
+      "input": "score = [5,4,3,2,1]",
+      "output": "[\"Gold Medal\",\"Silver Medal\",\"Bronze Medal\",\"4\",\"5\"]",
+      "explanation": "Scores are already descending, so ranks map directly onto positions."
+    },
+    {
+      "input": "score = [10,3,8,9,4]",
+      "output": "[\"Gold Medal\",\"5\",\"Bronze Medal\",\"Silver Medal\",\"4\"]",
+      "explanation": "Sorted descending: 10,9,8,4,3. So 10->Gold, 9->Silver, 8->Bronze, 4->4th, 3->5th, then mapped back to original positions."
+    }
+  ],
+  "constraints": [
+    "n == score.length",
+    "1 <= n <= 10^4",
+    "0 <= score[i] <= 10^6",
+    "All the values in score are unique"
+  ],
+  "hints": [
+    "You need to know each athlete's rank relative to everyone else, which means you need the scores in sorted order at some point.",
+    "A max-heap of (score, original index) pairs lets you pop athletes from highest to lowest score, assigning ranks 1, 2, 3, ... as you go.",
+    "Once you know each athlete's numeric placement, map placements 1, 2, 3 to the medal strings and everything else to str(placement), then write results back into an output array indexed by original position."
+  ],
+  "solution": {
+    "approach": "Push (-score, original_index) pairs onto a heap so popping always yields the next-highest score first (negation simulates a max-heap with Python's min-heap). Pop athletes one at a time, assigning increasing placement numbers 1, 2, 3, ... and writing the appropriate rank string into an output array at that athlete's original index. The first three placements get medal names; the rest get their placement number as a string.",
+    "code": "import heapq\n\ndef relative_ranks(score):\n    heap = [(-s, i) for i, s in enumerate(score)]\n    heapq.heapify(heap)\n\n    medals = [\"Gold Medal\", \"Silver Medal\", \"Bronze Medal\"]\n    answer = [\"\"] * len(score)\n    place = 1\n\n    while heap:\n        _, idx = heapq.heappop(heap)\n        answer[idx] = medals[place - 1] if place <= 3 else str(place)\n        place += 1\n\n    return answer\n",
+    "timeComplexity": "O(n log n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def relative_ranks(score):\n    # your code here\n    pass\n",
+  "functionName": "relative_ranks",
+  "paramNames": ["score"],
+  "testCases": [
+    {
+      "input": [[5, 4, 3, 2, 1]],
+      "expected": ["Gold Medal", "Silver Medal", "Bronze Medal", "4", "5"],
+      "isHidden": false
+    },
+    {
+      "input": [[10, 3, 8, 9, 4]],
+      "expected": ["Gold Medal", "5", "Bronze Medal", "Silver Medal", "4"],
+      "isHidden": false
+    },
+    {
+      "input": [[1]],
+      "expected": ["Gold Medal"],
+      "isHidden": true
+    },
+    {
+      "input": [[1, 2]],
+      "expected": ["Silver Medal", "Gold Medal"],
+      "isHidden": true
+    },
+    {
+      "input": [[100, 50, 25, 10]],
+      "expected": ["Gold Medal", "Silver Medal", "Bronze Medal", "4"],
+      "isHidden": true
+    }
+  ]
+}

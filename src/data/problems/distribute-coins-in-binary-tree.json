@@ -1,0 +1,79 @@
+{
+  "id": "distribute-coins-in-binary-tree",
+  "title": "Distribute Coins in Binary Tree",
+  "pattern": "trees",
+  "difficulty": "hard",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "You are given the `root` of a binary tree with `n` nodes, where each node has some number of coins, and the total number of coins across the whole tree is `n` (so on average every node should end up with exactly one coin). In one move, a coin can be moved from one node to a directly adjacent node (parent to child or child to parent).\n\nReturn the minimum number of moves required to make every node have exactly one coin. The tree is given as a level-order array where `null` marks a missing child (the standard LeetCode serialization); each value in the array is the number of coins at that node. Your function receives this array directly; the starter code includes a helper that builds the tree from it, so you only need to compute the minimum number of moves.",
+  "examples": [
+    {
+      "input": "root = [3,0,0]",
+      "output": "2",
+      "explanation": "The root has 2 excess coins that must each move one step to reach the two children, for a total of 2 moves."
+    },
+    {
+      "input": "root = [0,3,0]",
+      "output": "3",
+      "explanation": "The left child has 2 excess coins: one is needed by the root (1 move) and one must continue past the root to the right child (2 moves), plus the root itself needs 1 coin from its child (already counted) — total moves sum to 3."
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [1, 100]",
+    "0 <= Node.val <= n",
+    "The sum of all Node.val equals n (the number of nodes)"
+  ],
+  "hints": [
+    "Think about each edge independently: some number of coins must cross it (in either direction) to balance the tree, and that number of crossings is exactly what counts toward the answer.",
+    "Do a post-order DFS where each subtree reports its 'excess' — the number of coins in that subtree minus the number of nodes in that subtree. A positive excess means coins need to flow up and out; negative means coins need to flow in from the parent.",
+    "The number of moves across the edge connecting a node to its child equals the absolute value of that child subtree's excess (since that many coins must cross that single edge, regardless of direction) — sum abs(child_excess) over every edge in the tree."
+  ],
+  "solution": {
+    "approach": "Do a post-order DFS where each subtree returns its 'excess' coins: (total coins in subtree) - (number of nodes in subtree). If excess is positive, that many coins must flow out of the subtree through its connecting edge to the parent; if negative, that many coins must flow in. Either way, the number of coin-moves across that single edge equals abs(excess). Sum abs(left_excess) + abs(right_excess) at every node to get the total moves, while also propagating (1 + node.val + left_excess + right_excess) upward as this subtree's own excess.",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef distribute_coins(root_arr):\n    root = build_tree(root_arr)\n    moves = [0]\n\n    def dfs(node):\n        if node is None:\n            return 0\n        left_excess = dfs(node.left)\n        right_excess = dfs(node.right)\n        moves[0] += abs(left_excess) + abs(right_excess)\n        return node.val - 1 + left_excess + right_excess\n\n    dfs(root)\n    return moves[0]\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(h), h = tree height"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef distribute_coins(root_arr):\n    root = build_tree(root_arr)\n    # your code here\n    pass\n",
+  "functionName": "distribute_coins",
+  "paramNames": ["root_arr"],
+  "testCases": [
+    {
+      "input": [
+        [3, 0, 0]
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0, 3, 0]
+      ],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 0, 2]
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 0, 0, null, 3]
+      ],
+      "expected": 4,
+      "isHidden": true
+    }
+  ]
+}

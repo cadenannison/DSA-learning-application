@@ -1,0 +1,101 @@
+{
+  "id": "intersection-of-two-linked-lists",
+  "title": "Intersection of Two Linked Lists",
+  "pattern": "linked-list",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Google",
+    "Bloomberg"
+  ],
+  "prompt": "You are given the heads of two singly linked lists, `listA` and `listB`. The two lists may intersect at some node, after which they share the same nodes all the way to the end (by reference, not just by equal value). Return the value of the node at which the two lists intersect, or `-1` if they do not intersect.\n\nSince a JSON test case can't share real node references between two separately-described lists, the input is encoded as `[listA, listB, skipA, skipB]`: `listA` and `listB` are the full value arrays for each list as they would appear independently, and `skipA` / `skipB` say how many nodes from the front of each array are unique to that list before the shared suffix begins (a `skipA` of `len(listA)` means no intersection). Build the two lists so that they are true, physically shared linked structures from the intersection point onward, then find the intersection.",
+  "examples": [
+    {
+      "input": "listA = [4,1,8,4,5], listB = [5,6,1,8,4,5], skipA = 2, skipB = 3",
+      "output": "8",
+      "explanation": "Both lists share the tail 8 -> 4 -> 5, so they intersect at the node with value 8."
+    },
+    {
+      "input": "listA = [1,9,1,2,4], listB = [3,2,4], skipA = 3, skipB = 1",
+      "output": "2",
+      "explanation": "Both lists share the tail 2 -> 4."
+    },
+    {
+      "input": "listA = [2,6,4], listB = [1,5], skipA = 3, skipB = 2",
+      "output": "-1",
+      "explanation": "The lists share no nodes."
+    }
+  ],
+  "constraints": [
+    "The number of nodes in each list is in the range [0, 3 * 10^4]",
+    "-10^5 <= Node.val <= 10^5",
+    "skipA and skipB correctly describe where the shared suffix begins (or that there is none)"
+  ],
+  "hints": [
+    "Using a hash set of visited nodes from one list to check against while walking the other works, but uses O(n) extra space — can you do it in O(1)?",
+    "If the two lists were the same length, walking them together node by node would land on the intersection directly. The trick is neutralizing the length difference.",
+    "Walk two pointers, each starting at one list's head; when a pointer reaches the end of its list, redirect it to the head of the OTHER list. After at most one such switch each, both pointers will be the same distance from the intersection and meet exactly there (or both reach null together if there is none)."
+  ],
+  "solution": {
+    "approach": "Build the two lists so the shared suffix is the same physical nodes (not just equal values). Then use two pointers pA and pB starting at headA and headB. Advance both one step at a time; when a pointer reaches the end (null), redirect it to the other list's head instead of stopping. Because pA travels lenA + lenB - common steps before reaching the intersection (and symmetrically for pB), both pointers cover the exact same total distance before meeting, so they arrive at the intersection node simultaneously — or both hit null at the same time if there is no intersection.",
+    "code": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef build_intersecting_lists(list_a, list_b, skip_a, skip_b):\n    tail_nodes = []\n    tail_head = None\n    tail = None\n    shared_len = len(list_a) - skip_a\n    if shared_len > 0:\n        for v in list_a[skip_a:]:\n            node = ListNode(v)\n            if not tail_head:\n                tail_head, tail = node, node\n            else:\n                tail.next = node\n                tail = node\n\n    def build_prefix(values, count, shared_head):\n        head = None\n        t = None\n        for v in values[:count]:\n            node = ListNode(v)\n            if not head:\n                head, t = node, node\n            else:\n                t.next = node\n                t = node\n        if t:\n            t.next = shared_head\n            return head\n        return shared_head\n\n    head_a = build_prefix(list_a, skip_a, tail_head)\n    head_b = build_prefix(list_b, skip_b, tail_head)\n    return head_a, head_b\n\n\ndef get_intersection_node(list_a, list_b, skip_a, skip_b):\n    head_a, head_b = build_intersecting_lists(list_a, list_b, skip_a, skip_b)\n    if not head_a or not head_b:\n        return -1\n\n    pa, pb = head_a, head_b\n    while pa is not pb:\n        pa = pa.next if pa else head_b\n        pb = pb.next if pb else head_a\n    return pa.val if pa else -1\n",
+    "timeComplexity": "O(n + m)",
+    "spaceComplexity": "O(1) auxiliary (excluding building the input lists)"
+  },
+  "starterCode": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef build_intersecting_lists(list_a, list_b, skip_a, skip_b):\n    tail_head = None\n    tail = None\n    shared_len = len(list_a) - skip_a\n    if shared_len > 0:\n        for v in list_a[skip_a:]:\n            node = ListNode(v)\n            if not tail_head:\n                tail_head, tail = node, node\n            else:\n                tail.next = node\n                tail = node\n\n    def build_prefix(values, count, shared_head):\n        head = None\n        t = None\n        for v in values[:count]:\n            node = ListNode(v)\n            if not head:\n                head, t = node, node\n            else:\n                t.next = node\n                t = node\n        if t:\n            t.next = shared_head\n            return head\n        return shared_head\n\n    head_a = build_prefix(list_a, skip_a, tail_head)\n    head_b = build_prefix(list_b, skip_b, tail_head)\n    return head_a, head_b\n\n\ndef get_intersection_node(list_a, list_b, skip_a, skip_b):\n    head_a, head_b = build_intersecting_lists(list_a, list_b, skip_a, skip_b)\n    # your code here\n    pass\n",
+  "functionName": "get_intersection_node",
+  "paramNames": ["list_a", "list_b", "skip_a", "skip_b"],
+  "testCases": [
+    {
+      "input": [
+        [4, 1, 8, 4, 5],
+        [5, 6, 1, 8, 4, 5],
+        2,
+        3
+      ],
+      "expected": 8,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 9, 1, 2, 4],
+        [3, 2, 4],
+        3,
+        1
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [2, 6, 4],
+        [1, 5],
+        3,
+        2
+      ],
+      "expected": -1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [],
+        [],
+        0,
+        0
+      ],
+      "expected": -1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3],
+        [1, 2, 3],
+        0,
+        0
+      ],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

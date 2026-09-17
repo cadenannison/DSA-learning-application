@@ -1,0 +1,71 @@
+{
+  "id": "final-prices-with-a-special-discount-in-a-shop",
+  "title": "Final Prices With a Special Discount in a Shop",
+  "pattern": "stacks-queues",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon"
+  ],
+  "prompt": "You are given an integer array `prices` where `prices[i]` is the price of the `i`-th item in a shop. There is a special discount: for each item, if you can find a later item `j` (with `j > i`) such that `prices[j] <= prices[i]`, then the discount on item `i` is `prices[j]`, and its final price is `prices[i] - prices[j]`. If no such item exists, item `i` gets no discount and its final price stays `prices[i]`.\n\nReturn an array where the `i`-th element is the final price you pay for the `i`-th item.",
+  "examples": [
+    {
+      "input": "prices = [8,4,6,2,3]",
+      "output": "[4,2,4,2,3]",
+      "explanation": "Item 0 (8): first later price <= 8 is 4, so 8-4=4. Item 1 (4): first later price <= 4 is 2, so 4-2=2. Item 2 (6): first later price <= 6 is 2, so 6-2=4. Item 3 (2): no later price <= 2, stays 2. Item 4 (3): last item, stays 3."
+    },
+    {
+      "input": "prices = [1,2,3,4,5]",
+      "output": "[1,2,3,4,5]",
+      "explanation": "Prices are strictly increasing, so no item ever finds a later price <= its own."
+    },
+    {
+      "input": "prices = [10,1,1,6]",
+      "output": "[9,0,1,6]"
+    }
+  ],
+  "constraints": [
+    "1 <= prices.length <= 500",
+    "1 <= prices[i] <= 10^3"
+  ],
+  "hints": [
+    "For each item, checking every later item for the first one <=  it is O(n^2) — you can do it in one pass.",
+    "This is a next-smaller-or-equal-element problem, which a monotonic increasing stack solves in O(n).",
+    "Keep a stack of indices with increasing prices; when the current price is <= the stack's top price, that resolves the discount for the index at the top."
+  ],
+  "solution": {
+    "approach": "Use a monotonic stack of indices whose prices are increasing (no discount found yet). Scan left to right: while the current price is <= the price at the index on top of the stack, pop that index and apply the discount (subtract the current price) to it. Push the current index. Any indices left on the stack at the end get no discount. This finds each item's next-smaller-or-equal price in a single O(n) pass.",
+    "code": "def final_prices(prices):\n    result = list(prices)\n    stack = []\n    for i, price in enumerate(prices):\n        while stack and prices[stack[-1]] >= price:\n            j = stack.pop()\n            result[j] = prices[j] - price\n        stack.append(i)\n    return result\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def final_prices(prices):\n    # your code here\n    pass\n",
+  "functionName": "final_prices",
+  "paramNames": ["prices"],
+  "testCases": [
+    {
+      "input": [[8, 4, 6, 2, 3]],
+      "expected": [4, 2, 4, 2, 3],
+      "isHidden": false
+    },
+    {
+      "input": [[1, 2, 3, 4, 5]],
+      "expected": [1, 2, 3, 4, 5],
+      "isHidden": false
+    },
+    {
+      "input": [[10, 1, 1, 6]],
+      "expected": [9, 0, 1, 6],
+      "isHidden": false
+    },
+    {
+      "input": [[1]],
+      "expected": [1],
+      "isHidden": true
+    },
+    {
+      "input": [[5, 5, 5, 5]],
+      "expected": [0, 0, 0, 5],
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "id": "remove-linked-list-elements",
+  "title": "Remove Linked List Elements",
+  "pattern": "linked-list",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Adobe"
+  ],
+  "prompt": "Given the `head` of a singly linked list and an integer `val`, remove all nodes whose value equals `val` and return the new head.\n\nThe list is given as an array (e.g. `[1,2,6,3,4,5,6]` represents `1 -> 2 -> 6 -> 3 -> 4 -> 5 -> 6 -> null`). The starter code includes helpers to convert between the array and a linked-list node — build the actual list, unlink the matching nodes by manipulating `next` pointers, then convert back to an array to return.",
+  "examples": [
+    {
+      "input": "head = [1,2,6,3,4,5,6], val = 6",
+      "output": "[1,2,3,4,5]"
+    },
+    {
+      "input": "head = [], val = 1",
+      "output": "[]"
+    },
+    {
+      "input": "head = [7,7,7,7], val = 7",
+      "output": "[]"
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [0, 10^4]",
+    "1 <= Node.val <= 50",
+    "0 <= val <= 50"
+  ],
+  "hints": [
+    "The tricky part is removing nodes at the very front of the list, since that changes what head is.",
+    "Use a dummy node pointing to head so every removal — including at the front — is handled the same way.",
+    "Walk a pointer through the list; whenever the next node's value matches val, skip over it by relinking next instead of advancing."
+  ],
+  "solution": {
+    "approach": "Use a dummy node before head so that removing the first node requires no special case. Walk a pointer `curr` starting at dummy; while curr.next exists, if curr.next.val equals val, splice it out with curr.next = curr.next.next (without advancing curr, since the new curr.next also needs checking), otherwise advance curr. Return dummy.next.",
+    "code": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for v in arr:\n        node = ListNode(v)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef remove_elements(head_arr, val):\n    head = arr_to_list(head_arr)\n    dummy = ListNode(0, head)\n    curr = dummy\n    while curr.next:\n        if curr.next.val == val:\n            curr.next = curr.next.next\n        else:\n            curr = curr.next\n    return list_to_arr(dummy.next)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1) auxiliary (excluding the returned list)"
+  },
+  "starterCode": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for v in arr:\n        node = ListNode(v)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef remove_elements(head_arr, val):\n    head = arr_to_list(head_arr)\n    # your code here\n    pass\n",
+  "functionName": "remove_elements",
+  "paramNames": ["head_arr", "val"],
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 6, 3, 4, 5, 6],
+        6
+      ],
+      "expected": [1, 2, 3, 4, 5],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [],
+        1
+      ],
+      "expected": [],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [7, 7, 7, 7],
+        7
+      ],
+      "expected": [],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3],
+        4
+      ],
+      "expected": [1, 2, 3],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [6, 1, 2, 6],
+        6
+      ],
+      "expected": [1, 2],
+      "isHidden": true
+    }
+  ]
+}

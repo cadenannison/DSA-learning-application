@@ -1,0 +1,68 @@
+{
+  "id": "max-consecutive-ones",
+  "title": "Max Consecutive Ones",
+  "pattern": "sliding-window",
+  "difficulty": "easy",
+  "companies": [
+    "Google",
+    "Amazon",
+    "Apple"
+  ],
+  "prompt": "Given a binary array `nums`, return the maximum number of consecutive `1`s in the array.",
+  "examples": [
+    {
+      "input": "nums = [1,1,0,1,1,1]",
+      "output": "3",
+      "explanation": "The last three digits are consecutive 1s, which is the maximum run."
+    },
+    {
+      "input": "nums = [1,0,1,1,0,1]",
+      "output": "2"
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 10^5",
+    "nums[i] is either 0 or 1"
+  ],
+  "hints": [
+    "You only need a single pass — no need to store every run length.",
+    "Think of it as a window that keeps growing while you see 1s, and resets the instant you see a 0.",
+    "Track a running counter of the current streak and a separate max seen so far; reset the running counter to 0 whenever the current element is 0."
+  ],
+  "solution": {
+    "approach": "Slide through the array maintaining a running streak counter that grows by one on every 1 and resets to zero on every 0. This is an implicit sliding window whose left edge snaps to just after the most recent 0. Track the maximum streak value seen at any point during the pass.",
+    "code": "def find_max_consecutive_ones(nums):\n    max_streak = 0\n    current = 0\n    for num in nums:\n        if num == 1:\n            current += 1\n            max_streak = max(max_streak, current)\n        else:\n            current = 0\n    return max_streak\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def find_max_consecutive_ones(nums):\n    # your code here\n    pass\n",
+  "functionName": "find_max_consecutive_ones",
+  "paramNames": ["nums"],
+  "testCases": [
+    {
+      "input": [[1, 1, 0, 1, 1, 1]],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [[1, 0, 1, 1, 0, 1]],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [[0, 0, 0]],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [[1, 1, 1, 1]],
+      "expected": 4,
+      "isHidden": true
+    },
+    {
+      "input": [[1]],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

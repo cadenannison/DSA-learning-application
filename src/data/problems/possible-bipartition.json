@@ -1,0 +1,71 @@
+{
+  "id": "possible-bipartition",
+  "title": "Possible Bipartition",
+  "pattern": "graphs",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "We want to split a group of `n` people (labeled `1` to `n`) into two groups of any size. Each person may dislike some other people, and they should not go into the same group.\n\nGiven `n` and the array `dislikes` where `dislikes[i] = [ai, bi]` indicates that person `ai` and person `bi` dislike each other, return `true` if it is possible to split everyone into two groups satisfying this condition, or `false` otherwise.",
+  "examples": [
+    {
+      "input": "n = 4, dislikes = [[1,2],[1,3],[2,4]]",
+      "output": "true",
+      "explanation": "Group 1: {1,4}, group 2: {2,3} — no two people in the same group dislike each other."
+    },
+    {
+      "input": "n = 3, dislikes = [[1,2],[1,3],[2,3]]",
+      "output": "false",
+      "explanation": "Persons 1, 2, and 3 mutually dislike each other, forming a triangle — impossible to 2-color."
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 2000",
+    "0 <= dislikes.length <= 10^4",
+    "dislikes[i].length == 2",
+    "1 <= ai < bi <= n",
+    "All the pairs of dislikes are unique"
+  ],
+  "hints": [
+    "This is the same underlying question as graph bipartiteness: can you 2-color the people so no disliking pair shares a color?",
+    "Build an undirected graph where an edge means 'these two dislike each other,' then try to 2-color it via BFS or DFS, alternating colors as you traverse.",
+    "If you ever need to assign a color to a person who's already colored the opposite way required, a valid split is impossible. Check every connected component, since some people may have no listed dislikes at all."
+  ],
+  "solution": {
+    "approach": "Model dislikes as an undirected graph and attempt a 2-coloring (equivalent to a bipartite check): BFS from each uncolored person, assigning the opposite color to every disliked neighbor. If a neighbor is already colored the same as the current person, that pair is forced into the same group despite disliking each other, so a valid split is impossible. Successfully 2-coloring every component means the two groups are exactly the two color classes.",
+    "code": "from collections import deque, defaultdict\n\n\ndef possible_bipartition(n, dislikes):\n    graph = defaultdict(list)\n    for a, b in dislikes:\n        graph[a].append(b)\n        graph[b].append(a)\n\n    color = {}\n\n    for person in range(1, n + 1):\n        if person in color:\n            continue\n        color[person] = 0\n        queue = deque([person])\n        while queue:\n            node = queue.popleft()\n            for neighbor in graph[node]:\n                if neighbor not in color:\n                    color[neighbor] = 1 - color[node]\n                    queue.append(neighbor)\n                elif color[neighbor] == color[node]:\n                    return False\n\n    return True\n",
+    "timeComplexity": "O(V + E)",
+    "spaceComplexity": "O(V + E)"
+  },
+  "starterCode": "def possible_bipartition(n, dislikes):\n    # your code here\n    pass\n",
+  "functionName": "possible_bipartition",
+  "paramNames": ["n", "dislikes"],
+  "testCases": [
+    {
+      "input": [4, [[1, 2], [1, 3], [2, 4]]],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [3, [[1, 2], [1, 3], [2, 3]]],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [5, [[1, 2], [2, 3], [3, 4], [4, 5], [1, 5]]],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [1, []],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [5, [[1, 2], [3, 4]]],
+      "expected": true,
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "id": "peak-index-in-a-mountain-array",
+  "title": "Peak Index in a Mountain Array",
+  "pattern": "binary-search",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Bloomberg"
+  ],
+  "prompt": "An array `arr` is a mountain if its length is at least 3, it strictly increases up to some peak index, and then strictly decreases after it. Given such a mountain array, return the index of the peak element. Your solution must run in `O(log n)` time.",
+  "examples": [
+    {
+      "input": "arr = [0,1,0]",
+      "output": "1"
+    },
+    {
+      "input": "arr = [0,2,1,0]",
+      "output": "1"
+    },
+    {
+      "input": "arr = [0,10,5,2]",
+      "output": "1"
+    }
+  ],
+  "constraints": [
+    "3 <= arr.length <= 10^5",
+    "0 <= arr[i] <= 10^6",
+    "arr is guaranteed to be a mountain array"
+  ],
+  "hints": [
+    "Scanning for the point where the array stops increasing works in O(n), but the strictly-increasing-then-decreasing shape supports something faster.",
+    "At any index mid, comparing arr[mid] to arr[mid + 1] tells you which side of the peak you're on.",
+    "If arr[mid] < arr[mid + 1] you're still on the ascending slope so the peak is to the right; otherwise the peak is at mid or to the left. Binary search using that comparison."
+  ],
+  "solution": {
+    "approach": "Binary search using the slope as the comparator. If arr[mid] < arr[mid + 1], mid is still on the increasing side, so the peak lies strictly to the right and low moves to mid + 1. Otherwise mid is on the decreasing side (or is the peak itself), so the peak is at mid or to its left and high moves to mid. Because the array is unimodal, this comparison always eliminates the half that cannot contain the peak, converging low and high on the peak index in O(log n) time.",
+    "code": "def peak_index_in_mountain_array(arr):\n    lo, hi = 0, len(arr) - 1\n\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if arr[mid] < arr[mid + 1]:\n            lo = mid + 1\n        else:\n            hi = mid\n\n    return lo\n",
+    "timeComplexity": "O(log n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def peak_index_in_mountain_array(arr):\n    # your code here\n    pass\n",
+  "functionName": "peak_index_in_mountain_array",
+  "paramNames": ["arr"],
+  "testCases": [
+    {
+      "input": [
+        [0, 1, 0]
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0, 2, 1, 0]
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0, 10, 5, 2]
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [3, 4, 5, 1]
+      ],
+      "expected": 2,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3, 4, 5, 3, 1]
+      ],
+      "expected": 4,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [24, 69, 100, 99, 79, 78, 67, 36, 26, 19]
+      ],
+      "expected": 2,
+      "isHidden": true
+    }
+  ]
+}

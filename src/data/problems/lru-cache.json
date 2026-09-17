@@ -1,0 +1,82 @@
+{
+  "id": "lru-cache",
+  "title": "LRU Cache",
+  "pattern": "linked-list",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Meta",
+    "Google",
+    "Bloomberg"
+  ],
+  "prompt": "Design a Least Recently Used (LRU) cache with a fixed positive `capacity`. It should support `get(key)`, which returns the value for `key` if present (or `-1` otherwise) and marks the key as most recently used, and `put(key, value)`, which inserts or updates the value for `key`, marking it as most recently used; if adding a new key would exceed capacity, the least recently used key must be evicted first. Both operations must run in O(1) average time.\n\nYou'll implement this as a single function `runLruOps(capacity, ops)`, where `ops` is an array of `[operationName, args...]` entries applied in order to one cache instance of the given capacity: `[\"put\", key, value]` (no output) and `[\"get\", key]` (pushes its return value onto the output array). Return the output array. A doubly linked list combined with a hash map of key -> node is the classic way to get O(1) access, move-to-front, and eviction all at once.",
+  "examples": [
+    {
+      "input": "capacity = 2, ops = [[\"put\",1,1],[\"put\",2,2],[\"get\",1],[\"put\",3,3],[\"get\",2],[\"put\",4,4],[\"get\",1],[\"get\",3],[\"get\",4]]",
+      "output": "[1,-1,-1,3,4]",
+      "explanation": "Capacity 2: after put(1,1) and put(2,2), get(1) returns 1 and marks 1 as most recent. put(3,3) evicts key 2 (least recently used). get(2) returns -1. put(4,4) evicts key 1. get(1)=-1, get(3)=3, get(4)=4."
+    }
+  ],
+  "constraints": [
+    "1 <= capacity <= 3000",
+    "0 <= key, value <= 10^4",
+    "At most 2 * 10^4 total calls to get and put"
+  ],
+  "hints": [
+    "A plain dict alone gives O(1) lookup but no way to cheaply track or update recency order — you need an ordering structure alongside it.",
+    "A doubly linked list lets you remove any node in O(1) once you have a reference to it (no need to search), which is exactly what a hash map of key -> node gives you.",
+    "Keep the list ordered from least-recently-used (near one sentinel/dummy end) to most-recently-used (near the other). Every get or put on an existing key removes that node from its current position and reinserts it at the most-recently-used end; put on a new key at full capacity removes the node at the least-recently-used end before inserting."
+  ],
+  "solution": {
+    "approach": "Maintain a hash map from key to a doubly linked list node holding (key, value), plus two sentinel nodes marking the least-recently-used end and most-recently-used end of the list. Both get and put on an existing key unlink that node and reinsert it right before the most-recently-used sentinel (O(1) since we already have the node reference from the map). put on a new key creates a node, inserts it at the most-recently-used end, and — if this pushes the map over capacity — removes the node right after the least-recently-used sentinel (the true LRU entry) from both the list and the map. Every operation touches a fixed number of pointers and one hash map lookup, giving O(1) average time.",
+    "code": "class DNode:\n    def __init__(self, key=0, val=0):\n        self.key = key\n        self.val = val\n        self.prev = None\n        self.next = None\n\n\nclass LRUCache:\n    def __init__(self, capacity):\n        self.capacity = capacity\n        self.map = {}\n        self.head = DNode()\n        self.tail = DNode()\n        self.head.next = self.tail\n        self.tail.prev = self.head\n\n    def _remove(self, node):\n        node.prev.next = node.next\n        node.next.prev = node.prev\n\n    def _insert_at_tail(self, node):\n        prev = self.tail.prev\n        prev.next = node\n        node.prev = prev\n        node.next = self.tail\n        self.tail.prev = node\n\n    def get(self, key):\n        if key not in self.map:\n            return -1\n        node = self.map[key]\n        self._remove(node)\n        self._insert_at_tail(node)\n        return node.val\n\n    def put(self, key, value):\n        if key in self.map:\n            self._remove(self.map[key])\n        node = DNode(key, value)\n        self.map[key] = node\n        self._insert_at_tail(node)\n        if len(self.map) > self.capacity:\n            lru = self.head.next\n            self._remove(lru)\n            del self.map[lru.key]\n\n\ndef run_lru_ops(capacity, ops):\n    cache = LRUCache(capacity)\n    output = []\n    for op in ops:\n        name = op[0]\n        if name == 'put':\n            cache.put(op[1], op[2])\n        elif name == 'get':\n            output.append(cache.get(op[1]))\n    return output\n",
+    "timeComplexity": "O(1) average per operation",
+    "spaceComplexity": "O(capacity)"
+  },
+  "starterCode": "class DNode:\n    def __init__(self, key=0, val=0):\n        self.key = key\n        self.val = val\n        self.prev = None\n        self.next = None\n\n\nclass LRUCache:\n    def __init__(self, capacity):\n        self.capacity = capacity\n        self.map = {}\n        self.head = DNode()\n        self.tail = DNode()\n        self.head.next = self.tail\n        self.tail.prev = self.head\n\n    def _remove(self, node):\n        node.prev.next = node.next\n        node.next.prev = node.prev\n\n    def _insert_at_tail(self, node):\n        prev = self.tail.prev\n        prev.next = node\n        node.prev = prev\n        node.next = self.tail\n        self.tail.prev = node\n\n    def get(self, key):\n        # your code here\n        pass\n\n    def put(self, key, value):\n        # your code here\n        pass\n\n\ndef run_lru_ops(capacity, ops):\n    cache = LRUCache(capacity)\n    output = []\n    for op in ops:\n        name = op[0]\n        if name == 'put':\n            cache.put(op[1], op[2])\n        elif name == 'get':\n            output.append(cache.get(op[1]))\n    return output\n",
+  "functionName": "run_lru_ops",
+  "paramNames": ["capacity", "ops"],
+  "testCases": [
+    {
+      "input": [
+        2,
+        [["put", 1, 1], ["put", 2, 2], ["get", 1], ["put", 3, 3], ["get", 2], ["put", 4, 4], ["get", 1], ["get", 3], ["get", 4]]
+      ],
+      "expected": [1, -1, -1, 3, 4],
+      "isHidden": false
+    },
+    {
+      "input": [
+        1,
+        [["put", 1, 1], ["get", 1], ["put", 2, 2], ["get", 1], ["get", 2]]
+      ],
+      "expected": [1, -1, 2],
+      "isHidden": false
+    },
+    {
+      "input": [
+        2,
+        [["get", 1]]
+      ],
+      "expected": [-1],
+      "isHidden": true
+    },
+    {
+      "input": [
+        2,
+        [["put", 1, 1], ["put", 1, 10], ["get", 1]]
+      ],
+      "expected": [10],
+      "isHidden": true
+    },
+    {
+      "input": [
+        3,
+        [["put", 1, 1], ["put", 2, 2], ["put", 3, 3], ["get", 1], ["get", 2], ["put", 4, 4], ["get", 1], ["get", 3], ["get", 4]]
+      ],
+      "expected": [1, 2, 1, -1, 4],
+      "isHidden": true
+    }
+  ]
+}

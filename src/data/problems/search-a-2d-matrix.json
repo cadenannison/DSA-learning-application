@@ -1,0 +1,85 @@
+{
+  "id": "search-a-2d-matrix",
+  "title": "Search a 2D Matrix",
+  "pattern": "binary-search",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Meta",
+    "Google"
+  ],
+  "prompt": "You are given an `m x n` integer matrix `matrix` with the following properties: each row is sorted in non-decreasing order, and the first integer of each row is greater than the last integer of the previous row. Given an integer `target`, return `true` if `target` is in `matrix`, or `false` otherwise. Your solution must run in `O(log(m * n))` time.",
+  "examples": [
+    {
+      "input": "matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 3",
+      "output": "true"
+    },
+    {
+      "input": "matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 13",
+      "output": "false"
+    }
+  ],
+  "constraints": [
+    "m == matrix.length",
+    "n == matrix[i].length",
+    "1 <= m, n <= 100",
+    "-10^4 <= matrix[i][j], target <= 10^4"
+  ],
+  "hints": [
+    "Scanning every row and column works in O(m*n), but the row-major ordering means the whole matrix behaves like one long sorted array.",
+    "Treat the matrix as a single sorted array of length m*n and binary search over indices 0..m*n-1.",
+    "Convert a flat index back to (row, col) using integer division and modulo by the row width."
+  ],
+  "solution": {
+    "approach": "Because each row is sorted and every row starts after the previous row ends, the entire matrix is equivalent to one sorted array of length m*n when read in row-major order. Binary search over flat indices 0 to m*n - 1, converting each mid index to (row, col) via divmod by the column count, and compare matrix[row][col] to target just like a standard sorted-array binary search. This achieves O(log(m*n)) time without ever materializing the flattened array.",
+    "code": "def search_matrix(matrix, target):\n    if not matrix or not matrix[0]:\n        return False\n\n    rows, cols = len(matrix), len(matrix[0])\n    lo, hi = 0, rows * cols - 1\n\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        row, col = divmod(mid, cols)\n        val = matrix[row][col]\n        if val == target:\n            return True\n        if val < target:\n            lo = mid + 1\n        else:\n            hi = mid - 1\n\n    return False\n",
+    "timeComplexity": "O(log(m * n))",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def search_matrix(matrix, target):\n    # your code here\n    pass\n",
+  "functionName": "search_matrix",
+  "paramNames": ["matrix", "target"],
+  "testCases": [
+    {
+      "input": [
+        [[1, 3, 5, 7], [10, 11, 16, 20], [23, 30, 34, 60]],
+        3
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1, 3, 5, 7], [10, 11, 16, 20], [23, 30, 34, 60]],
+        13
+      ],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1]],
+        1
+      ],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[1]],
+        0
+      ],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[1, 3]],
+        3
+      ],
+      "expected": true,
+      "isHidden": true
+    }
+  ]
+}

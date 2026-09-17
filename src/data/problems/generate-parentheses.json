@@ -1,0 +1,64 @@
+{
+  "id": "generate-parentheses",
+  "title": "Generate Parentheses",
+  "pattern": "backtracking",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Facebook",
+    "Microsoft",
+    "Bloomberg"
+  ],
+  "prompt": "Given `n` pairs of parentheses, return all combinations of well-formed parentheses strings that can be made using exactly `n` opening and `n` closing parentheses.\n\nFor deterministic comparison, sort the resulting list of strings.",
+  "examples": [
+    {
+      "input": "n = 3",
+      "output": "[\"((()))\",\"(()())\",\"(())()\",\"()(())\",\"()()()\"]",
+      "explanation": "All 5 well-formed strings using 3 pairs of parentheses, sorted."
+    },
+    {
+      "input": "n = 1",
+      "output": "[\"()\"]"
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 8"
+  ],
+  "hints": [
+    "Generating every string of length 2n and filtering the valid ones wastes a lot of work on strings that go invalid early \u2014 can you avoid ever building an invalid prefix?",
+    "Track how many opening and closing parentheses you've used so far, and only add a parenthesis when it keeps the prefix valid.",
+    "A prefix stays valid as long as you never use more closing parens than opens so far, and never use more than n opens total. Add '(' whenever opens < n, and add ')' whenever closes < opens."
+  ],
+  "solution": {
+    "approach": "Backtrack while tracking the count of '(' and ')' used so far in the current path. At each step there are at most two valid moves: add '(' if fewer than n have been used, and add ')' only if fewer closes than opens have been used so far (this is exactly the invariant that keeps every prefix balanceable). Because we only ever extend valid prefixes, every path that reaches length 2n is automatically a well-formed string, so no post-filtering is needed. Recording only these makes the search visit exactly the Catalan-number count of valid strings rather than all 2^(2n) binary strings.",
+    "code": "def generate_parenthesis(n):\n    result = []\n    path = []\n\n    def backtrack(open_count, close_count):\n        if len(path) == 2 * n:\n            result.append(''.join(path))\n            return\n        if open_count < n:\n            path.append('(')\n            backtrack(open_count + 1, close_count)\n            path.pop()\n        if close_count < open_count:\n            path.append(')')\n            backtrack(open_count, close_count + 1)\n            path.pop()\n\n    backtrack(0, 0)\n    result.sort()\n    return result\n",
+    "timeComplexity": "O(4^n / sqrt(n)) \u2014 the nth Catalan number, times O(n) to build each string",
+    "spaceComplexity": "O(n) recursion depth, plus output size"
+  },
+  "starterCode": "def generate_parenthesis(n):\n    # your code here\n    pass\n",
+  "functionName": "generate_parenthesis",
+  "paramNames": ["n"],
+  "testCases": [
+    {
+      "input": [3],
+      "expected": ["((()))", "(()())", "(())()", "()(())", "()()()"],
+      "isHidden": false
+    },
+    {
+      "input": [1],
+      "expected": ["()"],
+      "isHidden": false
+    },
+    {
+      "input": [2],
+      "expected": ["(())", "()()"],
+      "isHidden": false
+    },
+    {
+      "input": [4],
+      "expected": ["(((())))", "((()()))", "((())())", "((()))()", "(()(()))", "(()()())", "(()())()", "(())(())", "(())()()", "()((()))", "()(()())", "()(())()", "()()(())", "()()()()"],
+      "isHidden": true
+    }
+  ]
+}

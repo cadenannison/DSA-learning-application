@@ -1,0 +1,75 @@
+{
+  "id": "maximize-the-confusion-of-an-exam",
+  "title": "Maximize the Confusion of an Exam",
+  "pattern": "sliding-window",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "A teacher is giving a True/False exam with `n` questions, represented by a string `answerKey` where `answerKey[i]` is `'T'` if the correct answer to the `i`th question is True, and `'F'` otherwise. You are also given an integer `k`, the maximum number of times you may flip any answer key character (change `'T'` to `'F'`, or vice versa). Return the maximum number of consecutive `'T'`s or consecutive `'F'`s in the answer key you can achieve after performing at most `k` flips.",
+  "examples": [
+    {
+      "input": "answerKey = \"TTFF\", k = 2",
+      "output": "4",
+      "explanation": "Flip both 'F's to 'T', making \"TTTT\" with 4 consecutive T's."
+    },
+    {
+      "input": "answerKey = \"TFFT\", k = 1",
+      "output": "3",
+      "explanation": "Flip the first 'T' to get \"FFFT\", achieving 3 consecutive F's."
+    },
+    {
+      "input": "answerKey = \"TTFTTFTT\", k = 1",
+      "output": "5",
+      "explanation": "Flip the 'F' at index 5 to 'T' to get \"TTFTTTTT\", which has 5 consecutive T's at the end."
+    }
+  ],
+  "constraints": [
+    "n == answerKey.length",
+    "1 <= n <= 5 * 10^4",
+    "answerKey[i] is either 'T' or 'F'",
+    "1 <= k <= n"
+  ],
+  "hints": [
+    "This is Max Consecutive Ones III run twice — once treating 'T' as the majority character to extend, once treating 'F' that way, and taking the best of both.",
+    "For a fixed target character, use a sliding window with a count of the 'other' character inside it (the ones you'd need to flip).",
+    "Expand right; whenever the count of characters that need flipping exceeds k, shrink from the left. Track the max window length across both choices of target character."
+  ],
+  "solution": {
+    "approach": "The answer is the best of two independent runs: one where we try to make the longest run of all-T's (sliding a window and counting F's inside it, since each F is what we'd flip), and one where we try to make the longest run of all-F's (counting T's inside the window instead). Each run uses the standard 'longest window with at most k of the minority character' sliding window technique: expand right, and when the minority count exceeds k, shrink from the left. Taking the max window length across both runs gives the overall answer.",
+    "code": "def max_consecutive_answers(answer_key, k):\n    def longest_with_flips(target):\n        left = 0\n        flip_count = 0\n        best = 0\n        for right, ch in enumerate(answer_key):\n            if ch != target:\n                flip_count += 1\n            while flip_count > k:\n                if answer_key[left] != target:\n                    flip_count -= 1\n                left += 1\n            best = max(best, right - left + 1)\n        return best\n\n    return max(longest_with_flips('T'), longest_with_flips('F'))\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def max_consecutive_answers(answer_key, k):\n    # your code here\n    pass\n",
+  "functionName": "max_consecutive_answers",
+  "paramNames": ["answer_key", "k"],
+  "testCases": [
+    {
+      "input": ["TTFF", 2],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": ["TFFT", 1],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": ["TTFTTFTT", 1],
+      "expected": 5,
+      "isHidden": false
+    },
+    {
+      "input": ["T", 1],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": ["FFFF", 0],
+      "expected": 4,
+      "isHidden": true
+    }
+  ]
+}

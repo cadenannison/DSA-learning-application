@@ -1,0 +1,68 @@
+{
+  "id": "min-cost-climbing-stairs",
+  "title": "Min Cost Climbing Stairs",
+  "pattern": "dynamic-programming",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Bloomberg"
+  ],
+  "prompt": "You are given an integer array `cost` where `cost[i]` is the cost of the `i`-th step on a staircase. Once you pay the cost, you can either climb one or two steps. You can start from step index 0 or step index 1. Return the minimum cost to reach the top of the floor, which is just past the last index of `cost`.",
+  "examples": [
+    {
+      "input": "cost = [10,15,20]",
+      "output": "15",
+      "explanation": "Start at index 1, pay 15, then step two steps to the top, skipping index 2 entirely."
+    },
+    {
+      "input": "cost = [1,100,1,1,1,100,1,1,100,1]",
+      "output": "6",
+      "explanation": "Start at index 0, pay 1, then use single or double steps landing only on indices 0,2,3,4,6,7,9 to reach the top for a total of 6."
+    }
+  ],
+  "constraints": [
+    "2 <= cost.length <= 1000",
+    "0 <= cost[i] <= 999"
+  ],
+  "hints": [
+    "The minimum cost to reach any step is determined entirely by the minimum cost to reach the one or two steps just before it.",
+    "Define dp[i] as the minimum cost to REACH step i (before paying for it). dp[i] = min(dp[i-1] + cost[i-1], dp[i-2] + cost[i-2]).",
+    "The 'top' is one step past the last index, so the answer is min(dp[n-1] + cost[n-1], dp[n-2] + cost[n-2]) with dp[0] = dp[1] = 0 since you can start free at either index."
+  ],
+  "solution": {
+    "approach": "Let dp[i] be the minimum cost to arrive at step i (having already paid for whatever steps got you there, but not step i itself). Since you can start at index 0 or 1 for free, dp[0] = dp[1] = 0. For every later step, you arrived either by a single hop from i-1 (paying cost[i-1]) or a double hop from i-2 (paying cost[i-2]), so dp[i] = min(dp[i-1] + cost[i-1], dp[i-2] + cost[i-2]). The 'top' is index n, so the answer is dp[n] computed the same way. Only the last two values matter, so two rolling variables suffice.",
+    "code": "def min_cost_climbing_stairs(cost):\n    n = len(cost)\n    prev2, prev1 = 0, 0\n    for i in range(2, n + 1):\n        curr = min(prev1 + cost[i - 1], prev2 + cost[i - 2])\n        prev2, prev1 = prev1, curr\n    return prev1\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def min_cost_climbing_stairs(cost):\n    # your code here\n    pass\n",
+  "functionName": "min_cost_climbing_stairs",
+  "paramNames": ["cost"],
+  "testCases": [
+    {
+      "input": [[10, 15, 20]],
+      "expected": 15,
+      "isHidden": false
+    },
+    {
+      "input": [[1, 100, 1, 1, 1, 100, 1, 1, 100, 1]],
+      "expected": 6,
+      "isHidden": false
+    },
+    {
+      "input": [[0, 0, 0, 0]],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [[1, 2]],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [[10, 10]],
+      "expected": 10,
+      "isHidden": true
+    }
+  ]
+}

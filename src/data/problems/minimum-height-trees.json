@@ -1,0 +1,68 @@
+{
+  "id": "minimum-height-trees",
+  "title": "Minimum Height Trees",
+  "pattern": "graphs",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon",
+    "Microsoft"
+  ],
+  "prompt": "A tree is an undirected graph in which any two vertices are connected by exactly one path. You are given a tree of `n` nodes labeled `0` to `n - 1` and an array `edges` where `edges[i] = [ai, bi]` indicates an undirected edge between `ai` and `bi`.\n\nYou can pick any node as the root. Rooting the tree at a given node produces a height equal to the number of edges on the longest downward path from that root. Among all `n` possible roots, return the labels of all roots that produce the minimum possible height, sorted in any order. If `n == 1`, return `[0]`.",
+  "examples": [
+    {
+      "input": "n = 4, edges = [[1,0],[1,2],[1,3]]",
+      "output": "[1]",
+      "explanation": "Rooting at 1 gives height 1 (a star shape), which is the minimum possible; any other root gives height 2."
+    },
+    {
+      "input": "n = 6, edges = [[3,0],[3,1],[3,2],[3,4],[5,4]]",
+      "output": "[3,4]",
+      "explanation": "Rooting at 3 or 4 both give the minimum height of 2."
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 2 * 10^4",
+    "edges.length == n - 1",
+    "0 <= ai, bi < n",
+    "ai != bi",
+    "All pairs (ai, bi) are distinct",
+    "The given input is guaranteed to be a tree"
+  ],
+  "hints": [
+    "Computing the height for every possible root with a separate BFS would be O(n^2) — too slow for large n. Think about which nodes could ever minimize the height.",
+    "The nodes that minimize height are always at the 'center' of the tree, and a tree has at most 2 centers (this is the same idea as finding the center of a path graph).",
+    "Repeatedly peel off all current leaves (degree-1 nodes) layer by layer, like layers of an onion. The last 1 or 2 nodes remaining when everything else has been peeled away are the centers — and thus the answer."
+  ],
+  "solution": {
+    "approach": "The minimum-height roots are exactly the tree's 'center' node(s), which can be found by repeatedly trimming leaves. Build an adjacency list and initialize a queue with all current leaves (degree 1). Repeatedly remove a layer of leaves, decrementing the degree of their neighbors and enqueuing any neighbor that becomes a new leaf, tracking how many nodes remain. This peeling process is equivalent to shrinking the tree inward from both ends simultaneously, so the final 1 or 2 nodes left (when at most 2 nodes remain) are the centers -- rooting at a center minimizes the longest path, since any other root is farther from at least one extreme end of the tree's longest path.",
+    "code": "from collections import deque\n\n\ndef find_min_height_trees(n, edges):\n    if n == 1:\n        return [0]\n\n    graph = [set() for _ in range(n)]\n    for a, b in edges:\n        graph[a].add(b)\n        graph[b].add(a)\n\n    leaves = deque(node for node in range(n) if len(graph[node]) == 1)\n    remaining = n\n\n    while remaining > 2:\n        leaf_count = len(leaves)\n        remaining -= leaf_count\n        for _ in range(leaf_count):\n            leaf = leaves.popleft()\n            neighbor = graph[leaf].pop()\n            graph[neighbor].discard(leaf)\n            if len(graph[neighbor]) == 1:\n                leaves.append(neighbor)\n\n    return list(leaves)\n",
+    "timeComplexity": "O(V + E)",
+    "spaceComplexity": "O(V + E)"
+  },
+  "starterCode": "def find_min_height_trees(n, edges):\n    # your code here\n    pass\n",
+  "functionName": "find_min_height_trees",
+  "paramNames": ["n", "edges"],
+  "testCases": [
+    {
+      "input": [4, [[1, 0], [1, 2], [1, 3]]],
+      "expected": [1],
+      "isHidden": false
+    },
+    {
+      "input": [6, [[3, 0], [3, 1], [3, 2], [3, 4], [5, 4]]],
+      "expected": [3, 4],
+      "isHidden": false
+    },
+    {
+      "input": [1, []],
+      "expected": [0],
+      "isHidden": false
+    },
+    {
+      "input": [2, [[0, 1]]],
+      "expected": [0, 1],
+      "isHidden": true
+    }
+  ]
+}
