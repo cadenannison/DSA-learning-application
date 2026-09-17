@@ -18,6 +18,7 @@
   --warning-soft: rgba(245, 166, 35, 0.14);
   --danger: #f0576b;
   --danger-soft: rgba(240, 87, 107, 0.14);
+  --code-operator: #89ddff;
 
   /* legacy aliases kept during migration; remove once all components read --bg/--text-1 directly */
   --background: var(--bg);
@@ -43,6 +44,7 @@
   --warning-soft: rgba(185, 116, 10, 0.1);
   --danger: #d43a52;
   --danger-soft: rgba(212, 58, 82, 0.1);
+  --code-operator: #0f7b8a;
 
   --background: var(--bg);
   --foreground: var(--text-1);

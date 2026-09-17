@@ -2,6 +2,7 @@ import path from "node:path"
 import { FilePatternLessonRepository } from "@/server/repositories/file-pattern-lesson-repository"
 import { FileProblemRepository } from "@/server/repositories/file-problem-repository"
 import { FileStudyCurriculumRepository } from "@/server/repositories/file-study-curriculum-repository"
+import { GeminiClient } from "@/server/services/gemini-client"
 import { PythonSubprocessSandbox } from "@/server/sandbox/python-subprocess-sandbox"
 import { SqliteProgressStore } from "@/server/store/sqlite-progress-store"
 import { AuthService } from "@/server/services/auth-service"
@@ -40,6 +41,11 @@ function buildContainer(): Container {
   const studyCurriculumRepository = new FileStudyCurriculumRepository(studyCurriculumPath)
   const sandbox = new PythonSubprocessSandbox()
   const progressStore = new SqliteProgressStore(dbPath)
+  // Undefined when no key is configured — the AI study-plan builder route surfaces a clear
+  // "not configured" error rather than the app failing to boot without one.
+  const geminiClient = process.env.DSA_GEMINI_API_KEY
+    ? new GeminiClient(process.env.DSA_GEMINI_API_KEY)
+    : null
 
   const executionService = new ExecutionService(sandbox, problemRepository)
   const oaProblemSelector = new DefaultOAProblemSelector(problemRepository, progressStore)
@@ -49,7 +55,8 @@ function buildContainer(): Container {
   const studyPlanService = new StudyPlanService(
     progressStore,
     studyCurriculumRepository,
-    executionService
+    executionService,
+    geminiClient
   )
   const progressService = new ProgressService(progressStore, progressStore, studyPlanService)
 

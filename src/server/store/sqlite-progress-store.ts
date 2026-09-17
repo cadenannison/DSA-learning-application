@@ -82,6 +82,7 @@ interface StudyPlanRow {
   user_id: string
   name: string
   created_at: string
+  is_active: number
 }
 
 // Per-plan mutable state layered on top of the shared StudyPatternRow template.
@@ -96,6 +97,8 @@ interface UserStudyPatternStateRow {
   due_at: string | null
   last_reviewed_at: string | null
   review_count: number
+  personalized_priority_rank: number | null
+  personalized_likelihood_weight: number | null
 }
 
 interface StudyProblemRow {
@@ -345,7 +348,8 @@ export class SqliteProgressStore
         id TEXT PRIMARY KEY,
         user_id TEXT NOT NULL REFERENCES users(id),
         name TEXT NOT NULL,
-        created_at TEXT NOT NULL
+        created_at TEXT NOT NULL,
+        is_active INTEGER NOT NULL DEFAULT 0
       );
       CREATE INDEX IF NOT EXISTS idx_study_plans_user_id ON study_plans(user_id);
 
@@ -425,12 +429,26 @@ export class SqliteProgressStore
    * runs exactly once per database file. Pre-production dev data, so no data is preserved
    * across the migration; a future real migration would need to carry rows forward instead. */
   private migrateStudyPlansToPerPlanState(): void {
-    const STUDY_PLAN_SCHEMA_VERSION = 2
+    const STUDY_PLAN_SCHEMA_VERSION = 3
     const row = this.db.prepare(`SELECT version FROM schema_meta WHERE id = 1`).get() as
       | { version: number }
       | undefined
 
-    if ((row?.version ?? 0) >= STUDY_PLAN_SCHEMA_VERSION) return
+    const currentVersion = row?.version ?? 0
+    if (currentVersion >= STUDY_PLAN_SCHEMA_VERSION) return
+
+    // study_plans predates this migration (created via CREATE TABLE IF NOT EXISTS in migrate(),
+    // which runs on every boot and so can never itself add a column to an existing table).
+    // Additive ALTER TABLE, unlike every other table here, because study_plans isn't dropped —
+    // dropping it would cascade-delete every plan a dev has already created.
+    if (currentVersion < 3) {
+      const hasIsActive = (
+        this.db.prepare(`PRAGMA table_info(study_plans)`).all() as { name: string }[]
+      ).some((col) => col.name === "is_active")
+      if (!hasIsActive) {
+        this.db.exec(`ALTER TABLE study_plans ADD COLUMN is_active INTEGER NOT NULL DEFAULT 0;`)
+      }
+    }
 
     this.db.exec(`
       DROP TABLE IF EXISTS user_study_pattern_state;
@@ -445,6 +463,8 @@ export class SqliteProgressStore
         due_at TEXT,
         last_reviewed_at TEXT,
         review_count INTEGER NOT NULL DEFAULT 0,
+        personalized_priority_rank INTEGER,
+        personalized_likelihood_weight REAL,
         PRIMARY KEY (plan_id, study_pattern_id)
       );
       CREATE INDEX idx_user_study_pattern_state_plan_id
@@ -466,7 +486,10 @@ export class SqliteProgressStore
       CREATE TABLE study_plan_settings (
         plan_id TEXT PRIMARY KEY REFERENCES study_plans(id) ON DELETE CASCADE,
         interview_date TEXT,
-        daily_time_budget_minutes INTEGER NOT NULL DEFAULT 120
+        daily_time_budget_minutes INTEGER NOT NULL DEFAULT 120,
+        target_company TEXT,
+        target_role TEXT,
+        background TEXT
       );
 
       DROP TABLE IF EXISTS study_sessions;
@@ -891,7 +914,7 @@ export class SqliteProgressStore
     )
 
     const insertPlan = this.db.prepare(
-      `INSERT INTO study_plans (id, user_id, name, created_at) VALUES (@id, @userId, @name, @createdAt)`
+      `INSERT INTO study_plans (id, user_id, name, created_at, is_active) VALUES (@id, @userId, @name, @createdAt, 0)`
     )
     const insertPatternState = this.db.prepare(
       `INSERT OR IGNORE INTO user_study_pattern_state (plan_id, study_pattern_id)
@@ -926,7 +949,7 @@ export class SqliteProgressStore
 
     transaction()
 
-    return { id, userId, name, createdAt }
+    return { id, userId, name, createdAt, isActive: false }
   }
 
   async listPlans(userId: string): Promise<StudyPlan[]> {
@@ -947,6 +970,18 @@ export class SqliteProgressStore
 
   async deletePlan(planId: string): Promise<void> {
     this.db.prepare(`DELETE FROM study_plans WHERE id = ?`).run(planId)
+  }
+
+  async setActivePlan(userId: string, planId: string | null): Promise<void> {
+    const transaction = this.db.transaction(() => {
+      this.db.prepare(`UPDATE study_plans SET is_active = 0 WHERE user_id = ?`).run(userId)
+      if (planId !== null) {
+        this.db
+          .prepare(`UPDATE study_plans SET is_active = 1 WHERE id = ? AND user_id = ?`)
+          .run(planId, userId)
+      }
+    })
+    transaction()
   }
 
   async listTracks(): Promise<StudyTrack[]> {
@@ -1026,6 +1061,38 @@ export class SqliteProgressStore
     if (update.notes !== undefined) {
       sets.push("notes = @notes")
       params.notes = update.notes
+    }
+
+    if (sets.length > 0) {
+      this.db
+        .prepare(
+          `UPDATE user_study_pattern_state SET ${sets.join(", ")}
+           WHERE plan_id = @planId AND study_pattern_id = @id`
+        )
+        .run(params)
+    }
+
+    return this.getPattern(planId, id)
+  }
+
+  async setPatternPriorityOverride(
+    planId: string,
+    id: string,
+    override: { personalizedPriorityRank?: number | null; personalizedLikelihoodWeight?: number | null }
+  ): Promise<StudyPattern | null> {
+    const existing = this.db.prepare(`SELECT id FROM study_patterns WHERE id = ?`).get(id)
+    if (!existing) return null
+
+    const sets: string[] = []
+    const params: Record<string, unknown> = { planId, id }
+
+    if (override.personalizedPriorityRank !== undefined) {
+      sets.push("personalized_priority_rank = @personalizedPriorityRank")
+      params.personalizedPriorityRank = override.personalizedPriorityRank
+    }
+    if (override.personalizedLikelihoodWeight !== undefined) {
+      sets.push("personalized_likelihood_weight = @personalizedLikelihoodWeight")
+      params.personalizedLikelihoodWeight = override.personalizedLikelihoodWeight
     }
 
     if (sets.length > 0) {
@@ -1138,13 +1205,35 @@ export class SqliteProgressStore
   }
 
   async getSettings(planId: string): Promise<StudyPlanSettings> {
-    const row = this.db
-      .prepare(`SELECT * FROM study_plan_settings WHERE plan_id = ?`)
-      .get(planId) as { interview_date: string | null; daily_time_budget_minutes: number }
+    const row = this.db.prepare(`SELECT * FROM study_plan_settings WHERE plan_id = ?`).get(planId) as
+      | {
+          interview_date: string | null
+          daily_time_budget_minutes: number
+          target_company: string | null
+          target_role: string | null
+          background: string | null
+        }
+      | undefined
+
+    // Plans created before the settings table existed (or that predate a destructive dev
+    // migration) have no row here — fall back to the same defaults createPlan seeds new
+    // plans with, rather than throwing.
+    if (!row) {
+      return {
+        interviewDate: null,
+        dailyTimeBudgetMinutes: 120,
+        targetCompany: null,
+        targetRole: null,
+        background: null,
+      }
+    }
 
     return {
       interviewDate: row.interview_date,
       dailyTimeBudgetMinutes: row.daily_time_budget_minutes,
+      targetCompany: row.target_company,
+      targetRole: row.target_role,
+      background: row.background,
     }
   }
 
@@ -1162,6 +1251,18 @@ export class SqliteProgressStore
     if (update.dailyTimeBudgetMinutes !== undefined) {
       sets.push("daily_time_budget_minutes = @dailyTimeBudgetMinutes")
       params.dailyTimeBudgetMinutes = update.dailyTimeBudgetMinutes
+    }
+    if (update.targetCompany !== undefined) {
+      sets.push("target_company = @targetCompany")
+      params.targetCompany = update.targetCompany
+    }
+    if (update.targetRole !== undefined) {
+      sets.push("target_role = @targetRole")
+      params.targetRole = update.targetRole
+    }
+    if (update.background !== undefined) {
+      sets.push("background = @background")
+      params.background = update.background
     }
 
     if (sets.length > 0) {
@@ -1337,6 +1438,7 @@ export class SqliteProgressStore
       userId: row.user_id,
       name: row.name,
       createdAt: row.created_at,
+      isActive: row.is_active === 1,
     }
   }
 
@@ -1391,6 +1493,8 @@ export class SqliteProgressStore
       name: row.name,
       priorityRank: row.priority_rank,
       likelihoodWeight: row.likelihood_weight,
+      personalizedPriorityRank: patternState?.personalized_priority_rank ?? null,
+      personalizedLikelihoodWeight: patternState?.personalized_likelihood_weight ?? null,
       conceptNotes: row.concept_notes,
       complexityTier: row.complexity_tier as StudyPattern["complexityTier"],
       stage: (patternState?.stage as StudyPatternStage) ?? "not_started",

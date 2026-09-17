@@ -63,7 +63,7 @@ const syntaxTheme = syntaxHighlighting(
     { tag: tags.null, color: "#F78C6C" },
     { tag: tags.comment, color: "var(--text-3)", fontStyle: "italic" },
     { tag: [tags.variableName, tags.propertyName], color: "var(--text-1)" },
-    { tag: tags.operator, color: "#89DDFF" },
+    { tag: tags.operator, color: "var(--code-operator)" },
     { tag: [tags.punctuation, tags.bracket], color: "var(--text-2)" },
     { tag: tags.typeName, color: "#FFCB6B" },
     { tag: tags.className, color: "#FFCB6B" },

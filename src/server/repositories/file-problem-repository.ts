@@ -16,6 +16,7 @@ function strip(problem: Problem): StrippedProblem {
     constraints: problem.constraints,
     starterCode: problem.starterCode,
     functionName: problem.functionName,
+    paramNames: problem.paramNames,
   }
 }
 

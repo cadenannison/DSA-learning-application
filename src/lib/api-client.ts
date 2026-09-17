@@ -139,12 +139,13 @@ export const apiClient = {
   async execute(
     problemId: string,
     submission: CodeSubmission,
-    mode: PracticeMode
+    mode: PracticeMode,
+    testCaseIndices?: number[]
   ): Promise<ExecutionResult> {
     const response = await fetch("/api/execute", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ problemId, submission, mode }),
+      body: JSON.stringify({ problemId, submission, mode, testCaseIndices }),
     })
     return handle<ExecutionResult>(response)
   },
@@ -315,6 +316,11 @@ export const apiClient = {
     await handle<{ ok: boolean }>(response)
   },
 
+  async setActiveStudyPlan(id: string): Promise<void> {
+    const response = await fetch(`/api/study-plans/${id}/active`, { method: "PUT" })
+    await handle<{ ok: boolean }>(response)
+  },
+
   async getStudyPlanOverview(planId: string): Promise<StudyPlanOverview> {
     const response = await fetch(`/api/study-plan/${planId}`)
     return handle<StudyPlanOverview>(response)
@@ -469,5 +475,20 @@ export const apiClient = {
       body: JSON.stringify(update),
     })
     return handle<ReadinessChecklistOverview>(response)
+  },
+
+  async getAiStudyPlanMetaPrompt(): Promise<string> {
+    const response = await fetch("/api/study-plan/ai-builder")
+    const { prompt } = await handle<{ prompt: string }>(response)
+    return prompt
+  },
+
+  async buildAiStudyPlan(rawPayload: string): Promise<{ planId: string }> {
+    const response = await fetch("/api/study-plan/ai-builder", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rawPayload }),
+    })
+    return handle<{ planId: string }>(response)
   },
 }

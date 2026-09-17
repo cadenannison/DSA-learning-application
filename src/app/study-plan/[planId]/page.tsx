@@ -7,13 +7,14 @@ import { PageShell } from "@/components/ui/page-shell"
 import { PageHeader } from "@/components/ui/page-header"
 import { StatCard } from "@/components/ui/stat-card"
 import { StatusPill, type StatusTone } from "@/components/ui/status-pill"
-import { RowListItem } from "@/components/ui/row-list-item"
 import { PlanNav } from "@/components/study-plan/plan-nav"
 import { StudyPlanPresenter } from "@/presenter/study-plan-presenter"
 import type {
   DrillQueueEntry,
+  RecommendedProblem,
   StudyPatternComplexityTier,
   StudyPlanOverview,
+  TodayFocusEntry,
   User,
 } from "@/types"
 
@@ -65,6 +66,7 @@ function TodayContent({
   const [presenter] = useState(
     () => new StudyPlanPresenter(planId, { setLoading, setOverview, setError })
   )
+  const [expandedPatternId, setExpandedPatternId] = useState<string | null>(null)
 
   useEffect(() => {
     presenter.load()
@@ -138,25 +140,35 @@ function TodayContent({
         <StatCard label="Problem Mix" value={problemMix || "—"} />
       </div>
 
-      <DrillQueueCard
-        queue={overview.drillQueue}
+      <TodayFocusCard
+        focus={overview.todayFocus}
         planId={planId}
-        dailyTimeBudgetMinutes={overview.settings.dailyTimeBudgetMinutes}
+        expandedPatternId={expandedPatternId}
+        onToggleExpanded={setExpandedPatternId}
+        onToggleProblem={(problemId, completed) => presenter.setProblemCompleted(problemId, completed)}
       />
     </PageShell>
   )
 }
 
-function DrillQueueCard({
-  queue,
+/** The slimmed-down "what to actually do today" list: one row per pattern the drill queue
+ * flagged, collapsed to its name/reason until expanded, then showing just the 3 recommended
+ * problems (picked server-side by stage/confidence) as a checklist — instead of the old view
+ * that immediately dumped every pattern's full problem list. */
+function TodayFocusCard({
+  focus,
   planId,
-  dailyTimeBudgetMinutes,
+  expandedPatternId,
+  onToggleExpanded,
+  onToggleProblem,
 }: {
-  queue: DrillQueueEntry[]
+  focus: TodayFocusEntry[]
   planId: string
-  dailyTimeBudgetMinutes: number
+  expandedPatternId: string | null
+  onToggleExpanded: (patternId: string | null) => void
+  onToggleProblem: (problemId: string, completed: boolean) => void
 }) {
-  if (queue.length === 0) {
+  if (focus.length === 0) {
     return (
       <p className="text-sm text-text-2">
         Nothing due right now. Check the Full Plan tab to browse every pattern.
@@ -164,26 +176,20 @@ function DrillQueueCard({
     )
   }
 
-  const totalEstimatedMinutes = queue.reduce((sum, entry) => sum + entry.estimatedMinutes, 0)
-  const overBudget = totalEstimatedMinutes > dailyTimeBudgetMinutes
-
   return (
     <div>
-      <div className="mb-2 flex items-center justify-between text-xs text-text-2">
-        <span>Today&apos;s drill queue</span>
-        <span className={`font-mono ${overBudget ? "text-warning" : "text-text-2"}`}>
-          est. {totalEstimatedMinutes} / {dailyTimeBudgetMinutes} min
-        </span>
-      </div>
-      <div className="overflow-hidden rounded-card border border-border bg-surface">
-        {queue.map((entry, index) => (
-          <RowListItem
+      <div className="mb-2 text-xs text-text-2">Focus today ({focus.length})</div>
+      <div className="flex flex-col gap-3">
+        {focus.map((entry) => (
+          <TodayFocusPatternGroup
             key={entry.studyPatternId}
-            href={`/study-plan/${planId}/${entry.studyPatternId}/${defaultSectionForId()}`}
-            rank={index + 1}
-            title={entry.studyPatternName}
-            subtitle={`${Math.round(entry.likelihoodWeight * 100)}% likely to appear · est. ${entry.estimatedMinutes} min`}
-            trailing={<StatusPill label={DRILL_REASON_LABELS[entry.reason]} tone={DRILL_REASON_TONES[entry.reason]} />}
+            entry={entry}
+            planId={planId}
+            expanded={expandedPatternId === entry.studyPatternId}
+            onToggleExpanded={() =>
+              onToggleExpanded(expandedPatternId === entry.studyPatternId ? null : entry.studyPatternId)
+            }
+            onToggleProblem={onToggleProblem}
           />
         ))}
       </div>
@@ -191,8 +197,83 @@ function DrillQueueCard({
   )
 }
 
-/** Drill queue entries only carry an id/name, not the full pattern, so the default section
- * ("practice") is inlined here rather than importing the pattern-shaped defaultSectionFor. */
-function defaultSectionForId(): string {
-  return "practice"
+function TodayFocusPatternGroup({
+  entry,
+  planId,
+  expanded,
+  onToggleExpanded,
+  onToggleProblem,
+}: {
+  entry: TodayFocusEntry
+  planId: string
+  expanded: boolean
+  onToggleExpanded: () => void
+  onToggleProblem: (problemId: string, completed: boolean) => void
+}) {
+  const completedCount = entry.recommendedProblems.filter((p) => p.completed).length
+
+  return (
+    <div className="overflow-hidden rounded-card border border-border bg-surface">
+      <button
+        type="button"
+        onClick={onToggleExpanded}
+        className="flex min-h-[44px] w-full items-center gap-4 px-4 py-3 text-left transition-colors hover:bg-surface-2"
+      >
+        <span className="text-xs text-text-2">{expanded ? "▾" : "▸"}</span>
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-sm font-medium text-text-1">{entry.studyPatternName}</div>
+          <div className="truncate text-xs text-text-2">
+            {completedCount}/{entry.recommendedProblems.length} complete
+          </div>
+        </div>
+        <StatusPill label={DRILL_REASON_LABELS[entry.reason]} tone={DRILL_REASON_TONES[entry.reason]} />
+      </button>
+
+      {expanded && (
+        <div className="border-t border-border-soft">
+          {entry.recommendedProblems.map((problem) => (
+            <RecommendedProblemRow
+              key={problem.id}
+              planId={planId}
+              patternId={entry.studyPatternId}
+              problem={problem}
+              onToggle={(completed) => onToggleProblem(problem.id, completed)}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function RecommendedProblemRow({
+  planId,
+  patternId,
+  problem,
+  onToggle,
+}: {
+  planId: string
+  patternId: string
+  problem: RecommendedProblem
+  onToggle: (completed: boolean) => void
+}) {
+  const href = problem.linkedProblemId
+    ? `/study-plan/${planId}/${patternId}/problem/${problem.id}?from=today`
+    : `/study-plan/${planId}/${patternId}/practice`
+
+  return (
+    <div className="flex min-h-[44px] items-center gap-3 border-b border-border-soft px-4 py-2.5 last:border-b-0">
+      <input
+        type="checkbox"
+        checked={problem.completed}
+        onChange={(e) => onToggle(e.target.checked)}
+        className="h-4 w-4 shrink-0 accent-accent"
+        aria-label={`Mark ${problem.name} complete`}
+      />
+      <Link href={href} className="min-w-0 flex-1 truncate text-sm text-text-1 hover:underline">
+        {problem.name}
+      </Link>
+      <span className="shrink-0 font-mono text-[11px] uppercase text-text-2">{problem.difficulty}</span>
+    </div>
+  )
 }

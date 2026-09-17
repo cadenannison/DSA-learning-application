@@ -72,11 +72,23 @@ export interface Problem {
   starterCode: string
   functionName: string
   testCases: TestCase[]
+  /** Positional parameter names for functionName, e.g. ["nums", "target"] — shared across all
+   * testCases since they all call the same function signature. Drives the test-case panel's
+   * labeled inputs (e.g. "nums = [2,7,11,15]") instead of generic "arg1/arg2". Optional so the
+   * ~117 existing problem JSON files don't need a backfill; the panel falls back to arg1, arg2… */
+  paramNames?: string[]
 }
 
 export type StrippedProblem = Pick<
   Problem,
-  "id" | "title" | "prompt" | "examples" | "constraints" | "starterCode" | "functionName"
+  | "id"
+  | "title"
+  | "prompt"
+  | "examples"
+  | "constraints"
+  | "starterCode"
+  | "functionName"
+  | "paramNames"
 >
 
 export type ProgressStatus = "not_started" | "attempted" | "solved" | "mastered"
@@ -123,7 +135,7 @@ export interface TestCaseResult {
   isHidden: boolean
   stdout: string
   errorMessage: string | null
-  name?: string
+  name?: string | null
 }
 
 export interface ExecutionResult {
@@ -297,6 +309,10 @@ export interface StudyPlan {
   userId: string
   name: string
   createdAt: string
+  /** True for the one plan (per user) shown on the main dashboard / used as the default
+   * destination for "resume studying" style shortcuts. At most one plan per user has this
+   * set — see StudyPlanService.setActivePlan. */
+  isActive: boolean
 }
 
 /** Cheap, pre-aggregated stats for the plan list page — avoids the list view needing to
@@ -305,8 +321,11 @@ export interface StudyPlanSummary {
   id: string
   name: string
   createdAt: string
+  isActive: boolean
   interviewDate: string | null
   dailyTimeBudgetMinutes: number
+  targetCompany: string | null
+  targetRole: string | null
   totalPatterns: number
   readyOrBetterPatterns: number
 }
@@ -409,6 +428,13 @@ export interface StudyPattern {
    * interview (0-1), vs. priorityRank which is "what order to learn things in." Graphs is
    * seeded at 0.95 per direct report; most others are inferred, lower-confidence estimates. */
   likelihoodWeight: number
+  /** Per-plan override of priorityRank, set by the AI builder from company/role/background
+   * context (e.g. graphs ranked earlier for a plan targeting a company known to favor them).
+   * Null until a plan has been personalized. When present, roadmap ordering and drill-queue
+   * scoring use this instead of the global priorityRank/likelihoodWeight for this plan. */
+  personalizedPriorityRank: number | null
+  /** Per-plan override of likelihoodWeight — see personalizedPriorityRank. */
+  personalizedLikelihoodWeight: number | null
   conceptNotes: string
   complexityTier: StudyPatternComplexityTier
   stage: StudyPatternStage
@@ -478,6 +504,12 @@ export interface StudyPatternWithReadiness extends StudyPattern {
 export interface StudyPlanSettings {
   interviewDate: string | null
   dailyTimeBudgetMinutes: number
+  /** Free-text personalization context, set by the AI builder (or manually) and surfaced back
+   * to the user on the plan — not parsed structurally, but included as context in any future
+   * AI regeneration/refinement pass. */
+  targetCompany: string | null
+  targetRole: string | null
+  background: string | null
 }
 
 export interface StudyRecommendation {
@@ -513,12 +545,38 @@ export interface DrillQueueEntry {
   estimatedMinutes: number
 }
 
+/** One problem recommended within a TodayFocusEntry — a thin projection of StudyProblem, just
+ * enough to render and link to the problem without shipping the whole pattern. */
+export interface RecommendedProblem {
+  id: string
+  name: string
+  difficulty: Difficulty
+  role: StudyProblemRole
+  completed: boolean
+  linkedProblemId: string | null
+  externalUrl: string | null
+}
+
+/** The 1-3 problems worth doing right now for a single drill-queue pattern, picked by
+ * computeTodayFocus from that pattern's stage/confidence: no-progress patterns get the
+ * easiest/canonical problems, patterns further along or rated more confident get pulled toward
+ * harder medium_variant problems. This is what "Today" actually shows, replacing the old
+ * dump of every problem in the pattern with a short, always-actionable list. */
+export interface TodayFocusEntry {
+  studyPatternId: string
+  studyPatternName: string
+  trackId: StudyTrackId
+  reason: DrillQueueEntry["reason"]
+  recommendedProblems: RecommendedProblem[]
+}
+
 export interface StudyPlanOverview {
   settings: StudyPlanSettings
   tracks: StudyTrack[]
   patterns: StudyPatternWithReadiness[]
   recommendation: StudyRecommendation
   drillQueue: DrillQueueEntry[]
+  todayFocus: TodayFocusEntry[]
   overallProgress: {
     trackId: StudyTrackId
     totalPatterns: number
@@ -535,6 +593,9 @@ export interface RoadmapPatternEntry {
   studyPatternName: string
   trackId: StudyTrackId
   priorityRank: number
+  /** True when priorityRank above is this plan's AI-set personalized override rather than the
+   * static curriculum-wide rank — lets the UI badge "reprioritized for your plan." */
+  isPersonalized: boolean
   stage: StudyPatternStage
   readiness: StudyReadiness
   estimatedHoursRemaining: number

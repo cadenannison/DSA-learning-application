@@ -1,6 +1,12 @@
 import type { FileStudyCurriculumRepository } from "@/server/repositories/file-study-curriculum-repository"
 import type { StudyPlanStore } from "@/server/interfaces/study-plan-store"
 import type { ExecutionService } from "@/server/services/execution-service"
+import type { GeminiClient } from "@/server/services/gemini-client"
+import { buildAiStudyPlanMetaPrompt } from "@/server/services/ai-study-plan-prompt"
+import {
+  aiStudyPlanPayloadSchema,
+  type AiStudyPlanAction,
+} from "@/server/models/ai-study-plan-schema"
 import {
   STUDY_PATTERN_STAGE_ORDER,
   estimatePatternRemainingMinutes,
@@ -11,6 +17,7 @@ import {
   type ReadinessChecklistItem,
   type ReadinessChecklistOverview,
   type ReadinessTriState,
+  type RecommendedProblem,
   type RoadmapOverview,
   type RoadmapPatternEntry,
   type Skill,
@@ -21,11 +28,13 @@ import {
   type StudyPlanOverview,
   type StudyPlanSettings,
   type StudyPlanSummary,
+  type StudyProblem,
   type StudyReadiness,
   type StudyRecommendation,
   type StudySession,
   type StudyTrack,
   type StudyTrackId,
+  type TodayFocusEntry,
 } from "@/server/models/domain"
 
 const STAGE_INDEX: Record<StudyPatternStage, number> = Object.fromEntries(
@@ -69,6 +78,17 @@ function withReadiness(pattern: StudyPattern): StudyPatternWithReadiness {
   return { ...pattern, readiness: computeReadiness(pattern.stage, pattern.confidence) }
 }
 
+/** This plan's personalized priority when the AI builder (or a manual override) has set one,
+ * falling back to the static curriculum-wide rank otherwise — so an un-personalized plan
+ * orders identically to today, and a personalized one reflects its own company/role context. */
+function effectivePriorityRank(pattern: StudyPattern): number {
+  return pattern.personalizedPriorityRank ?? pattern.priorityRank
+}
+
+function effectiveLikelihoodWeight(pattern: StudyPattern): number {
+  return pattern.personalizedLikelihoodWeight ?? pattern.likelihoodWeight
+}
+
 /** Maps stage advancement + confidence into a 0-5 SM-2 quality score. A stage regression or
  * very low confidence is treated as "you didn't really know this" (quality < 3), which resets
  * the spaced-repetition interval back down rather than letting a shaky pass grow it. */
@@ -89,12 +109,172 @@ function mockResultToQuality(solvedCleanly: boolean, constraintAddedMidSolve: bo
   return constraintAddedMidSolve ? 4 : 5
 }
 
+const DIFFICULTY_INDEX: Record<StudyProblem["difficulty"], number> = { easy: 0, medium: 1, hard: 2 }
+const TODAY_FOCUS_SIZE = 3
+
+function toRecommendedProblem(problem: StudyProblem): RecommendedProblem {
+  return {
+    id: problem.id,
+    name: problem.name,
+    difficulty: problem.difficulty,
+    role: problem.role,
+    completed: problem.completed,
+    linkedProblemId: problem.linkedProblemId,
+    externalUrl: problem.externalUrl,
+  }
+}
+
+/** Picks up to 3 problems from a pattern's seeded list, ranked so the difficulty offered tracks
+ * how far along the user actually is: no progress (not_started/concept) surfaces the easiest
+ * canonical problems first; once easy problems are done, confidence steers between easier and
+ * harder medium_variant problems; a pattern with everything already completed falls back to
+ * resurfacing its hardest problems as a review set rather than showing nothing. Always excludes
+ * completed problems unless every problem in the pattern is completed (the review-set case). */
+function pickRecommendedProblems(pattern: StudyPatternWithReadiness): RecommendedProblem[] {
+  const { problems, stage, confidence } = pattern
+  if (problems.length === 0) return []
+
+  const incomplete = problems.filter((p) => !p.completed)
+  const pool = incomplete.length > 0 ? incomplete : problems
+
+  // Target difficulty tracks stage first, then lets confidence nudge within a stage: low
+  // confidence pulls back toward easier problems even past the easy_done stage, high confidence
+  // pushes toward harder ones sooner.
+  let targetDifficulty: number
+  if (stage === "not_started" || stage === "concept") {
+    targetDifficulty = DIFFICULTY_INDEX.easy
+  } else if (stage === "easy_done") {
+    targetDifficulty = confidence !== null && confidence >= 4 ? DIFFICULTY_INDEX.medium : DIFFICULTY_INDEX.easy
+  } else {
+    targetDifficulty = confidence !== null && confidence <= 2 ? DIFFICULTY_INDEX.medium : DIFFICULTY_INDEX.hard
+  }
+
+  const sorted = [...pool].sort((a, b) => {
+    const roleRank = (p: StudyProblem) => (p.role === "canonical_easy" ? 0 : 1)
+    const roleDelta =
+      (stage === "not_started" || stage === "concept" ? roleRank(a) - roleRank(b) : 0)
+    if (roleDelta !== 0) return roleDelta
+
+    const distA = Math.abs(DIFFICULTY_INDEX[a.difficulty] - targetDifficulty)
+    const distB = Math.abs(DIFFICULTY_INDEX[b.difficulty] - targetDifficulty)
+    if (distA !== distB) return distA - distB
+
+    return DIFFICULTY_INDEX[a.difficulty] - DIFFICULTY_INDEX[b.difficulty]
+  })
+
+  return sorted.slice(0, TODAY_FOCUS_SIZE).map(toRecommendedProblem)
+}
+
 export class StudyPlanService {
   constructor(
     private readonly store: StudyPlanStore,
     private readonly curriculumRepository: FileStudyCurriculumRepository,
-    private readonly executionService: ExecutionService
+    private readonly executionService: ExecutionService,
+    private readonly geminiClient: GeminiClient | null = null
   ) {}
+
+  /** Step 1 content for the AI study-plan builder page: a copyable prompt (embedding the real
+   * curriculum pattern/skill ids) instructing an external LLM to interview the user and hand
+   * back JSON matching our action schema. */
+  async getAiStudyPlanMetaPrompt(): Promise<string> {
+    const curriculum = await this.curriculumRepository.load()
+    return buildAiStudyPlanMetaPrompt(curriculum)
+  }
+
+  /** Step 2 of the AI study-plan builder: takes the raw text the user pasted back (the output
+   * of the Step-1 interview, possibly with formatting quirks), asks Gemini to normalize it into
+   * JSON matching our action schema, validates that JSON, then dispatches each action through
+   * the exact same service methods a manual edit would use — createPlan/updateSettings/
+   * updatePattern/updateSkill — so a generated plan can never bypass normal validation. */
+  async buildPlanFromAiPayload(userId: string, rawText: string): Promise<StudyPlan> {
+    if (!this.geminiClient) {
+      throw new Error("AI study-plan builder is not configured (missing Gemini API key)")
+    }
+
+    const curriculum = await this.curriculumRepository.load()
+    const validPatternIds = new Set(curriculum.patterns.map((p) => p.id))
+    const validSkillIds = new Set(curriculum.skills.map((s) => s.id))
+
+    const normalizePrompt = `Normalize the following text into a single JSON object matching exactly this schema, with no markdown fences and no commentary — just the raw JSON object:
+
+${rawText}
+
+Required schema:
+{
+  "actions": [
+    { "action": "create_plan", "name": "string" },
+    { "action": "update_settings", "interviewDate": "string or null (optional)", "dailyTimeBudgetMinutes": "integer (optional)", "targetCompany": "string or null (optional)", "targetRole": "string or null (optional)", "background": "string or null (optional)" },
+    { "action": "update_pattern", "studyPatternId": "string", "stage": "not_started|concept|easy_done|mediums_done|bug_tracing_done (optional)", "confidence": "integer 1-5 or null (optional)", "notes": "string (optional)" },
+    { "action": "set_pattern_priority", "studyPatternId": "string", "personalizedPriorityRank": "integer >= 1 (optional)", "personalizedLikelihoodWeight": "number 0-1 (optional)" },
+    { "action": "update_skill", "skillId": "string", "done": "boolean" }
+  ]
+}
+
+The input must contain exactly one create_plan action once normalized. If the input is already valid JSON matching this schema, return it unchanged.`
+
+    const rawJson = await this.geminiClient.generateJson(normalizePrompt)
+    const parsed = aiStudyPlanPayloadSchema.safeParse(rawJson)
+    if (!parsed.success) {
+      throw new Error(`AI payload did not match the expected schema: ${parsed.error.message}`)
+    }
+
+    for (const action of parsed.data.actions) {
+      if (
+        (action.action === "update_pattern" || action.action === "set_pattern_priority") &&
+        !validPatternIds.has(action.studyPatternId)
+      ) {
+        throw new Error(`Unknown studyPatternId in AI payload: ${action.studyPatternId}`)
+      }
+      if (action.action === "update_skill" && !validSkillIds.has(action.skillId)) {
+        throw new Error(`Unknown skillId in AI payload: ${action.skillId}`)
+      }
+    }
+
+    const createAction = parsed.data.actions.find((a) => a.action === "create_plan")
+    if (!createAction || createAction.action !== "create_plan") {
+      throw new Error("AI payload is missing its create_plan action")
+    }
+
+    const plan = await this.createPlan(userId, createAction.name)
+
+    for (const action of parsed.data.actions) {
+      await this.applyAiAction(plan.id, action)
+    }
+
+    return plan
+  }
+
+  private async applyAiAction(planId: string, action: AiStudyPlanAction): Promise<void> {
+    switch (action.action) {
+      case "create_plan":
+        return
+      case "update_settings":
+        await this.updateSettings(planId, {
+          interviewDate: action.interviewDate,
+          dailyTimeBudgetMinutes: action.dailyTimeBudgetMinutes,
+          targetCompany: action.targetCompany,
+          targetRole: action.targetRole,
+          background: action.background,
+        })
+        return
+      case "update_pattern":
+        await this.updatePattern(planId, action.studyPatternId, {
+          stage: action.stage,
+          confidence: action.confidence,
+          notes: action.notes,
+        })
+        return
+      case "set_pattern_priority":
+        await this.setPatternPriorityOverride(planId, action.studyPatternId, {
+          personalizedPriorityRank: action.personalizedPriorityRank,
+          personalizedLikelihoodWeight: action.personalizedLikelihoodWeight,
+        })
+        return
+      case "update_skill":
+        await this.updateSkill(planId, action.skillId, action.done)
+        return
+    }
+  }
 
   /** Call once per process boot — inserts seed curriculum rows that don't already exist.
    * Idempotent, so safe to call from the container on every request path that needs it. */
@@ -129,8 +309,11 @@ export class StudyPlanService {
           id: plan.id,
           name: plan.name,
           createdAt: plan.createdAt,
+          isActive: plan.isActive,
           interviewDate: settings.interviewDate,
           dailyTimeBudgetMinutes: settings.dailyTimeBudgetMinutes,
+          targetCompany: settings.targetCompany,
+          targetRole: settings.targetRole,
           totalPatterns: patternsWithReadiness.length,
           readyOrBetterPatterns,
         } satisfies StudyPlanSummary
@@ -149,6 +332,22 @@ export class StudyPlanService {
     const plan = await this.getPlanForUser(userId, planId)
     if (!plan) return
     await this.store.deletePlan(planId)
+    if (plan.isActive) {
+      await this.store.setActivePlan(userId, null)
+    }
+  }
+
+  /** Marks `planId` as this user's active plan (used for a "resume studying" shortcut / default
+   * dashboard target). Silently no-ops if the plan doesn't exist or belongs to another user. */
+  async setActivePlan(userId: string, planId: string): Promise<void> {
+    const plan = await this.getPlanForUser(userId, planId)
+    if (!plan) return
+    await this.store.setActivePlan(userId, planId)
+  }
+
+  async getActivePlan(userId: string): Promise<StudyPlan | null> {
+    const plans = await this.store.listPlans(userId)
+    return plans.find((plan) => plan.isActive) ?? null
   }
 
   async getOverview(planId: string): Promise<StudyPlanOverview> {
@@ -160,7 +359,8 @@ export class StudyPlanService {
 
     const patternsWithReadiness = patterns.map(withReadiness)
     const drillQueueSize = computeDrillQueueSize(settings.dailyTimeBudgetMinutes)
-    const drillQueue = this.computeDrillQueue(patternsWithReadiness, drillQueueSize)
+    const daysRemaining = this.computeDaysRemaining(settings.interviewDate)
+    const drillQueue = this.computeDrillQueue(patternsWithReadiness, drillQueueSize, daysRemaining)
     const drillQueueEstimatedMinutes = drillQueue.reduce(
       (sum, entry) => sum + entry.estimatedMinutes,
       0
@@ -171,6 +371,7 @@ export class StudyPlanService {
       drillQueueEstimatedMinutes
     )
     const overallProgress = this.computeOverallProgress(tracks, patternsWithReadiness)
+    const todayFocus = this.computeTodayFocus(patternsWithReadiness, drillQueue)
 
     return {
       settings,
@@ -178,6 +379,7 @@ export class StudyPlanService {
       patterns: patternsWithReadiness,
       recommendation,
       drillQueue,
+      todayFocus,
       overallProgress,
     }
   }
@@ -199,7 +401,7 @@ export class StudyPlanService {
     const tracks = trackIds.map((trackId) => {
       const sorted = patternsWithReadiness
         .filter((pattern) => pattern.trackId === trackId)
-        .sort((a, b) => a.priorityRank - b.priorityRank)
+        .sort((a, b) => effectivePriorityRank(a) - effectivePriorityRank(b))
       const incomplete = this.nextIncompletePatterns(patternsWithReadiness, trackId)
       const currentId = incomplete[0]?.id ?? null
       const upNextIds = new Set(incomplete.slice(1, 3).map((p) => p.id))
@@ -208,7 +410,8 @@ export class StudyPlanService {
         studyPatternId: pattern.id,
         studyPatternName: pattern.name,
         trackId: pattern.trackId,
-        priorityRank: pattern.priorityRank,
+        priorityRank: effectivePriorityRank(pattern),
+        isPersonalized: pattern.personalizedPriorityRank !== null,
         stage: pattern.stage,
         readiness: pattern.readiness,
         estimatedHoursRemaining: estimatePatternRemainingMinutes(pattern) / 60,
@@ -431,6 +634,19 @@ export class StudyPlanService {
     return updated
   }
 
+  /** Sets this plan's personalized priority/likelihood for a pattern — see
+   * StudyPattern.personalizedPriorityRank. Used by the AI builder to reflect company/role
+   * context (e.g. graphs ranked earlier for a company known to favor them); roadmap ordering
+   * and drill-queue scoring pick this up automatically via effectivePriorityRank/
+   * effectiveLikelihoodWeight below. */
+  async setPatternPriorityOverride(
+    planId: string,
+    id: string,
+    override: { personalizedPriorityRank?: number | null; personalizedLikelihoodWeight?: number | null }
+  ): Promise<StudyPattern | null> {
+    return this.store.setPatternPriorityOverride(planId, id, override)
+  }
+
   async updateProblem(
     planId: string,
     id: string,
@@ -620,7 +836,7 @@ export class StudyPlanService {
         : ""
 
     const reason = isUrgent
-      ? `${daysRemaining} day${daysRemaining === 1 ? "" : "s"} left — focus everything on "${nextPattern.name}" (priority #${nextPattern.priorityRank}), the highest-priority pattern that isn't fully worked through yet.${tierNote}`
+      ? `${daysRemaining} day${daysRemaining === 1 ? "" : "s"} left — focus everything on "${nextPattern.name}" (priority #${effectivePriorityRank(nextPattern)}), the highest-priority pattern that isn't fully worked through yet.${tierNote}`
       : `"${nextPattern.name}" is the highest-priority Technical Interview Prep pattern that isn't fully worked through — next step: ${this.describeStage(nextStage)}.${tierNote}`
 
     return {
@@ -643,19 +859,20 @@ export class StudyPlanService {
    * interview date approaches rather than drifting on a fixed schedule. */
   private computeDrillQueue(
     patterns: StudyPatternWithReadiness[],
-    size: number
+    size: number,
+    daysRemaining: number | null
   ): DrillQueueEntry[] {
     const now = Date.now()
 
     const scored = patterns.map((pattern) => {
-      const { reason, score } = this.scorePatternForDrill(pattern, now)
+      const { reason, score } = this.scorePatternForDrill(pattern, now, daysRemaining)
       return {
         studyPatternId: pattern.id,
         studyPatternName: pattern.name,
         trackId: pattern.trackId,
         reason,
         priorityScore: score,
-        likelihoodWeight: pattern.likelihoodWeight,
+        likelihoodWeight: effectiveLikelihoodWeight(pattern),
         readiness: pattern.readiness,
         dueAt: pattern.spacedRepetition.dueAt,
         estimatedMinutes: DRILL_QUEUE_MINUTES_PER_ITEM,
@@ -675,9 +892,11 @@ export class StudyPlanService {
    * weak pattern can still resurface early instead of waiting out its interval untouched. */
   private scorePatternForDrill(
     pattern: StudyPatternWithReadiness,
-    now: number
+    now: number,
+    daysRemaining: number | null
   ): { reason: DrillQueueEntry["reason"]; score: number } {
     const { dueAt, reviewCount } = pattern.spacedRepetition
+    const likelihoodWeight = effectiveLikelihoodWeight(pattern)
 
     // Weakness: inverse of readiness, expressed 0-1 so it composes with likelihood the same
     // way for every pattern regardless of stage/confidence combination.
@@ -690,22 +909,63 @@ export class StudyPlanService {
             ? 0.5
             : 0.1
 
-    const baseScore = pattern.likelihoodWeight * 0.5 + weaknessScore * 0.5
+    const baseScore = likelihoodWeight * 0.5 + weaknessScore * 0.5
+
+    // As the interview approaches, pull reviews forward instead of leaving them on a fixed
+    // SM-2 interval: within a week out, every not-yet-mastered pattern gets a small, linearly
+    // growing boost (maxing out at +0.2 the day of), so weak/likely patterns keep surfacing
+    // even if their due date hasn't technically arrived yet.
+    const urgencyBoost =
+      daysRemaining !== null && daysRemaining <= 7 && weaknessScore > 0.1
+        ? 0.2 * (1 - daysRemaining / 7)
+        : 0
 
     if (dueAt && new Date(dueAt).getTime() <= now) {
       const overdueDays = (now - new Date(dueAt).getTime()) / (24 * 60 * 60 * 1000)
-      return { reason: "overdue_review", score: baseScore + 0.3 + Math.min(overdueDays / 7, 0.3) }
+      return {
+        reason: "overdue_review",
+        score: baseScore + 0.3 + Math.min(overdueDays / 7, 0.3) + urgencyBoost,
+      }
     }
 
     if (reviewCount === 0) {
-      return { reason: "never_reviewed", score: baseScore }
+      return { reason: "never_reviewed", score: baseScore + urgencyBoost }
     }
 
-    if (pattern.likelihoodWeight >= 0.6 && weaknessScore >= 0.5) {
-      return { reason: "high_likelihood_low_confidence", score: baseScore + 0.05 }
+    if (likelihoodWeight >= 0.6 && weaknessScore >= 0.5) {
+      return { reason: "high_likelihood_low_confidence", score: baseScore + 0.05 + urgencyBoost }
     }
 
-    return { reason: "scheduled", score: baseScore }
+    return { reason: "scheduled", score: baseScore + urgencyBoost }
+  }
+
+  /** For each pattern in today's drill queue, picks the 3 problems actually worth doing right
+   * now — this is what "Today" shows instead of a pattern's full problem list. Reuses the
+   * drill queue's own ordering (already ranked by likelihood + weakness + urgency) so the
+   * patterns shown here match what the queue says to focus on; only the per-pattern problem
+   * selection is new. */
+  private computeTodayFocus(
+    patterns: StudyPatternWithReadiness[],
+    drillQueue: DrillQueueEntry[]
+  ): TodayFocusEntry[] {
+    const patternsById = new Map(patterns.map((pattern) => [pattern.id, pattern]))
+
+    return drillQueue
+      .map((entry) => {
+        const pattern = patternsById.get(entry.studyPatternId)
+        if (!pattern) return null
+        const recommendedProblems = pickRecommendedProblems(pattern)
+        if (recommendedProblems.length === 0) return null
+
+        return {
+          studyPatternId: pattern.id,
+          studyPatternName: pattern.name,
+          trackId: pattern.trackId,
+          reason: entry.reason,
+          recommendedProblems,
+        } satisfies TodayFocusEntry
+      })
+      .filter((entry): entry is TodayFocusEntry => entry !== null)
   }
 
   private computeNextStage(currentStage: StudyPatternStage): StudyPatternStage {
@@ -738,14 +998,14 @@ export class StudyPlanService {
   ): StudyPatternWithReadiness[] {
     return patterns
       .filter((pattern) => pattern.trackId === trackId && pattern.stage !== "bug_tracing_done")
-      .sort((a, b) => a.priorityRank - b.priorityRank)
+      .sort((a, b) => effectivePriorityRank(a) - effectivePriorityRank(b))
   }
 
   private computeOaPrepSuggestion(oaPatterns: StudyPatternWithReadiness[]): string | null {
     const incomplete = oaPatterns.filter((pattern) => pattern.stage !== "bug_tracing_done")
     if (incomplete.length === 0) return null
 
-    const next = incomplete.sort((a, b) => a.priorityRank - b.priorityRank)[0]
+    const next = incomplete.sort((a, b) => effectivePriorityRank(a) - effectivePriorityRank(b))[0]
     return `Spend a short parallel block on OA Prep: "${next.name}" (${incomplete.length} OA topic${incomplete.length === 1 ? "" : "s"} left, kept lightweight and time-boxed).`
   }
 

@@ -28,7 +28,7 @@ abstract class BaseAttemptPresenter<TProblem extends { id: string; functionName:
     this.hintsUsedCount += 1
   }
 
-  async runCode(code: string): Promise<ExecutionResult> {
+  async runCode(code: string, testCaseIndices?: number[]): Promise<ExecutionResult> {
     if (!this.problem) {
       throw new Error("No problem loaded")
     }
@@ -36,7 +36,8 @@ abstract class BaseAttemptPresenter<TProblem extends { id: string; functionName:
     const result = await apiClient.execute(
       this.problem.id,
       { code, functionName: this.problem.functionName, language: "python" },
-      this.mode
+      this.mode,
+      testCaseIndices
     )
 
     return result
@@ -84,10 +85,10 @@ export class PracticePresenter extends BaseAttemptPresenter<Problem> {
     }
   }
 
-  async run(code: string): Promise<void> {
+  async run(code: string, testCaseIndices?: number[]): Promise<void> {
     this.view.setRunning(true)
     try {
-      const result = await this.runCode(code)
+      const result = await this.runCode(code, testCaseIndices)
       this.view.setResult(result)
     } catch (error) {
       this.view.setError(error instanceof Error ? error.message : "Execution failed")

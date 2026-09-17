@@ -9,6 +9,7 @@ import type {
   Skill,
   StudyPatternStage,
   StudyPlanOverview,
+  StudyPlanSettings,
   StudySession,
 } from "@/types"
 
@@ -58,7 +59,7 @@ export class StudyPlanPresenter {
     await this.load()
   }
 
-  async setSettings(update: { interviewDate?: string | null; dailyTimeBudgetMinutes?: number }): Promise<void> {
+  async setSettings(update: Partial<StudyPlanSettings>): Promise<void> {
     await apiClient.updateStudyPlanSettings(this.planId, update)
     await this.load()
   }
@@ -91,12 +92,15 @@ export class StudyPlanPresenter {
   }
 
   /** Runs code against an embedded study-plan problem without recording anything — mirrors
-   * the practice page's "Run" button, which never touches progress/session state. */
+   * the practice page's "Run" button, which never touches progress/session state. Passing
+   * testCaseIndices runs only those test cases (e.g. a single "Run this case" click) instead
+   * of the full suite. */
   async runEmbeddedProblem(
     linkedProblemId: string,
-    submission: CodeSubmission
+    submission: CodeSubmission,
+    testCaseIndices?: number[]
   ): Promise<ExecutionResult> {
-    return apiClient.execute(linkedProblemId, submission, "practice")
+    return apiClient.execute(linkedProblemId, submission, "practice", testCaseIndices)
   }
 
   /** Submits code against an embedded study-plan problem. Always logs a session row

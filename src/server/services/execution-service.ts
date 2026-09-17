@@ -1,6 +1,6 @@
 import type { CodeSandbox } from "@/server/interfaces/code-sandbox"
 import type { ProblemRepository } from "@/server/interfaces/problem-repository"
-import type { CodeSubmission, ExecutionResult, PracticeMode } from "@/server/models/domain"
+import type { CodeSubmission, ExecutionResult, PracticeMode, TestCase } from "@/server/models/domain"
 
 export class ExecutionService {
   constructor(
@@ -16,7 +16,8 @@ export class ExecutionService {
   async execute(
     problemId: string,
     submission: CodeSubmission,
-    mode: PracticeMode
+    mode: PracticeMode,
+    testCaseIndices?: number[]
   ): Promise<ExecutionResult> {
     void mode
 
@@ -25,6 +26,15 @@ export class ExecutionService {
       throw new Error(`Unknown problem: ${problemId}`)
     }
 
-    return this.sandbox.run(submission, problem.testCases)
+    // Indices are resolved against the server's own problem.testCases, never against
+    // anything client-supplied, so a single-case "Run this case" request can't be used to
+    // smuggle in arbitrary test data.
+    const testCases = testCaseIndices
+      ? testCaseIndices
+          .map((index) => problem.testCases[index])
+          .filter((testCase): testCase is TestCase => testCase != null)
+      : problem.testCases
+
+    return this.sandbox.run(submission, testCases)
   }
 }

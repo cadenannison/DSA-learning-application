@@ -1,21 +1,21 @@
 "use client"
 
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { notFound } from "next/navigation"
 import { use, useEffect, useRef, useState } from "react"
 import { AuthGate } from "@/components/auth-gate"
 import { ProblemWorkbenchView } from "@/components/problem-workbench-view"
 import { apiClient } from "@/lib/api-client"
 import { StudyPlanPresenter } from "@/presenter/study-plan-presenter"
-import type { ExecutionResult, Problem, StudyPlanOverview } from "@/types"
+import type { ExecutionResult, Problem, StudyPlanOverview, TestCaseResult } from "@/types"
 
 /** Full library-style workbench for a single workbook problem — same prompt/examples/
  * constraints/hints/editor/Run/Submit layout as /problems/[id] (see ProblemWorkbenchView),
- * reused rather than duplicated. The one difference from the library page: Back and a
- * passing Submit both return to this pattern's Practice tab instead of the library, and
- * Submit records completion against the study plan (via submitEmbeddedProblem) instead of
- * generic library progress. */
+ * reused rather than duplicated. Back and a passing Submit both return wherever the user came
+ * from (this pattern's Practice tab by default, or Today when opened via ?from=today — see
+ * WorkbookProblemContainer's backHref) instead of the library; Submit records completion
+ * against the study plan (via submitEmbeddedProblem) instead of generic library progress. */
 export default function WorkbookProblemPage({
   params,
 }: {
@@ -46,7 +46,9 @@ function WorkbookProblemContainer({
   studyProblemId: string
 }) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const practiceHref = `/study-plan/${planId}/${patternId}/practice`
+  const backHref = searchParams.get("from") === "today" ? `/study-plan/${planId}` : practiceHref
 
   const [overview, setOverview] = useState<StudyPlanOverview | null>(null)
   const [overviewLoading, setOverviewLoading] = useState(true)
@@ -70,6 +72,7 @@ function WorkbookProblemContainer({
   const [code, setCode] = useState("")
   const [running, setRunning] = useState(false)
   const [result, setResult] = useState<ExecutionResult | null>(null)
+  const [caseResults, setCaseResults] = useState<Record<number, TestCaseResult>>({})
   const [revealedHints, setRevealedHints] = useState(0)
 
   const startedAtRef = useRef<number | null>(null)
@@ -91,7 +94,7 @@ function WorkbookProblemContainer({
 
   return (
     <WorkbookProblemBody
-      practiceHref={practiceHref}
+      backHref={backHref}
       patternName={pattern.name}
       linkedProblemId={studyProblem.linkedProblemId}
       studyProblemId={studyProblem.id}
@@ -106,6 +109,8 @@ function WorkbookProblemContainer({
       setRunning={setRunning}
       result={result}
       setResult={setResult}
+      caseResults={caseResults}
+      setCaseResults={setCaseResults}
       revealedHints={revealedHints}
       setRevealedHints={setRevealedHints}
       startedAtRef={startedAtRef}
@@ -119,7 +124,7 @@ function WorkbookProblemContainer({
  * only mount once the pattern/studyProblem lookups above have confirmed a linked problem
  * exists, rather than running conditionally. */
 function WorkbookProblemBody({
-  practiceHref,
+  backHref,
   patternName,
   linkedProblemId,
   studyProblemId,
@@ -134,13 +139,15 @@ function WorkbookProblemBody({
   setRunning,
   result,
   setResult,
+  caseResults,
+  setCaseResults,
   revealedHints,
   setRevealedHints,
   startedAtRef,
   submittedRef,
   router,
 }: {
-  practiceHref: string
+  backHref: string
   patternName: string
   linkedProblemId: string
   studyProblemId: string
@@ -155,6 +162,8 @@ function WorkbookProblemBody({
   setRunning: (running: boolean) => void
   result: ExecutionResult | null
   setResult: (result: ExecutionResult | null) => void
+  caseResults: Record<number, TestCaseResult>
+  setCaseResults: React.Dispatch<React.SetStateAction<Record<number, TestCaseResult>>>
   revealedHints: number
   setRevealedHints: (count: number) => void
   startedAtRef: React.MutableRefObject<number | null>
@@ -214,8 +223,29 @@ function WorkbookProblemBody({
         language: "python",
       })
       setResult(execution)
+      setCaseResults(Object.fromEntries(execution.results.map((r, i) => [i, r])))
     } catch (err) {
       setProblemError(err instanceof Error ? err.message : "Failed to run code")
+    } finally {
+      setRunning(false)
+    }
+  }
+
+  async function handleRunCase(index: number) {
+    if (!problem) return
+    setRunning(true)
+    try {
+      const execution = await presenter.runEmbeddedProblem(
+        problem.id,
+        { code, functionName: problem.functionName, language: "python" },
+        [index]
+      )
+      const caseResult = execution.results[0]
+      if (caseResult) {
+        setCaseResults((prev) => ({ ...prev, [index]: caseResult }))
+      }
+    } catch (err) {
+      setProblemError(err instanceof Error ? err.message : "Failed to run test case")
     } finally {
       setRunning(false)
     }
@@ -234,6 +264,7 @@ function WorkbookProblemBody({
       )
       submittedRef.current = true
       setResult(execution)
+      setCaseResults(Object.fromEntries(execution.results.map((r, i) => [i, r])))
     } catch (err) {
       setProblemError(err instanceof Error ? err.message : "Failed to submit code")
     } finally {
@@ -247,8 +278,8 @@ function WorkbookProblemBody({
   return (
     <div className="flex h-full flex-1 flex-col overflow-hidden">
       <div className="flex h-12 shrink-0 items-center justify-between border-b border-border bg-surface px-6">
-        <Link href={practiceHref} className="text-sm text-text-2 hover:text-text-1">
-          &larr; Back to Workbook
+        <Link href={backHref} className="text-sm text-text-2 hover:text-text-1">
+          &larr; Back
         </Link>
         <span className="truncate text-xs text-text-2">{patternName}</span>
       </div>
@@ -259,7 +290,9 @@ function WorkbookProblemBody({
         onChangeCode={setCode}
         running={running}
         result={result}
+        caseResults={caseResults}
         onRun={handleRun}
+        onRunCase={handleRunCase}
         onSubmit={handleSubmit}
         onResetCode={() => setCode(problem.starterCode)}
         revealedHints={revealedHints}
@@ -272,10 +305,10 @@ function WorkbookProblemBody({
                 : "Progress saved — you can keep iterating or head back."}
             </span>
             <button
-              onClick={() => router.push(practiceHref)}
+              onClick={() => router.push(backHref)}
               className="min-h-[36px] rounded-control border border-border px-3 text-xs font-medium text-text-1 hover:bg-surface-2"
             >
-              Back to Workbook
+              Back
             </button>
           </div>
         }

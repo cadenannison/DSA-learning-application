@@ -51,6 +51,10 @@ export const executeRequestSchema = z.object({
   problemId: z.string().min(1),
   submission: codeSubmissionSchema,
   mode: practiceModeSchema,
+  // Optional subset of testCases indices to run — lets the workbench run a single test case
+  // instead of the full suite. Indices are resolved against the server's own problem.testCases
+  // (see ExecutionService.execute), never against client-supplied test data.
+  testCaseIndices: z.array(z.number().int().min(0)).optional(),
 })
 
 export const recordAttemptRequestSchema = z.object({
@@ -102,6 +106,7 @@ export const problemSchema = z.object({
   starterCode: z.string(),
   functionName: z.string(),
   testCases: z.array(testCaseSchema),
+  paramNames: z.array(z.string()).optional(),
 })
 
 // .strict() is load-bearing here: it's the mechanical guarantee that pattern, difficulty,
@@ -122,6 +127,7 @@ export const strippedProblemSchema = z
     constraints: z.array(z.string()),
     starterCode: z.string(),
     functionName: z.string(),
+    paramNames: z.array(z.string()).optional(),
   })
   .strict()
 
@@ -151,7 +157,10 @@ const testCaseResultSchema = z.object({
   isHidden: z.boolean(),
   stdout: z.string(),
   errorMessage: z.string().nullable(),
-  name: z.string().optional(),
+  // The Python worker always emits this key via test_case.get("name"), which comes back
+  // `null` (not omitted) when the test case has no name — so this must accept null, not
+  // just undefined, or every execution response fails validation.
+  name: z.string().nullable().optional(),
 })
 
 export const executionResultSchema = z.object({
@@ -459,6 +468,8 @@ export const studyPatternSchema = z.object({
   name: z.string(),
   priorityRank: z.number().int(),
   likelihoodWeight: z.number().min(0).max(1),
+  personalizedPriorityRank: z.number().int().nullable(),
+  personalizedLikelihoodWeight: z.number().min(0).max(1).nullable(),
   conceptNotes: z.string(),
   complexityTier: studyPatternComplexityTierSchema,
   stage: studyPatternStageSchema,
@@ -501,6 +512,9 @@ export const mockInterviewResultSchema = z.object({
 export const studyPlanSettingsSchema = z.object({
   interviewDate: z.string().nullable(),
   dailyTimeBudgetMinutes: z.number().int().min(1),
+  targetCompany: z.string().nullable(),
+  targetRole: z.string().nullable(),
+  background: z.string().nullable(),
 })
 
 export const studyPlanSchema = z.object({
@@ -508,20 +522,28 @@ export const studyPlanSchema = z.object({
   userId: z.string(),
   name: z.string(),
   createdAt: z.string(),
+  isActive: z.boolean(),
 })
 
 export const studyPlanSummarySchema = z.object({
   id: z.string(),
   name: z.string(),
   createdAt: z.string(),
+  isActive: z.boolean(),
   interviewDate: z.string().nullable(),
   dailyTimeBudgetMinutes: z.number().int().min(1),
+  targetCompany: z.string().nullable(),
+  targetRole: z.string().nullable(),
   totalPatterns: z.number().int().min(0),
   readyOrBetterPatterns: z.number().int().min(0),
 })
 
 export const createStudyPlanRequestSchema = z.object({
   name: z.string().min(1),
+})
+
+export const activePlanResponseSchema = z.object({
+  planId: z.string().nullable(),
 })
 
 export const studyRecommendationSchema = z.object({
@@ -553,12 +575,31 @@ export const drillQueueEntrySchema = z.object({
   estimatedMinutes: z.number().int().min(0),
 })
 
+export const recommendedProblemSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  difficulty: difficultySchema,
+  role: studyProblemRoleSchema,
+  completed: z.boolean(),
+  linkedProblemId: z.string().nullable(),
+  externalUrl: z.string().nullable(),
+})
+
+export const todayFocusEntrySchema = z.object({
+  studyPatternId: z.string(),
+  studyPatternName: z.string(),
+  trackId: studyTrackIdSchema,
+  reason: drillQueueEntrySchema.shape.reason,
+  recommendedProblems: z.array(recommendedProblemSchema),
+})
+
 export const studyPlanOverviewSchema = z.object({
   settings: studyPlanSettingsSchema,
   tracks: z.array(studyTrackSchema),
   patterns: z.array(studyPatternWithReadinessSchema),
   recommendation: studyRecommendationSchema,
   drillQueue: z.array(drillQueueEntrySchema),
+  todayFocus: z.array(todayFocusEntrySchema),
   overallProgress: z.array(
     z.object({
       trackId: studyTrackIdSchema,
@@ -584,6 +625,9 @@ export const updateStudyProblemRequestSchema = z.object({
 export const updateStudyPlanSettingsRequestSchema = z.object({
   interviewDate: z.string().nullable().optional(),
   dailyTimeBudgetMinutes: z.number().int().min(1).optional(),
+  targetCompany: z.string().nullable().optional(),
+  targetRole: z.string().nullable().optional(),
+  background: z.string().nullable().optional(),
 })
 
 export const createStudySessionRequestSchema = z.object({
@@ -626,6 +670,7 @@ export const roadmapPatternEntrySchema = z.object({
   studyPatternName: z.string(),
   trackId: studyTrackIdSchema,
   priorityRank: z.number().int(),
+  isPersonalized: z.boolean(),
   stage: studyPatternStageSchema,
   readiness: studyReadinessSchema,
   estimatedHoursRemaining: z.number().min(0),
@@ -685,3 +730,17 @@ export const updateReadinessChecklistItemRequestSchema = z.object({
 // --- Resources ---
 // resourceTypeSchema / patternResourceSchema are defined earlier (above studyPatternSchema),
 // since studyPatternSchema embeds resources: patternResourceSchema[].
+
+// --- AI Study Plan Builder ---
+
+export const aiStudyPlanMetaPromptResponseSchema = z.object({
+  prompt: z.string(),
+})
+
+export const buildAiStudyPlanRequestSchema = z.object({
+  rawPayload: z.string().min(1),
+})
+
+export const buildAiStudyPlanResponseSchema = z.object({
+  planId: z.string(),
+})

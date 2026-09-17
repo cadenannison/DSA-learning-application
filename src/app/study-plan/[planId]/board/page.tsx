@@ -238,47 +238,85 @@ function SettingsBar({
   const [dailyMinutes, setDailyMinutes] = useState(
     String(overview.settings.dailyTimeBudgetMinutes)
   )
+  const [targetCompany, setTargetCompany] = useState(overview.settings.targetCompany ?? "")
+  const [targetRole, setTargetRole] = useState(overview.settings.targetRole ?? "")
+  const [background, setBackground] = useState(overview.settings.background ?? "")
 
   return (
-    <div className="mb-6 flex flex-wrap items-end gap-4 rounded-card border border-border bg-surface p-4">
-      <label className="flex flex-col gap-1 text-xs text-text-2">
-        Interview date
-        <input
-          type="date"
-          value={interviewDate}
-          onChange={(e) => setInterviewDate(e.target.value)}
-          onBlur={() =>
-            presenter.setSettings({
-              interviewDate: interviewDate ? new Date(interviewDate).toISOString() : null,
-            })
-          }
-          className="min-h-[44px] rounded-control border border-border bg-surface-2 px-2 text-sm text-text-1"
-        />
-      </label>
-      <label className="flex flex-col gap-1 text-xs text-text-2">
-        Daily time budget (minutes)
-        <input
-          type="number"
-          min={1}
-          value={dailyMinutes}
-          onChange={(e) => setDailyMinutes(e.target.value)}
-          onBlur={() => {
-            const value = Number(dailyMinutes)
-            if (Number.isFinite(value) && value > 0) {
-              presenter.setSettings({ dailyTimeBudgetMinutes: Math.round(value) })
+    <div className="mb-6 flex flex-col gap-4 rounded-card border border-border bg-surface p-4">
+      <div className="flex flex-wrap items-end gap-4">
+        <label className="flex flex-col gap-1 text-xs text-text-2">
+          Interview date
+          <input
+            type="date"
+            value={interviewDate}
+            onChange={(e) => setInterviewDate(e.target.value)}
+            onBlur={() =>
+              presenter.setSettings({
+                interviewDate: interviewDate ? new Date(interviewDate).toISOString() : null,
+              })
             }
-          }}
-          className="min-h-[44px] w-32 rounded-control border border-border bg-surface-2 px-2 text-sm text-text-1"
+            className="min-h-[44px] rounded-control border border-border bg-surface-2 px-2 text-sm text-text-1"
+          />
+        </label>
+        <label className="flex flex-col gap-1 text-xs text-text-2">
+          Daily time budget (minutes)
+          <input
+            type="number"
+            min={1}
+            value={dailyMinutes}
+            onChange={(e) => setDailyMinutes(e.target.value)}
+            onBlur={() => {
+              const value = Number(dailyMinutes)
+              if (Number.isFinite(value) && value > 0) {
+                presenter.setSettings({ dailyTimeBudgetMinutes: Math.round(value) })
+              }
+            }}
+            className="min-h-[44px] w-32 rounded-control border border-border bg-surface-2 px-2 text-sm text-text-1"
+          />
+        </label>
+        <label className="flex flex-col gap-1 text-xs text-text-2">
+          Target company
+          <input
+            type="text"
+            value={targetCompany}
+            onChange={(e) => setTargetCompany(e.target.value)}
+            onBlur={() => presenter.setSettings({ targetCompany: targetCompany || null })}
+            placeholder="e.g. Stripe"
+            className="min-h-[44px] w-40 rounded-control border border-border bg-surface-2 px-2 text-sm text-text-1 placeholder:text-text-3"
+          />
+        </label>
+        <label className="flex flex-col gap-1 text-xs text-text-2">
+          Target role
+          <input
+            type="text"
+            value={targetRole}
+            onChange={(e) => setTargetRole(e.target.value)}
+            onBlur={() => presenter.setSettings({ targetRole: targetRole || null })}
+            placeholder="e.g. Backend SWE"
+            className="min-h-[44px] w-40 rounded-control border border-border bg-surface-2 px-2 text-sm text-text-1 placeholder:text-text-3"
+          />
+        </label>
+        {overview.recommendation.daysRemaining !== null && (
+          <div className="text-sm text-text-2">
+            <span className="font-mono font-medium text-text-1">
+              {overview.recommendation.daysRemaining}
+            </span>{" "}
+            day{overview.recommendation.daysRemaining === 1 ? "" : "s"} remaining
+          </div>
+        )}
+      </div>
+      <label className="flex flex-col gap-1 text-xs text-text-2">
+        Background (used as personalization context, e.g. by the AI builder)
+        <textarea
+          value={background}
+          onChange={(e) => setBackground(e.target.value)}
+          onBlur={() => presenter.setSettings({ background: background || null })}
+          rows={2}
+          placeholder="e.g. 3 YOE backend, comfortable with arrays/strings, weak at graphs"
+          className="rounded-control border border-border bg-surface-2 px-2 py-1.5 text-sm text-text-1 placeholder:text-text-3"
         />
       </label>
-      {overview.recommendation.daysRemaining !== null && (
-        <div className="text-sm text-text-2">
-          <span className="font-mono font-medium text-text-1">
-            {overview.recommendation.daysRemaining}
-          </span>{" "}
-          day{overview.recommendation.daysRemaining === 1 ? "" : "s"} remaining
-        </div>
-      )}
     </div>
   )
 }
