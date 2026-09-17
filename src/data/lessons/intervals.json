@@ -1,0 +1,20 @@
+{
+  "pattern": "intervals",
+  "title": "Intervals",
+  "summary": "Sort intervals by start time, then sweep left to right merging or comparing each one against the last one you kept.",
+  "explanation": [
+    "Interval problems (merging overlapping ranges, inserting a new interval, finding free time, counting overlaps) almost always start the same way: sort the intervals by start time. Once sorted, you never need to compare an interval against anything except the most recently processed one, which turns an apparently O(n^2) pairwise comparison problem into an O(n log n) single sweep.",
+    "For merging, walk the sorted intervals and keep a 'current merged interval'. If the next interval's start is less than or equal to the current merged interval's end, they overlap — extend the current interval's end to the max of the two ends. If it starts after the current interval ends, there's a gap: push the current interval to the result and start a new current interval from this one.",
+    "The same sort-then-sweep idea generalizes: for 'can you attend all meetings' you just check no two sorted intervals overlap; for 'minimum meeting rooms' you track how many intervals are simultaneously open using a small heap or a sweep over start/end events; for 'insert interval' you merge the new interval into its sorted position in one pass instead of resorting from scratch."
+  ],
+  "whenToUse": [
+    "The input is a list of (start, end) ranges and you need to merge, insert, or detect overlaps between them.",
+    "You need to know the maximum number of overlapping intervals at once (e.g. minimum meeting rooms).",
+    "A brute-force pairwise comparison of all intervals would be O(n^2), but sorting by start time collapses it to one sweep.",
+    "The problem talks about scheduling, calendars, or ranges that can overlap and need to be consolidated."
+  ],
+  "timeComplexity": "O(n log n) for the sort, O(n) for the sweep",
+  "spaceComplexity": "O(n) for the output (or O(log n) to O(n) for the sort, depending on implementation)",
+  "demoKind": "intervals",
+  "relatedProblemIds": ["merge-intervals"]
+}

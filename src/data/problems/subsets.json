@@ -1,0 +1,127 @@
+{
+  "id": "subsets",
+  "title": "Subsets",
+  "pattern": "backtracking",
+  "difficulty": "medium",
+  "companies": [
+    "Facebook",
+    "Amazon",
+    "Uber"
+  ],
+  "prompt": "Given an integer array `nums` of unique elements, return all possible subsets (the power set). The solution set must not contain duplicate subsets \u2014 return them in any order, but each individual subset's elements should stay in the same relative order as `nums`.",
+  "examples": [
+    {
+      "input": "nums = [1,2,3]",
+      "output": "[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]",
+      "explanation": "All 2^3 = 8 subsets, including the empty set and the full set."
+    },
+    {
+      "input": "nums = [0]",
+      "output": "[[],[0]]"
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 10",
+    "-10 <= nums[i] <= 10",
+    "All elements of nums are unique"
+  ],
+  "hints": [
+    "Each element has exactly two states in any given subset: included or excluded. That's the branching factor for backtracking.",
+    "Build subsets by recursing through the array index by index: at each index, branch into 'include nums[i]' and 'exclude nums[i]', then continue to i+1.",
+    "Add the current partial subset to the result at every recursive call, not just at the leaves \u2014 every prefix along the way is itself a valid subset."
+  ],
+  "solution": {
+    "approach": "Backtrack through indices 0..n-1. At each call, first record a copy of the current partial subset (every intermediate state is a valid subset). Then for each remaining index, include nums[i] in the subset, recurse to build subsets starting from i+1, then remove nums[i] (backtrack) before trying the next index. This generates every combination without duplicates because indices are only ever chosen in increasing order.",
+    "code": "def subsets(nums):\n    result = []\n    current = []\n\n    def backtrack(start):\n        result.append(current[:])\n        for i in range(start, len(nums)):\n            current.append(nums[i])\n            backtrack(i + 1)\n            current.pop()\n\n    backtrack(0)\n    return result\n",
+    "timeComplexity": "O(n * 2^n)",
+    "spaceComplexity": "O(n * 2^n)"
+  },
+  "starterCode": "def subsets(nums):\n    # your code here\n    pass\n",
+  "functionName": "subsets",
+  "testCases": [
+    {
+      "input": [
+        [
+          1,
+          2,
+          3
+        ]
+      ],
+      "expected": [
+        [],
+        [
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          2,
+          3
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3
+        ]
+      ],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [
+          0
+        ]
+      ],
+      "expected": [
+        [],
+        [
+          0
+        ]
+      ],
+      "isHidden": false
+    },
+    {
+      "input": [
+        []
+      ],
+      "expected": [
+        []
+      ],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [
+          1,
+          2
+        ]
+      ],
+      "expected": [
+        [],
+        [
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2
+        ]
+      ],
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "pattern": "binary-search",
+  "title": "Binary Search",
+  "summary": "Repeatedly halve a sorted search space by comparing the midpoint to your target.",
+  "explanation": [
+    "Binary search finds a value (or the boundary of a condition) in a sorted array by maintaining a search range [lo, hi] and repeatedly checking its midpoint. Each check eliminates half of the remaining range, so the search space shrinks from n to 1 in O(log n) steps instead of O(n) for a linear scan.",
+    "At each step, compute mid = lo + Math.floor((hi - lo) / 2) (not (lo + hi) / 2, which can overflow in other languages and is worth building the habit for). If the value at mid equals the target, you're done. If it's less than the target, the target must be to the right, so move lo = mid + 1. If it's greater, move hi = mid - 1.",
+    "The same halving idea generalizes beyond 'find this exact value' to 'find the boundary where a monotonic condition flips from false to true' (e.g. the first element >= target, or the minimum value satisfying some predicate) — this is often called 'binary search on the answer' and is a very common interview pattern once you recognize the monotonic condition."
+  ],
+  "whenToUse": [
+    "The array (or answer space) is sorted, or has a monotonic true/false boundary you can test.",
+    "You need better than O(n) lookup and O(log n) is achievable.",
+    "The problem says 'find the index of' or 'find the minimum/maximum value such that...' over an ordered range."
+  ],
+  "timeComplexity": "O(log n)",
+  "spaceComplexity": "O(1)",
+  "demoKind": "binary-search",
+  "relatedProblemIds": ["binary-search"]
+}

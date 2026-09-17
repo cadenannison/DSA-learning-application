@@ -1,0 +1,20 @@
+{
+  "pattern": "trees",
+  "title": "Trees",
+  "summary": "Recurse on subtrees and combine their results — most tree problems are a base case plus 'ask my children, then combine.'",
+  "explanation": [
+    "A tree is a graph with no cycles: one root node, and every other node reachable by exactly one path down from it. Binary trees restrict each node to at most two children (left and right), which is the shape most interview problems use.",
+    "The vast majority of tree problems follow the same recursive template: define a base case for null/empty nodes, recurse on the left and right subtrees, and combine their results at the current node. Maximum depth is a clean example — depth(null) = 0, and depth(node) = 1 + max(depth(node.left), depth(node.right)). The recursion handles the traversal; you only have to figure out what to compute at each node and how to combine children's answers.",
+    "Traversal order matters and encodes different questions: pre-order (node, then left, then right) is useful for copying or serializing a tree; in-order (left, node, right) visits a binary search tree's values in sorted order; post-order (left, right, node) is needed whenever a node's answer depends on its children's answers being finished first (like computing height or checking balance). BFS with a queue gives you level-order traversal when you need to process a tree level by level instead of depth-first."
+  ],
+  "whenToUse": [
+    "The input is explicitly a tree (binary tree, BST, N-ary tree) and you need to compute something per-node or aggregate over subtrees.",
+    "A problem can be phrased as 'compute this for the left and right subtrees, then combine' — height, diameter, sum, validity checks.",
+    "You need level-order output or the shortest path in an unweighted tree — reach for BFS instead of recursion.",
+    "The structure implies natural recursion: the answer for a tree is defined in terms of the answer for smaller subtrees."
+  ],
+  "timeComplexity": "O(n)",
+  "spaceComplexity": "O(h) for recursion stack, where h is tree height (O(log n) balanced, O(n) worst case)",
+  "demoKind": "trees",
+  "relatedProblemIds": ["maximum-depth-of-binary-tree"]
+}

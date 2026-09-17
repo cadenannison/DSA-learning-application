@@ -1,0 +1,145 @@
+{
+  "id": "implement-trie",
+  "title": "Implement Trie (Prefix Tree)",
+  "pattern": "tries",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon",
+    "Uber"
+  ],
+  "prompt": "A trie (prefix tree) supports three operations: `insert(word)`, `search(word)` (exact match), and `startsWith(prefix)` (any word begins with this prefix).\n\nYou'll implement this as a single function `runTrieOps(ops)`, where `ops` is an array of `[operationName, argument]` pairs, applied in order to one trie instance. `insert` never produces output; `search` and `startsWith` push their boolean result onto the output array, in call order. Return the output array.",
+  "examples": [
+    {
+      "input": "ops = [[\"insert\",\"apple\"],[\"search\",\"apple\"],[\"search\",\"app\"],[\"startsWith\",\"app\"],[\"insert\",\"app\"],[\"search\",\"app\"]]",
+      "output": "[true,false,true,true]",
+      "explanation": "After inserting 'apple': search('apple')=true, search('app')=false (not inserted as a full word yet), startsWith('app')=true. After inserting 'app': search('app')=true."
+    }
+  ],
+  "constraints": [
+    "1 <= word.length, prefix.length <= 2000",
+    "word and prefix consist only of lowercase English letters",
+    "At most 3 * 10^4 total operations"
+  ],
+  "hints": [
+    "Each trie node needs a map of character -> child node, plus a flag marking whether a word ends at this node.",
+    "insert walks/creates a child node per character, then marks the final node's end-of-word flag.",
+    "search requires the end-of-word flag to be true at the end of the walk; startsWith only requires the path to exist, regardless of the flag."
+  ],
+  "solution": {
+    "approach": "Build a trie node structure where each node has a `children` map (char -> node) and an `isEnd` flag. insert walks the word character by character, creating child nodes as needed, and sets isEnd on the last node. search walks the same way but returns false early if any character is missing, and requires isEnd on the final node. startsWith is identical to search but doesn't require isEnd. Process the ops array in order, collecting search/startsWith results.",
+    "code": "def run_trie_ops(ops):\n    root = {'children': {}, 'is_end': False}\n\n    def insert(word):\n        node = root\n        for ch in word:\n            if ch not in node['children']:\n                node['children'][ch] = {'children': {}, 'is_end': False}\n            node = node['children'][ch]\n        node['is_end'] = True\n\n    def find_node(s):\n        node = root\n        for ch in s:\n            if ch not in node['children']:\n                return None\n            node = node['children'][ch]\n        return node\n\n    output = []\n    for op, arg in ops:\n        if op == 'insert':\n            insert(arg)\n        elif op == 'search':\n            node = find_node(arg)\n            output.append(node is not None and node['is_end'])\n        elif op == 'startsWith':\n            output.append(find_node(arg) is not None)\n    return output\n",
+    "timeComplexity": "O(total characters across all operations)",
+    "spaceComplexity": "O(total characters inserted)"
+  },
+  "starterCode": "def run_trie_ops(ops):\n    # your code here\n    pass\n",
+  "functionName": "run_trie_ops",
+  "testCases": [
+    {
+      "input": [
+        [
+          [
+            "insert",
+            "apple"
+          ],
+          [
+            "search",
+            "apple"
+          ],
+          [
+            "search",
+            "app"
+          ],
+          [
+            "startsWith",
+            "app"
+          ],
+          [
+            "insert",
+            "app"
+          ],
+          [
+            "search",
+            "app"
+          ]
+        ]
+      ],
+      "expected": [
+        true,
+        false,
+        true,
+        true
+      ],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [
+          [
+            "insert",
+            "a"
+          ],
+          [
+            "search",
+            "a"
+          ],
+          [
+            "startsWith",
+            "a"
+          ],
+          [
+            "startsWith",
+            "b"
+          ]
+        ]
+      ],
+      "expected": [
+        true,
+        true,
+        false
+      ],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [
+          [
+            "search",
+            "x"
+          ]
+        ]
+      ],
+      "expected": [
+        false
+      ],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [
+          [
+            "insert",
+            "cat"
+          ],
+          [
+            "insert",
+            "car"
+          ],
+          [
+            "startsWith",
+            "ca"
+          ],
+          [
+            "search",
+            "ca"
+          ]
+        ]
+      ],
+      "expected": [
+        true,
+        false
+      ],
+      "isHidden": true
+    }
+  ]
+}

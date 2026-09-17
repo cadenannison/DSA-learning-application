@@ -1,0 +1,20 @@
+{
+  "pattern": "tries",
+  "title": "Tries",
+  "summary": "A tree where each path from the root spells out a prefix — built so that words sharing a prefix share the same path and storage.",
+  "explanation": [
+    "A trie (prefix tree) stores a set of strings as a tree where each edge represents one character, and each path from the root represents a prefix built from those characters. Every node holds a map from character to child node, plus a flag marking whether the path from the root to this node is a complete word (not just a prefix of a longer one).",
+    "Inserting a word walks from the root one character at a time, following existing child edges where they exist and creating new nodes where they don't, then marks the final node as end-of-word. Searching for a word or a prefix does the same walk — the only difference is that 'search for a word' also checks the end-of-word flag at the final node, while 'search for a prefix' just checks that the walk didn't fall off the tree.",
+    "The payoff is that words sharing a common prefix (like 'car', 'card', 'care') share the same nodes for that prefix, so checking or inserting any word takes time proportional only to its own length, not to how many other words are stored — O(L) for a word of length L, regardless of dictionary size. This makes tries the standard structure behind autocomplete, spell-checkers, and IP routing tables."
+  ],
+  "whenToUse": [
+    "You need fast prefix queries — 'does any word start with this prefix' — which a hash set of whole words can't answer efficiently.",
+    "You're implementing autocomplete, spell-check, or word search over a fixed dictionary.",
+    "Many words share common prefixes and you want to avoid re-storing or re-scanning that shared prefix repeatedly.",
+    "The problem explicitly involves inserting and searching words or prefixes character by character."
+  ],
+  "timeComplexity": "O(L) for insert/search, where L is the length of the word or prefix",
+  "spaceComplexity": "O(total characters stored across all inserted words)",
+  "demoKind": "tries",
+  "relatedProblemIds": ["implement-trie"]
+}

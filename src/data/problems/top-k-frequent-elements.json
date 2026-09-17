@@ -1,0 +1,126 @@
+{
+  "id": "top-k-frequent-elements",
+  "title": "Top K Frequent Elements",
+  "pattern": "heaps",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Facebook",
+    "Google"
+  ],
+  "prompt": "Given an integer array `nums` and an integer `k`, return the `k` most frequent elements. You may return the answer in any order.",
+  "examples": [
+    {
+      "input": "nums = [1,1,1,2,2,3], k = 2",
+      "output": "[1,2]",
+      "explanation": "1 appears 3 times, 2 appears 2 times, 3 appears once \u2014 the top 2 are 1 and 2."
+    },
+    {
+      "input": "nums = [1], k = 1",
+      "output": "[1]"
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 10^5",
+    "k is in the range [1, number of distinct elements]",
+    "It is guaranteed that the answer is unique"
+  ],
+  "hints": [
+    "First count the frequency of each element using a hash map.",
+    "You don't need a full sort \u2014 bucket sort by frequency works in O(n): create buckets indexed by frequency (0 to n), place each element in the bucket matching its count.",
+    "Walk the buckets from highest frequency down to 1, collecting elements until you have k of them."
+  ],
+  "solution": {
+    "approach": "Count each element's frequency with a hash map. Build buckets indexed by frequency (index = count, value = list of elements with that count) \u2014 frequency can't exceed nums.length, so this is bounded. Walk buckets from the highest index down, collecting elements into the result until k elements are gathered. This achieves O(n) instead of an O(n log n) sort.",
+    "code": "def top_k_frequent(nums, k):\n    counts = {}\n    for n in nums:\n        counts[n] = counts.get(n, 0) + 1\n\n    buckets = [[] for _ in range(len(nums) + 1)]\n    for val, count in counts.items():\n        buckets[count].append(val)\n\n    result = []\n    for count in range(len(buckets) - 1, 0, -1):\n        for val in buckets[count]:\n            result.append(val)\n            if len(result) == k:\n                return result\n    return result\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def top_k_frequent(nums, k):\n    # your code here\n    pass\n",
+  "functionName": "top_k_frequent",
+  "testCases": [
+    {
+      "input": [
+        [
+          1,
+          1,
+          1,
+          2,
+          2,
+          3
+        ],
+        2
+      ],
+      "expected": [
+        1,
+        2
+      ],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [
+          1
+        ],
+        1
+      ],
+      "expected": [
+        1
+      ],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [
+          4,
+          4,
+          4,
+          6,
+          6,
+          7,
+          7,
+          7,
+          7
+        ],
+        1
+      ],
+      "expected": [
+        7
+      ],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [
+          1,
+          2,
+          3,
+          4
+        ],
+        4
+      ],
+      "expected": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [
+          5,
+          5,
+          5,
+          5
+        ],
+        1
+      ],
+      "expected": [
+        5
+      ],
+      "isHidden": true
+    }
+  ]
+}

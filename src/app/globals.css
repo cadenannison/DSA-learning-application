@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #0b0d10;
+  --surface: #14171c;
+  --surface-2: #1b1f26;
+  --surface-3: #21262e;
+  --border: #262b33;
+  --border-soft: #1d222a;
+  --text-1: #f2f4f7;
+  --text-2: #9aa4b2;
+  --text-3: #5b6472;
+  --accent: #4c8cff;
+  --accent-soft: rgba(76, 140, 255, 0.14);
+  --success: #34d399;
+  --success-soft: rgba(52, 211, 153, 0.14);
+  --warning: #f5a623;
+  --warning-soft: rgba(245, 166, 35, 0.14);
+  --danger: #f0576b;
+  --danger-soft: rgba(240, 87, 107, 0.14);
+
+  /* legacy aliases kept during migration; remove once all components read --bg/--text-1 directly */
+  --background: var(--bg);
+  --foreground: var(--text-1);
+  --muted: var(--text-2);
+}
+
+:root[data-theme="light"] {
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --surface-2: #f0f2f5;
+  --surface-3: #e7eaef;
+  --border: #e2e5ea;
+  --border-soft: #ebedf0;
+  --text-1: #14171c;
+  --text-2: #565f6b;
+  --text-3: #8b93a0;
+  --accent: #2f6fe0;
+  --accent-soft: rgba(47, 111, 224, 0.1);
+  --success: #1f9d6c;
+  --success-soft: rgba(31, 157, 108, 0.1);
+  --warning: #b9740a;
+  --warning-soft: rgba(185, 116, 10, 0.1);
+  --danger: #d43a52;
+  --danger-soft: rgba(212, 58, 82, 0.1);
+
+  --background: var(--bg);
+  --foreground: var(--text-1);
+  --muted: var(--text-2);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-border: var(--border);
+  --color-border-soft: var(--border-soft);
+  --color-text-1: var(--text-1);
+  --color-text-2: var(--text-2);
+  --color-text-3: var(--text-3);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+
+  /* legacy aliases */
+  --color-background: var(--bg);
+  --color-foreground: var(--text-1);
+  --color-muted: var(--text-2);
+
+  --font-sans: var(--font-plex-sans);
+  --font-mono: var(--font-plex-mono);
+  --font-display: var(--font-sora);
+
+  --radius-card: 14px;
+  --radius-control: 9px;
+  --radius-chip: 6px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-1);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  font-size: 14px;
+}

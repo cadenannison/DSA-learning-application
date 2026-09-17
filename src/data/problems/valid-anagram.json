@@ -1,0 +1,81 @@
+{
+  "id": "valid-anagram",
+  "title": "Valid Anagram",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Bloomberg",
+    "Uber"
+  ],
+  "prompt": "Given two strings `s` and `t`, return `true` if `t` is an anagram of `s`, and `false` otherwise. An anagram uses exactly the same letters with exactly the same frequency, just rearranged.",
+  "examples": [
+    {
+      "input": "s = \"anagram\", t = \"nagaram\"",
+      "output": "true"
+    },
+    {
+      "input": "s = \"rat\", t = \"car\"",
+      "output": "false"
+    }
+  ],
+  "constraints": [
+    "1 <= s.length, t.length <= 5 * 10^4",
+    "s and t consist of lowercase English letters"
+  ],
+  "hints": [
+    "If the lengths differ, they can't be anagrams \u2014 check that first as a cheap early exit.",
+    "Counting each character's frequency in both strings and comparing the counts works without sorting.",
+    "A single array of 26 counters (or a hash map) can be incremented for `s` and decremented for `t` in one pass; if everything nets to zero, it's an anagram."
+  ],
+  "solution": {
+    "approach": "Compare lengths first as a fast rejection. Then use one frequency map: increment counts for each character in `s`, decrement for each character in `t`. If any count is non-zero at the end, the strings aren't anagrams.",
+    "code": "def is_anagram(s, t):\n    if len(s) != len(t):\n        return False\n    counts = {}\n    for ch in s:\n        counts[ch] = counts.get(ch, 0) + 1\n    for ch in t:\n        next_count = counts.get(ch, 0) - 1\n        if next_count < 0:\n            return False\n        counts[ch] = next_count\n    return True\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1) \u2014 at most 26 distinct lowercase letters"
+  },
+  "starterCode": "def is_anagram(s, t):\n    # your code here\n    pass\n",
+  "functionName": "is_anagram",
+  "testCases": [
+    {
+      "input": [
+        "anagram",
+        "nagaram"
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        "rat",
+        "car"
+      ],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [
+        "a",
+        "a"
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        "ab",
+        "a"
+      ],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": [
+        "aabbcc",
+        "abcabc"
+      ],
+      "expected": true,
+      "isHidden": true
+    }
+  ]
+}

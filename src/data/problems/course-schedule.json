@@ -1,0 +1,129 @@
+{
+  "id": "course-schedule",
+  "title": "Course Schedule",
+  "pattern": "graphs",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Facebook",
+    "Amazon",
+    "ByteDance"
+  ],
+  "prompt": "There are `numCourses` courses labeled `0` to `numCourses - 1`. You are given an array `prerequisites` where `prerequisites[i] = [a, b]` means you must take course `b` before course `a`. Return `true` if you can finish all courses, or `false` if there is a cycle making it impossible.",
+  "examples": [
+    {
+      "input": "numCourses = 2, prerequisites = [[1,0]]",
+      "output": "true",
+      "explanation": "Take course 0, then course 1."
+    },
+    {
+      "input": "numCourses = 2, prerequisites = [[1,0],[0,1]]",
+      "output": "false",
+      "explanation": "0 depends on 1 and 1 depends on 0 \u2014 a cycle, so neither can ever be taken first."
+    }
+  ],
+  "constraints": [
+    "1 <= numCourses <= 2000",
+    "0 <= prerequisites.length <= 5000",
+    "prerequisites[i].length == 2"
+  ],
+  "hints": [
+    "This is cycle detection in a directed graph \u2014 build an adjacency list from the prerequisite pairs.",
+    "Use DFS with three states per node: unvisited, in the current recursion stack ('visiting'), and fully processed ('visited'). If you reach a node that's already 'visiting', you've found a cycle.",
+    "Alternatively, use Kahn's algorithm (BFS with in-degree counts): repeatedly remove nodes with in-degree 0. If you can't remove all nodes, there's a cycle."
+  ],
+  "solution": {
+    "approach": "Build an adjacency list mapping each course to the courses that depend on it. Run DFS from every course, tracking each node's state as unvisited, visiting (on the current DFS stack), or visited (fully explored). If DFS reaches a node marked 'visiting', a cycle exists and the schedule is impossible. If DFS completes for all nodes without hitting a 'visiting' node, all courses can be finished.",
+    "code": "def can_finish(num_courses, prerequisites):\n    graph = [[] for _ in range(num_courses)]\n    for course, prereq in prerequisites:\n        graph[prereq].append(course)\n\n    UNVISITED, VISITING, VISITED = 0, 1, 2\n    state = [UNVISITED] * num_courses\n\n    def has_cycle(node):\n        if state[node] == VISITING:\n            return True\n        if state[node] == VISITED:\n            return False\n\n        state[node] = VISITING\n        for nxt in graph[node]:\n            if has_cycle(nxt):\n                return True\n        state[node] = VISITED\n        return False\n\n    for course in range(num_courses):\n        if has_cycle(course):\n            return False\n    return True\n",
+    "timeComplexity": "O(V + E)",
+    "spaceComplexity": "O(V + E)"
+  },
+  "starterCode": "def can_finish(num_courses, prerequisites):\n    # your code here\n    pass\n",
+  "functionName": "can_finish",
+  "testCases": [
+    {
+      "input": [
+        2,
+        [
+          [
+            1,
+            0
+          ]
+        ]
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        2,
+        [
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      ],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [
+        1,
+        []
+      ],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [
+        4,
+        [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            1
+          ],
+          [
+            3,
+            2
+          ]
+        ]
+      ],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [
+        3,
+        [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            0
+          ]
+        ]
+      ],
+      "expected": false,
+      "isHidden": true
+    }
+  ]
+}
