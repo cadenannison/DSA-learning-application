@@ -19,6 +19,10 @@ import type {
   ProblemProgress,
   ProblemSummary,
   ProfileStatsOverview,
+  ReadinessChecklistOverview,
+  ReadinessTriState,
+  RoadmapOverview,
+  Skill,
   StrippedProblem,
   StudyPattern,
   StudyPatternStage,
@@ -428,5 +432,42 @@ export const apiClient = {
       body: JSON.stringify({ minutesSpent }),
     })
     await handle<{ ok: boolean }>(response)
+  },
+
+  async getRoadmap(planId: string): Promise<RoadmapOverview> {
+    const response = await fetch(`/api/study-plan/${planId}/roadmap`)
+    return handle<RoadmapOverview>(response)
+  },
+
+  async getSkills(planId: string): Promise<Skill[]> {
+    const response = await fetch(`/api/study-plan/${planId}/skills`)
+    return handle<Skill[]>(response)
+  },
+
+  async updateSkill(planId: string, skillId: string, done: boolean): Promise<Skill> {
+    const response = await fetch(`/api/study-plan/${planId}/skills/${skillId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ done }),
+    })
+    return handle<Skill>(response)
+  },
+
+  async getReadinessChecklist(planId: string): Promise<ReadinessChecklistOverview> {
+    const response = await fetch(`/api/study-plan/${planId}/readiness`)
+    return handle<ReadinessChecklistOverview>(response)
+  },
+
+  async updateReadinessChecklistItem(
+    planId: string,
+    itemId: string,
+    update: { checked?: boolean; triState?: ReadinessTriState; note?: string }
+  ): Promise<ReadinessChecklistOverview> {
+    const response = await fetch(`/api/study-plan/${planId}/readiness/${itemId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(update),
+    })
+    return handle<ReadinessChecklistOverview>(response)
   },
 }

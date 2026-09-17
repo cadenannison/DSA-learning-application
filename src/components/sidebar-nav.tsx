@@ -50,6 +50,21 @@ const StudyPlanIcon = () => (
   </svg>
 )
 
+const LearnIcon = () => (
+  <svg {...iconProps()}>
+    <path d="M12 4 3 8.5 12 13l9-4.5L12 4Z" />
+    <path d="M6.5 10.8V16c0 1.4 2.5 3 5.5 3s5.5-1.6 5.5-3v-5.2" />
+  </svg>
+)
+
+const StructuresIcon = () => (
+  <svg {...iconProps()}>
+    <rect x="4" y="4" width="16" height="4" rx="1" />
+    <rect x="4" y="10" width="16" height="4" rx="1" />
+    <rect x="4" y="16" width="16" height="4" rx="1" />
+  </svg>
+)
+
 const WorkbookIcon = () => (
   <svg {...iconProps()}>
     <path d="m9 18-6-6 6-6" />
@@ -82,6 +97,8 @@ const ProfileIcon = () => (
 const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: <DashboardIcon /> },
   { href: "/", label: "Library", icon: <LibraryIcon /> },
+  { href: "/patterns", label: "Learn", icon: <LearnIcon /> },
+  { href: "/structures", label: "Structures", icon: <StructuresIcon /> },
   { href: "/study-plan", label: "Study Plan", icon: <StudyPlanIcon /> },
   { href: "/blind", label: "Workbook", icon: <WorkbookIcon /> },
   { href: "/oa", label: "Mock Interviews", icon: <MockInterviewsIcon /> },

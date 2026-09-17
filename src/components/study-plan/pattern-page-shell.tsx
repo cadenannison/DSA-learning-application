@@ -40,17 +40,28 @@ const TIER_LABELS: Record<string, string> = {
 
 export type PatternSection = "lesson" | "worked-example" | "practice" | "bug-tracing" | "concept"
 
+/** Patterns whose "lesson" tab renders Pattern Lab (Learn/Recognize It/Practice all in one)
+ * instead of the markdown lesson section — see pattern-section-content.tsx's PATTERN_LAB_IDS.
+ * For these, Worked Example is folded into the single Pattern Lab tab rather than split out. */
+const PATTERN_LAB_PATTERN_IDS = new Set(["dynamic-programming", "graphs"])
+
 export function bugTracingUnlocked(pattern: StudyPatternWithReadiness): boolean {
   return STAGE_ORDER.indexOf(pattern.stage) >= STAGE_ORDER.indexOf("mediums_done")
 }
 
 /** Sections available for a given pattern, in tab display order. Patterns without an extended
  * lesson collapse to Concept + Practice Problems; Bug Tracing is hidden entirely until the
- * pattern reaches mediums_done, per the same gating the old inline card used. */
+ * pattern reaches mediums_done, per the same gating the old inline card used. Patterns with a
+ * Pattern Lab experience collapse Lesson + Worked Example into a single Lesson tab, since
+ * Pattern Lab's own Learn/Recognize It/Practice tabs already cover both. */
 export function availableSections(pattern: StudyPatternWithReadiness): PatternSection[] {
-  const sections: PatternSection[] = pattern.hasExtendedLesson
+  let sections: PatternSection[] = pattern.hasExtendedLesson
     ? ["lesson", "worked-example", "practice"]
     : ["concept", "practice"]
+
+  if (PATTERN_LAB_PATTERN_IDS.has(pattern.id)) {
+    sections = sections.filter((section) => section !== "worked-example")
+  }
 
   if (pattern.hasExtendedLesson && pattern.bugTracingExercise && bugTracingUnlocked(pattern)) {
     sections.push("bug-tracing")
@@ -60,7 +71,7 @@ export function availableSections(pattern: StudyPatternWithReadiness): PatternSe
 }
 
 const SECTION_LABELS: Record<PatternSection, string> = {
-  lesson: "Concept",
+  lesson: "Lesson",
   "worked-example": "Worked Example",
   practice: "Practice Problems",
   "bug-tracing": "Bug Tracing",

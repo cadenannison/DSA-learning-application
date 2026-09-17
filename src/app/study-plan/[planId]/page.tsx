@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/ui/page-header"
 import { StatCard } from "@/components/ui/stat-card"
 import { StatusPill, type StatusTone } from "@/components/ui/status-pill"
 import { RowListItem } from "@/components/ui/row-list-item"
+import { PlanNav } from "@/components/study-plan/plan-nav"
 import { StudyPlanPresenter } from "@/presenter/study-plan-presenter"
 import type {
   DrillQueueEntry,
@@ -143,33 +144,6 @@ function TodayContent({
         dailyTimeBudgetMinutes={overview.settings.dailyTimeBudgetMinutes}
       />
     </PageShell>
-  )
-}
-
-function PlanNav({ planId, active }: { planId: string; active: "today" | "board" }) {
-  return (
-    <div className="mb-6 flex gap-6 border-b border-border" role="tablist">
-      <Link
-        href={`/study-plan/${planId}`}
-        role="tab"
-        aria-selected={active === "today"}
-        className={`min-h-[44px] border-b-2 px-1 text-sm font-medium transition-colors ${
-          active === "today" ? "border-accent text-text-1" : "border-transparent text-text-2 hover:text-text-1"
-        }`}
-      >
-        Today
-      </Link>
-      <Link
-        href={`/study-plan/${planId}/board`}
-        role="tab"
-        aria-selected={active === "board"}
-        className={`min-h-[44px] border-b-2 px-1 text-sm font-medium transition-colors ${
-          active === "board" ? "border-accent text-text-1" : "border-transparent text-text-2 hover:text-text-1"
-        }`}
-      >
-        Full Plan
-      </Link>
-    </div>
   )
 }
 

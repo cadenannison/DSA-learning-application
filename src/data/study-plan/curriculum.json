@@ -282,6 +282,13 @@
           "role": "medium_variant",
           "externalUrl": "https://leetcode.com/problems/shortest-bridge/"
         }
+      ],
+      "resources": [
+        {
+          "title": "VisuAlgo — Graph Traversal (BFS/DFS)",
+          "url": "https://visualgo.net/en/dfsbfs",
+          "type": "visualization"
+        }
       ]
     },
     {
@@ -592,6 +599,13 @@
           "difficulty": "medium",
           "role": "medium_variant",
           "externalUrl": "https://leetcode.com/problems/making-a-large-island/"
+        }
+      ],
+      "resources": [
+        {
+          "title": "VisuAlgo — Union-Find (Disjoint Set)",
+          "url": "https://visualgo.net/en/ufds",
+          "type": "visualization"
         }
       ]
     },
@@ -1495,6 +1509,92 @@
           "externalUrl": "https://leetcode.com/problems/3sum-closest/"
         }
       ]
+    }
+  ],
+  "skills": [
+    {
+      "id": "bfs-from-scratch",
+      "name": "Implement BFS from scratch with no reference",
+      "description": "Implement BFS from scratch with no reference",
+      "patternIds": ["graphs"]
+    },
+    {
+      "id": "dfs-from-scratch",
+      "name": "Implement DFS from scratch with no reference",
+      "description": "Implement DFS from scratch with no reference",
+      "patternIds": ["graphs"]
+    },
+    {
+      "id": "bfs-dfs-complexity",
+      "name": "State and explain the time/space complexity of BFS and DFS (O(V+E)) without hesitating",
+      "description": "State and explain the time/space complexity of BFS and DFS (O(V+E)) without hesitating",
+      "patternIds": ["graphs"]
+    },
+    {
+      "id": "dijkstra-from-scratch",
+      "name": "Implement Dijkstra's algorithm from scratch",
+      "description": "Implement Dijkstra's algorithm from scratch",
+      "patternIds": ["graphs"]
+    },
+    {
+      "id": "union-find-from-scratch",
+      "name": "Implement Union-Find with path compression and union by rank from scratch",
+      "description": "Implement Union-Find with path compression and union by rank from scratch",
+      "patternIds": ["union-find"]
+    },
+    {
+      "id": "union-find-complexity",
+      "name": "Explain why Union-Find is near-O(1) amortized",
+      "description": "Explain why Union-Find is near-O(1) amortized",
+      "patternIds": ["union-find"]
+    },
+    {
+      "id": "bigo-lists",
+      "name": "State Big-O of common list operations without looking it up",
+      "description": "State Big-O of common list operations (append vs. insert-at-index) without looking it up",
+      "patternIds": []
+    },
+    {
+      "id": "bigo-hash-tables",
+      "name": "State Big-O of common hash table operations",
+      "description": "State Big-O of common operations on hash tables",
+      "patternIds": ["hash-tables"]
+    },
+    {
+      "id": "bigo-heaps",
+      "name": "State Big-O of common heap operations",
+      "description": "State Big-O of common operations on heaps",
+      "patternIds": ["heaps"]
+    },
+    {
+      "id": "bigo-stacks",
+      "name": "State Big-O of common stack operations",
+      "description": "State Big-O of common operations on stacks",
+      "patternIds": ["stacks"]
+    },
+    {
+      "id": "bigo-trees",
+      "name": "State Big-O of common tree operations",
+      "description": "State Big-O of common operations on trees",
+      "patternIds": ["trees"]
+    },
+    {
+      "id": "dp-state-transition-narration",
+      "name": "Define DP state and transition out loud before coding",
+      "description": "Solve a DP problem by first defining state and transition out loud, before coding",
+      "patternIds": ["dynamic-programming"]
+    },
+    {
+      "id": "default-brute-force-first",
+      "name": "Default to brute-force-first, narrating iteration out loud",
+      "description": "Default to brute-force-first and narrate iteration out loud, rather than silently jumping to optimal",
+      "patternIds": []
+    },
+    {
+      "id": "oa-builtin-only-solve",
+      "name": "Solve an ad-hoc array/string problem with built-ins only",
+      "description": "Solve an ad-hoc array/string problem using only built-in language features (no external libraries)",
+      "patternIds": ["oa-sorting", "oa-binary-search", "oa-linear-search", "oa-hash-map"]
     }
   ]
 }

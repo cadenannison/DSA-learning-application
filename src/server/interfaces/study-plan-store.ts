@@ -1,5 +1,7 @@
 import type {
   MockInterviewResult,
+  PatternResource,
+  Skill,
   StudyPattern,
   StudyPatternStage,
   StudyPlan,
@@ -31,11 +33,24 @@ export interface StudyPatternSeed {
   /** Present only for patterns curriculum data ships extended content for. */
   lesson?: StudyPattern["lesson"]
   bugTracingExercise?: StudyPattern["bugTracingExercise"]
+  /** Curated external explainers (2-4). Omitted/empty = not seeded yet — surfaced as a visible
+   * gap in the UI rather than hidden. */
+  resources?: PatternResource[]
+}
+
+/** A single seed skill, as read from the curriculum JSON file. Distinct from the domain `Skill`
+ * because seed data has no per-plan done/lastVerifiedAt state yet. */
+export interface SkillSeed {
+  id: string
+  name: string
+  description: string
+  patternIds: string[]
 }
 
 export interface StudyCurriculumSeed {
   tracks: StudyTrack[]
   patterns: StudyPatternSeed[]
+  skills: SkillSeed[]
   globalCoachingNotes: string[]
   referenceLinks: { label: string; url: string }[]
 }
@@ -110,5 +125,25 @@ export interface StudyPlanStore {
       passed: boolean | null
       source: string
     }
+  ): Promise<void>
+
+  /** Finds every (plan, study problem) pair whose study_problem_extensions row points at this
+   * main-library Problem id — the cross-app progress hook's lookup: when that Problem is solved
+   * anywhere (Practice/Blind/OA), every matching StudyProblem across every plan should be
+   * marked completed. Empty for problems with no study-plan linkage (the common case). */
+  listStudyProblemsByLinkedProblemId(
+    problemId: string
+  ): Promise<{ planId: string; studyProblemId: string; studyPatternId: string }[]>
+
+  listSkills(planId: string): Promise<Skill[]>
+  updateSkill(planId: string, skillId: string, update: { done: boolean }): Promise<Skill | null>
+
+  getReadinessChecklistState(
+    planId: string
+  ): Promise<{ itemId: string; checked: boolean; triState: string | null; note: string }[]>
+  updateReadinessChecklistItem(
+    planId: string,
+    itemId: string,
+    update: { checked?: boolean; triState?: string; note?: string }
   ): Promise<void>
 }

@@ -13,6 +13,23 @@ export function estimateProblemMinutes(difficulty: Difficulty): number {
   return ESTIMATED_MINUTES_BY_DIFFICULTY[difficulty]
 }
 
+/** Flat estimate for how long working through a pattern's extended lesson takes, added once
+ * (only while the lesson hasn't been started yet) on top of its remaining problem time — used
+ * by the Roadmap view's time-cost projection, never stored. */
+const LESSON_LENGTH_MINUTES = 45
+
+/** Rough hours-of-work-left estimate for a pattern, used by the Roadmap view to project pace.
+ * Not a measured average — sums remaining (incomplete) problems' estimateProblemMinutes plus a
+ * flat lesson-length estimate if the pattern has an extended lesson not yet started. */
+export function estimatePatternRemainingMinutes(pattern: StudyPattern): number {
+  const problemMinutes = pattern.problems
+    .filter((problem) => !problem.completed)
+    .reduce((sum, problem) => sum + problem.estimatedMinutes, 0)
+  const lessonMinutes =
+    pattern.hasExtendedLesson && pattern.stage === "not_started" ? LESSON_LENGTH_MINUTES : 0
+  return problemMinutes + lessonMinutes
+}
+
 export type DsaPattern =
   | "arrays-two-pointers"
   | "sliding-window"
@@ -360,6 +377,29 @@ export interface BugTracingExercise {
   solutionWalkthroughMarkdown: string
 }
 
+/** A discrete, testable competency — distinct from "did I solve N problems." Self-assessed
+ * done/not-done, optionally tied to one or more patterns (empty patternIds = global, e.g.
+ * general interview-communication skills not scoped to one topic). Shared curriculum data
+ * (seeded once, like StudyPattern), with per-plan done/lastVerifiedAt state layered on top. */
+export interface Skill {
+  id: string
+  name: string
+  description: string
+  patternIds: string[]
+  done: boolean
+  lastVerifiedAt: string | null
+}
+
+export type ResourceType = "video" | "article" | "visualization"
+
+/** A curated external explainer for a pattern (NeetCode video, visualgo.net visualization,
+ * etc.) — a short, trusted list (2-4), not a link dump. Shared curriculum data. */
+export interface PatternResource {
+  title: string
+  url: string
+  type: ResourceType
+}
+
 export interface StudyPattern {
   id: string
   trackId: StudyTrackId
@@ -385,6 +425,13 @@ export interface StudyPattern {
   /** Populated only where curriculum data supplies it. Surfaced automatically once stage
    * reaches "mediums_done" (the stage right before bug_tracing_done). */
   bugTracingExercise: BugTracingExercise | null
+  /** Skills whose patternIds include this pattern's id, with this plan's done/lastVerifiedAt
+   * state attached. Mastering these is visibly part of "finishing" the pattern, alongside
+   * problems — not a separate afterthought. */
+  skills: Skill[]
+  /** Curated external explainers for this pattern. Empty until seeded — absence is meant to be
+   * visible in the UI (flags which patterns still need resources added) rather than hidden. */
+  resources: PatternResource[]
 }
 
 /** SM-2-lite scheduling state, one per (user, pattern). Advanced on every "review event" —
@@ -478,4 +525,69 @@ export interface StudyPlanOverview {
     readyOrBetter: number
     averageStageIndex: number
   }[]
+}
+
+/** One pattern's line in the Roadmap view — priority order plus a rough time-cost estimate.
+ * estimatedHoursRemaining excludes already-completed work, so the roadmap reflects what's left
+ * to do, not the pattern's total size. */
+export interface RoadmapPatternEntry {
+  studyPatternId: string
+  studyPatternName: string
+  trackId: StudyTrackId
+  priorityRank: number
+  stage: StudyPatternStage
+  readiness: StudyReadiness
+  estimatedHoursRemaining: number
+  /** The next incomplete pattern in this track, by priorityRank — same pick computeRecommendation
+   * makes for Technical Interview Prep. */
+  isCurrent: boolean
+  /** The 2-3 incomplete patterns immediately after the current one, in priorityRank order. */
+  isUpNext: boolean
+}
+
+export interface RoadmapOverview {
+  interviewDate: string | null
+  daysRemaining: number | null
+  dailyTimeBudgetMinutes: number
+  /** Sum of estimatedHoursRemaining across every incomplete pattern in both tracks, divided by
+   * dailyTimeBudgetMinutes/60 — "at this daily pace, how many days of work are left." */
+  daysNeededAtCurrentPace: number
+  /** daysNeededAtCurrentPace - daysRemaining. Negative means ahead of pace, positive means
+   * behind. Null when no interview date is set (there's nothing to compare against). */
+  paceDeltaDays: number | null
+  tracks: {
+    trackId: StudyTrackId
+    entries: RoadmapPatternEntry[]
+  }[]
+}
+
+/** Where a Readiness Checklist item's checked state comes from: "manual" is a plain per-plan
+ * toggle with no underlying signal (e.g. "reviewed Google's tips page"); "derived" is always
+ * recomputed fresh from Skills/mock-interview data and can't be directly edited; "tri_state" is
+ * the one special-cased item that isn't a boolean at all (see ReadinessTriState). */
+export type ReadinessSource = "manual" | "derived" | "tri_state"
+
+/** "not_applicable" (default, nothing to review yet) / "needs_review" (received, not yet
+ * checked against) / "confirmed" (reviewed, no gaps found) — for the one checklist item that
+ * depends on something that may not have happened yet (Google's post-OA topic list). */
+export type ReadinessTriState = "not_applicable" | "needs_review" | "confirmed"
+
+export interface ReadinessChecklistItem {
+  id: string
+  section: "oa" | "technical"
+  label: string
+  source: ReadinessSource
+  /** For the one tri_state item, this mirrors triState === "confirmed" so generic
+   * completion-fraction math still works uniformly across all items. */
+  checked: boolean
+  /** Non-null only for the one tri_state item; null for every manual/derived item. */
+  triState: ReadinessTriState | null
+  note: string | null
+}
+
+export interface ReadinessChecklistOverview {
+  oaItems: ReadinessChecklistItem[]
+  technicalItems: ReadinessChecklistItem[]
+  oaCompletionFraction: number
+  technicalCompletionFraction: number
 }
