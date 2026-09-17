@@ -3,10 +3,16 @@ import type {
   attemptRecordSchema,
   blindTestSetSchema,
   blindTestSetSummarySchema,
+  bugTracingExerciseSchema,
   difficultySchema,
+  drillQueueEntrySchema,
   dsaPatternSchema,
   executionResultSchema,
+  extendedLessonSchema,
   lessonDemoKindSchema,
+  logProblemSessionRequestSchema,
+  loginRequestSchema,
+  mockInterviewResultSchema,
   oaProblemStatusSchema,
   oaSessionConfigSchema,
   oaSessionProblemStateSchema,
@@ -20,8 +26,26 @@ import type {
   problemSchema,
   problemSummarySchema,
   progressStatusSchema,
+  registerRequestSchema,
+  spacedRepetitionStateSchema,
   strippedProblemSchema,
+  studyPatternComplexityTierSchema,
+  studyPatternSchema,
+  studyPatternStageSchema,
+  studyPatternWithReadinessSchema,
+  studyPlanOverviewSchema,
+  studyPlanSettingsSchema,
+  studyProblemRoleSchema,
+  studyProblemSchema,
+  studyReadinessSchema,
+  studyRecommendationSchema,
+  studySessionSchema,
+  studyTrackIdSchema,
+  studyTrackSchema,
+  submitStudyProblemRequestSchema,
+  submitStudyProblemResponseSchema,
   themePreferenceSchema,
+  userSchema,
 } from "@/server/models/schemas"
 
 export type Difficulty = z.infer<typeof difficultySchema>
@@ -63,3 +87,29 @@ export interface BlindTestSetFilter {
 export type LessonDemoKind = z.infer<typeof lessonDemoKindSchema>
 export type PatternLesson = z.infer<typeof patternLessonSchema>
 export type PatternLessonSummary = z.infer<typeof patternLessonSummarySchema>
+
+export type User = z.infer<typeof userSchema>
+export type RegisterRequest = z.infer<typeof registerRequestSchema>
+export type LoginRequest = z.infer<typeof loginRequestSchema>
+
+export type StudyTrackId = z.infer<typeof studyTrackIdSchema>
+export type StudyTrack = z.infer<typeof studyTrackSchema>
+export type StudyPatternComplexityTier = z.infer<typeof studyPatternComplexityTierSchema>
+export type StudyPatternStage = z.infer<typeof studyPatternStageSchema>
+export type StudyProblemRole = z.infer<typeof studyProblemRoleSchema>
+export type StudyReadiness = z.infer<typeof studyReadinessSchema>
+export type StudyProblem = z.infer<typeof studyProblemSchema>
+export type SpacedRepetitionState = z.infer<typeof spacedRepetitionStateSchema>
+export type StudyPattern = z.infer<typeof studyPatternSchema>
+export type StudyPatternWithReadiness = z.infer<typeof studyPatternWithReadinessSchema>
+export type StudySession = z.infer<typeof studySessionSchema>
+export type MockInterviewResult = z.infer<typeof mockInterviewResultSchema>
+export type StudyPlanSettings = z.infer<typeof studyPlanSettingsSchema>
+export type StudyRecommendation = z.infer<typeof studyRecommendationSchema>
+export type DrillQueueEntry = z.infer<typeof drillQueueEntrySchema>
+export type StudyPlanOverview = z.infer<typeof studyPlanOverviewSchema>
+export type ExtendedLesson = z.infer<typeof extendedLessonSchema>
+export type BugTracingExercise = z.infer<typeof bugTracingExerciseSchema>
+export type SubmitStudyProblemRequest = z.infer<typeof submitStudyProblemRequestSchema>
+export type SubmitStudyProblemResponse = z.infer<typeof submitStudyProblemResponseSchema>
+export type LogProblemSessionRequest = z.infer<typeof logProblemSessionRequestSchema>

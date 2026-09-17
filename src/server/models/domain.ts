@@ -197,3 +197,187 @@ export interface PatternLessonSummary {
   hasInteractiveDemo: boolean
   relatedProblemCount: number
 }
+
+// --- Auth ---
+
+export interface User {
+  id: string
+  username: string
+  createdAt: string
+}
+
+// --- Study Plan ---
+
+export type StudyTrackId = "oa-prep" | "technical-interview-prep"
+
+export type StudyPatternComplexityTier = "core" | "important" | "complexity-ceiling" | "stretch"
+
+export type StudyPatternStage =
+  | "not_started"
+  | "concept"
+  | "easy_done"
+  | "mediums_done"
+  | "bug_tracing_done"
+
+export const STUDY_PATTERN_STAGE_ORDER: StudyPatternStage[] = [
+  "not_started",
+  "concept",
+  "easy_done",
+  "mediums_done",
+  "bug_tracing_done",
+]
+
+export interface StudyTrack {
+  id: StudyTrackId
+  name: string
+  description: string
+  coachingNote: string | null
+}
+
+export type StudyProblemRole = "canonical_easy" | "medium_variant"
+
+export interface StudyProblem {
+  id: string
+  studyPatternId: string
+  name: string
+  difficulty: Difficulty
+  role: StudyProblemRole
+  externalUrl: string | null
+  completed: boolean
+  timeTakenMinutes: number | null
+  constraintAddedMidSolve: boolean | null
+  /** Main-library Problem.id this study-plan row is backed by, or null if not authored yet.
+   * Drives whether the workbook renders an embedded, runnable editor (fetching the Problem by
+   * this id) vs. an external-link "not embedded yet" notice. */
+  linkedProblemId: string | null
+}
+
+/** Rich per-pattern lesson content, authored only for patterns where hasExtendedLesson is
+ * true. Markdown strings render as rich text on the client. Distinct from PatternLesson (the
+ * separate DsaPattern-keyed lesson-library feature) — this is study-plan-specific and keyed
+ * by StudyPattern.id. */
+export interface ExtendedLesson {
+  coreIdeaMarkdown: string
+  workedExampleMarkdown: string
+  variationsMarkdown: string
+  signalPhrases: string[]
+  commonMistakesMarkdown: string
+  complexityMarkdown: string
+}
+
+export interface BugTracingExercise {
+  prompt: string
+  solutionWalkthroughMarkdown: string
+}
+
+export interface StudyPattern {
+  id: string
+  trackId: StudyTrackId
+  name: string
+  priorityRank: number
+  /** Independent of priorityRank: how likely this pattern is to actually appear in the
+   * interview (0-1), vs. priorityRank which is "what order to learn things in." Graphs is
+   * seeded at 0.95 per direct report; most others are inferred, lower-confidence estimates. */
+  likelihoodWeight: number
+  conceptNotes: string
+  complexityTier: StudyPatternComplexityTier
+  stage: StudyPatternStage
+  confidence: number | null
+  notes: string
+  problems: StudyProblem[]
+  spacedRepetition: SpacedRepetitionState
+  /** Derived server-side from priorityRank/trackId (see StudyPlanService), not stored. True
+   * for the highest-priority patterns in Technical Interview Prep, which get the full
+   * lesson -> worked example -> practice workbook treatment instead of the lightweight format. */
+  hasExtendedLesson: boolean
+  /** Present only when hasExtendedLesson; null otherwise. */
+  lesson: ExtendedLesson | null
+  /** Populated only where curriculum data supplies it. Surfaced automatically once stage
+   * reaches "mediums_done" (the stage right before bug_tracing_done). */
+  bugTracingExercise: BugTracingExercise | null
+}
+
+/** SM-2-lite scheduling state, one per (user, pattern). Advanced on every "review event" —
+ * a stage change, a confidence rating, or a mock interview result touching this pattern —
+ * never on a bare page view. `dueAt` is what the drill queue sorts by. */
+export interface SpacedRepetitionState {
+  easeFactor: number
+  intervalDays: number
+  dueAt: string | null
+  lastReviewedAt: string | null
+  reviewCount: number
+}
+
+export interface StudySession {
+  id: string
+  date: string
+  minutesSpent: number
+  studyPatternIds: string[]
+  stickingPoint: string
+  planForNextSession: string
+}
+
+export interface MockInterviewResult {
+  id: string
+  date: string
+  studyProblemId: string | null
+  studyPatternId: string | null
+  problemName: string
+  timeTakenMinutes: number
+  solvedCleanly: boolean
+  constraintAddedMidSolve: boolean
+  notes: string
+}
+
+/** Combines stage completion + self-rated confidence into one signal, rather than a bare
+ * checkbox — a pattern can be "mediums_done" but low-confidence, which should still surface
+ * as needing more work. */
+export type StudyReadiness = "not_started" | "needs_work" | "developing" | "ready"
+
+export interface StudyPatternWithReadiness extends StudyPattern {
+  readiness: StudyReadiness
+}
+
+export interface StudyPlanSettings {
+  interviewDate: string | null
+  dailyTimeBudgetMinutes: number
+}
+
+export interface StudyRecommendation {
+  studyPatternId: string | null
+  studyPatternName: string | null
+  trackId: StudyTrackId | null
+  nextStage: StudyPatternStage | null
+  reason: string
+  daysRemaining: number | null
+  suggestedMinutesToday: number
+  oaPrepSuggestion: string | null
+}
+
+/** One entry in the "workthrough book" drill queue — the ordered, adaptive sequence the
+ * Study Plan surfaces to work through today. Distinct from StudyRecommendation (a single
+ * top pick with a human-readable reason): this is the full ranked queue driving the drill UI. */
+export interface DrillQueueEntry {
+  studyPatternId: string
+  studyPatternName: string
+  trackId: StudyTrackId
+  reason: "overdue_review" | "never_reviewed" | "high_likelihood_low_confidence" | "scheduled"
+  priorityScore: number
+  likelihoodWeight: number
+  readiness: StudyReadiness
+  dueAt: string | null
+}
+
+export interface StudyPlanOverview {
+  settings: StudyPlanSettings
+  tracks: StudyTrack[]
+  patterns: StudyPatternWithReadiness[]
+  recommendation: StudyRecommendation
+  drillQueue: DrillQueueEntry[]
+  overallProgress: {
+    trackId: StudyTrackId
+    totalPatterns: number
+    readyOrBetter: number
+    averageStageIndex: number
+  }[]
+}

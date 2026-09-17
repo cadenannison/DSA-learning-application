@@ -7,6 +7,7 @@ import type {
   Difficulty,
   DsaPattern,
   ExecutionResult,
+  MockInterviewResult,
   OASession,
   OASessionConfig,
   OASessionSummary,
@@ -17,7 +18,14 @@ import type {
   ProblemProgress,
   ProblemSummary,
   StrippedProblem,
+  StudyPattern,
+  StudyPatternStage,
+  StudyPlanOverview,
+  StudyPlanSettings,
+  StudySession,
+  SubmitStudyProblemResponse,
   ThemePreference,
+  User,
 } from "@/types"
 
 export class ApiClientError extends Error {
@@ -43,6 +51,35 @@ export interface ProblemFilter {
 }
 
 export const apiClient = {
+  async register(username: string, password: string): Promise<User> {
+    const response = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    })
+    return handle<User>(response)
+  },
+
+  async login(username: string, password: string): Promise<User> {
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    })
+    return handle<User>(response)
+  },
+
+  async logout(): Promise<void> {
+    const response = await fetch("/api/auth/logout", { method: "POST" })
+    await handle<{ ok: boolean }>(response)
+  },
+
+  async getCurrentUser(): Promise<User | null> {
+    const response = await fetch("/api/auth/me")
+    if (response.status === 401) return null
+    return handle<User>(response)
+  },
+
   async listProblems(filter?: ProblemFilter): Promise<ProblemSummary[]> {
     const params = new URLSearchParams()
     if (filter?.pattern) params.set("pattern", filter.pattern)
@@ -236,5 +273,114 @@ export const apiClient = {
   async getLesson(pattern: DsaPattern): Promise<PatternLesson> {
     const response = await fetch(`/api/lessons/${pattern}`)
     return handle<PatternLesson>(response)
+  },
+
+  async getStudyPlanOverview(): Promise<StudyPlanOverview> {
+    const response = await fetch("/api/study-plan")
+    return handle<StudyPlanOverview>(response)
+  },
+
+  async updateStudyPattern(
+    id: string,
+    update: { stage?: StudyPatternStage; confidence?: number | null; notes?: string }
+  ): Promise<StudyPattern> {
+    const response = await fetch(`/api/study-plan/patterns/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(update),
+    })
+    return handle<StudyPattern>(response)
+  },
+
+  async updateStudyProblem(
+    id: string,
+    update: {
+      completed?: boolean
+      timeTakenMinutes?: number | null
+      constraintAddedMidSolve?: boolean | null
+    }
+  ): Promise<StudyPattern> {
+    const response = await fetch(`/api/study-plan/problems/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(update),
+    })
+    return handle<StudyPattern>(response)
+  },
+
+  async updateStudyPlanSettings(
+    update: Partial<StudyPlanSettings>
+  ): Promise<StudyPlanSettings> {
+    const response = await fetch("/api/study-plan/settings", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(update),
+    })
+    return handle<StudyPlanSettings>(response)
+  },
+
+  async listStudySessions(): Promise<StudySession[]> {
+    const response = await fetch("/api/study-plan/sessions")
+    return handle<StudySession[]>(response)
+  },
+
+  async logStudySession(input: {
+    date: string
+    minutesSpent: number
+    studyPatternIds: string[]
+    stickingPoint?: string
+    planForNextSession?: string
+  }): Promise<StudySession> {
+    const response = await fetch("/api/study-plan/sessions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    })
+    return handle<StudySession>(response)
+  },
+
+  async listMockInterviewResults(): Promise<MockInterviewResult[]> {
+    const response = await fetch("/api/study-plan/mock-interviews")
+    return handle<MockInterviewResult[]>(response)
+  },
+
+  async logMockInterviewResult(input: {
+    date: string
+    studyProblemId?: string | null
+    studyPatternId?: string | null
+    problemName: string
+    timeTakenMinutes: number
+    solvedCleanly: boolean
+    constraintAddedMidSolve?: boolean
+    notes?: string
+  }): Promise<MockInterviewResult> {
+    const response = await fetch("/api/study-plan/mock-interviews", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    })
+    return handle<MockInterviewResult>(response)
+  },
+
+  async submitStudyProblem(
+    id: string,
+    submission: CodeSubmission,
+    timeTakenMinutes: number
+  ): Promise<SubmitStudyProblemResponse> {
+    const response = await fetch(`/api/study-plan/problems/${id}/submit`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ submission, timeTakenMinutes }),
+    })
+    return handle<SubmitStudyProblemResponse>(response)
+  },
+
+  async logProblemSession(id: string, minutesSpent: number): Promise<void> {
+    const response = await fetch(`/api/study-plan/problems/${id}/session`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ minutesSpent }),
+    })
+    await handle<{ ok: boolean }>(response)
   },
 }

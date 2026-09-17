@@ -1,0 +1,67 @@
+{
+  "id": "climbing-stairs",
+  "title": "Climbing Stairs",
+  "pattern": "dynamic-programming",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Adobe",
+    "Apple"
+  ],
+  "prompt": "You are climbing a staircase. It takes `n` steps to reach the top. Each time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?",
+  "examples": [
+    {
+      "input": "n = 2",
+      "output": "2",
+      "explanation": "There are two ways to climb to the top: 1 step + 1 step, or 2 steps."
+    },
+    {
+      "input": "n = 3",
+      "output": "3",
+      "explanation": "1+1+1, 1+2, or 2+1."
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 45"
+  ],
+  "hints": [
+    "To reach step n, your last move was either a single step from n-1, or a double step from n-2 — so the number of ways to reach n is the sum of the ways to reach those two steps.",
+    "That recurrence (ways(n) = ways(n-1) + ways(n-2)) is exactly the Fibonacci sequence, just with different base cases.",
+    "You don't need an array to hold every step's count — track only the previous two values and slide them forward each iteration."
+  ],
+  "solution": {
+    "approach": "This is a 1D DP problem in disguise. Let ways(n) be the number of distinct ways to reach step n. The last move to reach step n was either a 1-step from n-1 or a 2-step from n-2, so ways(n) = ways(n-1) + ways(n-2) — the Fibonacci recurrence, with ways(1) = 1 and ways(2) = 2 as base cases. Since each step only depends on the previous two, you can compute it iteratively bottom-up while tracking just two running variables instead of a full memo array, giving O(n) time and O(1) space.",
+    "code": "function climbStairs(n) {\n  if (n <= 2) return n;\n  let prev = 1;\n  let curr = 2;\n  for (let i = 3; i <= n; i++) {\n    const next = prev + curr;\n    prev = curr;\n    curr = next;\n  }\n  return curr;\n}",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "function climbStairs(n) {\n  // your code here\n}",
+  "functionName": "climbStairs",
+  "testCases": [
+    {
+      "input": [1],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [2],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [3],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [4],
+      "expected": 5,
+      "isHidden": true
+    },
+    {
+      "input": [5],
+      "expected": 8,
+      "isHidden": true
+    }
+  ]
+}

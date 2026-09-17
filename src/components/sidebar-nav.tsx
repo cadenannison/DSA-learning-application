@@ -15,6 +15,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/blind", label: "Blind Test", description: "Sets + random testing" },
   { href: "/oa", label: "Mock OA", description: "Timed sessions" },
   { href: "/patterns", label: "Learning Patterns", description: "Interactive walkthroughs" },
+  { href: "/study-plan", label: "Study Plan", description: "Interview prep tracker" },
 ]
 
 function isActive(pathname: string, href: string): boolean {

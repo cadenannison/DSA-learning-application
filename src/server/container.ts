@@ -1,8 +1,10 @@
 import path from "node:path"
 import { FilePatternLessonRepository } from "@/server/repositories/file-pattern-lesson-repository"
 import { FileProblemRepository } from "@/server/repositories/file-problem-repository"
+import { FileStudyCurriculumRepository } from "@/server/repositories/file-study-curriculum-repository"
 import { NodeVmSandbox } from "@/server/sandbox/node-vm-sandbox"
 import { SqliteProgressStore } from "@/server/store/sqlite-progress-store"
+import { AuthService } from "@/server/services/auth-service"
 import { BlindTestSetService } from "@/server/services/blind-test-set-service"
 import { ExecutionService } from "@/server/services/execution-service"
 import { DefaultOAProblemSelector } from "@/server/services/oa-problem-selector"
@@ -10,6 +12,7 @@ import { OASessionService } from "@/server/services/oa-session-service"
 import { PatternLessonService } from "@/server/services/pattern-lesson-service"
 import { ProblemService } from "@/server/services/problem-service"
 import { ProgressService } from "@/server/services/progress-service"
+import { StudyPlanService } from "@/server/services/study-plan-service"
 
 interface Container {
   problemService: ProblemService
@@ -18,15 +21,21 @@ interface Container {
   oaSessionService: OASessionService
   blindTestSetService: BlindTestSetService
   patternLessonService: PatternLessonService
+  studyPlanService: StudyPlanService
+  authService: AuthService
 }
 
 function buildContainer(): Container {
   const problemsDir = process.env.DSA_PROBLEMS_DIR ?? path.join(process.cwd(), "src/data/problems")
   const lessonsDir = process.env.DSA_LESSONS_DIR ?? path.join(process.cwd(), "src/data/lessons")
   const dbPath = process.env.DSA_DB_PATH ?? path.join(process.cwd(), "data/progress.db")
+  const studyCurriculumPath =
+    process.env.DSA_STUDY_CURRICULUM_PATH ??
+    path.join(process.cwd(), "src/data/study-plan/curriculum.json")
 
   const problemRepository = new FileProblemRepository(problemsDir)
   const patternLessonRepository = new FilePatternLessonRepository(lessonsDir)
+  const studyCurriculumRepository = new FileStudyCurriculumRepository(studyCurriculumPath)
   const sandbox = new NodeVmSandbox()
   const progressStore = new SqliteProgressStore(dbPath)
 
@@ -46,6 +55,12 @@ function buildContainer(): Container {
     ),
     blindTestSetService: new BlindTestSetService(progressStore, problemRepository),
     patternLessonService: new PatternLessonService(patternLessonRepository),
+    studyPlanService: new StudyPlanService(
+      progressStore,
+      studyCurriculumRepository,
+      executionService
+    ),
+    authService: new AuthService(progressStore),
   }
 }
 
