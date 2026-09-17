@@ -1,0 +1,99 @@
+{
+  "id": "flood-fill",
+  "title": "Flood Fill",
+  "pattern": "bfs-dfs",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Microsoft",
+    "Bloomberg"
+  ],
+  "prompt": "You are given an `m x n` integer grid `image` representing an image, an integer `sr` and `sc` representing the row and column of a starting pixel, and an integer `color`. Perform a flood fill: starting from `image[sr][sc]`, change the color of that pixel and every pixel connected to it (4-directionally: up, down, left, right) that has the same original color, to `color`. Return the modified image.",
+  "examples": [
+    {
+      "input": "image = [[1,1,1],[1,1,0],[1,0,1]], sr = 1, sc = 1, color = 2",
+      "output": "[[2,2,2],[2,2,0],[2,0,1]]",
+      "explanation": "The starting pixel is 1 at (1,1). All 1s connected to it (up, down, left, right) become 2. The pixel at (2,2) is not connected to the starting pixel, so it stays 1."
+    },
+    {
+      "input": "image = [[0,0,0],[0,0,0]], sr = 0, sc = 0, color = 0",
+      "output": "[[0,0,0],[0,0,0]]",
+      "explanation": "The starting pixel already has the target color, so nothing changes."
+    }
+  ],
+  "constraints": [
+    "m == image.length",
+    "n == image[i].length",
+    "1 <= m, n <= 50",
+    "0 <= image[i][j], color < 2^16",
+    "0 <= sr < m",
+    "0 <= sc < n"
+  ],
+  "hints": [
+    "This is the same flood-fill idea used for counting islands — a DFS or BFS that spreads to same-colored neighbors.",
+    "Record the original color of the starting pixel before you start overwriting anything, since you'll overwrite that exact pixel too.",
+    "Guard against infinite loops: only recurse into a neighbor if it's in bounds, matches the original color, AND the new color is different from the original color (otherwise a same-color repaint recurses forever)."
+  ],
+  "solution": {
+    "approach": "Capture the starting pixel's original color first. If the new color equals the original color, no work is needed (this also prevents infinite recursion in a DFS on a uniformly-colored region). Otherwise, DFS/BFS from (sr, sc), and at each step recolor the current pixel and recurse into the four neighbors that are in bounds and still hold the original color. Every pixel connected to the start through same-colored neighbors gets visited exactly once.",
+    "code": "def flood_fill(image, sr, sc, color):\n    rows, cols = len(image), len(image[0])\n    start_color = image[sr][sc]\n    if start_color == color:\n        return image\n\n    def dfs(r, c):\n        if r < 0 or r >= rows or c < 0 or c >= cols or image[r][c] != start_color:\n            return\n        image[r][c] = color\n        dfs(r + 1, c)\n        dfs(r - 1, c)\n        dfs(r, c + 1)\n        dfs(r, c - 1)\n\n    dfs(sr, sc)\n    return image\n",
+    "timeComplexity": "O(m * n)",
+    "spaceComplexity": "O(m * n) worst-case recursion depth"
+  },
+  "starterCode": "def flood_fill(image, sr, sc, color):\n    # your code here\n    pass\n",
+  "functionName": "flood_fill",
+  "paramNames": ["image", "sr", "sc", "color"],
+  "testCases": [
+    {
+      "input": [
+        [[1, 1, 1], [1, 1, 0], [1, 0, 1]],
+        1,
+        1,
+        2
+      ],
+      "expected": [[2, 2, 2], [2, 2, 0], [2, 0, 1]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[0, 0, 0], [0, 0, 0]],
+        0,
+        0,
+        0
+      ],
+      "expected": [[0, 0, 0], [0, 0, 0]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1]],
+        0,
+        0,
+        3
+      ],
+      "expected": [[3]],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[0, 0], [0, 1]],
+        0,
+        0,
+        5
+      ],
+      "expected": [[5, 5], [5, 1]],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[1, 2, 2], [2, 2, 0], [2, 0, 1]],
+        0,
+        0,
+        3
+      ],
+      "expected": [[3, 2, 2], [2, 2, 0], [2, 0, 1]],
+      "isHidden": true
+    }
+  ]
+}

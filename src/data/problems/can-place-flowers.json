@@ -1,0 +1,68 @@
+{
+  "id": "can-place-flowers",
+  "title": "Can Place Flowers",
+  "pattern": "greedy",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "LinkedIn"
+  ],
+  "prompt": "You have a long flowerbed represented as an integer array `flowerbed`, where `0` means an empty plot and `1` means a planted plot. Flowers cannot be planted in adjacent plots. Given `flowerbed` and an integer `n`, return `true` if `n` new flowers can be planted in the flowerbed without violating the no-adjacent-flowers rule, or `false` otherwise.",
+  "examples": [
+    {
+      "input": "flowerbed = [1,0,0,0,1], n = 1",
+      "output": "true"
+    },
+    {
+      "input": "flowerbed = [1,0,0,0,1], n = 2",
+      "output": "false"
+    }
+  ],
+  "constraints": [
+    "1 <= flowerbed.length <= 2 * 10^4",
+    "flowerbed[i] is 0 or 1",
+    "There are no two adjacent flowers in flowerbed",
+    "0 <= n <= flowerbed.length"
+  ],
+  "hints": [
+    "Scan left to right and greedily plant a flower the moment it's legal to do so — delaying never helps.",
+    "A plot i is safe to plant if it's empty and both its neighbors (treating out-of-bounds as empty) are also empty.",
+    "Whenever you plant at position i, you can immediately move on knowing i+1 is now blocked, so you never need to look back."
+  ],
+  "solution": {
+    "approach": "Greedily scan the flowerbed left to right, planting a flower at any position that is currently 0 and whose left and right neighbors (treated as 0 if out of bounds) are also 0. Planting as early as legally possible is always at least as good as waiting, since an empty plot's eligibility can only be hurt, never helped, by leaving it unplanted longer. After marking a plant, immediately continue the scan; count how many flowers got placed and compare against n.",
+    "code": "def can_place_flowers(flowerbed, n):\n    count = 0\n    length = len(flowerbed)\n    for i in range(length):\n        if flowerbed[i] == 0:\n            left_empty = (i == 0) or flowerbed[i - 1] == 0\n            right_empty = (i == length - 1) or flowerbed[i + 1] == 0\n            if left_empty and right_empty:\n                flowerbed[i] = 1\n                count += 1\n    return count >= n\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def can_place_flowers(flowerbed, n):\n    # your code here\n    pass\n",
+  "functionName": "can_place_flowers",
+  "paramNames": ["flowerbed", "n"],
+  "testCases": [
+    {
+      "input": [[1, 0, 0, 0, 1], 1],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [[1, 0, 0, 0, 1], 2],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [[0], 1],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [[0, 0, 0, 0, 0, 0], 3],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [[1, 0, 0, 0, 0, 1], 1],
+      "expected": true,
+      "isHidden": true
+    }
+  ]
+}

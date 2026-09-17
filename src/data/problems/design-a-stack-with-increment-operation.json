@@ -1,0 +1,89 @@
+{
+  "id": "design-a-stack-with-increment-operation",
+  "title": "Design a Stack With Increment Operation",
+  "pattern": "stacks-queues",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "Design a stack with a fixed maximum size `maxSize` that supports `push(x)` (does nothing if the stack is full), `pop()` (returns -1 if the stack is empty), and `increment(k, val)`, which increments the bottom `min(k, current stack size)` elements of the stack by `val`.\n\nYou'll implement this as a single function `run_custom_stack_ops(max_size, ops)`, where `ops` is an array of `[operationName, argument]` pairs (`argument` is a single value for `push`, `null` for `pop`, and a `[k, val]` pair for `increment`), applied in order to one stack instance. `push` and `increment` never produce output; `pop` pushes its result onto the output array. Return the output array.",
+  "examples": [
+    {
+      "input": "maxSize = 3, ops = [[\"push\",1],[\"push\",2],[\"pop\",null],[\"push\",2],[\"push\",3],[\"push\",4],[\"increment\",[5,100]],[\"increment\",[2,100]],[\"pop\",null],[\"pop\",null],[\"pop\",null],[\"pop\",null]]",
+      "output": "[2,103,202,201,-1]",
+      "explanation": "Push 1, push 2, pop returns 2 (stack now [1]). Push 2,3,4 (stack now [1,2,3,4], but maxSize 3 means the push of 1 followed by 2,3,4 keeps only 3 slots at a time — tracing carefully: after the first pop stack is [1], then push 2 -> [1,2], push 3 -> [1,2,3] (full), push 4 is ignored since the stack is full. increment(5,100) adds 100 to all 3 elements: [101,102,103]. increment(2,100) adds 100 to the bottom 2: [201,202,103]. Popping in order yields 103, 202, 201, then -1 on the empty stack."
+    }
+  ],
+  "constraints": [
+    "1 <= maxSize <= 1000",
+    "1 <= x, val <= 100",
+    "0 <= k <= 1000",
+    "At most 1000 calls total to push, pop, and increment"
+  ],
+  "hints": [
+    "The tricky operation is incrementing the BOTTOM k elements of a stack, which normally only supports fast access to the top.",
+    "Rather than actually shifting values on every increment call, you can defer the work: keep a separate array of pending increments, one slot per stack position, and only apply the accumulated increment to a value when it's actually popped.",
+    "On increment(k, val), add val to a running increments array at index min(k, size) - 1 (the highest index it should affect). On pop, return the top value plus its accumulated increment, then propagate that increment down to the new top's pending increment before clearing the popped slot — this keeps every operation O(1)."
+  ],
+  "solution": {
+    "approach": "Maintain the stack values in a plain list plus a parallel `increments` array the same max size, initialized to 0, where increments[i] represents a pending increment that should apply to every element at index <= i once popped. push appends normally. increment(k, val) adds val to increments[min(k, size) - 1] if the stack is non-empty at that index, deferring the actual per-element update. pop takes the top value, adds its accumulated increments[top_index] to it, and — before removing it — propagates that pending increment down to increments[top_index - 1] (so elements below still receive credit for it), then resets increments[top_index] to 0 and removes the top. This makes every operation O(1).",
+    "code": "def run_custom_stack_ops(max_size, ops):\n    stack = []\n    increments = [0] * max_size\n    output = []\n\n    for op, arg in ops:\n        if op == 'push':\n            if len(stack) < max_size:\n                stack.append(arg)\n        elif op == 'pop':\n            if not stack:\n                output.append(-1)\n            else:\n                idx = len(stack) - 1\n                val = stack[idx] + increments[idx]\n                if idx > 0:\n                    increments[idx - 1] += increments[idx]\n                increments[idx] = 0\n                stack.pop()\n                output.append(val)\n        elif op == 'increment':\n            k, val = arg\n            if stack:\n                idx = min(k, len(stack)) - 1\n                if idx >= 0:\n                    increments[idx] += val\n\n    return output\n",
+    "timeComplexity": "O(1) per operation",
+    "spaceComplexity": "O(maxSize)"
+  },
+  "starterCode": "def run_custom_stack_ops(max_size, ops):\n    # your code here\n    pass\n",
+  "functionName": "run_custom_stack_ops",
+  "paramNames": ["max_size", "ops"],
+  "testCases": [
+    {
+      "input": [
+        3,
+        [
+          ["push", 1],
+          ["push", 2],
+          ["pop", null],
+          ["push", 2],
+          ["push", 3],
+          ["push", 4],
+          ["increment", [5, 100]],
+          ["increment", [2, 100]],
+          ["pop", null],
+          ["pop", null],
+          ["pop", null],
+          ["pop", null]
+        ]
+      ],
+      "expected": [2, 103, 202, 201, -1],
+      "isHidden": false
+    },
+    {
+      "input": [
+        2,
+        [
+          ["push", 1],
+          ["push", 2],
+          ["push", 3],
+          ["pop", null],
+          ["pop", null],
+          ["pop", null]
+        ]
+      ],
+      "expected": [2, 1, -1],
+      "isHidden": false
+    },
+    {
+      "input": [
+        1,
+        [
+          ["pop", null],
+          ["push", 5],
+          ["increment", [10, 3]],
+          ["pop", null]
+        ]
+      ],
+      "expected": [-1, 8],
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "id": "concatenated-words",
+  "title": "Concatenated Words",
+  "pattern": "tries",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Amazon",
+    "Airbnb"
+  ],
+  "prompt": "Given an array of distinct strings `words`, return all the *concatenated words* in `words`. A concatenated word is defined as a string that is comprised entirely of at least two shorter words (each with length >= 1) from the given array.\n\nReturn the found words sorted alphabetically, for deterministic comparison.",
+  "examples": [
+    {
+      "input": "words = [\"cat\",\"cats\",\"catsdogcats\",\"dog\",\"dogcatsdog\",\"hippopotamuses\",\"rat\",\"ratcatdogcat\"]",
+      "output": "[\"catsdogcats\",\"dogcatsdog\",\"ratcatdogcat\"]",
+      "explanation": "\"catsdogcats\" is formed from \"cats\" + \"dog\" + \"cats\". \"dogcatsdog\" is formed from \"dog\" + \"cats\" + \"dog\". \"ratcatdogcat\" is formed from \"rat\" + \"cat\" + \"dog\" + \"cat\". Sorted alphabetically: [\"catsdogcats\",\"dogcatsdog\",\"ratcatdogcat\"]."
+    },
+    {
+      "input": "words = [\"cat\",\"dog\",\"catdog\"]",
+      "output": "[\"catdog\"]",
+      "explanation": "\"catdog\" is formed from \"cat\" + \"dog\", both present in words."
+    }
+  ],
+  "constraints": [
+    "1 <= words.length <= 10^4",
+    "0 <= words[i].length <= 1000",
+    "words[i] consists of only lowercase English letters",
+    "0 <= sum(words[i].length) <= 6 * 10^5",
+    "All words[i] are distinct"
+  ],
+  "hints": [
+    "This is a word-break style problem repeated for every word: for each candidate word, check whether it can be fully segmented into two or more other words from the list.",
+    "Insert all words into a trie so that checking whether some prefix of the candidate is itself a complete word (a segmentation step) is a fast trie walk instead of a hash lookup per prefix length.",
+    "Use DP or DFS with memoization over the candidate word's index positions: canBreak(i) is true if some j > i exists where words[i:j] is a real word in the trie (and (i,j) isn't the whole word with zero splits) and canBreak(j) is true, with canBreak(len(word)) as the base case — requiring at least one real split point along the way."
+  ],
+  "solution": {
+    "approach": "Insert every word into a trie for fast prefix/word lookups. For each candidate word, run a DP over its indices: dp[i] is true if the suffix starting at i can be fully segmented into one or more words from the trie (allowing the trivial case dp[len] = True as the empty suffix). To decide if a candidate word itself counts as 'concatenated,' walk it position by position using the trie, and only allow a split point that lands exactly at the end of a trie-recognized word AND isn't the single split covering the whole word with zero cuts (i.e., need at least 2 constituent pieces) — practically implemented by never allowing the DFS to immediately claim success by matching the whole word as one piece with no other segment. Sort words by length first so shorter words are already in a working trie when a longer candidate is tested, letting a word be built purely from shorter words (a word can't use itself as its only piece). Sorting the final result alphabetically makes the output deterministic.",
+    "code": "def find_all_concatenated_words(words):\n    root = {}\n\n    def insert(word):\n        node = root\n        for ch in word:\n            node = node.setdefault(ch, {})\n        node['$'] = True\n\n    def can_form(word):\n        n = len(word)\n        if n == 0:\n            return False\n        dp = [False] * (n + 1)\n        dp[0] = True\n        for i in range(n):\n            if not dp[i]:\n                continue\n            node = root\n            for j in range(i, n):\n                ch = word[j]\n                if ch not in node:\n                    break\n                node = node[ch]\n                if node.get('$'):\n                    if j + 1 == n and i == 0:\n                        continue\n                    dp[j + 1] = True\n        return dp[n]\n\n    words_sorted = sorted(words, key=len)\n    result = []\n    for word in words_sorted:\n        if word and can_form(word):\n            result.append(word)\n        insert(word)\n\n    return sorted(result)\n",
+    "timeComplexity": "O(sum of word_length^2) overall",
+    "spaceComplexity": "O(sum of word lengths) for the trie"
+  },
+  "starterCode": "def find_all_concatenated_words(words):\n    # your code here\n    pass\n",
+  "functionName": "find_all_concatenated_words",
+  "paramNames": ["words"],
+  "testCases": [
+    {
+      "input": [["cat", "cats", "catsdogcats", "dog", "dogcatsdog", "hippopotamuses", "rat", "ratcatdogcat"]],
+      "expected": ["catsdogcats", "dogcatsdog", "ratcatdogcat"],
+      "isHidden": false
+    },
+    {
+      "input": [["cat", "dog", "catdog"]],
+      "expected": ["catdog"],
+      "isHidden": false
+    },
+    {
+      "input": [["a", "b", "ab"]],
+      "expected": ["ab"],
+      "isHidden": true
+    },
+    {
+      "input": [["nuts", "coconuts", "coco"]],
+      "expected": ["coconuts"],
+      "isHidden": true
+    },
+    {
+      "input": [["abc", "def"]],
+      "expected": [],
+      "isHidden": true
+    }
+  ]
+}

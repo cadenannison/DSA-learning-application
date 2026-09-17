@@ -1,0 +1,81 @@
+{
+  "id": "successful-pairs-of-spells-and-potions",
+  "title": "Successful Pairs of Spells and Potions",
+  "pattern": "binary-search",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "You are given two integer arrays `spells` and `potions`, of length `n` and `m` respectively, where `spells[i]` represents the strength of the i-th spell and `potions[j]` represents the strength of the j-th potion. You are also given an integer `success`. A spell and potion pair is considered successful if the product of their strengths is at least `success`. Return an integer array `pairs` of length `n` where `pairs[i]` is the number of potions that will form a successful pair with the i-th spell.",
+  "examples": [
+    {
+      "input": "spells = [5,1,3], potions = [1,2,3,4,5], success = 7",
+      "output": "[4,0,3]",
+      "explanation": "Spell 5 succeeds with potions of strength >= 2 (4 potions). Spell 1 needs a potion of strength >= 7, none qualify. Spell 3 succeeds with potions of strength >= 3 (3 potions)."
+    },
+    {
+      "input": "spells = [3,1,2], potions = [8,5,8], success = 16",
+      "output": "[2,0,2]"
+    }
+  ],
+  "constraints": [
+    "n == spells.length",
+    "m == potions.length",
+    "1 <= n, m <= 10^5",
+    "1 <= spells[i], potions[i] <= 10^5",
+    "1 <= success <= 10^10"
+  ],
+  "hints": [
+    "For each spell, checking every potion to count successes is O(n*m), which is too slow for the given constraints.",
+    "Sort the potions once. For a fixed spell strength, the potions that succeed are exactly those with strength >= ceil(success / spell), which is a contiguous suffix of the sorted potions array.",
+    "Binary search each spell's threshold (ceil(success / spell)) in the sorted potions array to find where that suffix begins, giving the count directly."
+  ],
+  "solution": {
+    "approach": "Sort potions once. For each spell, a potion succeeds exactly when spell * potion >= success, i.e. potion >= success / spell. Since potions is sorted, the set of successful potions is a contiguous suffix, so binary search for the leftmost index where potion >= ceil(success / spell); the number of successes is the count of potions from that index to the end. Doing this per spell costs O(log m), for an overall O((n + m) log m) solution instead of the O(n*m) brute force.",
+    "code": "import bisect\nimport math\n\ndef successful_pairs(spells, potions, success):\n    potions.sort()\n    m = len(potions)\n    result = []\n\n    for spell in spells:\n        threshold = math.ceil(success / spell)\n        idx = bisect.bisect_left(potions, threshold)\n        result.append(m - idx)\n\n    return result\n",
+    "timeComplexity": "O((n + m) log m)",
+    "spaceComplexity": "O(n) for the output"
+  },
+  "starterCode": "def successful_pairs(spells, potions, success):\n    # your code here\n    pass\n",
+  "functionName": "successful_pairs",
+  "paramNames": ["spells", "potions", "success"],
+  "testCases": [
+    {
+      "input": [
+        [5, 1, 3],
+        [1, 2, 3, 4, 5],
+        7
+      ],
+      "expected": [4, 0, 3],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [3, 1, 2],
+        [8, 5, 8],
+        16
+      ],
+      "expected": [2, 0, 2],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1],
+        [1],
+        1
+      ],
+      "expected": [1],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [10, 10, 10],
+        [1, 2, 3],
+        100
+      ],
+      "expected": [0, 0, 0],
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "id": "lemonade-change",
+  "title": "Lemonade Change",
+  "pattern": "greedy",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Bloomberg"
+  ],
+  "prompt": "At a lemonade stand, each lemonade costs `$5`. Customers are standing in a queue, given as an array `bills`, where `bills[i]` is the bill the `i`-th customer pays with ($5, $10, or $20). You must provide the correct change for each customer so that the net transaction is that the customer pays $5. You start with no change on hand. Return `true` if you can provide every customer correct change, or `false` otherwise.",
+  "examples": [
+    {
+      "input": "bills = [5,5,5,10,20]",
+      "output": "true",
+      "explanation": "You can provide change for each customer: from the two $5 bills and one $10 bill collected, you can give $15 change to the customer paying with $20 as one $10 and one $5."
+    },
+    {
+      "input": "bills = [5,5,10,10,20]",
+      "output": "false",
+      "explanation": "After the first two $5s and two $10s, you have no $5 bills left to give as change for the $20, since $15 change can't be made from two $10 bills alone."
+    }
+  ],
+  "constraints": [
+    "1 <= bills.length <= 10^5",
+    "bills[i] is either 5, 10, or 20"
+  ],
+  "hints": [
+    "You only ever need to track how many $5 and $10 bills you're holding — $20 bills are never given back as change.",
+    "For a $10 payment, change is forced (one $5). For a $20 payment, there are two ways to make $15 change — which one should you prefer?",
+    "Always prefer giving a $10 + $5 combo for $20 payments over three $5 bills, since $5 bills are more flexible and can cover either kind of future change. Greedily using the least flexible bills first is optimal."
+  ],
+  "solution": {
+    "approach": "Track only counts of $5 and $10 bills on hand, since $20 bills are never used as change. When a $10 arrives, the only valid change is a single $5. When a $20 arrives, prefer paying with a $10 and a $5 over three $5 bills whenever possible, because $5 bills are the only bill that can make change for a $10, so hoarding them is strictly better. If at any point the required change can't be made, return false.",
+    "code": "def lemonade_change(bills):\n    fives = 0\n    tens = 0\n    for bill in bills:\n        if bill == 5:\n            fives += 1\n        elif bill == 10:\n            if fives == 0:\n                return False\n            fives -= 1\n            tens += 1\n        else:\n            if tens > 0 and fives > 0:\n                tens -= 1\n                fives -= 1\n            elif fives >= 3:\n                fives -= 3\n            else:\n                return False\n    return True\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def lemonade_change(bills):\n    # your code here\n    pass\n",
+  "functionName": "lemonade_change",
+  "paramNames": ["bills"],
+  "testCases": [
+    {
+      "input": [[5, 5, 5, 10, 20]],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [[5, 5, 10, 10, 20]],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [[5, 5, 10]],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [[10, 10]],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": [[5, 5, 5, 5, 20, 5, 5, 5, 5, 20]],
+      "expected": true,
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "id": "my-calendar-i",
+  "title": "My Calendar I",
+  "pattern": "intervals",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon",
+    "Microsoft"
+  ],
+  "prompt": "Design a `MyCalendar` class to track events without any double booking. A double booking happens when two events have some non-empty intersection (i.e. some moment is common to both events). Implement `book(start, end)`, which represents an event occurring during the half-open interval `[start, end)`. Return `True` if the event can be added to the calendar without causing a double booking, and add it to the calendar; otherwise return `False` and do not add it.",
+  "examples": [
+    {
+      "input": "book(10, 20) -> true, book(15, 25) -> false, book(20, 30) -> true",
+      "output": "[true, false, true]",
+      "explanation": "[10,20) and [15,25) overlap at [15,20), so the second booking is rejected. [20,30) does not overlap [10,20) since intervals are half-open, so it succeeds."
+    }
+  ],
+  "constraints": [
+    "0 <= start < end <= 10^9",
+    "at most 1000 calls will be made to book"
+  ],
+  "hints": [
+    "For each new booking, you need to check it against every previously booked interval for overlap — think about what condition makes two half-open intervals NOT overlap.",
+    "Two intervals [s1, e1) and [s2, e2) do NOT overlap exactly when e1 <= s2 or e2 <= s1. Negate that to detect a conflict.",
+    "Keeping bookings in a sorted structure (like a sorted list or balanced BST) lets you binary search for the insertion point and only check the immediate neighbors, but a simple linear scan through stored bookings is a fine, simpler solution given the small call limit."
+  ],
+  "solution": {
+    "approach": "Maintain a list of already-booked (start, end) intervals. To book a new event, check it against every existing booking: two half-open intervals [s1, e1) and [s2, e2) fail to overlap exactly when e1 <= s2 or e2 <= s1, so overlap is the negation of that. If the new interval overlaps any existing booking, reject it; otherwise, add it to the list and accept. Given the constraint of at most 1000 calls, the O(n) scan per booking (O(n^2) total) is efficient enough, though a sorted-container approach could achieve O(log n) per booking.",
+    "code": "class MyCalendar:\n    def __init__(self):\n        self.bookings = []\n\n    def book(self, start, end):\n        for s, e in self.bookings:\n            if start < e and s < end:\n                return False\n        self.bookings.append((start, end))\n        return True\n\n\ndef my_calendar(operations, args):\n    calendar = MyCalendar()\n    results = []\n    for op, arg in zip(operations, args):\n        if op == 'book':\n            results.append(calendar.book(arg[0], arg[1]))\n    return results\n",
+    "timeComplexity": "O(n) per booking, O(n^2) overall for n calls",
+    "spaceComplexity": "O(n) to store bookings"
+  },
+  "starterCode": "def my_calendar(operations, args):\n    # operations is a list of method names (always 'book' after construction)\n    # args is a list of argument lists for each operation, e.g. [[10, 20], [15, 25]]\n    # return a list of the boolean results of each book() call, in order\n    # your code here\n    pass\n",
+  "functionName": "my_calendar",
+  "paramNames": ["operations", "args"],
+  "testCases": [
+    {
+      "input": [["book", "book", "book"], [[10, 20], [15, 25], [20, 30]]],
+      "expected": [true, false, true],
+      "isHidden": false
+    },
+    {
+      "input": [["book"], [[5, 10]]],
+      "expected": [true],
+      "isHidden": false
+    },
+    {
+      "input": [["book", "book"], [[0, 5], [5, 10]]],
+      "expected": [true, true],
+      "isHidden": true
+    },
+    {
+      "input": [["book", "book", "book", "book"], [[0, 10], [10, 20], [5, 15], [20, 30]]],
+      "expected": [true, true, false, true],
+      "isHidden": true
+    },
+    {
+      "input": [["book", "book"], [[1, 5], [1, 5]]],
+      "expected": [true, false],
+      "isHidden": true
+    }
+  ]
+}

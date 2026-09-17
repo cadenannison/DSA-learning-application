@@ -1,0 +1,80 @@
+{
+  "id": "remove-duplicates-from-sorted-array-ii",
+  "title": "Remove Duplicates from Sorted Array II",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Meta",
+    "Microsoft"
+  ],
+  "prompt": "Given an integer array `nums` sorted in non-decreasing order, remove some duplicates in place such that each unique element appears at most twice. The relative order of the elements should be kept. Return `k`, the number of elements after this removal, after placing the first `k` elements of `nums` in the correct order (the rest of the array beyond `k` does not matter). You must do this in place using `O(1)` extra memory.",
+  "examples": [
+    {
+      "input": "nums = [1,1,1,2,2,3]",
+      "output": "5",
+      "explanation": "The first five elements become [1,1,2,2,3]; k = 5."
+    },
+    {
+      "input": "nums = [0,0,1,1,1,1,2,3,3]",
+      "output": "7",
+      "explanation": "The first seven elements become [0,0,1,1,2,3,3]; k = 7."
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 3 * 10^4",
+    "-10^4 <= nums[i] <= 10^4",
+    "nums is sorted in non-decreasing order"
+  ],
+  "hints": [
+    "The 'allow at most one' version compares against the last kept value. What changes when up to two copies are allowed?",
+    "Use a write pointer for the compacted prefix, but now compare the incoming value against the value TWO slots before the write pointer instead of one.",
+    "If nums[read] differs from nums[write - 2], it's safe to keep (it can't create a third duplicate), so copy it to nums[write] and advance write."
+  ],
+  "solution": {
+    "approach": "Keep a write pointer starting at 2 (the first two elements are always kept, since two copies are always allowed). For each subsequent element, compare it against the value at write - 2: if they differ, keeping the current element cannot create a run of three duplicates, so copy it to nums[write] and advance. If they match, the current element would be a third copy and is skipped. This generalizes the single-duplicate two-pointer trick and still runs in one O(n) pass with O(1) space.",
+    "code": "def remove_duplicates(nums):\n    if len(nums) <= 2:\n        return len(nums)\n\n    write = 2\n    for read in range(2, len(nums)):\n        if nums[read] != nums[write - 2]:\n            nums[write] = nums[read]\n            write += 1\n\n    return write\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def remove_duplicates(nums):\n    # your code here\n    pass\n",
+  "functionName": "remove_duplicates",
+  "paramNames": ["nums"],
+  "testCases": [
+    {
+      "input": [
+        [1, 1, 1, 2, 2, 3]
+      ],
+      "expected": 5,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0, 0, 1, 1, 1, 1, 2, 3, 3]
+      ],
+      "expected": 7,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 1]
+      ],
+      "expected": 2,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3, 4]
+      ],
+      "expected": 4,
+      "isHidden": true
+    }
+  ]
+}

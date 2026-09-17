@@ -1,0 +1,85 @@
+{
+  "id": "count-sub-islands",
+  "title": "Count Sub Islands",
+  "pattern": "bfs-dfs",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "You are given two `m x n` binary matrices `grid1` and `grid2` containing only `0`s and `1`s. An island is a group of `1`s connected 4-directionally. Any cells outside of the grid are considered water cells. An island in `grid2` is considered a sub-island if there is an island in `grid1` that contains all the cells that make up this island in `grid2`. Return the number of islands in `grid2` that are considered sub-islands.",
+  "examples": [
+    {
+      "input": "grid1 = [[1,1,1,0,0],[0,1,1,1,1],[0,0,0,0,0],[1,0,0,0,0],[1,1,0,1,1]], grid2 = [[1,1,1,0,0],[0,0,1,1,1],[0,1,0,0,0],[1,0,1,1,0],[0,1,0,1,0]]",
+      "output": "3",
+      "explanation": "Three islands in grid2 have every one of their cells also marked land in grid1, so they qualify as sub-islands."
+    },
+    {
+      "input": "grid1 = [[1,0,1,0,1],[1,1,1,1,1],[0,0,0,0,0],[1,1,1,1,1],[1,0,1,0,1]], grid2 = [[0,0,0,0,0],[1,1,1,1,1],[0,0,0,0,0],[1,1,1,1,1],[1,0,0,0,1]]",
+      "output": "2",
+      "explanation": "Two of grid2's islands are fully contained within grid1's land; the rest include at least one cell that's water in grid1."
+    }
+  ],
+  "constraints": [
+    "m == grid1.length == grid2.length",
+    "n == grid1[i].length == grid2[i].length",
+    "1 <= m, n <= 500",
+    "grid1[i][j] and grid2[i][j] are 0 or 1"
+  ],
+  "hints": [
+    "An island in grid2 fails to be a sub-island as soon as even one of its cells is water in grid1 — you don't need to compare shapes, just check coverage.",
+    "Flood-fill (DFS/BFS) each island in grid2; while visiting its cells, check whether every visited cell is also land (1) in grid1.",
+    "Even if you discover partway through the flood-fill that a cell fails the grid1 check, keep flood-filling the entire island (so you don't recount parts of it later) — just remember that this island doesn't qualify once you've finished visiting it."
+  ],
+  "solution": {
+    "approach": "For each unvisited island in grid2, run a DFS/BFS that visits every cell of that island (marking visited by zeroing it out) while tracking whether all of its cells are also land in grid1. If the entire island's footprint is covered by grid1's land, it counts as a sub-island. Each island in grid2 must be visited in full regardless of an early mismatch, so a single boolean flag captures whether any cell broke the containment property.",
+    "code": "def count_sub_islands(grid1, grid2):\n    rows, cols = len(grid2), len(grid2[0])\n\n    def dfs(r, c):\n        if r < 0 or r >= rows or c < 0 or c >= cols or grid2[r][c] == 0:\n            return True\n        grid2[r][c] = 0\n        is_sub = grid1[r][c] == 1\n        is_sub &= dfs(r + 1, c)\n        is_sub &= dfs(r - 1, c)\n        is_sub &= dfs(r, c + 1)\n        is_sub &= dfs(r, c - 1)\n        return is_sub\n\n    count = 0\n    for r in range(rows):\n        for c in range(cols):\n            if grid2[r][c] == 1 and dfs(r, c):\n                count += 1\n    return count\n",
+    "timeComplexity": "O(m * n)",
+    "spaceComplexity": "O(m * n) worst-case recursion depth"
+  },
+  "starterCode": "def count_sub_islands(grid1, grid2):\n    # your code here\n    pass\n",
+  "functionName": "count_sub_islands",
+  "paramNames": ["grid1", "grid2"],
+  "testCases": [
+    {
+      "input": [
+        [[1, 1, 1, 0, 0], [0, 1, 1, 1, 1], [0, 0, 0, 0, 0], [1, 0, 0, 0, 0], [1, 1, 0, 1, 1]],
+        [[1, 1, 1, 0, 0], [0, 0, 1, 1, 1], [0, 1, 0, 0, 0], [1, 0, 1, 1, 0], [0, 1, 0, 1, 0]]
+      ],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1, 0, 1, 0, 1], [1, 1, 1, 1, 1], [0, 0, 0, 0, 0], [1, 1, 1, 1, 1], [1, 0, 1, 0, 1]],
+        [[0, 0, 0, 0, 0], [1, 1, 1, 1, 1], [0, 0, 0, 0, 0], [1, 1, 1, 1, 1], [1, 0, 0, 0, 1]]
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[0]],
+        [[0]]
+      ],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[1, 1], [1, 1]],
+        [[1, 1], [1, 1]]
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[0, 0], [0, 1]],
+        [[1, 1], [1, 1]]
+      ],
+      "expected": 0,
+      "isHidden": true
+    }
+  ]
+}

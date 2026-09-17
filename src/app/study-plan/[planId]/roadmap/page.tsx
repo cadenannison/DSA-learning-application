@@ -162,6 +162,7 @@ function RoadmapRow({ planId, entry }: { planId: string; entry: RoadmapPatternEn
           <span className="truncate text-sm font-medium text-text-1">{entry.studyPatternName}</span>
           {entry.isCurrent && <StatusPill label="Current" tone="accent" />}
           {entry.isUpNext && <StatusPill label="Up next" tone="neutral" />}
+          {entry.isPersonalized && <StatusPill label="Reprioritized" tone="neutral" />}
         </div>
         <div className="mt-0.5 text-xs text-text-2">{STAGE_LABELS[entry.stage]}</div>
       </div>

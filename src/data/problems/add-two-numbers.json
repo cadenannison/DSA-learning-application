@@ -1,0 +1,90 @@
+{
+  "id": "add-two-numbers",
+  "title": "Add Two Numbers",
+  "pattern": "linked-list",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Meta",
+    "Bloomberg",
+    "Apple"
+  ],
+  "prompt": "You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order, and each node contains a single digit. Add the two numbers and return the sum as a linked list, also in reverse-digit order.\n\nEach list is given as an array (e.g. `[2,4,3]` represents the number 342, stored as `2 -> 4 -> 3 -> null`). The starter code includes helpers to convert between arrays and linked-list nodes — build the actual lists, add them digit by digit while carrying over 10, then convert the result back to an array.",
+  "examples": [
+    {
+      "input": "l1 = [2,4,3], l2 = [5,6,4]",
+      "output": "[7,0,8]",
+      "explanation": "342 + 465 = 807, stored in reverse as 7 -> 0 -> 8."
+    },
+    {
+      "input": "l1 = [0], l2 = [0]",
+      "output": "[0]"
+    },
+    {
+      "input": "l1 = [9,9,9,9,9,9,9], l2 = [9,9,9,9]",
+      "output": "[8,9,9,9,0,0,0,1]"
+    }
+  ],
+  "constraints": [
+    "The number of nodes in each list is in the range [1, 100]",
+    "0 <= Node.val <= 9",
+    "Neither list has leading zeros except the number 0 itself"
+  ],
+  "hints": [
+    "This is exactly how you'd add two numbers by hand, digit by digit from the least significant end — which is conveniently the head of each list here.",
+    "Walk both lists simultaneously, summing corresponding digits plus a running carry, and building a new result list one digit at a time.",
+    "Keep going as long as either list still has digits OR there's a leftover carry — don't stop just because one list ran out first."
+  ],
+  "solution": {
+    "approach": "Since digits are stored least-significant-first, adding matches elementary school addition: walk both lists together, at each step summing the two current digits (0 if a list has run out) plus the carry from the previous step, appending sum % 10 to the result and carrying sum // 10 forward. Continue until both lists are exhausted and there is no carry left, which correctly handles results with more digits than either input (like a final carry-out).",
+    "code": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for v in arr:\n        node = ListNode(v)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef add_two_numbers(l1_arr, l2_arr):\n    l1 = arr_to_list(l1_arr)\n    l2 = arr_to_list(l2_arr)\n\n    dummy = ListNode(0)\n    tail = dummy\n    carry = 0\n    while l1 or l2 or carry:\n        v1 = l1.val if l1 else 0\n        v2 = l2.val if l2 else 0\n        total = v1 + v2 + carry\n        carry = total // 10\n        tail.next = ListNode(total % 10)\n        tail = tail.next\n        l1 = l1.next if l1 else None\n        l2 = l2.next if l2 else None\n\n    return list_to_arr(dummy.next)\n",
+    "timeComplexity": "O(max(n, m))",
+    "spaceComplexity": "O(1) auxiliary (excluding the returned list)"
+  },
+  "starterCode": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for v in arr:\n        node = ListNode(v)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef add_two_numbers(l1_arr, l2_arr):\n    l1 = arr_to_list(l1_arr)\n    l2 = arr_to_list(l2_arr)\n    # your code here\n    pass\n",
+  "functionName": "add_two_numbers",
+  "paramNames": ["l1_arr", "l2_arr"],
+  "testCases": [
+    {
+      "input": [
+        [2, 4, 3],
+        [5, 6, 4]
+      ],
+      "expected": [7, 0, 8],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0],
+        [0]
+      ],
+      "expected": [0],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [9, 9, 9, 9, 9, 9, 9],
+        [9, 9, 9, 9]
+      ],
+      "expected": [8, 9, 9, 9, 0, 0, 0, 1],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [5],
+        [5]
+      ],
+      "expected": [0, 1],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 8],
+        [0]
+      ],
+      "expected": [1, 8],
+      "isHidden": true
+    }
+  ]
+}

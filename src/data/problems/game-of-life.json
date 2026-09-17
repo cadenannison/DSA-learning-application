@@ -1,0 +1,79 @@
+{
+  "id": "game-of-life",
+  "title": "Game of Life",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Dropbox"
+  ],
+  "prompt": "According to Conway's Game of Life, given an `m x n` grid `board` where each cell has an initial state, live (`1`) or dead (`0`), update the board to its next state using these rules simultaneously: any live cell with fewer than two or more than three live neighbors dies; any live cell with two or three live neighbors survives; any dead cell with exactly three live neighbors becomes alive. Neighbors include all eight surrounding cells. Compute the next state in place, without using a separate copy of the board (the update must appear simultaneous, so you cannot let earlier cell updates affect neighbor counts for later cells).",
+  "examples": [
+    {
+      "input": "board = [[0,1,0],[0,0,1],[1,1,1],[0,0,0]]",
+      "output": "[[0,0,0],[1,0,1],[0,1,1],[0,1,0]]"
+    },
+    {
+      "input": "board = [[1,1],[1,0]]",
+      "output": "[[1,1],[1,1]]"
+    }
+  ],
+  "constraints": [
+    "m == board.length",
+    "n == board[i].length",
+    "1 <= m, n <= 25",
+    "board[i][j] is 0 or 1"
+  ],
+  "hints": [
+    "Copying the board first and reading old values while writing to the original is the simplest correct approach, but it uses O(m*n) extra space — can you avoid it?",
+    "A cell only needs to remember its OLD state long enough for its neighbors to read it; once every neighbor has looked at it, its final new value can safely overwrite it.",
+    "Use extra intermediate states beyond 0 and 1 to encode 'was X, becomes Y' in a single cell (e.g. 2 = was alive, now dead; 3 = was dead, now alive), so neighbor counts can still recover the ORIGINAL state during the scan, then do a final pass to collapse everything to 0s and 1s."
+  ],
+  "solution": {
+    "approach": "Encode transitions using extra integer states so the original state stays recoverable during the scan: use 2 for 'was alive, now dead' and 3 for 'was dead, now alive', while a plain 0 or 1 means no change. When counting a neighbor's contribution, treat any value of 1 or 2 as originally alive (since 2 encodes a cell that started alive). After computing each cell's new state and writing the encoded value in place, the original board values are still recoverable from the encoding for cells not yet visited, so no separate copy is needed. A final pass maps every 2 to 0 and every 3 to 1 to produce the clean next-state board.",
+    "code": "def game_of_life(board):\n    m, n = len(board), len(board[0])\n\n    def count_live_neighbors(r, c):\n        count = 0\n        for dr in (-1, 0, 1):\n            for dc in (-1, 0, 1):\n                if dr == 0 and dc == 0:\n                    continue\n                nr, nc = r + dr, c + dc\n                if 0 <= nr < m and 0 <= nc < n and board[nr][nc] in (1, 2):\n                    count += 1\n        return count\n\n    for r in range(m):\n        for c in range(n):\n            live_neighbors = count_live_neighbors(r, c)\n            if board[r][c] == 1:\n                if live_neighbors < 2 or live_neighbors > 3:\n                    board[r][c] = 2\n            else:\n                if live_neighbors == 3:\n                    board[r][c] = 3\n\n    for r in range(m):\n        for c in range(n):\n            board[r][c] %= 2\n\n    return board\n",
+    "timeComplexity": "O(m * n)",
+    "spaceComplexity": "O(1) extra space"
+  },
+  "starterCode": "def game_of_life(board):\n    # your code here\n    pass\n",
+  "functionName": "game_of_life",
+  "paramNames": ["board"],
+  "testCases": [
+    {
+      "input": [
+        [[0, 1, 0], [0, 0, 1], [1, 1, 1], [0, 0, 0]]
+      ],
+      "expected": [[0, 0, 0], [1, 0, 1], [0, 1, 1], [0, 1, 0]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1, 1], [1, 0]]
+      ],
+      "expected": [[1, 1], [1, 1]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[0, 0], [0, 0]]
+      ],
+      "expected": [[0, 0], [0, 0]],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[1]]
+      ],
+      "expected": [[0]],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[0]]
+      ],
+      "expected": [[0]],
+      "isHidden": true
+    }
+  ]
+}

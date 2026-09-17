@@ -1,0 +1,69 @@
+{
+  "id": "dungeon-game",
+  "title": "Dungeon Game",
+  "pattern": "dynamic-programming",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "A knight starts at the top-left cell of an `m x n` dungeon grid, `dungeon`, and must rescue a princess in the bottom-right cell. Each cell has an integer: negative values are demons that drain health, positive values are potions that add health, and 0 cells have no effect. The knight moves only right or down. The knight dies if his health drops to 0 or below at any point. Return the minimum initial health the knight needs to guarantee reaching the princess alive (health always at least 1).",
+  "examples": [
+    {
+      "input": "dungeon = [[-2,-3,3],[-5,-10,1],[10,30,-5]]",
+      "output": "7",
+      "explanation": "Taking the path down, right, right, down (values -2, -5, 10, 30, -5 minus the middle detour) with 7 starting health keeps health at least 1 the entire way; no smaller starting health allows any path to survive to the end."
+    },
+    {
+      "input": "dungeon = [[0]]",
+      "output": "1"
+    }
+  ],
+  "constraints": [
+    "m == dungeon.length",
+    "n == dungeon[i].length",
+    "1 <= m, n <= 200",
+    "-1000 <= dungeon[i][j] <= 1000"
+  ],
+  "hints": [
+    "Working forward from the top-left doesn't work well, because the 'minimum health needed so far' depends on future cells too — a big potion later can't retroactively let you survive a big loss now.",
+    "Work backward from the princess's cell instead. Define dp[r][c] as the minimum health needed upon ENTERING cell (r, c) to survive the rest of the path optimally.",
+    "dp[r][c] = max(1, min(dp[r+1][c], dp[r][c+1]) - dungeon[r][c]) — you need at least 1 health after applying this cell's effect, working backward from whichever next-step requirement is smaller."
+  ],
+  "solution": {
+    "approach": "Work backward from the bottom-right cell, since the health requirement at a cell depends on the requirements of cells that come AFTER it on the path, not before. Define dp[r][c] as the minimum health needed right before entering cell (r, c) to be able to survive from there to the princess. At the destination, dp[m-1][n-1] = max(1, 1 - dungeon[m-1][n-1]) (need at least 1 health after applying the last cell's effect). Moving backward, for any cell, the knight will next go right or down, so it should prepare for whichever of those two paths demands less incoming health: dp[r][c] = max(1, min(dp[r+1][c], dp[r][c+1]) - dungeon[r][c]). Health is clamped to a minimum of 1 everywhere since health must stay positive at every step, including the start. The final answer is dp[0][0].",
+    "code": "def calculate_minimum_hp(dungeon):\n    m, n = len(dungeon), len(dungeon[0])\n    dp = [[float('inf')] * (n + 1) for _ in range(m + 1)]\n    dp[m][n - 1] = 1\n    dp[m - 1][n] = 1\n\n    for r in range(m - 1, -1, -1):\n        for c in range(n - 1, -1, -1):\n            need = min(dp[r + 1][c], dp[r][c + 1]) - dungeon[r][c]\n            dp[r][c] = max(1, need)\n\n    return dp[0][0]\n",
+    "timeComplexity": "O(m * n)",
+    "spaceComplexity": "O(m * n)"
+  },
+  "starterCode": "def calculate_minimum_hp(dungeon):\n    # your code here\n    pass\n",
+  "functionName": "calculate_minimum_hp",
+  "paramNames": ["dungeon"],
+  "testCases": [
+    {
+      "input": [[[-2, -3, 3], [-5, -10, 1], [10, 30, -5]]],
+      "expected": 7,
+      "isHidden": false
+    },
+    {
+      "input": [[[0]]],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [[[100]]],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [[[-1]]],
+      "expected": 2,
+      "isHidden": true
+    },
+    {
+      "input": [[[1, -3, 3], [0, -2, 0], [-3, -3, -3]]],
+      "expected": 3,
+      "isHidden": true
+    }
+  ]
+}

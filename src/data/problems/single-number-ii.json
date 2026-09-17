@@ -1,0 +1,68 @@
+{
+  "id": "single-number-ii",
+  "title": "Single Number II",
+  "pattern": "greedy",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Microsoft"
+  ],
+  "prompt": "Given an integer array `nums` where every element appears exactly three times except for one, which appears exactly once, find and return the single element. You must implement a solution with linear runtime complexity and use only constant extra space.",
+  "examples": [
+    {
+      "input": "nums = [2,2,3,2]",
+      "output": "3"
+    },
+    {
+      "input": "nums = [0,1,0,1,0,1,99]",
+      "output": "99"
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 3 * 10^4",
+    "-2^31 <= nums[i] <= 2^31 - 1",
+    "Each element appears exactly three times except for one element which appears exactly once"
+  ],
+  "hints": [
+    "Simple XOR won't work here, since it only cancels pairs — you need something that cancels triples instead.",
+    "Think bit by bit: for each of the 32 bit positions, sum up how many numbers have a 1 in that position across the whole array.",
+    "If you sum each bit position across all numbers, every bit contributed by a tripled number is a multiple of 3. So (sum of that bit position) mod 3 recovers the corresponding bit of the single number."
+  ],
+  "solution": {
+    "approach": "For each of the 32 bit positions, count how many numbers in the array have a 1 bit there. Since every number except the answer appears exactly three times, its bits contribute multiples of 3 to each position's count. Taking that count modulo 3 leaves exactly the bit contributed by the single unique number, and reassembling all 32 such bits reconstructs it. Handle the sign bit separately since Python has arbitrary-precision integers rather than fixed 32-bit wraparound.",
+    "code": "def single_number(nums):\n    result = 0\n    for i in range(32):\n        bit_sum = 0\n        for num in nums:\n            bit_sum += (num >> i) & 1\n        bit = bit_sum % 3\n        if bit:\n            result |= (1 << i)\n    if result >= 2 ** 31:\n        result -= 2 ** 32\n    return result\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def single_number(nums):\n    # your code here\n    pass\n",
+  "functionName": "single_number",
+  "paramNames": ["nums"],
+  "testCases": [
+    {
+      "input": [[2, 2, 3, 2]],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [[0, 1, 0, 1, 0, 1, 99]],
+      "expected": 99,
+      "isHidden": false
+    },
+    {
+      "input": [[1]],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [[-2, -2, -2, 5]],
+      "expected": 5,
+      "isHidden": true
+    },
+    {
+      "input": [[30000, 500, 500, 30000, 500, 30000, 100]],
+      "expected": 100,
+      "isHidden": true
+    }
+  ]
+}

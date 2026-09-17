@@ -1,0 +1,70 @@
+{
+  "id": "unique-paths-ii",
+  "title": "Unique Paths II",
+  "pattern": "dynamic-programming",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Facebook"
+  ],
+  "prompt": "A robot sits at the top-left corner of an `m x n` grid, given as `obstacle_grid`, where `1` marks a cell containing an obstacle and `0` marks a free cell. The robot can only move down or right at any point, and cannot step onto a cell containing an obstacle. Return the number of distinct paths from the top-left to the bottom-right corner. If either the start or end cell contains an obstacle, there are 0 valid paths.",
+  "examples": [
+    {
+      "input": "obstacle_grid = [[0,0,0],[0,1,0],[0,0,0]]",
+      "output": "2",
+      "explanation": "The obstacle in the middle forces exactly two distinct paths around it."
+    },
+    {
+      "input": "obstacle_grid = [[0,1],[0,0]]",
+      "output": "1"
+    }
+  ],
+  "constraints": [
+    "m == obstacle_grid.length",
+    "n == obstacle_grid[i].length",
+    "1 <= m, n <= 100",
+    "obstacle_grid[i][j] is 0 or 1"
+  ],
+  "hints": [
+    "This builds directly on the obstacle-free path-counting problem — the recurrence is almost the same, you just need to handle blocked cells.",
+    "Define dp[r][c] as the number of paths to reach (r, c). If a cell has an obstacle, dp[r][c] = 0 regardless of anything else, since the robot can never occupy it.",
+    "For a free cell, dp[r][c] = dp[r-1][c] + dp[r][c-1], but treat out-of-bounds neighbors as contributing 0 rather than assuming the whole first row/column is 1 like in the obstacle-free version."
+  ],
+  "solution": {
+    "approach": "Same core recurrence as counting unique paths, but any cell containing an obstacle is forced to 0 reachable paths since the robot can never stand there. Build dp[r][c] left-to-right, top-to-bottom: if obstacle_grid[r][c] is 1, dp[r][c] = 0. Otherwise dp[r][c] = dp[r-1][c] + dp[r][c-1], treating any neighbor that's out of bounds as 0. Special-case the very first cell: dp[0][0] = 1 only if it isn't itself an obstacle. The answer is dp[m-1][n-1].",
+    "code": "def unique_paths_with_obstacles(obstacle_grid):\n    m, n = len(obstacle_grid), len(obstacle_grid[0])\n    if obstacle_grid[0][0] == 1:\n        return 0\n\n    dp = [[0] * n for _ in range(m)]\n    dp[0][0] = 1\n\n    for r in range(m):\n        for c in range(n):\n            if obstacle_grid[r][c] == 1:\n                dp[r][c] = 0\n                continue\n            if r == 0 and c == 0:\n                continue\n            above = dp[r - 1][c] if r > 0 else 0\n            left = dp[r][c - 1] if c > 0 else 0\n            dp[r][c] = above + left\n\n    return dp[m - 1][n - 1]\n",
+    "timeComplexity": "O(m * n)",
+    "spaceComplexity": "O(m * n)"
+  },
+  "starterCode": "def unique_paths_with_obstacles(obstacle_grid):\n    # your code here\n    pass\n",
+  "functionName": "unique_paths_with_obstacles",
+  "paramNames": ["obstacle_grid"],
+  "testCases": [
+    {
+      "input": [[[0, 0, 0], [0, 1, 0], [0, 0, 0]]],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [[[0, 1], [0, 0]]],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [[[1, 0]]],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [[[0]]],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [[[0, 0], [1, 1], [0, 0]]],
+      "expected": 0,
+      "isHidden": true
+    }
+  ]
+}

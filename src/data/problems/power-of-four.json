@@ -1,0 +1,76 @@
+{
+  "id": "power-of-four",
+  "title": "Power of Four",
+  "pattern": "greedy",
+  "difficulty": "easy",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "Given an integer `n`, return `true` if it is a power of four, meaning `n` can be written as `4^x` for some non-negative integer `x`. Otherwise return `false`.",
+  "examples": [
+    {
+      "input": "n = 16",
+      "output": "true",
+      "explanation": "4^2 = 16"
+    },
+    {
+      "input": "n = 5",
+      "output": "false"
+    },
+    {
+      "input": "n = 1",
+      "output": "true",
+      "explanation": "4^0 = 1"
+    }
+  ],
+  "constraints": [
+    "-2^31 <= n <= 2^31 - 1"
+  ],
+  "hints": [
+    "Every power of four is also a power of two, so start by checking that n has exactly one bit set.",
+    "Not every power of two is a power of four — 8 is a power of two but not four. What distinguishes them is which bit position is set.",
+    "Powers of four have their single set bit at an even position (0, 2, 4, ...). Use a mask like 0x55555555 (bits at even positions) and check that ANDing it with n reproduces n itself."
+  ],
+  "solution": {
+    "approach": "First confirm n is positive and a power of two using n & (n - 1) == 0. Among powers of two, powers of four are exactly those whose single set bit sits at an even index (positions 0, 2, 4, ...), since 4^x = 2^(2x). Checking n & 0x55555555 == n verifies the set bit lies only among the even-indexed positions (0x55555555 has 1s at every even bit of a 32-bit number).",
+    "code": "def is_power_of_four(n):\n    if n <= 0 or (n & (n - 1)) != 0:\n        return False\n    return (n & 0x55555555) == n\n",
+    "timeComplexity": "O(1)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def is_power_of_four(n):\n    # your code here\n    pass\n",
+  "functionName": "is_power_of_four",
+  "paramNames": ["n"],
+  "testCases": [
+    {
+      "input": [16],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [5],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [1],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [8],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": [0],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": [1073741824],
+      "expected": true,
+      "isHidden": true
+    }
+  ]
+}

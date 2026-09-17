@@ -1,0 +1,78 @@
+{
+  "id": "binary-tree-paths",
+  "title": "Binary Tree Paths",
+  "pattern": "trees",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Facebook"
+  ],
+  "prompt": "Given the `root` of a binary tree, return all root-to-leaf paths, formatted as strings where each path is written as node values joined by `\"->\"`, in any order.\n\nThe tree is given as a level-order array where `null` marks a missing child (the standard LeetCode serialization). Your function receives this array directly; the starter code includes a helper that builds the tree from it, so you only need to build and format the paths. For deterministic checking, return the paths in the order the left-then-right DFS discovers them.",
+  "examples": [
+    {
+      "input": "root = [1,2,3,null,5]",
+      "output": "[\"1->2->5\",\"1->3\"]",
+      "explanation": "There are two root-to-leaf paths: 1->2->5 and 1->3."
+    },
+    {
+      "input": "root = [1]",
+      "output": "[\"1\"]"
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [1, 100]",
+    "-100 <= Node.val <= 100"
+  ],
+  "hints": [
+    "Do a DFS from the root, keeping track of the path taken so far as you go.",
+    "Add the current node's value to the path before recursing into children; when you reach a leaf (no children), the accumulated path is complete and should be recorded.",
+    "Remember to explore the left child before the right child so the output order is deterministic, and format each completed path by joining its values with '->'."
+  ],
+  "solution": {
+    "approach": "Run a DFS from the root, maintaining a list of the values visited so far on the current path. At each node, append its value to the path; if it's a leaf, join the accumulated values with '->' and record the result. Otherwise recurse into the left child (if present) then the right child (if present), so paths are discovered in a consistent left-to-right order.",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef binary_tree_paths(root_arr):\n    root = build_tree(root_arr)\n    result = []\n\n    def dfs(node, path):\n        path = path + [str(node.val)]\n        if node.left is None and node.right is None:\n            result.append('->'.join(path))\n            return\n        if node.left:\n            dfs(node.left, path)\n        if node.right:\n            dfs(node.right, path)\n\n    if root:\n        dfs(root, [])\n    return result\n",
+    "timeComplexity": "O(n^2) worst case due to path string building, O(n log n) typical",
+    "spaceComplexity": "O(h), h = tree height, excluding output"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef binary_tree_paths(root_arr):\n    root = build_tree(root_arr)\n    # your code here\n    pass\n",
+  "functionName": "binary_tree_paths",
+  "paramNames": ["root_arr"],
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 3, null, 5]
+      ],
+      "expected": ["1->2->5", "1->3"],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": ["1"],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2]
+      ],
+      "expected": ["1->2"],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3, 4, 5]
+      ],
+      "expected": ["1->2->4", "1->2->5", "1->3"],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [-1, null, -2]
+      ],
+      "expected": ["-1->-2"],
+      "isHidden": true
+    }
+  ]
+}

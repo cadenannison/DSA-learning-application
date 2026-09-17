@@ -1,0 +1,82 @@
+{
+  "id": "split-linked-list-in-parts",
+  "title": "Split Linked List in Parts",
+  "pattern": "linked-list",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "Given the `head` of a singly linked list and an integer `k`, split the list into `k` consecutive parts. The length of each part should be as equal as possible: no two parts should differ in length by more than 1, and earlier parts must be of length greater than or equal to later parts. Some parts may be empty if there are fewer nodes than `k`. Return the `k` parts as a list of arrays (each part converted from its linked sublist).\n\nThe input list is given as an array (e.g. `[1,2,3]` represents `1 -> 2 -> 3 -> null`). The starter code includes a helper to convert the array into a linked-list node — build the actual list, split it into `k` sublists by manipulating `next` pointers (cutting each part off with `null`), then convert each resulting part back into an array for the returned list of parts.",
+  "examples": [
+    {
+      "input": "head = [1,2,3], k = 5",
+      "output": "[[1],[2],[3],[],[]]"
+    },
+    {
+      "input": "head = [1,2,3,4,5,6,7,8,9,10], k = 3",
+      "output": "[[1,2,3,4],[5,6,7],[8,9,10]]"
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [0, 1000]",
+    "0 <= Node.val <= 1000",
+    "1 <= k <= 50"
+  ],
+  "hints": [
+    "Figure out the target sizes up front: with n nodes split into k parts, every part gets at least n // k nodes, and the first (n % k) parts get one extra node each.",
+    "Walk through the original list once, cutting off a chunk of the right size for each of the k parts in turn using next pointers.",
+    "Remember to explicitly terminate each chunk's last node with null before moving on, since otherwise the whole original list stays attached to a later chunk."
+  ],
+  "solution": {
+    "approach": "Compute the list length n, then base_size = n // k and extra = n % k: the first `extra` parts get base_size + 1 nodes, and the remaining parts get base_size nodes. Walk through the list once with a current pointer, and for each of the k parts, record its head, advance the current pointer the appropriate number of steps for that part's size, then cut the link (set the last node of the part's next to null) before moving to the next part. Converting each resulting sublist head to an array gives the final list of k parts.",
+    "code": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for v in arr:\n        node = ListNode(v)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef split_list_to_parts(head_arr, k):\n    head = arr_to_list(head_arr)\n\n    length = 0\n    node = head\n    while node:\n        length += 1\n        node = node.next\n\n    base_size, extra = divmod(length, k)\n\n    parts = []\n    curr = head\n    for i in range(k):\n        part_size = base_size + (1 if i < extra else 0)\n        part_head = curr\n        if part_size == 0:\n            parts.append([])\n            continue\n        for _ in range(part_size - 1):\n            curr = curr.next\n        next_part_head = curr.next\n        curr.next = None\n        curr = next_part_head\n        parts.append(list_to_arr(part_head))\n\n    return parts\n",
+    "timeComplexity": "O(n + k)",
+    "spaceComplexity": "O(1) auxiliary (excluding the returned parts)"
+  },
+  "starterCode": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for v in arr:\n        node = ListNode(v)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef split_list_to_parts(head_arr, k):\n    head = arr_to_list(head_arr)\n    # your code here — return a list of k arrays\n    pass\n",
+  "functionName": "split_list_to_parts",
+  "paramNames": ["head_arr", "k"],
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 3],
+        5
+      ],
+      "expected": [[1], [2], [3], [], []],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        3
+      ],
+      "expected": [[1, 2, 3, 4], [5, 6, 7], [8, 9, 10]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [],
+        3
+      ],
+      "expected": [[], [], []],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3, 4],
+        2
+      ],
+      "expected": [[1, 2], [3, 4]],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1],
+        1
+      ],
+      "expected": [[1]],
+      "isHidden": true
+    }
+  ]
+}

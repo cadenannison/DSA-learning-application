@@ -1,0 +1,74 @@
+{
+  "id": "find-if-path-exists-in-graph",
+  "title": "Find if Path Exists in Graph",
+  "pattern": "graphs",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Facebook"
+  ],
+  "prompt": "There is a bi-directional graph with `n` vertices labeled `0` to `n - 1`, given as an array `edges` where `edges[i] = [ui, vi]` denotes an edge between vertex `ui` and vertex `vi`. Every vertex pair is connected by at most one edge, and no vertex has an edge to itself.\n\nGiven two vertices `source` and `destination`, return `true` if there is a valid path from `source` to `destination`, or `false` otherwise.",
+  "examples": [
+    {
+      "input": "n = 3, edges = [[0,1],[1,2],[2,0]], source = 0, destination = 2",
+      "output": "true",
+      "explanation": "There are two valid paths from 0 to 2: 0 -> 1 -> 2 and 0 -> 2 directly."
+    },
+    {
+      "input": "n = 6, edges = [[0,1],[0,2],[3,5],[5,4],[4,3]], source = 0, destination = 5",
+      "output": "false",
+      "explanation": "Vertices {0,1,2} and {3,4,5} form two separate components, so there's no way to reach 5 from 0."
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 2 * 10^5",
+    "0 <= edges.length <= 2 * 10^5",
+    "edges[i].length == 2",
+    "0 <= ui, vi <= n - 1",
+    "ui != vi",
+    "0 <= source, destination <= n - 1",
+    "There are no duplicate edges and no self loops"
+  ],
+  "hints": [
+    "This just asks whether source and destination are in the same connected component — you don't need shortest path or any weighting.",
+    "Build an adjacency list and run a single BFS or DFS from source, marking visited vertices.",
+    "Union-Find also works well here: union every edge's endpoints, then check whether source and destination share the same root."
+  ],
+  "solution": {
+    "approach": "Build an adjacency list from the edges and run BFS starting at source, marking each vertex visited as it's discovered. Since the graph is undirected and unweighted, BFS (or DFS) reaches every vertex in source's connected component. Once the search finishes, destination is reachable if and only if it was marked visited.",
+    "code": "from collections import deque\n\n\ndef valid_path(n, edges, source, destination):\n    if source == destination:\n        return True\n\n    graph = [[] for _ in range(n)]\n    for a, b in edges:\n        graph[a].append(b)\n        graph[b].append(a)\n\n    visited = [False] * n\n    visited[source] = True\n    queue = deque([source])\n\n    while queue:\n        node = queue.popleft()\n        if node == destination:\n            return True\n        for neighbor in graph[node]:\n            if not visited[neighbor]:\n                visited[neighbor] = True\n                queue.append(neighbor)\n\n    return visited[destination]\n",
+    "timeComplexity": "O(V + E)",
+    "spaceComplexity": "O(V + E)"
+  },
+  "starterCode": "def valid_path(n, edges, source, destination):\n    # your code here\n    pass\n",
+  "functionName": "valid_path",
+  "paramNames": ["n", "edges", "source", "destination"],
+  "testCases": [
+    {
+      "input": [3, [[0, 1], [1, 2], [2, 0]], 0, 2],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [6, [[0, 1], [0, 2], [3, 5], [5, 4], [4, 3]], 0, 5],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [1, [], 0, 0],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [5, [[0, 1], [1, 2], [2, 3], [3, 4]], 0, 4],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [4, [[0, 1], [2, 3]], 1, 3],
+      "expected": false,
+      "isHidden": true
+    }
+  ]
+}

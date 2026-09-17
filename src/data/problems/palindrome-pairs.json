@@ -1,0 +1,70 @@
+{
+  "id": "palindrome-pairs",
+  "title": "Palindrome Pairs",
+  "pattern": "tries",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Airbnb",
+    "Amazon"
+  ],
+  "prompt": "Given a list of unique strings `words`, return all pairs of indices `(i, j)` such that concatenating `words[i] + words[j]` forms a palindrome. `i` and `j` must be different indices, and both `(i, j)` orderings should be reported separately if both work.\n\nReturn the pairs sorted first by `i` then by `j`, each as a two-element list, for deterministic comparison.",
+  "examples": [
+    {
+      "input": "words = [\"abcd\",\"dcba\",\"lls\",\"s\",\"sssll\"]",
+      "output": "[[0,1],[1,0],[2,4],[3,2]]",
+      "explanation": "\"abcd\"+\"dcba\"=\"abcddcba\" is a palindrome, and so is \"dcba\"+\"abcd\". [2,4]: \"lls\"+\"sssll\"=\"llssssll\" is a palindrome. [3,2]: \"s\"+\"lls\"=\"slls\" is a palindrome."
+    },
+    {
+      "input": "words = [\"a\",\"\"]",
+      "output": "[[0,1],[1,0]]",
+      "explanation": "\"a\"+\"\"=\"a\" is a palindrome, and \"\"+\"a\"=\"a\" is also a palindrome."
+    }
+  ],
+  "constraints": [
+    "1 <= words.length <= 5000",
+    "0 <= words[i].length <= 300",
+    "words[i] consists of lowercase English letters"
+  ],
+  "hints": [
+    "Checking every pair directly is O(n^2 * k) where k is the max word length — too slow at n=5000; you need to find valid partners for each word faster.",
+    "Insert every word into a trie IN REVERSE, storing the original word's index at each word-ending node. Also, at every node along a word's reversed-insertion path, record that word's index if the yet-unconsumed prefix of the original word (up to that point) is itself a palindrome.",
+    "For each word, walk it character by character (forward) through the reversed-word trie. At each step, if the current trie node marks some other word's end and the remaining unmatched suffix of the current word is a palindrome, that other word can follow this one. If the walk consumes the whole word and lands on a node, any indices recorded there (palindromic leftover prefixes) give words that can precede this one."
+  ],
+  "solution": {
+    "approach": "Insert every word into a trie in reverse order of characters, so a trie path spells out reverse(word) from the root. At each node visited while inserting word i, if the portion of word i already consumed (as a prefix, read normally) is itself a palindrome, record index i at that node under 'pal_prefix_indices' — these mark words that could be prepended before some other word ending deeper in the trie. Mark the final node of each insertion with its word's index. To query for word idx, walk it forward character by character against the trie: whenever the current node marks some other complete word AND the remaining (unconsumed) suffix of the word being queried is a palindrome, that other word can be appended after word idx (word[idx] + other reads as (matched-part)(palindrome-remainder)(reverse of matched-part), which is a palindrome). If the walk consumes the entire word and lands on a node, every index in that node's pal_prefix_indices marks a word that can be prepended before word idx by the symmetric argument.",
+    "code": "def palindrome_pairs(words):\n    def is_palindrome(s):\n        return s == s[::-1]\n\n    root = {}\n    for idx, word in enumerate(words):\n        node = root\n        for i in range(len(word) - 1, -1, -1):\n            ch = word[i]\n            if is_palindrome(word[:i + 1]):\n                node.setdefault('pal_prefix_indices', []).append(idx)\n            node = node.setdefault(ch, {})\n        node['word_index'] = idx\n        node.setdefault('pal_prefix_indices', [])\n\n    result = []\n    for idx, word in enumerate(words):\n        node = root\n        n = len(word)\n        for i in range(n):\n            if node.get('word_index', -1) != -1 and node['word_index'] != idx and is_palindrome(word[i:]):\n                result.append([idx, node['word_index']])\n            ch = word[i]\n            if ch not in node:\n                break\n            node = node[ch]\n        else:\n            if node.get('word_index', -1) != -1 and node['word_index'] != idx:\n                result.append([idx, node['word_index']])\n            for other_idx in node.get('pal_prefix_indices', []):\n                if other_idx != idx:\n                    result.append([idx, other_idx])\n\n    result.sort()\n    return result\n",
+    "timeComplexity": "O(n * k^2) where n is the number of words and k is the max word length, dominated by palindrome checks",
+    "spaceComplexity": "O(n * k) for the trie"
+  },
+  "starterCode": "def palindrome_pairs(words):\n    # your code here\n    pass\n",
+  "functionName": "palindrome_pairs",
+  "paramNames": ["words"],
+  "testCases": [
+    {
+      "input": [["abcd", "dcba", "lls", "s", "sssll"]],
+      "expected": [[0, 1], [1, 0], [2, 4], [3, 2]],
+      "isHidden": false
+    },
+    {
+      "input": [["a", ""]],
+      "expected": [[0, 1], [1, 0]],
+      "isHidden": false
+    },
+    {
+      "input": [["bat", "tab", "cat"]],
+      "expected": [[0, 1], [1, 0]],
+      "isHidden": true
+    },
+    {
+      "input": [[""]],
+      "expected": [],
+      "isHidden": true
+    },
+    {
+      "input": [["ab", "ba"]],
+      "expected": [[0, 1], [1, 0]],
+      "isHidden": true
+    }
+  ]
+}

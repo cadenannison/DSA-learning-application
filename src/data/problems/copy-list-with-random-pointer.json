@@ -1,0 +1,85 @@
+{
+  "id": "copy-list-with-random-pointer",
+  "title": "Copy List with Random Pointer",
+  "pattern": "linked-list",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Meta",
+    "Microsoft",
+    "Bloomberg",
+    "Uber"
+  ],
+  "prompt": "You are given a linked list where each node has an additional `random` pointer, which could point to any node in the list (or to `null`). Construct a deep copy of the list: the copy must consist of entirely new nodes, with each new node's `next` and `random` pointers pointing to new nodes that mirror the structure of the original.\n\nSince a JSON test case can't represent real pointer references, each node is encoded as `[val, random_index]`, where `random_index` is the zero-based index of the node its `random` pointer targets, or `-1` for `null`. The whole list is an array of these pairs, e.g. `[[7,-1],[13,0],[11,4],[10,2],[1,0]]`. Build the real linked structure (with actual `random` references) internally, deep-copy it, then return the copy in the same `[val, random_index]` encoding for verification.",
+  "examples": [
+    {
+      "input": "head = [[7,-1],[13,0],[11,4],[10,2],[1,0]]",
+      "output": "[[7,-1],[13,0],[11,4],[10,2],[1,0]]",
+      "explanation": "The deep copy has identical val/random structure to the original, but is made of entirely new node objects."
+    },
+    {
+      "input": "head = [[1,1],[2,1]]",
+      "output": "[[1,1],[2,1]]"
+    },
+    {
+      "input": "head = [[3,-1],[3,0],[3,-1]]",
+      "output": "[[3,-1],[3,0],[3,-1]]"
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [0, 1000]",
+    "-10^4 <= Node.val <= 10^4",
+    "Node.random is null or points to some node in the linked list"
+  ],
+  "hints": [
+    "A hash map from original node to its copy lets you fill in random pointers in a second pass once every node has been duplicated once.",
+    "First pass: create a copy of every node (with the right val, next and random left unset) and record original -> copy in a map.",
+    "Second pass: for every original node, use the map to set copy.next = map[original.next] and copy.random = map[original.random], handling None safely."
+  ],
+  "solution": {
+    "approach": "Build the original list with real internal random pointers from the encoding. Do a first pass through the original list creating one new node per original node (copying only val for now) and store a mapping from each original node to its corresponding copy in a dict. Do a second pass where, for every original node, the copy's next and random pointers are set by looking up the original's next/random in the map (mapping None to None). Since every original node has an entry in the map by the time the second pass runs, both pointers can always be resolved correctly.",
+    "code": "class Node:\n    def __init__(self, val, next=None, random=None):\n        self.val = val\n        self.next = next\n        self.random = random\n\n\ndef build_random_list(pairs):\n    if not pairs:\n        return None\n    nodes = [Node(val) for val, _ in pairs]\n    for i in range(len(nodes) - 1):\n        nodes[i].next = nodes[i + 1]\n    for i, (_, r) in enumerate(pairs):\n        nodes[i].random = nodes[r] if r != -1 else None\n    return nodes[0]\n\n\ndef list_to_pairs(head):\n    nodes = []\n    node = head\n    while node:\n        nodes.append(node)\n        node = node.next\n    index = {id(n): i for i, n in enumerate(nodes)}\n    return [\n        [n.val, index[id(n.random)] if n.random else -1]\n        for n in nodes\n    ]\n\n\ndef copy_random_list(pairs):\n    head = build_random_list(pairs)\n\n    if not head:\n        return list_to_pairs(None)\n\n    mapping = {}\n    node = head\n    while node:\n        mapping[node] = Node(node.val)\n        node = node.next\n\n    node = head\n    while node:\n        mapping[node].next = mapping.get(node.next)\n        mapping[node].random = mapping.get(node.random)\n        node = node.next\n\n    return list_to_pairs(mapping[head])\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n) for the mapping"
+  },
+  "starterCode": "class Node:\n    def __init__(self, val, next=None, random=None):\n        self.val = val\n        self.next = next\n        self.random = random\n\n\ndef build_random_list(pairs):\n    if not pairs:\n        return None\n    nodes = [Node(val) for val, _ in pairs]\n    for i in range(len(nodes) - 1):\n        nodes[i].next = nodes[i + 1]\n    for i, (_, r) in enumerate(pairs):\n        nodes[i].random = nodes[r] if r != -1 else None\n    return nodes[0]\n\n\ndef list_to_pairs(head):\n    nodes = []\n    node = head\n    while node:\n        nodes.append(node)\n        node = node.next\n    index = {id(n): i for i, n in enumerate(nodes)}\n    return [\n        [n.val, index[id(n.random)] if n.random else -1]\n        for n in nodes\n    ]\n\n\ndef copy_random_list(pairs):\n    head = build_random_list(pairs)\n    # your code here — build a deep copy and return list_to_pairs(copy_head)\n    pass\n",
+  "functionName": "copy_random_list",
+  "paramNames": ["pairs"],
+  "testCases": [
+    {
+      "input": [
+        [[7, -1], [13, 0], [11, 4], [10, 2], [1, 0]]
+      ],
+      "expected": [[7, -1], [13, 0], [11, 4], [10, 2], [1, 0]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1, 1], [2, 1]]
+      ],
+      "expected": [[1, 1], [2, 1]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[3, -1], [3, 0], [3, -1]]
+      ],
+      "expected": [[3, -1], [3, 0], [3, -1]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        []
+      ],
+      "expected": [],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[1, -1]]
+      ],
+      "expected": [[1, -1]],
+      "isHidden": true
+    }
+  ]
+}

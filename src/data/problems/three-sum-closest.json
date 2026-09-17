@@ -1,0 +1,84 @@
+{
+  "id": "three-sum-closest",
+  "title": "3Sum Closest",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Meta",
+    "Bloomberg"
+  ],
+  "prompt": "Given an integer array `nums` of length `n` and an integer `target`, find three integers in `nums` such that the sum is closest to `target`. Return the sum of those three integers. You may assume each input has exactly one solution.",
+  "examples": [
+    {
+      "input": "nums = [-1,2,1,-4], target = 1",
+      "output": "2",
+      "explanation": "The sum -1 + 2 + 1 = 2 is closest to target 1."
+    },
+    {
+      "input": "nums = [0,0,0], target = 1",
+      "output": "0"
+    }
+  ],
+  "constraints": [
+    "3 <= nums.length <= 500",
+    "-1000 <= nums[i] <= 1000",
+    "-10^4 <= target <= 10^4"
+  ],
+  "hints": [
+    "Checking every triplet directly is O(n^3). Sorting first opens the door to a faster approach, just like the exact-sum version of this problem.",
+    "Fix one number and use two pointers over the rest of the sorted array to search for the pair that gets you closest to the remaining target.",
+    "Track the best (closest) sum found across all fixed choices; when the two-pointer sum is too low move the low pointer up, too high move the high pointer down, and if you ever hit target exactly you can return immediately."
+  ],
+  "solution": {
+    "approach": "Sort the array, then for each index i, run a two-pointer scan over the rest of the array to find the pair whose sum plus nums[i] is closest to target. If the running sum is less than target, move the low pointer right to increase it; if greater, move the high pointer left to decrease it; update the closest-sum-seen at every step. This mirrors the 3Sum two-pointer structure but tracks distance-to-target instead of an exact zero match, giving O(n^2) instead of the O(n^3) brute force.",
+    "code": "def three_sum_closest(nums, target):\n    nums.sort()\n    n = len(nums)\n    closest = nums[0] + nums[1] + nums[2]\n\n    for i in range(n - 2):\n        lo, hi = i + 1, n - 1\n        while lo < hi:\n            total = nums[i] + nums[lo] + nums[hi]\n            if abs(total - target) < abs(closest - target):\n                closest = total\n            if total == target:\n                return total\n            elif total < target:\n                lo += 1\n            else:\n                hi -= 1\n\n    return closest\n",
+    "timeComplexity": "O(n^2)",
+    "spaceComplexity": "O(1) extra space, excluding sort space"
+  },
+  "starterCode": "def three_sum_closest(nums, target):\n    # your code here\n    pass\n",
+  "functionName": "three_sum_closest",
+  "paramNames": ["nums", "target"],
+  "testCases": [
+    {
+      "input": [
+        [-1, 2, 1, -4],
+        1
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0, 0, 0],
+        1
+      ],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 1, 1, 0],
+        -100
+      ],
+      "expected": 2,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [4, 0, 5, -5, 3, 3, 0, -4, -5],
+        -2
+      ],
+      "expected": -2,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 4, 8, 16, 32, 64, 128],
+        82
+      ],
+      "expected": 82,
+      "isHidden": true
+    }
+  ]
+}

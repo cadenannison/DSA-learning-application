@@ -1,0 +1,63 @@
+{
+  "id": "permutations-ii",
+  "title": "Permutations II",
+  "pattern": "backtracking",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Facebook",
+    "Microsoft"
+  ],
+  "prompt": "Given a collection of numbers `nums` that might contain duplicates, return all possible unique permutations, in any order.\n\nFor deterministic comparison, sort the outer list of permutations (for example, by converting each permutation to a tuple and sorting the list of tuples).",
+  "examples": [
+    {
+      "input": "nums = [1,1,2]",
+      "output": "[[1,1,2],[1,2,1],[2,1,1]]",
+      "explanation": "Only 3 distinct orderings exist since the two 1's are indistinguishable."
+    },
+    {
+      "input": "nums = [1,2,3]",
+      "output": "[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]"
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 8",
+    "-10 <= nums[i] <= 10"
+  ],
+  "hints": [
+    "This is Permutations but nums may contain duplicates \u2014 the standard 'try every unused index' backtracking will now produce the same permutation multiple times.",
+    "Sort nums first so equal values are adjacent, then track which indices are used just like standard permutations.",
+    "At each recursive call, skip index i if nums[i] == nums[i-1] and index i-1 hasn't been used yet in the current path \u2014 this forces equal values to be placed in a fixed relative order across branches, eliminating duplicate permutations without ever comparing full paths."
+  ],
+  "solution": {
+    "approach": "Sort nums so duplicate values sit next to each other, then backtrack over which index to place next using a 'used' boolean array. The duplicate-avoidance rule: skip candidate index i if nums[i] equals nums[i-1] and nums[i-1] is currently NOT used. This ensures that among a run of equal values, they are only ever placed in left-to-right index order within any given path, so two different index choices can never produce the identical output permutation. Everything else mirrors standard permutation backtracking: mark used, append to path, recurse, then undo.",
+    "code": "def permute_unique(nums):\n    nums = sorted(nums)\n    n = len(nums)\n    result = []\n    path = []\n    used = [False] * n\n\n    def backtrack():\n        if len(path) == n:\n            result.append(path[:])\n            return\n        for i in range(n):\n            if used[i]:\n                continue\n            if i > 0 and nums[i] == nums[i - 1] and not used[i - 1]:\n                continue\n            used[i] = True\n            path.append(nums[i])\n            backtrack()\n            path.pop()\n            used[i] = False\n\n    backtrack()\n    result.sort(key=lambda perm: tuple(perm))\n    return result\n",
+    "timeComplexity": "O(n * n!) worst case",
+    "spaceComplexity": "O(n * n!) for the output, O(n) recursion depth"
+  },
+  "starterCode": "def permute_unique(nums):\n    # your code here\n    pass\n",
+  "functionName": "permute_unique",
+  "paramNames": ["nums"],
+  "testCases": [
+    {
+      "input": [[1, 1, 2]],
+      "expected": [[1, 1, 2], [1, 2, 1], [2, 1, 1]],
+      "isHidden": false
+    },
+    {
+      "input": [[1, 2, 3]],
+      "expected": [[1, 2, 3], [1, 3, 2], [2, 1, 3], [2, 3, 1], [3, 1, 2], [3, 2, 1]],
+      "isHidden": false
+    },
+    {
+      "input": [[2, 2, 2]],
+      "expected": [[2, 2, 2]],
+      "isHidden": true
+    },
+    {
+      "input": [[1]],
+      "expected": [[1]],
+      "isHidden": true
+    }
+  ]
+}

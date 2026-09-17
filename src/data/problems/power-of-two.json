@@ -1,0 +1,77 @@
+{
+  "id": "power-of-two",
+  "title": "Power of Two",
+  "pattern": "greedy",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Apple"
+  ],
+  "prompt": "Given an integer `n`, return `true` if it is a power of two, meaning `n` can be written as `2^x` for some non-negative integer `x`. Otherwise return `false`.",
+  "examples": [
+    {
+      "input": "n = 1",
+      "output": "true",
+      "explanation": "2^0 = 1"
+    },
+    {
+      "input": "n = 16",
+      "output": "true",
+      "explanation": "2^4 = 16"
+    },
+    {
+      "input": "n = 3",
+      "output": "false"
+    }
+  ],
+  "constraints": [
+    "-2^31 <= n <= 2^31 - 1"
+  ],
+  "hints": [
+    "You could repeatedly divide by 2 and check if you ever land exactly on 1, but there's a constant-time bit trick.",
+    "A power of two in binary has exactly one 1 bit set, and n must be positive.",
+    "For a positive n, n & (n - 1) clears the lowest set bit. If n is a power of two, that operation results in exactly 0, since there was only one set bit to clear."
+  ],
+  "solution": {
+    "approach": "A power of two has exactly one bit set in its binary representation. Clearing the lowest set bit with n & (n - 1) removes that single bit, leaving 0 if and only if n originally had just one bit set. Also require n to be strictly positive, since the bit trick alone doesn't rule out non-positive values.",
+    "code": "def is_power_of_two(n):\n    return n > 0 and (n & (n - 1)) == 0\n",
+    "timeComplexity": "O(1)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def is_power_of_two(n):\n    # your code here\n    pass\n",
+  "functionName": "is_power_of_two",
+  "paramNames": ["n"],
+  "testCases": [
+    {
+      "input": [1],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [16],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [3],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [0],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": [-16],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": [1073741824],
+      "expected": true,
+      "isHidden": true
+    }
+  ]
+}

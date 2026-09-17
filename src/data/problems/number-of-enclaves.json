@@ -1,0 +1,78 @@
+{
+  "id": "number-of-enclaves",
+  "title": "Number of Enclaves",
+  "pattern": "bfs-dfs",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "You are given an `m x n` binary matrix `grid` where `0` represents a sea cell and `1` represents a land cell. A move consists of walking from one land cell to another adjacent (4-directionally) land cell, or walking off the boundary of the grid. Return the number of land cells for which you cannot walk off the boundary of the grid in any number of moves (i.e., land cells that are fully enclosed and can never reach the edge).",
+  "examples": [
+    {
+      "input": "grid = [[0,0,0,0],[1,0,1,0],[0,1,1,0],[0,0,0,0]]",
+      "output": "3",
+      "explanation": "The three connected 1s in the middle can never reach the boundary, since they're fully surrounded by water."
+    },
+    {
+      "input": "grid = [[0,1,1,0],[0,0,1,0],[0,0,1,0],[0,0,0,0]]",
+      "output": "0",
+      "explanation": "All the land cells are connected to land that touches the boundary, so none are enclosed."
+    }
+  ],
+  "constraints": [
+    "1 <= m, n <= 500",
+    "grid[i][j] is 0 or 1"
+  ],
+  "hints": [
+    "A land cell can walk off the grid if and only if it belongs to a connected component of land that touches the grid's border somewhere.",
+    "Flood-fill (DFS/BFS) from every land cell on the border, marking every land cell reachable from the border — all of that land can escape.",
+    "After marking border-reachable land, every remaining unmarked land cell is permanently enclosed; count them directly."
+  ],
+  "solution": {
+    "approach": "Any land cell connected to a land cell on the border can eventually walk off the grid, so flood-fill from every border land cell first, marking all such reachable land (e.g. by zeroing it out). What remains after that pass is exactly the land that can never reach the boundary, so counting the remaining 1s directly answers the question.",
+    "code": "def num_enclaves(grid):\n    rows, cols = len(grid), len(grid[0])\n\n    def dfs(r, c):\n        if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] == 0:\n            return\n        grid[r][c] = 0\n        dfs(r + 1, c)\n        dfs(r - 1, c)\n        dfs(r, c + 1)\n        dfs(r, c - 1)\n\n    for r in range(rows):\n        for c in range(cols):\n            if (r == 0 or r == rows - 1 or c == 0 or c == cols - 1) and grid[r][c] == 1:\n                dfs(r, c)\n\n    return sum(row.count(1) for row in grid)\n",
+    "timeComplexity": "O(m * n)",
+    "spaceComplexity": "O(m * n) worst-case recursion depth"
+  },
+  "starterCode": "def num_enclaves(grid):\n    # your code here\n    pass\n",
+  "functionName": "num_enclaves",
+  "paramNames": ["grid"],
+  "testCases": [
+    {
+      "input": [
+        [[0, 0, 0, 0], [1, 0, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]]
+      ],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[0, 1, 1, 0], [0, 0, 1, 0], [0, 0, 1, 0], [0, 0, 0, 0]]
+      ],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[0]]
+      ],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[1, 1, 1], [1, 1, 1], [1, 1, 1]]
+      ],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[1, 1, 1, 1], [1, 0, 0, 1], [1, 0, 0, 1], [1, 1, 1, 1]]
+      ],
+      "expected": 0,
+      "isHidden": true
+    }
+  ]
+}

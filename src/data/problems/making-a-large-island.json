@@ -1,0 +1,80 @@
+{
+  "id": "making-a-large-island",
+  "title": "Making A Large Island",
+  "pattern": "bfs-dfs",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Amazon",
+    "Facebook"
+  ],
+  "prompt": "You are given an `n x n` binary matrix `grid`. You are allowed to change at most one `0` to a `1`. Return the size of the largest island in `grid` after making this optional change. An island is a group of `1`s connected 4-directionally.",
+  "examples": [
+    {
+      "input": "grid = [[1,0],[0,1]]",
+      "output": "3",
+      "explanation": "Flipping either 0 connects the two single-cell islands into one island of size 3."
+    },
+    {
+      "input": "grid = [[1,1],[1,0]]",
+      "output": "4",
+      "explanation": "Flipping the single 0 merges everything into one island covering the whole grid."
+    }
+  ],
+  "constraints": [
+    "n == grid.length == grid[i].length",
+    "1 <= n <= 500",
+    "grid[i][j] is 0 or 1"
+  ],
+  "hints": [
+    "First, identify every existing island and its area, similar to max-area-of-island, but label each island with a unique id so you can look it up later.",
+    "Store each island's area in a map keyed by its id, and record each island's id directly in the grid (overwrite the 1s with the id) so you can identify which island a given land cell belongs to in O(1).",
+    "For every 0 cell, look at its up-to-4 neighboring island ids, sum the (deduplicated) areas of the distinct islands touched plus 1 for the flipped cell itself — the same island touched from two sides must only be counted once. Track the maximum over all 0 cells, and handle the edge case of an all-1s grid (answer is n*n) separately."
+  ],
+  "solution": {
+    "approach": "Label every existing island with a unique id (starting at 2, since 0 and 1 are taken) via flood-fill, recording each id's area in a map as you go. Then, for every water cell, look at the set of distinct island ids among its up-to-4 neighbors, sum their areas (each id counted once even if touched from multiple directions), and add 1 for the flipped cell itself; track the maximum such value across all water cells. If there is no water cell at all (the whole grid is already one or more islands filling it), the answer is simply n*n.",
+    "code": "def largest_island(grid):\n    n = len(grid)\n    areas = {}\n    island_id = 2\n\n    def dfs(r, c, island_id):\n        if r < 0 or r >= n or c < 0 or c >= n or grid[r][c] != 1:\n            return 0\n        grid[r][c] = island_id\n        return 1 + dfs(r + 1, c, island_id) + dfs(r - 1, c, island_id) + dfs(r, c + 1, island_id) + dfs(r, c - 1, island_id)\n\n    for r in range(n):\n        for c in range(n):\n            if grid[r][c] == 1:\n                areas[island_id] = dfs(r, c, island_id)\n                island_id += 1\n\n    best = max(areas.values()) if areas else 0\n\n    for r in range(n):\n        for c in range(n):\n            if grid[r][c] == 0:\n                neighbor_ids = set()\n                for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                    nr, nc = r + dr, c + dc\n                    if 0 <= nr < n and 0 <= nc < n and grid[nr][nc] != 0:\n                        neighbor_ids.add(grid[nr][nc])\n                total = 1 + sum(areas[i] for i in neighbor_ids)\n                best = max(best, total)\n\n    return best\n",
+    "timeComplexity": "O(n^2)",
+    "spaceComplexity": "O(n^2)"
+  },
+  "starterCode": "def largest_island(grid):\n    # your code here\n    pass\n",
+  "functionName": "largest_island",
+  "paramNames": ["grid"],
+  "testCases": [
+    {
+      "input": [
+        [[1, 0], [0, 1]]
+      ],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1, 1], [1, 0]]
+      ],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1]]
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[0]]
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[0, 0], [0, 0]]
+      ],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

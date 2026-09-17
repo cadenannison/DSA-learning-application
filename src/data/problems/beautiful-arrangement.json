@@ -1,0 +1,66 @@
+{
+  "id": "beautiful-arrangement",
+  "title": "Beautiful Arrangement",
+  "pattern": "backtracking",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "Suppose you have `n` integers labeled 1 through n. A permutation of those n integers, `perm` (1-indexed), is considered a beautiful arrangement if for every `i` (1 <= i <= n), at least one of the following is true: `perm[i]` is divisible by `i`, or `i` is divisible by `perm[i]`.\n\nGiven an integer `n`, return the number of beautiful arrangements that can be constructed.",
+  "examples": [
+    {
+      "input": "n = 2",
+      "output": "2",
+      "explanation": "[1,2] works because perm[1]=1 divides 1 and perm[2]=2 divides 2. [2,1] works because perm[1]=2... wait, position 1 holds 2 (2 is divisible by 1) and position 2 holds 1 (1 divides 2). Both arrangements qualify."
+    },
+    {
+      "input": "n = 1",
+      "output": "1"
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 15"
+  ],
+  "hints": [
+    "Brute-force generating all n! permutations and checking each is correct but slow; you can prune invalid placements far earlier than checking a full permutation.",
+    "Build the arrangement position by position (position 1, then 2, ... then n), and at each position only try numbers not yet used that satisfy the divisibility rule against the CURRENT position index \u2014 don't wait until the end to check.",
+    "Track used numbers with a boolean array, and backtrack: place a valid number at the current position, recurse to the next position, then unmark it before trying the next candidate."
+  ],
+  "solution": {
+    "approach": "Backtrack position by position from 1 to n, maintaining a 'used' array of which numbers have already been placed. At position `pos`, only attempt numbers that are both unused and satisfy the divisibility condition with pos (num % pos == 0 or pos % num == 0) \u2014 checking this constraint immediately at each position, rather than only at the end, prunes huge portions of the search tree since an invalid placement can never be fixed by later choices. When pos exceeds n, a complete beautiful arrangement has been built, so increment the count. This early pruning is what makes backtracking dramatically faster than generating and checking all n! permutations.",
+    "code": "def count_arrangement(n):\n    used = [False] * (n + 1)\n    count = 0\n\n    def backtrack(pos):\n        nonlocal count\n        if pos > n:\n            count += 1\n            return\n        for num in range(1, n + 1):\n            if used[num]:\n                continue\n            if num % pos == 0 or pos % num == 0:\n                used[num] = True\n                backtrack(pos + 1)\n                used[num] = False\n\n    backtrack(1)\n    return count\n",
+    "timeComplexity": "O(k^n) worst case for some constant branching factor k < n, dramatically pruned in practice",
+    "spaceComplexity": "O(n) for the used array and recursion depth"
+  },
+  "starterCode": "def count_arrangement(n):\n    # your code here\n    pass\n",
+  "functionName": "count_arrangement",
+  "paramNames": ["n"],
+  "testCases": [
+    {
+      "input": [2],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [1],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [3],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [4],
+      "expected": 8,
+      "isHidden": true
+    },
+    {
+      "input": [6],
+      "expected": 36,
+      "isHidden": true
+    }
+  ]
+}

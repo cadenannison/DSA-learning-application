@@ -1,0 +1,79 @@
+{
+  "id": "remove-k-digits",
+  "title": "Remove K Digits",
+  "pattern": "stacks-queues",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "Given a non-negative integer represented as a string `num`, and an integer `k`, remove `k` digits from `num` so that the resulting number is the smallest possible. Return the result as a string with no leading zeros (unless the result is `\"0\"`), and it must not be empty unless every digit was removed.",
+  "examples": [
+    {
+      "input": "num = \"1432219\", k = 3",
+      "output": "1219",
+      "explanation": "Removing 4, 3, and 2 (the first one) leaves the smallest possible arrangement 1219."
+    },
+    {
+      "input": "num = \"10200\", k = 1",
+      "output": "200",
+      "explanation": "Removing the leading 1 leaves 0200, and leading zeros are dropped to get 200."
+    },
+    {
+      "input": "num = \"10\", k = 2",
+      "output": "0",
+      "explanation": "Removing all digits leaves an empty string, which is represented as \"0\"."
+    }
+  ],
+  "constraints": [
+    "1 <= k <= num.length <= 10^5",
+    "num consists of only digits",
+    "num does not have any leading zeros except for the zero itself"
+  ],
+  "hints": [
+    "To make the number smallest, you want smaller digits as far left (most significant) as possible — think about when removing a digit helps.",
+    "Removing a digit only helps if it's bigger than the digit right after it (since that lets a smaller digit slide left into a more significant position). This screams monotonic increasing stack.",
+    "Scan digits left to right, popping the stack (removing a digit, using up one of your k removals) whenever the current digit is smaller than the stack's top and removals remain; push afterward. If removals remain after the scan, trim from the end (those are the largest remaining digits)."
+  ],
+  "solution": {
+    "approach": "Build the result with a monotonic increasing stack of digits. For each new digit, while k removals remain and the stack's top digit is greater than the current digit, pop it (removing that digit is strictly beneficial since it lets a smaller digit occupy a more significant position) and decrement k. Push the current digit. If digits remain to remove after the scan (the string was non-decreasing), remove them from the end, since trailing digits there are the largest. Finally strip leading zeros and return \"0\" if the result is empty.",
+    "code": "def remove_kdigits(num, k):\n    stack = []\n    for digit in num:\n        while k > 0 and stack and stack[-1] > digit:\n            stack.pop()\n            k -= 1\n        stack.append(digit)\n\n    if k > 0:\n        stack = stack[:-k]\n\n    result = ''.join(stack).lstrip('0')\n    return result if result else '0'\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def remove_kdigits(num, k):\n    # your code here\n    pass\n",
+  "functionName": "remove_kdigits",
+  "paramNames": ["num", "k"],
+  "testCases": [
+    {
+      "input": ["1432219", 3],
+      "expected": "1219",
+      "isHidden": false
+    },
+    {
+      "input": ["10200", 1],
+      "expected": "200",
+      "isHidden": false
+    },
+    {
+      "input": ["10", 2],
+      "expected": "0",
+      "isHidden": false
+    },
+    {
+      "input": ["9", 1],
+      "expected": "0",
+      "isHidden": true
+    },
+    {
+      "input": ["112", 1],
+      "expected": "11",
+      "isHidden": true
+    },
+    {
+      "input": ["1234567890", 9],
+      "expected": "0",
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "id": "find-first-and-last-position-of-element-in-sorted-array",
+  "title": "Find First and Last Position of Element in Sorted Array",
+  "pattern": "binary-search",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Meta",
+    "LinkedIn",
+    "Bloomberg"
+  ],
+  "prompt": "Given an array of integers `nums` sorted in non-decreasing order, find the starting and ending index of a given `target` value. If `target` is not found, return `[-1, -1]`. Your algorithm must run in `O(log n)` time.",
+  "examples": [
+    {
+      "input": "nums = [5,7,7,8,8,10], target = 8",
+      "output": "[3,4]"
+    },
+    {
+      "input": "nums = [5,7,7,8,8,10], target = 6",
+      "output": "[-1,-1]"
+    },
+    {
+      "input": "nums = [], target = 0",
+      "output": "[-1,-1]"
+    }
+  ],
+  "constraints": [
+    "0 <= nums.length <= 10^5",
+    "-10^9 <= nums[i] <= 10^9",
+    "nums is a non-decreasing array",
+    "-10^9 <= target <= 10^9"
+  ],
+  "hints": [
+    "Once you find any occurrence of target with a normal binary search, expanding outward linearly to find the bounds costs O(n) in the worst case (e.g. all elements equal target).",
+    "Instead run two separate binary searches: one biased to find the leftmost index where target could be inserted, another biased to find the leftmost index where target + 1 could be inserted.",
+    "The first search's result is the start of target's range (if it actually equals target); the second search's result minus one is the end of that range."
+  ],
+  "solution": {
+    "approach": "Run a 'find leftmost insertion point' binary search twice: once for target itself to get the start of its range, and once for target + 1 to get one past the end of its range. Both searches are the same lower-bound binary search, just parameterized by a different value, so they run in O(log n) each. If the start index is out of bounds or nums[start] isn't actually target, the value doesn't exist and the answer is [-1, -1]; otherwise the range is [start, end - 1].",
+    "code": "def search_range(nums, target):\n    def lower_bound(x):\n        lo, hi = 0, len(nums)\n        while lo < hi:\n            mid = (lo + hi) // 2\n            if nums[mid] < x:\n                lo = mid + 1\n            else:\n                hi = mid\n        return lo\n\n    start = lower_bound(target)\n    if start == len(nums) or nums[start] != target:\n        return [-1, -1]\n\n    end = lower_bound(target + 1) - 1\n    return [start, end]\n",
+    "timeComplexity": "O(log n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def search_range(nums, target):\n    # your code here\n    pass\n",
+  "functionName": "search_range",
+  "paramNames": ["nums", "target"],
+  "testCases": [
+    {
+      "input": [
+        [5, 7, 7, 8, 8, 10],
+        8
+      ],
+      "expected": [3, 4],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [5, 7, 7, 8, 8, 10],
+        6
+      ],
+      "expected": [-1, -1],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [],
+        0
+      ],
+      "expected": [-1, -1],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1],
+        1
+      ],
+      "expected": [0, 0],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [2, 2, 2, 2, 2],
+        2
+      ],
+      "expected": [0, 4],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3],
+        3
+      ],
+      "expected": [2, 2],
+      "isHidden": true
+    }
+  ]
+}

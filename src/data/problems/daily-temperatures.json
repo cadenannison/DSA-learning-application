@@ -1,0 +1,72 @@
+{
+  "id": "daily-temperatures",
+  "title": "Daily Temperatures",
+  "pattern": "stacks-queues",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Meta",
+    "Bloomberg"
+  ],
+  "prompt": "Given an array of integers `temperatures` representing daily temperatures, return an array `answer` such that `answer[i]` is the number of days you have to wait after day `i` to get a warmer temperature. If there is no future day with a warmer temperature, put `0` instead.",
+  "examples": [
+    {
+      "input": "temperatures = [73,74,75,71,69,72,76,73]",
+      "output": "[1,1,4,2,1,1,0,0]"
+    },
+    {
+      "input": "temperatures = [30,40,50,60]",
+      "output": "[1,1,1,0]"
+    },
+    {
+      "input": "temperatures = [30,60,90]",
+      "output": "[1,1,0]"
+    }
+  ],
+  "constraints": [
+    "1 <= temperatures.length <= 10^5",
+    "30 <= temperatures[i] <= 100"
+  ],
+  "hints": [
+    "For each day, scanning forward to find the next warmer day gives O(n^2) in the worst case — you can resolve every day in one linear pass.",
+    "This is a classic 'next greater element' pattern: maintain a stack of indices for days still waiting on a warmer day.",
+    "Keep the stack's temperatures in decreasing order; whenever the current day is warmer than the temperature at the index on top, pop it and record the day difference as the wait time."
+  ],
+  "solution": {
+    "approach": "Maintain a stack of indices whose temperatures form a decreasing sequence (each is still waiting for a warmer day). Scan left to right: while the current temperature is greater than the temperature at the index on top of the stack, pop that index and set its answer to the difference between the current index and the popped index. Push the current index. Anything left on the stack at the end never finds a warmer day and keeps its default answer of 0.",
+    "code": "def daily_temperatures(temperatures):\n    n = len(temperatures)\n    answer = [0] * n\n    stack = []\n    for i, temp in enumerate(temperatures):\n        while stack and temperatures[stack[-1]] < temp:\n            j = stack.pop()\n            answer[j] = i - j\n        stack.append(i)\n    return answer\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def daily_temperatures(temperatures):\n    # your code here\n    pass\n",
+  "functionName": "daily_temperatures",
+  "paramNames": ["temperatures"],
+  "testCases": [
+    {
+      "input": [[73, 74, 75, 71, 69, 72, 76, 73]],
+      "expected": [1, 1, 4, 2, 1, 1, 0, 0],
+      "isHidden": false
+    },
+    {
+      "input": [[30, 40, 50, 60]],
+      "expected": [1, 1, 1, 0],
+      "isHidden": false
+    },
+    {
+      "input": [[30, 60, 90]],
+      "expected": [1, 1, 0],
+      "isHidden": false
+    },
+    {
+      "input": [[100]],
+      "expected": [0],
+      "isHidden": true
+    },
+    {
+      "input": [[90, 80, 70, 60]],
+      "expected": [0, 0, 0, 0],
+      "isHidden": true
+    }
+  ]
+}

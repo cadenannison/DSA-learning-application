@@ -1,0 +1,77 @@
+{
+  "id": "binary-number-with-alternating-bits",
+  "title": "Binary Number with Alternating Bits",
+  "pattern": "greedy",
+  "difficulty": "easy",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "Given a positive integer `n`, check whether it has alternating bits, meaning no two adjacent bits in its binary representation have the same value. Return `true` if so, otherwise return `false`.",
+  "examples": [
+    {
+      "input": "n = 5",
+      "output": "true",
+      "explanation": "The binary representation of 5 is 101, which alternates."
+    },
+    {
+      "input": "n = 7",
+      "output": "false",
+      "explanation": "The binary representation of 7 is 111, which has adjacent equal bits."
+    },
+    {
+      "input": "n = 10",
+      "output": "true",
+      "explanation": "The binary representation of 10 is 1010, which alternates."
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 2^31 - 1"
+  ],
+  "hints": [
+    "You could extract each bit and compare it with its neighbor one at a time.",
+    "Compare n with itself shifted right by one bit using XOR — alternating bits produce a very specific pattern.",
+    "If n's bits alternate, then (n XOR (n >> 1)) is a number consisting of all 1 bits (like 111...1). A number of all 1 bits, when incremented, becomes a power of two, so check if ((n ^ (n >> 1)) + 1) has exactly one set bit."
+  ],
+  "solution": {
+    "approach": "If n's bits alternate, XORing n with itself shifted right by one produces a number whose binary form is all 1s, because every adjacent pair of differing bits turns into a 1 at that position. A number made entirely of 1 bits, say of the form 2^k - 1, has the property that adding 1 to it yields exactly 2^k, a power of two with a single set bit. So compute m = n ^ (n >> 1), then check that m & (m + 1) == 0, which confirms m is all 1 bits.",
+    "code": "def has_alternating_bits(n):\n    m = n ^ (n >> 1)\n    return (m & (m + 1)) == 0\n",
+    "timeComplexity": "O(1)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def has_alternating_bits(n):\n    # your code here\n    pass\n",
+  "functionName": "has_alternating_bits",
+  "paramNames": ["n"],
+  "testCases": [
+    {
+      "input": [5],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [7],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [10],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [1],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [2],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [11],
+      "expected": false,
+      "isHidden": true
+    }
+  ]
+}

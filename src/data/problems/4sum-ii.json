@@ -1,0 +1,84 @@
+{
+  "id": "4sum-ii",
+  "title": "4Sum II",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Airbnb"
+  ],
+  "prompt": "Given four integer arrays `nums1`, `nums2`, `nums3`, and `nums4`, all of length `n`, return the number of tuples `(i, j, k, l)` such that `nums1[i] + nums2[j] + nums3[k] + nums4[l] == 0`. Indices for each array are chosen independently (i, j, k, l each range over their own array, with no requirement that they be distinct from each other across arrays).",
+  "examples": [
+    {
+      "input": "nums1 = [1,2], nums2 = [-2,-1], nums3 = [-1,2], nums4 = [0,2]",
+      "output": "2",
+      "explanation": "The two tuples are (0,0,0,1) -> 1+(-2)+(-1)+2=0 and (1,1,0,0) -> 2+(-1)+(-1)+0=0."
+    },
+    {
+      "input": "nums1 = [0], nums2 = [0], nums3 = [0], nums4 = [0]",
+      "output": "1"
+    }
+  ],
+  "constraints": [
+    "n == nums1.length == nums2.length == nums3.length == nums4.length",
+    "1 <= n <= 200",
+    "-2^28 <= nums1[i], nums2[i], nums3[i], nums4[i] <= 2^28"
+  ],
+  "hints": [
+    "Checking all combinations directly is O(n^4). Splitting the four arrays into two halves opens up a meet-in-the-middle approach.",
+    "Precompute every possible sum of one element from nums1 with one from nums2, and count how often each sum value occurs.",
+    "For every pair from nums3 and nums4, look up how many nums1+nums2 pairs equal the negation of that sum — a hash map turns this lookup into O(1) per pair, giving O(n^2) total instead of O(n^4)."
+  ],
+  "solution": {
+    "approach": "Split the four arrays into two halves. Compute every possible sum of a pair (a from nums1, b from nums2) and store the frequency of each sum value in a hash map — this takes O(n^2) time over n^2 pairs. Then iterate every pair (c from nums3, d from nums4) and look up how many nums1+nums2 pairs summed to exactly -(c+d) in that map, adding the count to the running total. This meet-in-the-middle technique turns the naive O(n^4) quadruple-nested search into O(n^2) time (and O(n^2) space for the map).",
+    "code": "def four_sum_count(nums1, nums2, nums3, nums4):\n    sum_counts = {}\n    for a in nums1:\n        for b in nums2:\n            sum_counts[a + b] = sum_counts.get(a + b, 0) + 1\n\n    total = 0\n    for c in nums3:\n        for d in nums4:\n            total += sum_counts.get(-(c + d), 0)\n\n    return total\n",
+    "timeComplexity": "O(n^2)",
+    "spaceComplexity": "O(n^2)"
+  },
+  "starterCode": "def four_sum_count(nums1, nums2, nums3, nums4):\n    # your code here\n    pass\n",
+  "functionName": "four_sum_count",
+  "paramNames": ["nums1", "nums2", "nums3", "nums4"],
+  "testCases": [
+    {
+      "input": [
+        [1, 2],
+        [-2, -1],
+        [-1, 2],
+        [0, 2]
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0],
+        [0],
+        [0],
+        [0]
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1],
+        [1],
+        [1],
+        [1]
+      ],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [-1, 1],
+        [-1, 1],
+        [-1, 1],
+        [-1, 1]
+      ],
+      "expected": 6,
+      "isHidden": true
+    }
+  ]
+}

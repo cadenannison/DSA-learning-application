@@ -3,7 +3,6 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { AuthGate } from "@/components/auth-gate"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { StudyPlanListPresenter, type StudyPlanListView } from "@/presenter/study-plan-list-presenter"
 import { PageShell } from "@/components/ui/page-shell"
 import { PageHeader } from "@/components/ui/page-header"
@@ -34,6 +33,10 @@ function StudyPlanListContent({ user, logout }: { user: User; logout: () => void
     await presenter.deletePlan(id)
   }
 
+  async function handleSetActive(id: string) {
+    await presenter.setActivePlan(id)
+  }
+
   return (
     <PageShell>
       <PageHeader
@@ -45,7 +48,12 @@ function StudyPlanListContent({ user, logout }: { user: User; logout: () => void
             <button onClick={logout} className="text-xs whitespace-nowrap text-accent hover:underline">
               Log out
             </button>
-            <ThemeToggle />
+            <Link
+              href="/study-plan/ai-builder"
+              className="flex min-h-[44px] items-center rounded-control border border-border bg-surface-2 px-4 text-sm font-semibold text-text-1"
+            >
+              ✨ Create with AI
+            </Link>
             <Link
               href="/study-plan/new"
               className="flex min-h-[44px] items-center rounded-control bg-accent px-4 text-sm font-semibold text-bg"
@@ -69,18 +77,31 @@ function StudyPlanListContent({ user, logout }: { user: User; logout: () => void
             <RowListItem
               key={plan.id}
               href={`/study-plan/${plan.id}`}
-              title={plan.name}
+              title={plan.isActive ? `⭐ ${plan.name}` : plan.name}
               subtitle={summaryLine(plan)}
               trailing={
-                <button
-                  onClick={(e) => {
-                    e.preventDefault()
-                    handleDelete(plan.id)
-                  }}
-                  className="text-sm text-text-2 hover:text-danger"
-                >
-                  Delete
-                </button>
+                <div className="flex items-center gap-3">
+                  {!plan.isActive && (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault()
+                        handleSetActive(plan.id)
+                      }}
+                      className="text-sm text-text-2 hover:text-accent"
+                    >
+                      Set active
+                    </button>
+                  )}
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault()
+                      handleDelete(plan.id)
+                    }}
+                    className="text-sm text-text-2 hover:text-danger"
+                  >
+                    Delete
+                  </button>
+                </div>
               }
             />
           ))}
@@ -91,12 +112,19 @@ function StudyPlanListContent({ user, logout }: { user: User; logout: () => void
 }
 
 function summaryLine(plan: StudyPlanSummary): string {
-  const readyLine = `${plan.readyOrBetterPatterns}/${plan.totalPatterns} patterns ready`
-  if (!plan.interviewDate) return readyLine
+  const parts = [`${plan.readyOrBetterPatterns}/${plan.totalPatterns} patterns ready`]
 
-  const date = new Date(plan.interviewDate).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-  })
-  return `${readyLine} · Interview ${date}`
+  if (plan.targetCompany) {
+    parts.push(plan.targetRole ? `${plan.targetRole} @ ${plan.targetCompany}` : plan.targetCompany)
+  }
+
+  if (plan.interviewDate) {
+    const date = new Date(plan.interviewDate).toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+    })
+    parts.push(`Interview ${date}`)
+  }
+
+  return parts.join(" · ")
 }

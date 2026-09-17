@@ -1,0 +1,63 @@
+{
+  "id": "build-an-array-with-stack-operations",
+  "title": "Build an Array With Stack Operations",
+  "pattern": "stacks-queues",
+  "difficulty": "easy",
+  "companies": [
+    "Google"
+  ],
+  "prompt": "You are given an integer array `target` and an integer `n`. You have an empty stack and a stream of integers from `1` to `n` (inclusive), read in order. Using only the operations `\"Push\"` (push the next stream integer to the stack) and `\"Pop\"` (remove the top of the stack), build the stack so that it equals `target` exactly, from bottom to top.\n\nReturn the list of operations needed to build `target`. You may assume `target` is strictly increasing and achievable. If an integer read from the stream is not present in `target`, it must be pushed and immediately popped (discarded).",
+  "examples": [
+    {
+      "input": "target = [1,3], n = 3",
+      "output": "[\"Push\",\"Push\",\"Pop\",\"Push\"]",
+      "explanation": "Read 1: push (stack=[1], keep since 1 is in target). Read 2: push then pop (2 is not in target). Read 3: push (stack=[1,3])."
+    },
+    {
+      "input": "target = [1,2,3], n = 3",
+      "output": "[\"Push\",\"Push\",\"Push\"]"
+    }
+  ],
+  "constraints": [
+    "1 <= target.length <= 100",
+    "1 <= n <= 100",
+    "1 <= target[i] <= n",
+    "target is strictly increasing"
+  ],
+  "hints": [
+    "You only need to simulate what happens, not actually search for a clever combination — the stream and target are both already sorted.",
+    "Walk the numbers 1..n in order, and walk through target in parallel with a pointer.",
+    "For each number: if it matches the current target pointer, record 'Push' and advance the pointer; otherwise record 'Push' then 'Pop' (it's a throwaway) and stop entirely once you've matched every element of target."
+  ],
+  "solution": {
+    "approach": "Since both the stream (1..n) and target are increasing, walk the stream in order with a pointer into target. If the current stream number equals target[pointer], it belongs in the final stack: append 'Push' and advance the pointer. Otherwise, it's a number that must be discarded: append 'Push' followed by 'Pop'. Stop as soon as the pointer reaches the end of target, since no further numbers are needed.",
+    "code": "def build_array(target, n):\n    result = []\n    idx = 0\n    for num in range(1, n + 1):\n        if idx == len(target):\n            break\n        result.append('Push')\n        if target[idx] == num:\n            idx += 1\n        else:\n            result.append('Pop')\n    return result\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(target.length) for the output"
+  },
+  "starterCode": "def build_array(target, n):\n    # your code here\n    pass\n",
+  "functionName": "build_array",
+  "paramNames": ["target", "n"],
+  "testCases": [
+    {
+      "input": [[1, 3], 3],
+      "expected": ["Push", "Push", "Pop", "Push"],
+      "isHidden": false
+    },
+    {
+      "input": [[1, 2, 3], 3],
+      "expected": ["Push", "Push", "Push"],
+      "isHidden": false
+    },
+    {
+      "input": [[1, 2], 4],
+      "expected": ["Push", "Push"],
+      "isHidden": true
+    },
+    {
+      "input": [[2, 3, 4], 4],
+      "expected": ["Push", "Pop", "Push", "Push", "Push"],
+      "isHidden": true
+    }
+  ]
+}

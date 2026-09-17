@@ -1,0 +1,63 @@
+{
+  "id": "seat-reservation-manager",
+  "title": "Seat Reservation Manager",
+  "pattern": "heaps",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "The classic version of this problem defines a `SeatManager` class initialized with an integer `n` (seats numbered 1 to n, all initially available), exposing `reserve()` (reserves and returns the smallest-numbered available seat) and `unreserve(seatNumber)` (makes that seat available again). Since this test harness calls a single pure function per test case rather than exercising a stateful object, we adapt it: implement `seat_reservation_manager(n, operations)`.\n\n`operations` is a list where each entry is either `[\"reserve\"]` or `[\"unreserve\", seatNumber]`, applied in order. For every `\"reserve\"` operation, record the seat number that was reserved (the smallest-numbered seat currently available). Return a list of these recorded seat numbers, one per `\"reserve\"` operation, in the order they occurred.",
+  "examples": [
+    {
+      "input": "n = 5, operations = [[\"reserve\"],[\"reserve\"],[\"unreserve\",2],[\"reserve\"],[\"reserve\"],[\"reserve\"],[\"reserve\"],[\"unreserve\",5]]",
+      "output": "[1,2,2,3,4,5]",
+      "explanation": "Reserve->1, Reserve->2, Unreserve 2 (2 free again), Reserve->2, Reserve->3, Reserve->4, Reserve->5, Unreserve 5."
+    },
+    {
+      "input": "n = 2, operations = [[\"reserve\"],[\"reserve\"],[\"unreserve\",1],[\"reserve\"]]",
+      "output": "[1,2,1]"
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 10^5",
+    "1 <= operations.length <= 10^5",
+    "For unreserve, 1 <= seatNumber <= n, and the seat is currently reserved"
+  ],
+  "hints": [
+    "You always need the smallest available seat number, and seats can become available again out of order after being unreserved.",
+    "A min-heap of currently-available seat numbers gives O(log n) access to the smallest available seat at any time.",
+    "Rather than pre-populating the heap with all n seats up front (which still works but uses more initial memory/time than necessary), you can lazily track the next never-yet-used seat with a counter, only pushing explicitly unreserved seats onto the heap; reserve pulls from the heap if it's non-empty, otherwise takes the next fresh seat from the counter."
+  ],
+  "solution": {
+    "approach": "Track a counter `next_fresh` for the smallest seat number never yet reserved, and a min-heap holding seats that were previously reserved and later freed via unreserve. Any freed seat was, by definition, already reserved earlier, so it must be numbered below `next_fresh`; that means the heap's minimum (when non-empty) is always the correct next seat to hand out, and only when the heap is empty do we fall back to `next_fresh`, incrementing it afterward. On unreserve, push the freed seat number onto the heap so it becomes available again. This avoids pre-allocating a heap of all n seats up front.",
+    "code": "import heapq\n\ndef seat_reservation_manager(n, operations):\n    heap = []\n    next_fresh = 1\n    results = []\n\n    for op in operations:\n        if op[0] == \"reserve\":\n            if heap:\n                seat = heapq.heappop(heap)\n            else:\n                seat = next_fresh\n                next_fresh += 1\n            results.append(seat)\n        else:\n            heapq.heappush(heap, op[1])\n\n    return results\n",
+    "timeComplexity": "O(m log m) for m operations",
+    "spaceComplexity": "O(m)"
+  },
+  "starterCode": "def seat_reservation_manager(n, operations):\n    # your code here\n    pass\n",
+  "functionName": "seat_reservation_manager",
+  "paramNames": ["n", "operations"],
+  "testCases": [
+    {
+      "input": [5, [["reserve"], ["reserve"], ["unreserve", 2], ["reserve"], ["reserve"], ["reserve"], ["reserve"], ["unreserve", 5]]],
+      "expected": [1, 2, 2, 3, 4, 5],
+      "isHidden": false
+    },
+    {
+      "input": [2, [["reserve"], ["reserve"], ["unreserve", 1], ["reserve"]]],
+      "expected": [1, 2, 1],
+      "isHidden": false
+    },
+    {
+      "input": [1, [["reserve"]]],
+      "expected": [1],
+      "isHidden": true
+    },
+    {
+      "input": [3, [["reserve"], ["reserve"], ["reserve"], ["unreserve", 1], ["unreserve", 2], ["reserve"], ["reserve"]]],
+      "expected": [1, 2, 3, 1, 2],
+      "isHidden": true
+    }
+  ]
+}

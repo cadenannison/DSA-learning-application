@@ -1,0 +1,64 @@
+{
+  "id": "queue-reconstruction-by-height",
+  "title": "Queue Reconstruction by Height",
+  "pattern": "greedy",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Meta",
+    "Google"
+  ],
+  "prompt": "You are given an array of people, `people`, where `people[i] = [h_i, k_i]` represents a person of height `h_i` with exactly `k_i` other people in front of them who have a height greater than or equal to `h_i`. Reconstruct and return the queue that is represented by these input people, as an array of `[h_i, k_i]` pairs, such that the reconstructed queue satisfies every person's `k_i` constraint.",
+  "examples": [
+    {
+      "input": "people = [[7,0],[4,4],[7,1],[5,0],[6,1],[5,2]]",
+      "output": "[[5,0],[7,0],[5,2],[6,1],[4,4],[7,1]]",
+      "explanation": "This is the unique ordering where each person's k value (number of taller-or-equal people before them) matches."
+    },
+    {
+      "input": "people = [[6,0],[5,0],[4,0],[3,2],[2,2],[1,4]]",
+      "output": "[[4,0],[5,0],[2,2],[3,2],[1,4],[6,0]]"
+    }
+  ],
+  "constraints": [
+    "1 <= people.length <= 2000",
+    "0 <= h_i <= 10^6",
+    "0 <= k_i < people.length"
+  ],
+  "hints": [
+    "Trying to place people in their given order and shifting things around gets messy — pick a smarter processing order.",
+    "Sort people by height descending, and by k ascending for ties. What does that ordering guarantee about people already placed when you consider the next one?",
+    "Insert people one at a time (in that sorted order) into the result list at index k_i. Since every already-placed person is at least as tall, inserting the current person at position k_i automatically gives them exactly k_i taller-or-equal people in front, and later insertions of shorter people won't disturb that count."
+  ],
+  "solution": {
+    "approach": "Sort people by height in descending order, breaking ties by ascending k. Process people in this order and insert each one into the result list at index k_i. Because taller people are placed first, every person already in the list when a new one is inserted is at least as tall, so inserting at position k_i guarantees exactly k_i taller-or-equal people precede them. Inserting shorter people afterward at their own positions never violates already-satisfied constraints, since those insertions only affect counts among people of equal or lesser height, which don't count toward an earlier person's k value.",
+    "code": "def reconstruct_queue(people):\n    people.sort(key=lambda p: (-p[0], p[1]))\n    result = []\n    for person in people:\n        result.insert(person[1], person)\n    return result\n",
+    "timeComplexity": "O(n^2) (sorting is O(n log n); each insert into a list is O(n))",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def reconstruct_queue(people):\n    # your code here\n    pass\n",
+  "functionName": "reconstruct_queue",
+  "paramNames": ["people"],
+  "testCases": [
+    {
+      "input": [[[7, 0], [4, 4], [7, 1], [5, 0], [6, 1], [5, 2]]],
+      "expected": [[5, 0], [7, 0], [5, 2], [6, 1], [4, 4], [7, 1]],
+      "isHidden": false
+    },
+    {
+      "input": [[[6, 0], [5, 0], [4, 0], [3, 2], [2, 2], [1, 4]]],
+      "expected": [[4, 0], [5, 0], [2, 2], [3, 2], [1, 4], [6, 0]],
+      "isHidden": false
+    },
+    {
+      "input": [[[1, 0]]],
+      "expected": [[1, 0]],
+      "isHidden": true
+    },
+    {
+      "input": [[[3, 0], [3, 0]]],
+      "expected": [[3, 0], [3, 0]],
+      "isHidden": true
+    }
+  ]
+}

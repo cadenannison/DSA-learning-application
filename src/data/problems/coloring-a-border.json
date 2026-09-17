@@ -1,0 +1,97 @@
+{
+  "id": "coloring-a-border",
+  "title": "Coloring A Border",
+  "pattern": "bfs-dfs",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "You are given an `m x n` integer matrix `grid`, and three integers `row`, `col`, and `color`. The grid represents a board where `grid[i][j]` is the color of cell `(i, j)`. Two cells belong to the same connected component if they have the same color and are 4-directionally adjacent. The border of a connected component is the set of cells in that component that are either on the edge of the grid, or adjacent to a cell not in the component (different color). Find the connected component containing `(row, col)`, color all its border cells with `color`, and return the final grid. Note: the newly assigned `color` may equal an existing color in the grid.",
+  "examples": [
+    {
+      "input": "grid = [[1,1],[1,2]], row = 0, col = 0, color = 3",
+      "output": "[[3,3],[3,2]]",
+      "explanation": "The component of 1s containing (0,0) is {(0,0),(0,1),(1,0)}; all three cells are on the border, so all become 3."
+    },
+    {
+      "input": "grid = [[1,2,2],[2,3,2]], row = 0, col = 1, color = 3",
+      "output": "[[1,3,3],[2,3,3]]",
+      "explanation": "The component of 2s containing (0,1) has every one of its cells on the border, so they're all recolored; the interior 3 at (1,1) is a different component and untouched."
+    }
+  ],
+  "constraints": [
+    "m == grid.length",
+    "n == grid[i].length",
+    "1 <= m, n <= 50",
+    "1 <= grid[i][j], color <= 1000",
+    "0 <= row < m",
+    "0 <= col < n"
+  ],
+  "hints": [
+    "First find the entire connected component containing (row, col) using DFS or BFS, exactly like flood fill, tracking which cells belong to it.",
+    "A cell in the component is a border cell if it's on the edge of the grid, OR any of its 4 neighbors is in bounds but belongs to a different component (different original color, or already visited-and-different).",
+    "Do the border check using the ORIGINAL colors (or a separate visited marker), and only overwrite cells to the new color after you've identified the full component and its borders — otherwise overwriting mid-traversal can make same-component cells look like a different color to their neighbors."
+  ],
+  "solution": {
+    "approach": "DFS from (row, col), tracking visited cells belonging to the target component using the original color (captured before any mutation). While visiting each cell, check whether it's a border cell: either it's on the grid's edge, or it has a neighbor that is in bounds but not part of the same component (different original color or a cell not visited during this DFS). Collect border cells separately and only overwrite them to the new color after the full DFS finishes, so the component-membership test isn't corrupted by partial recoloring during the walk.",
+    "code": "def color_border(grid, row, col, color):\n    rows, cols = len(grid), len(grid[0])\n    original = grid[row][col]\n    visited = set()\n    border = []\n\n    def dfs(r, c):\n        visited.add((r, c))\n        is_border = False\n        for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n            nr, nc = r + dr, c + dc\n            if nr < 0 or nr >= rows or nc < 0 or nc >= cols or grid[nr][nc] != original:\n                is_border = True\n            elif (nr, nc) not in visited:\n                dfs(nr, nc)\n        if is_border:\n            border.append((r, c))\n\n    dfs(row, col)\n    for r, c in border:\n        grid[r][c] = color\n    return grid\n",
+    "timeComplexity": "O(m * n)",
+    "spaceComplexity": "O(m * n) worst-case recursion depth"
+  },
+  "starterCode": "def color_border(grid, row, col, color):\n    # your code here\n    pass\n",
+  "functionName": "color_border",
+  "paramNames": ["grid", "row", "col", "color"],
+  "testCases": [
+    {
+      "input": [
+        [[1, 1], [1, 2]],
+        0,
+        0,
+        3
+      ],
+      "expected": [[3, 3], [3, 2]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1, 2, 2], [2, 3, 2]],
+        0,
+        1,
+        3
+      ],
+      "expected": [[1, 3, 3], [2, 3, 3]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1]],
+        0,
+        0,
+        2
+      ],
+      "expected": [[2]],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[1, 1, 1], [1, 1, 1], [1, 1, 1]],
+        1,
+        1,
+        2
+      ],
+      "expected": [[2, 2, 2], [2, 1, 2], [2, 2, 2]],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[5, 5], [5, 5]],
+        0,
+        0,
+        5
+      ],
+      "expected": [[5, 5], [5, 5]],
+      "isHidden": true
+    }
+  ]
+}

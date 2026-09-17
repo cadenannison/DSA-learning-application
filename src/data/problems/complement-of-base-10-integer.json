@@ -1,0 +1,77 @@
+{
+  "id": "complement-of-base-10-integer",
+  "title": "Complement of Base 10 Integer",
+  "pattern": "greedy",
+  "difficulty": "easy",
+  "companies": [
+    "Google",
+    "Facebook"
+  ],
+  "prompt": "The complement of an integer is the integer you get when you flip all its bits in binary (0 becomes 1 and 1 becomes 0), using only the bits needed to represent it (no leading zero bits beyond its own binary length). Given an integer `n`, return its complement.",
+  "examples": [
+    {
+      "input": "n = 5",
+      "output": "2",
+      "explanation": "5 is 101 in binary. Flipping every bit gives 010, which is 2."
+    },
+    {
+      "input": "n = 7",
+      "output": "0",
+      "explanation": "7 is 111 in binary. Flipping every bit gives 000, which is 0."
+    },
+    {
+      "input": "n = 10",
+      "output": "5",
+      "explanation": "10 is 1010 in binary. Flipping every bit gives 0101, which is 5."
+    }
+  ],
+  "constraints": [
+    "0 <= n <= 10^9"
+  ],
+  "hints": [
+    "Flipping bits is easy with XOR against all 1s, but you must only flip the bits n actually uses — not a fixed 32-bit width.",
+    "First figure out how many bits n occupies, then build a mask of that many 1 bits.",
+    "XOR n with a mask of the form (2^k - 1), where k is the number of bits in n's binary representation, to flip exactly those bits."
+  ],
+  "solution": {
+    "approach": "Determine the bit length k of n (the position of its highest set bit plus one). Build a mask consisting of k ones, i.e. (1 << k) - 1. XORing n with this mask flips every bit within n's actual bit-width, which is exactly the complement, while leaving no extra flipped bits beyond n's own length. Special-case n = 0, whose complement is defined as 1.",
+    "code": "def find_complement(n):\n    if n == 0:\n        return 1\n    bit_length = n.bit_length()\n    mask = (1 << bit_length) - 1\n    return n ^ mask\n",
+    "timeComplexity": "O(log n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def find_complement(n):\n    # your code here\n    pass\n",
+  "functionName": "find_complement",
+  "paramNames": ["n"],
+  "testCases": [
+    {
+      "input": [5],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [7],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [10],
+      "expected": 5,
+      "isHidden": false
+    },
+    {
+      "input": [0],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [1],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [1000000000],
+      "expected": 73741823,
+      "isHidden": true
+    }
+  ]
+}

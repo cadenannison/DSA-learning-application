@@ -1,0 +1,68 @@
+{
+  "id": "k-radius-subarray-averages",
+  "title": "K Radius Subarray Averages",
+  "pattern": "sliding-window",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon"
+  ],
+  "prompt": "You are given a 0-indexed array `nums` of `n` integers and an integer `k`. The k-radius average for a subarray of `nums` centered at index `i` with radius `k` is the average of all elements in `nums` between indices `i - k` and `i + k` (inclusive). If any index in this range is out of bounds, the k-radius average is `-1`. Build and return an array `avgs` of length `n` where `avgs[i]` is the k-radius average for index `i`, using integer division for the average.",
+  "examples": [
+    {
+      "input": "nums = [7,4,3,9,1,8,5,2,6], k = 3",
+      "output": "[-1,-1,-1,5,4,4,-1,-1,-1]",
+      "explanation": "The average for index 3 is (7+4+3+9+1+8+5)/7 = 37/7 = 5 using integer division. Indices 0,1,2,6,7,8 don't have a full window of radius 3 on both sides."
+    },
+    {
+      "input": "nums = [100000], k = 0",
+      "output": "[100000]",
+      "explanation": "With k = 0, each window is just the single element itself."
+    }
+  ],
+  "constraints": [
+    "n == nums.length",
+    "1 <= n <= 10^5",
+    "0 <= nums[i], k <= 10^5"
+  ],
+  "hints": [
+    "Recomputing the sum of each window of size 2k+1 independently is O(n*k) in the worst case.",
+    "Use a fixed-size sliding window of width 2k+1 and maintain a running sum as the window slides across valid centers.",
+    "Only centers with indices from k to n-1-k have a full window; fill all other positions with -1, and slide the running sum in O(1) per step by adding the new right edge and removing the old left edge."
+  ],
+  "solution": {
+    "approach": "Only indices from k to n-1-k can have a full window of radius k on both sides; everything else defaults to -1. For the valid range, use a fixed-size sliding window of width 2k+1: compute the sum for the first valid center directly, then slide the window one index at a time, adding the newly included element on the right and subtracting the one dropped on the left, giving O(1) updates. Divide each window sum by the window width using integer division to get the average.",
+    "code": "def get_averages(nums, k):\n    n = len(nums)\n    result = [-1] * n\n    window_size = 2 * k + 1\n    if window_size > n:\n        return result\n\n    window_sum = sum(nums[:window_size])\n    result[k] = window_sum // window_size\n\n    for i in range(k + 1, n - k):\n        window_sum += nums[i + k] - nums[i - k - 1]\n        result[i] = window_sum // window_size\n\n    return result\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n) for the output array"
+  },
+  "starterCode": "def get_averages(nums, k):\n    # your code here\n    pass\n",
+  "functionName": "get_averages",
+  "paramNames": ["nums", "k"],
+  "testCases": [
+    {
+      "input": [[7, 4, 3, 9, 1, 8, 5, 2, 6], 3],
+      "expected": [-1, -1, -1, 5, 4, 4, -1, -1, -1],
+      "isHidden": false
+    },
+    {
+      "input": [[100000], 0],
+      "expected": [100000],
+      "isHidden": false
+    },
+    {
+      "input": [[8], 100000],
+      "expected": [-1],
+      "isHidden": true
+    },
+    {
+      "input": [[1, 2, 3, 4, 5], 1],
+      "expected": [-1, 2, 3, 4, -1],
+      "isHidden": true
+    },
+    {
+      "input": [[5, 5, 5, 5, 5], 2],
+      "expected": [-1, -1, 5, -1, -1],
+      "isHidden": true
+    }
+  ]
+}

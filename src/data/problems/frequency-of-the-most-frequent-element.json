@@ -1,0 +1,69 @@
+{
+  "id": "frequency-of-the-most-frequent-element",
+  "title": "Frequency of the Most Frequent Element",
+  "pattern": "sliding-window",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "You are given an integer array `nums` and an integer `k`. In one operation, you can choose an index of `nums` and increment the element at that index by `1`. Return the maximum possible frequency of an element after performing at most `k` operations. You may perform the operation on the same index multiple times.",
+  "examples": [
+    {
+      "input": "nums = [1,2,4], k = 5",
+      "output": "3",
+      "explanation": "Increment nums[0] three times and nums[1] two times to make nums = [4,4,4]. All three elements now equal 4, using exactly 5 operations."
+    },
+    {
+      "input": "nums = [1,4,8,13], k = 5",
+      "output": "2",
+      "explanation": "There are multiple ways to achieve a frequency of 2, e.g. turning [1,4] into [4,4], or [4,8] into [8,8], or [8,13] into [13,13]."
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 10^5",
+    "1 <= nums[i] <= 10^5",
+    "1 <= k <= 10^5"
+  ],
+  "hints": [
+    "Sort the array first: once sorted, making a group of elements equal always means raising all of them up to the value of the rightmost (largest) element in that group.",
+    "For a sorted window [left, right], the cost to make every element equal to nums[right] is nums[right] * windowSize - sum(window). Use a sliding window and a running sum to evaluate this in O(1) per step.",
+    "Expand right; whenever the cost exceeds k, shrink from the left (removing it from the running sum) until the cost is within budget again. Track the max window size seen — it represents the largest achievable frequency."
+  ],
+  "solution": {
+    "approach": "Sort the array so that any window of elements can only be made equal by raising every element up to the window's maximum (its rightmost element). For a window [left, right], the total operations needed is nums[right] * (right - left + 1) - sum(window). Slide a window with a running sum: expand right each step, and while the cost exceeds k, shrink from the left, removing the leaving element from the running sum. The window size is always a valid achievable frequency, so track the maximum size reached.",
+    "code": "def max_frequency(nums, k):\n    nums.sort()\n    left = 0\n    window_sum = 0\n    best = 1\n\n    for right in range(len(nums)):\n        window_sum += nums[right]\n        while nums[right] * (right - left + 1) - window_sum > k:\n            window_sum -= nums[left]\n            left += 1\n        best = max(best, right - left + 1)\n\n    return best\n",
+    "timeComplexity": "O(n log n)",
+    "spaceComplexity": "O(1) extra (ignoring sort space)"
+  },
+  "starterCode": "def max_frequency(nums, k):\n    # your code here\n    pass\n",
+  "functionName": "max_frequency",
+  "paramNames": ["nums", "k"],
+  "testCases": [
+    {
+      "input": [[1, 2, 4], 5],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [[1, 4, 8, 13], 5],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [[1, 1, 1], 0],
+      "expected": 3,
+      "isHidden": true
+    },
+    {
+      "input": [[10], 0],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [[3, 9, 6], 2],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

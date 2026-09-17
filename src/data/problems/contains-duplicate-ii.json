@@ -1,0 +1,80 @@
+{
+  "id": "contains-duplicate-ii",
+  "title": "Contains Duplicate II",
+  "pattern": "sliding-window",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Microsoft",
+    "Apple"
+  ],
+  "prompt": "Given an integer array `nums` and an integer `k`, return `true` if there are two distinct indices `i` and `j` in the array such that `nums[i] == nums[j]` and the absolute difference between `i` and `j` is at most `k`.",
+  "examples": [
+    {
+      "input": "nums = [1,2,3,1], k = 3",
+      "output": "true",
+      "explanation": "nums[0] == nums[3] and |0 - 3| = 3 <= k."
+    },
+    {
+      "input": "nums = [1,0,1,1], k = 1",
+      "output": "true",
+      "explanation": "nums[2] == nums[3] and |2 - 3| = 1 <= k."
+    },
+    {
+      "input": "nums = [1,2,3,1,2,3], k = 2",
+      "output": "false"
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 10^5",
+    "-10^9 <= nums[i] <= 10^9",
+    "0 <= k <= 10^5"
+  ],
+  "hints": [
+    "Checking every pair of equal values against the index gap is O(n^2) in the worst case — you can do it in one pass.",
+    "Maintain a sliding window of the last k indices as a hash set (or a map from value to most recent index).",
+    "For each index, first check if the value is already in the window set (a hit means a valid pair), then add the current value and evict the value that just fell outside the window of size k."
+  ],
+  "solution": {
+    "approach": "Slide a window of at most k+1 indices using a hash set. For each new element, check whether it's already present in the window — if so, a duplicate within distance k exists. Otherwise add it, and once the window would exceed size k+1, remove the element that just fell out of range from the left. This keeps the set's membership exactly matching the valid window at every step.",
+    "code": "def contains_nearby_duplicate(nums, k):\n    window = set()\n    for i, num in enumerate(nums):\n        if num in window:\n            return True\n        window.add(num)\n        if len(window) > k:\n            window.remove(nums[i - k])\n    return False\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(min(n, k))"
+  },
+  "starterCode": "def contains_nearby_duplicate(nums, k):\n    # your code here\n    pass\n",
+  "functionName": "contains_nearby_duplicate",
+  "paramNames": ["nums", "k"],
+  "testCases": [
+    {
+      "input": [[1, 2, 3, 1], 3],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [[1, 0, 1, 1], 1],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [[1, 2, 3, 1, 2, 3], 2],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [[1], 1],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": [[1, 2, 3, 1], 0],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": [[99, 99], 100000],
+      "expected": true,
+      "isHidden": true
+    }
+  ]
+}

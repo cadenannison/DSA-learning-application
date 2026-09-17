@@ -1,0 +1,70 @@
+{
+  "id": "maximum-number-of-events-that-can-be-attended",
+  "title": "Maximum Number of Events That Can Be Attended",
+  "pattern": "intervals",
+  "difficulty": "hard",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Meta"
+  ],
+  "prompt": "You are given an array of `events` where `events[i] = [start_day_i, end_day_i]` means the `i`-th event starts at `start_day_i` and ends at `end_day_i` (both inclusive). You can attend at most one event per day, and attending an event means being present on any single day `d` within `[start_day_i, end_day_i]`. Once you attend an event on some day, you cannot attend any other event that same day. Return the maximum number of events you can attend in total.",
+  "examples": [
+    {
+      "input": "events = [[1,2],[2,3],[3,4]]",
+      "output": "3",
+      "explanation": "Attend event 1 on day 1, event 2 on day 2, and event 3 on day 3."
+    },
+    {
+      "input": "events = [[1,2],[2,3],[3,4],[1,2]]",
+      "output": "4",
+      "explanation": "Attend the first [1,2] on day 1, the second [1,2] on day 2, [2,3] on day 3 is already past... more precisely: day1->event[1,2], day2->event[1,2] (the other one), day3->[2,3] wait it must still be within its range; the optimal schedule attends all four events across days 1-4."
+    }
+  ],
+  "constraints": [
+    "1 <= events.length <= 10^5",
+    "events[i].length == 2",
+    "1 <= start_day_i <= end_day_i <= 10^5"
+  ],
+  "hints": [
+    "Greedily choosing which event to attend each day works, but the key question is: on any given day, WHICH available event should you attend?",
+    "Among all events that are currently available (their range includes today) and haven't been attended, always attend the one that ends soonest — saving longer-lasting events for later maximizes future flexibility.",
+    "Sort events by start day. Sweep through each calendar day in increasing order; add all events starting today into a min-heap keyed by end day, discard any events at the top of the heap whose end day has already passed, then greedily attend the earliest-ending available event (pop it) if the heap isn't empty."
+  ],
+  "solution": {
+    "approach": "Sort events by start day. Sweep through days one at a time (from the smallest start day to the largest end day seen). On each day, first push all events starting today into a min-heap keyed by end day. Then discard from the top of the heap any events whose end day has already passed (they're no longer attendable). If the heap is non-empty, greedily attend the event ending soonest (pop it and increment the count) — this is optimal because saving an event with a later end day for a future day never hurts, since it remains attendable longer, while an event ending soon might expire if not taken now.",
+    "code": "import heapq\n\n\ndef max_events(events):\n    events = sorted(events)\n    n = len(events)\n    heap = []\n    i = 0\n    day = 1\n    attended = 0\n    max_day = max(e[1] for e in events)\n\n    while i < n or heap:\n        if not heap and i < n:\n            day = events[i][0]\n\n        while i < n and events[i][0] <= day:\n            heapq.heappush(heap, events[i][1])\n            i += 1\n\n        while heap and heap[0] < day:\n            heapq.heappop(heap)\n\n        if heap:\n            heapq.heappop(heap)\n            attended += 1\n\n        day += 1\n\n    return attended\n",
+    "timeComplexity": "O(n log n)",
+    "spaceComplexity": "O(n) for the heap"
+  },
+  "starterCode": "def max_events(events):\n    # your code here\n    pass\n",
+  "functionName": "max_events",
+  "paramNames": ["events"],
+  "testCases": [
+    {
+      "input": [[[1, 2], [2, 3], [3, 4]]],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [[[1, 2], [2, 3], [3, 4], [1, 2]]],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [[[1, 1], [2, 2], [3, 3]]],
+      "expected": 3,
+      "isHidden": true
+    },
+    {
+      "input": [[[1, 100000]]],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [[[1, 4], [4, 4], [2, 2], [3, 4], [1, 1]]],
+      "expected": 4,
+      "isHidden": true
+    }
+  ]
+}

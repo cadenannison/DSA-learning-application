@@ -1,0 +1,83 @@
+{
+  "id": "fibonacci-number",
+  "title": "Fibonacci Number",
+  "pattern": "dynamic-programming",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Adobe",
+    "Apple"
+  ],
+  "prompt": "The Fibonacci numbers, commonly denoted `F(n)`, form a sequence such that each number is the sum of the two preceding ones, starting from 0 and 1. That is, `F(0) = 0`, `F(1) = 1`, and `F(n) = F(n - 1) + F(n - 2)` for `n > 1`. Given `n`, calculate `F(n)`.",
+  "examples": [
+    {
+      "input": "n = 2",
+      "output": "1",
+      "explanation": "F(2) = F(1) + F(0) = 1 + 0 = 1."
+    },
+    {
+      "input": "n = 3",
+      "output": "2",
+      "explanation": "F(3) = F(2) + F(1) = 1 + 1 = 2."
+    },
+    {
+      "input": "n = 4",
+      "output": "3",
+      "explanation": "F(4) = F(3) + F(2) = 2 + 1 = 3."
+    }
+  ],
+  "constraints": [
+    "0 <= n <= 30"
+  ],
+  "hints": [
+    "A direct recursive solution recomputes the same F(k) values over and over, giving exponential time — can you avoid the repeated work?",
+    "You only ever need the two most recently computed Fibonacci values to get the next one.",
+    "Slide two running variables forward from F(0) and F(1) up to F(n) instead of building a full array or recursing."
+  ],
+  "solution": {
+    "approach": "Naive recursion recomputes overlapping subproblems exponentially many times. Since F(n) only depends on the two previous values, iterate from the base cases upward while tracking just two rolling variables (prev, curr). At each step, advance them to (curr, prev + curr). After n steps, curr holds F(n). This avoids both the exponential blowup of naive recursion and the O(n) space of a memoized array.",
+    "code": "def fib(n):\n    if n < 2:\n        return n\n    prev, curr = 0, 1\n    for _ in range(2, n + 1):\n        prev, curr = curr, prev + curr\n    return curr\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def fib(n):\n    # your code here\n    pass\n",
+  "functionName": "fib",
+  "paramNames": ["n"],
+  "testCases": [
+    {
+      "input": [2],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [3],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [4],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [0],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [1],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [10],
+      "expected": 55,
+      "isHidden": true
+    },
+    {
+      "input": [30],
+      "expected": 832040,
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "id": "sum-root-to-leaf-numbers",
+  "title": "Sum Root to Leaf Numbers",
+  "pattern": "trees",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Facebook"
+  ],
+  "prompt": "Each root-to-leaf path in a binary tree represents a number formed by concatenating the digits along the path (each node's value is a single digit from 0 to 9). Given the `root` of such a binary tree, return the total sum of all root-to-leaf numbers.\n\nThe tree is given as a level-order array where `null` marks a missing child (the standard LeetCode serialization). Your function receives this array directly; the starter code includes a helper that builds the tree from it, so you only need to compute the sum.",
+  "examples": [
+    {
+      "input": "root = [1,2,3]",
+      "output": "25",
+      "explanation": "The path 1->2 represents the number 12, and 1->3 represents 13. Total: 12 + 13 = 25."
+    },
+    {
+      "input": "root = [4,9,0,5,1]",
+      "output": "1026",
+      "explanation": "Paths 4->9->5=495, 4->9->1=491, 4->0=40. Total: 495 + 491 + 40 = 1026."
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [1, 1000]",
+    "0 <= Node.val <= 9",
+    "The depth of the tree does not exceed 10"
+  ],
+  "hints": [
+    "As you move down from the root, you can build the number incrementally: each step, multiply the running number by 10 and add the current digit.",
+    "A completed root-to-leaf number is only counted once you reach a leaf node (no children) — that's when you add the running total to the overall sum.",
+    "Pass the accumulated number so far down through the recursion as a parameter, updating it before recursing into each child."
+  ],
+  "solution": {
+    "approach": "DFS from the root, carrying an accumulated number formed so far (starting at 0). At each node, update the accumulated value as accumulated * 10 + node.val. If the node is a leaf, this accumulated value is a complete root-to-leaf number, so add it to the running total. Otherwise recurse into both children with the updated accumulated value.",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef sum_numbers(root_arr):\n    root = build_tree(root_arr)\n\n    def dfs(node, accumulated):\n        if node is None:\n            return 0\n        accumulated = accumulated * 10 + node.val\n        if node.left is None and node.right is None:\n            return accumulated\n        return dfs(node.left, accumulated) + dfs(node.right, accumulated)\n\n    return dfs(root, 0)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(h), h = tree height"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef sum_numbers(root_arr):\n    root = build_tree(root_arr)\n    # your code here\n    pass\n",
+  "functionName": "sum_numbers",
+  "paramNames": ["root_arr"],
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 3]
+      ],
+      "expected": 25,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [4, 9, 0, 5, 1]
+      ],
+      "expected": 1026,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0]
+      ],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2]
+      ],
+      "expected": 12,
+      "isHidden": true
+    }
+  ]
+}

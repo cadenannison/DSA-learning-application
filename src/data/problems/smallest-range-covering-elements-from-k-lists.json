@@ -1,0 +1,70 @@
+{
+  "id": "smallest-range-covering-elements-from-k-lists",
+  "title": "Smallest Range Covering Elements from K Lists",
+  "pattern": "heaps",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "You are given `k` non-empty lists of sorted integers, `nums`. Find the smallest range `[a, b]` (inclusive) such that at least one number from each of the `k` lists is included in the range.\n\nIf there are multiple ranges achieving the smallest width `b - a`, return the one with the smallest `a`.",
+  "examples": [
+    {
+      "input": "nums = [[4,10,15,24,26],[0,9,12,20],[5,18,22,30]]",
+      "output": "[20,24]",
+      "explanation": "The range [20,24] contains 24 from list 1, 20 from list 2, 22 from list 3."
+    },
+    {
+      "input": "nums = [[1,2,3],[1,2,3],[1,2,3]]",
+      "output": "[1,1]"
+    }
+  ],
+  "constraints": [
+    "k == nums.length",
+    "1 <= k <= 3500",
+    "1 <= nums[i].length <= 50",
+    "-10^5 <= nums[i][j] <= 10^5",
+    "nums[i] is sorted in non-decreasing order"
+  ],
+  "hints": [
+    "You need one pointer per list, and at any time the current range must span from the smallest of the k pointed-at values to the largest.",
+    "A min-heap over the k current pointer values lets you always know which list's pointer to advance next (the one with the smallest value, since advancing it is the only way to possibly shrink the range from that side).",
+    "Track the maximum value among the current pointers separately (update it as pointers move). Each time you pop the min and advance that list's pointer, check if the new range width (current max - new min) is smaller than the best seen; stop when any list's pointer runs out, since no smaller range can span that list from then on."
+  ],
+  "solution": {
+    "approach": "Maintain a pointer into each of the k lists and a min-heap of (value, list_index) for the k values currently pointed at, along with a running maximum of all pointed-at values. The range [heap_min, current_max] always covers all k lists since it includes one currently-selected element from each. To try to shrink it, repeatedly pop the smallest value (it's the one preventing the range from getting tighter) and advance that list's pointer to the next element, updating current_max if the new element is larger. After each advance, compare the new range width to the best found so far. Stop as soon as any list is exhausted, since a valid range covering all k lists can no longer be formed. Because we always advance the globally smallest pointer, this exploration provably considers every candidate optimal range.",
+    "code": "import heapq\n\ndef smallest_range_covering_elements_from_k_lists(nums):\n    heap = []\n    current_max = float('-inf')\n\n    for i, lst in enumerate(nums):\n        heapq.heappush(heap, (lst[0], i, 0))\n        current_max = max(current_max, lst[0])\n\n    best_range = [float('-inf'), float('inf')]\n\n    while True:\n        min_val, list_idx, elem_idx = heapq.heappop(heap)\n\n        if current_max - min_val < best_range[1] - best_range[0]:\n            best_range = [min_val, current_max]\n\n        if elem_idx + 1 == len(nums[list_idx]):\n            break\n\n        next_val = nums[list_idx][elem_idx + 1]\n        current_max = max(current_max, next_val)\n        heapq.heappush(heap, (next_val, list_idx, elem_idx + 1))\n\n    return best_range\n",
+    "timeComplexity": "O(N log k) where N is the total number of elements across all lists",
+    "spaceComplexity": "O(k)"
+  },
+  "starterCode": "def smallest_range_covering_elements_from_k_lists(nums):\n    # your code here\n    pass\n",
+  "functionName": "smallest_range_covering_elements_from_k_lists",
+  "paramNames": ["nums"],
+  "testCases": [
+    {
+      "input": [[[4, 10, 15, 24, 26], [0, 9, 12, 20], [5, 18, 22, 30]]],
+      "expected": [20, 24],
+      "isHidden": false
+    },
+    {
+      "input": [[[1, 2, 3], [1, 2, 3], [1, 2, 3]]],
+      "expected": [1, 1],
+      "isHidden": false
+    },
+    {
+      "input": [[[1], [2], [3]]],
+      "expected": [1, 3],
+      "isHidden": true
+    },
+    {
+      "input": [[[10, 10], [11, 11]]],
+      "expected": [10, 11],
+      "isHidden": true
+    },
+    {
+      "input": [[[1, 3, 5, 7, 9], [0, 2, 4, 8, 10]]],
+      "expected": [0, 1],
+      "isHidden": true
+    }
+  ]
+}

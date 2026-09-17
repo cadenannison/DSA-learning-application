@@ -1,0 +1,87 @@
+{
+  "id": "insert-into-a-binary-search-tree",
+  "title": "Insert into a Binary Search Tree",
+  "pattern": "trees",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Facebook"
+  ],
+  "prompt": "Given the `root` of a binary search tree and a value to insert, insert the value into the BST such that the resulting tree remains a valid BST, and return the root. There may exist multiple valid ways to insert the value; any tree that results in a correct BST after insertion is accepted, but this exercise's checker expects the canonical approach of always inserting as a new leaf.\n\nThe tree is given as a level-order array where `null` marks a missing child (the standard LeetCode serialization). Your function receives this array and `val`; the starter code includes a helper that builds the tree from the array. Return the resulting tree serialized to a level-order array using the provided `tree_to_level_order` helper.",
+  "examples": [
+    {
+      "input": "root = [4,2,7,1,3], val = 5",
+      "output": "[4,2,7,1,3,5]",
+      "explanation": "5 is greater than 4 and less than 7, and 7 has no left child, so 5 becomes 7's left child."
+    },
+    {
+      "input": "root = [], val = 1",
+      "output": "[1]",
+      "explanation": "Inserting into an empty tree makes the new value the root."
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [0, 10^4]",
+    "-10^8 <= Node.val <= 10^8",
+    "All node values are unique",
+    "-10^8 <= val <= 10^8",
+    "val does not already exist in the tree"
+  ],
+  "hints": [
+    "You don't need to rebalance or restructure the tree — a BST insert always finds exactly one valid leaf position for a new value.",
+    "Walk down from the root, going left when the value to insert is smaller than the current node and right when it's larger, until you fall off the tree (reach a None).",
+    "That None spot is exactly where the new node belongs — attach it there as a new leaf and the BST property is automatically preserved."
+  ],
+  "solution": {
+    "approach": "Walk down the tree from the root using standard BST comparisons: go left if val is less than the current node's value, right if greater. Since val is guaranteed not to already exist, this walk always terminates at a missing child (None). Insert the new value there as a leaf. If the tree was empty to begin with, the new node simply becomes the root.",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef tree_to_level_order(root):\n    if root is None:\n        return []\n    result = []\n    queue = [root]\n    while queue:\n        node = queue.pop(0)\n        if node is None:\n            result.append(None)\n            continue\n        result.append(node.val)\n        queue.append(node.left)\n        queue.append(node.right)\n    while result and result[-1] is None:\n        result.pop()\n    return result\n\n\ndef insert_into_bst(root_arr, val):\n    root = build_tree(root_arr)\n\n    def insert(node):\n        if node is None:\n            return TreeNode(val)\n        if val < node.val:\n            node.left = insert(node.left)\n        else:\n            node.right = insert(node.right)\n        return node\n\n    new_root = insert(root)\n    return tree_to_level_order(new_root)\n",
+    "timeComplexity": "O(h), h = tree height",
+    "spaceComplexity": "O(h)"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef tree_to_level_order(root):\n    if root is None:\n        return []\n    result = []\n    queue = [root]\n    while queue:\n        node = queue.pop(0)\n        if node is None:\n            result.append(None)\n            continue\n        result.append(node.val)\n        queue.append(node.left)\n        queue.append(node.right)\n    while result and result[-1] is None:\n        result.pop()\n    return result\n\n\ndef insert_into_bst(root_arr, val):\n    root = build_tree(root_arr)\n    # your code here\n    # Insert val, then return tree_to_level_order(root)\n    pass\n",
+  "functionName": "insert_into_bst",
+  "paramNames": ["root_arr", "val"],
+  "testCases": [
+    {
+      "input": [
+        [4, 2, 7, 1, 3],
+        5
+      ],
+      "expected": [4, 2, 7, 1, 3, 5],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [],
+        1
+      ],
+      "expected": [1],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [4, 2, 7, 1, 3, null, null, null, null, null, null],
+        5
+      ],
+      "expected": [4, 2, 7, 1, 3, 5],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1],
+        0
+      ],
+      "expected": [1, 0],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1],
+        2
+      ],
+      "expected": [1, null, 2],
+      "isHidden": true
+    }
+  ]
+}

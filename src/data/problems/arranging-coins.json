@@ -1,0 +1,67 @@
+{
+  "id": "arranging-coins",
+  "title": "Arranging Coins",
+  "pattern": "binary-search",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Facebook"
+  ],
+  "prompt": "You have `n` coins and want to build a staircase where the k-th row has exactly `k` coins. Given the integer `n`, return the number of complete rows of the staircase you can form. The last row may be incomplete.",
+  "examples": [
+    {
+      "input": "n = 5",
+      "output": "2",
+      "explanation": "Row 1 uses 1 coin and row 2 uses 2 coins, totaling 3. Only 2 coins remain, not enough to complete row 3 (which needs 3), so 2 full rows are formed."
+    },
+    {
+      "input": "n = 8",
+      "output": "3",
+      "explanation": "Rows 1-3 use 1+2+3=6 coins, leaving 2, which isn't enough for row 4."
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 2^31 - 1"
+  ],
+  "hints": [
+    "Subtracting 1, then 2, then 3, etc. from n until it goes negative works but takes O(sqrt(n)) iterations.",
+    "The total coins needed for k full rows is k*(k+1)/2, a monotonically increasing function of k, which means you can binary search for the answer instead of counting up.",
+    "Binary search for the largest k such that k*(k+1)/2 <= n."
+  ],
+  "solution": {
+    "approach": "The number of coins needed to complete k rows is the triangular number k*(k+1)/2, which increases monotonically with k. Binary search over k in [0, n] for the largest value where k*(k+1)/2 <= n: whenever a candidate fits within the coin budget, record it and try a larger k; otherwise try a smaller one. This avoids the O(sqrt(n)) linear approach in favor of O(log n).",
+    "code": "def arrange_coins(n):\n    lo, hi = 0, n\n    ans = 0\n\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        coins_needed = mid * (mid + 1) // 2\n        if coins_needed <= n:\n            ans = mid\n            lo = mid + 1\n        else:\n            hi = mid - 1\n\n    return ans\n",
+    "timeComplexity": "O(log n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def arrange_coins(n):\n    # your code here\n    pass\n",
+  "functionName": "arrange_coins",
+  "paramNames": ["n"],
+  "testCases": [
+    {
+      "input": [5],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [8],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [1],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [0],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [1804289383],
+      "expected": 60070,
+      "isHidden": true
+    }
+  ]
+}

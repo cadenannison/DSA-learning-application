@@ -1,0 +1,70 @@
+{
+  "id": "triangle",
+  "title": "Triangle",
+  "pattern": "dynamic-programming",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Apple",
+    "Microsoft"
+  ],
+  "prompt": "Given a `triangle` array of arrays representing a triangular arrangement of numbers, return the minimum path sum from top to bottom. At each step you may move to an adjacent number on the row below, meaning from index `i` on the current row you can move to index `i` or index `i + 1` on the next row.",
+  "examples": [
+    {
+      "input": "triangle = [[2],[3,4],[6,5,7],[4,1,8,3]]",
+      "output": "11",
+      "explanation": "The path 2 -> 3 -> 5 -> 1 minimizes the sum: 2+3+5+1 = 11."
+    },
+    {
+      "input": "triangle = [[-10]]",
+      "output": "-10"
+    }
+  ],
+  "constraints": [
+    "1 <= triangle.length <= 200",
+    "triangle[0].length == 1",
+    "triangle[i].length == triangle[i-1].length + 1",
+    "-10^4 <= triangle[i][j] <= 10^4"
+  ],
+  "hints": [
+    "Working top-down means each cell has a variable number of valid predecessors depending on position — working bottom-up avoids that edge-case juggling entirely.",
+    "Start from the bottom row as your base case, then repeatedly collapse each row into the row above it using the best of the two adjacent choices below.",
+    "dp[i] = triangle[row][i] + min(dp[i], dp[i+1]), updating a single array in place as you move upward row by row; the final answer ends up at dp[0]."
+  ],
+  "solution": {
+    "approach": "Work from the bottom of the triangle upward instead of top-down, since every cell in the bottom row is trivially a base case (the path sum starting there is just its own value), and it avoids special-casing edges on the top-down version. Initialize dp as a copy of the last row. Then for each row moving upward, update dp[i] = triangle[row][i] + min(dp[i], dp[i+1]) — this represents choosing the cheaper of the two reachable cells directly below. After processing row 0, dp[0] holds the minimum total path sum from top to bottom.",
+    "code": "def minimum_total(triangle):\n    dp = triangle[-1][:]\n\n    for row in range(len(triangle) - 2, -1, -1):\n        for i in range(len(triangle[row])):\n            dp[i] = triangle[row][i] + min(dp[i], dp[i + 1])\n\n    return dp[0]\n",
+    "timeComplexity": "O(n^2) where n is the number of rows",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def minimum_total(triangle):\n    # your code here\n    pass\n",
+  "functionName": "minimum_total",
+  "paramNames": ["triangle"],
+  "testCases": [
+    {
+      "input": [[[2], [3, 4], [6, 5, 7], [4, 1, 8, 3]]],
+      "expected": 11,
+      "isHidden": false
+    },
+    {
+      "input": [[[-10]]],
+      "expected": -10,
+      "isHidden": false
+    },
+    {
+      "input": [[[1], [2, 3]]],
+      "expected": 3,
+      "isHidden": true
+    },
+    {
+      "input": [[[-1], [2, 3], [1, -1, -3]]],
+      "expected": -1,
+      "isHidden": true
+    },
+    {
+      "input": [[[0], [0, 0], [0, 0, 0]]],
+      "expected": 0,
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "id": "koko-eating-bananas",
+  "title": "Koko Eating Bananas",
+  "pattern": "binary-search",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Meta",
+    "Bloomberg"
+  ],
+  "prompt": "Koko loves bananas. There are `piles` of bananas, where `piles[i]` is the number of bananas in the i-th pile. The guards have gone and will come back in `h` hours. Koko can decide her eating speed `k` bananas per hour. Each hour, she chooses a pile and eats up to `k` bananas from it; if the pile has fewer than `k` bananas, she eats all of them and does not eat any more that hour. Koko wants to eat all the bananas before the guards return. Return the minimum integer `k` such that she can eat all the bananas within `h` hours.",
+  "examples": [
+    {
+      "input": "piles = [3,6,7,11], h = 8",
+      "output": "4"
+    },
+    {
+      "input": "piles = [30,11,23,4,20], h = 5",
+      "output": "30"
+    },
+    {
+      "input": "piles = [30,11,23,4,20], h = 6",
+      "output": "23"
+    }
+  ],
+  "constraints": [
+    "1 <= piles.length <= 10^4",
+    "piles.length <= h <= 10^9",
+    "1 <= piles[i] <= 10^9"
+  ],
+  "hints": [
+    "Trying every speed from 1 upward and checking feasibility works but could take O(max(piles)) iterations.",
+    "For a fixed speed k, the hours needed is completely determined: sum of ceil(pile / k) over all piles. That hours-needed function is monotonically non-increasing as k grows.",
+    "Binary search on k itself (the answer, not the array) over the range [1, max(piles)], using the feasibility check (hours needed <= h) to decide which half to keep."
+  ],
+  "solution": {
+    "approach": "Binary search on the answer space of possible eating speeds, from 1 to max(piles). For a candidate speed k, compute the total hours needed as the sum of ceil(pile / k) across all piles; this function is monotonically non-increasing in k, which is exactly the structure binary search needs. If the hours needed for k is within the budget h, k is feasible, so try a smaller speed by moving high down; otherwise k is too slow, so move low up. This finds the minimum feasible speed in O(n log(max(piles))) time.",
+    "code": "import math\n\ndef min_eating_speed(piles, h):\n    lo, hi = 1, max(piles)\n\n    def hours_needed(k):\n        return sum(math.ceil(pile / k) for pile in piles)\n\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if hours_needed(mid) <= h:\n            hi = mid\n        else:\n            lo = mid + 1\n\n    return lo\n",
+    "timeComplexity": "O(n log(max(piles)))",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def min_eating_speed(piles, h):\n    # your code here\n    pass\n",
+  "functionName": "min_eating_speed",
+  "paramNames": ["piles", "h"],
+  "testCases": [
+    {
+      "input": [
+        [3, 6, 7, 11],
+        8
+      ],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [30, 11, 23, 4, 20],
+        5
+      ],
+      "expected": 30,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [30, 11, 23, 4, 20],
+        6
+      ],
+      "expected": 23,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1000000000],
+        2
+      ],
+      "expected": 500000000,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 1, 1, 1],
+        4
+      ],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

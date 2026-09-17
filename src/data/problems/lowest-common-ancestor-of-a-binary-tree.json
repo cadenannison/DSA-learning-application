@@ -1,0 +1,92 @@
+{
+  "id": "lowest-common-ancestor-of-a-binary-tree",
+  "title": "Lowest Common Ancestor of a Binary Tree",
+  "pattern": "trees",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Facebook",
+    "Microsoft",
+    "LinkedIn"
+  ],
+  "prompt": "Given the `root` of a binary tree (not necessarily a search tree) and the values `p` and `q` of two nodes guaranteed to exist in the tree, return the value of their lowest common ancestor (LCA) — the deepest node that has both nodes as descendants (a node is allowed to be a descendant of itself).\n\nThe tree is given as a level-order array where `null` marks a missing child (the standard LeetCode serialization). Your function receives this array along with the values `p` and `q`; the starter code includes a helper that builds the tree from the array, so you only need to find and return the LCA's value.",
+  "examples": [
+    {
+      "input": "root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1",
+      "output": "3",
+      "explanation": "Nodes 5 and 1 are in different subtrees of the root, so the root itself is their LCA."
+    },
+    {
+      "input": "root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 4",
+      "output": "5",
+      "explanation": "Node 4 is a descendant of node 5, so 5 is its own LCA with node 4."
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [2, 10^5]",
+    "-10^9 <= Node.val <= 10^9",
+    "All node values are unique",
+    "p and q both exist in the tree and p != q"
+  ],
+  "hints": [
+    "Unlike the BST version, you can't use value comparisons to decide direction — you have to search both subtrees.",
+    "Recurse into left and right subtrees looking for p or q; a node is a candidate answer if it itself is p or q, or if both subtrees report finding one of the targets.",
+    "If a call returns a non-null result from both the left and right recursive calls, the current node is the LCA; if only one side returns non-null, propagate that result upward unchanged."
+  ],
+  "solution": {
+    "approach": "Recursively search each subtree for p and q. The base case: if the current node is None, or matches p or q, return it directly. Otherwise recurse into left and right children. If both recursive calls return a non-None node, it means p and q were found in different subtrees, so the current node is the LCA. If only one side returns non-None, that result (already resolved deeper down, or one of the targets itself) propagates upward unchanged.",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef lowest_common_ancestor(root_arr, p, q):\n    root = build_tree(root_arr)\n\n    def dfs(node):\n        if node is None or node.val == p or node.val == q:\n            return node\n        left = dfs(node.left)\n        right = dfs(node.right)\n        if left and right:\n            return node\n        return left if left else right\n\n    result = dfs(root)\n    return result.val if result else None\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(h), h = tree height"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef lowest_common_ancestor(root_arr, p, q):\n    root = build_tree(root_arr)\n    # your code here\n    pass\n",
+  "functionName": "lowest_common_ancestor",
+  "paramNames": ["root_arr", "p", "q"],
+  "testCases": [
+    {
+      "input": [
+        [3, 5, 1, 6, 2, 0, 8, null, null, 7, 4],
+        5,
+        1
+      ],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [3, 5, 1, 6, 2, 0, 8, null, null, 7, 4],
+        5,
+        4
+      ],
+      "expected": 5,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2],
+        1,
+        2
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [3, 5, 1, 6, 2, 0, 8, null, null, 7, 4],
+        7,
+        4
+      ],
+      "expected": 2,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [3, 5, 1, 6, 2, 0, 8, null, null, 7, 4],
+        6,
+        8
+      ],
+      "expected": 3,
+      "isHidden": true
+    }
+  ]
+}

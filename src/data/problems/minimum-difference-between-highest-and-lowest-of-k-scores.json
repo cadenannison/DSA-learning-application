@@ -1,0 +1,68 @@
+{
+  "id": "minimum-difference-between-highest-and-lowest-of-k-scores",
+  "title": "Minimum Difference Between Highest and Lowest of K Scores",
+  "pattern": "sliding-window",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "You are given a 0-indexed integer array `nums`, where `nums[i]` represents the score of the `i`th student. You are also given an integer `k`. Pick the scores of any `k` students from the array so that the difference between the highest and the lowest of the chosen scores is minimized. Return the minimum possible difference.",
+  "examples": [
+    {
+      "input": "nums = [90], k = 1",
+      "output": "0",
+      "explanation": "With only one student picked, the highest and lowest scores are the same."
+    },
+    {
+      "input": "nums = [9,4,1,7], k = 2",
+      "output": "2",
+      "explanation": "Sort to [1,4,7,9] and pick two adjacent scores, 7 and 9. Their difference of 2 is the minimum possible."
+    }
+  ],
+  "constraints": [
+    "1 <= k <= nums.length <= 1000",
+    "0 <= nums[i] <= 10^5"
+  ],
+  "hints": [
+    "The optimal k scores are always adjacent once the array is sorted — spreading picks out never helps minimize the range.",
+    "After sorting, use a fixed-size window of length k and slide it across the array.",
+    "For each window [i, i+k-1] in the sorted array, the difference is simply nums[i+k-1] - nums[i]; track the minimum of these across all windows."
+  ],
+  "solution": {
+    "approach": "Sort the array first. In sorted order, the k scores that minimize the max-min range must be k consecutive elements — any gap between chosen elements could only be closed by swapping in a closer neighbor, which never increases the range. So slide a fixed-size window of length k over the sorted array and, for each window, compute the difference between its last and first elements (already sorted, so these are the window's max and min). Return the minimum difference found.",
+    "code": "def minimum_difference(nums, k):\n    nums.sort()\n    min_diff = float('inf')\n    for i in range(len(nums) - k + 1):\n        min_diff = min(min_diff, nums[i + k - 1] - nums[i])\n    return min_diff\n",
+    "timeComplexity": "O(n log n)",
+    "spaceComplexity": "O(1) extra (ignoring sort space)"
+  },
+  "starterCode": "def minimum_difference(nums, k):\n    # your code here\n    pass\n",
+  "functionName": "minimum_difference",
+  "paramNames": ["nums", "k"],
+  "testCases": [
+    {
+      "input": [[90], 1],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [[9, 4, 1, 7], 2],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [[1, 1, 1, 1], 2],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [[1, 100, 50, 20], 4],
+      "expected": 99,
+      "isHidden": true
+    },
+    {
+      "input": [[5, 3, 8, 1, 9, 2], 3],
+      "expected": 2,
+      "isHidden": true
+    }
+  ]
+}

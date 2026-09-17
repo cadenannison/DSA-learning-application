@@ -1,0 +1,70 @@
+{
+  "id": "map-sum-pairs",
+  "title": "Map Sum Pairs",
+  "pattern": "tries",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "Implement a `MapSum` structure that maps string keys to integer values, supporting two operations: `insert(key, val)` (inserts the key with the given value, overwriting any previous value for that exact key) and `sum(prefix)` (returns the sum of values for every key that starts with `prefix`, or 0 if none do).\n\nYou'll implement this as a single function `run_map_sum_ops(ops)`, where `ops` is an array of `[operationName, arg1, arg2]` triples (arg2 is `None`/absent for `sum`), applied in order to one `MapSum` instance. `insert` produces no output; `sum` pushes its result onto the output array. Return the output array, matching the exact convention used by `implement-trie`'s `run_trie_ops`.",
+  "examples": [
+    {
+      "input": "ops = [[\"insert\",\"apple\",3],[\"sum\",\"ap\",null],[\"insert\",\"app\",2],[\"sum\",\"ap\",null]]",
+      "output": "[3,5]",
+      "explanation": "After inserting apple=3, sum(\"ap\") is 3. After inserting app=2, sum(\"ap\") is apple(3) + app(2) = 5."
+    },
+    {
+      "input": "ops = [[\"insert\",\"a\",5],[\"insert\",\"a\",10],[\"sum\",\"a\",null]]",
+      "output": "[10]",
+      "explanation": "Re-inserting key \"a\" with value 10 overwrites the earlier value of 5, so sum(\"a\") is just 10."
+    }
+  ],
+  "constraints": [
+    "1 <= key.length, prefix.length <= 50",
+    "key and prefix consist of only lowercase English letters",
+    "1 <= val <= 1000",
+    "At most 50 calls total will be made to insert and sum"
+  ],
+  "hints": [
+    "Recomputing the prefix sum by scanning every stored key on each sum() call works but is wasteful when there are many keys or many queries.",
+    "Store keys in a trie where each node also tracks the total value of all inserted keys passing through it; then sum(prefix) is just a trie walk down to that prefix's node, reading off its accumulated total.",
+    "Handling re-insertion correctly is the tricky part: on insert, compute the delta (new value minus the key's old value) and propagate that delta to every node along the key's path, rather than just adding the new value outright."
+  ],
+  "solution": {
+    "approach": "Each trie node keeps a `score` field equal to the sum of values of all inserted keys that pass through it. On insert, look up the key's previous value in a separate dict (defaulting to 0), compute delta = new_val - old_val, then walk the key's path from the root, adding delta to every node's score (creating nodes as needed), and update the dict with the new value. On sum(prefix), walk down to the prefix's node and return its score directly (or 0 if the prefix isn't present). This keeps insert and sum both proportional to string length rather than total key count.",
+    "code": "def run_map_sum_ops(ops):\n    root = {'children': {}, 'score': 0}\n    values = {}\n\n    def insert(key, val):\n        delta = val - values.get(key, 0)\n        values[key] = val\n        node = root\n        node['score'] += delta\n        for ch in key:\n            if ch not in node['children']:\n                node['children'][ch] = {'children': {}, 'score': 0}\n            node = node['children'][ch]\n            node['score'] += delta\n\n    def prefix_sum(prefix):\n        node = root\n        for ch in prefix:\n            if ch not in node['children']:\n                return 0\n            node = node['children'][ch]\n        return node['score']\n\n    output = []\n    for op in ops:\n        name = op[0]\n        if name == 'insert':\n            insert(op[1], op[2])\n        elif name == 'sum':\n            output.append(prefix_sum(op[1]))\n    return output\n",
+    "timeComplexity": "O(L) per operation, where L is the key/prefix length",
+    "spaceComplexity": "O(total characters inserted)"
+  },
+  "starterCode": "def run_map_sum_ops(ops):\n    # your code here\n    pass\n",
+  "functionName": "run_map_sum_ops",
+  "paramNames": ["ops"],
+  "testCases": [
+    {
+      "input": [[["insert", "apple", 3], ["sum", "ap", null], ["insert", "app", 2], ["sum", "ap", null]]],
+      "expected": [3, 5],
+      "isHidden": false
+    },
+    {
+      "input": [[["insert", "a", 5], ["insert", "a", 10], ["sum", "a", null]]],
+      "expected": [10],
+      "isHidden": false
+    },
+    {
+      "input": [[["sum", "x", null]]],
+      "expected": [0],
+      "isHidden": true
+    },
+    {
+      "input": [[["insert", "cat", 4], ["insert", "car", 6], ["sum", "ca", null], ["sum", "cat", null], ["sum", "care", null]]],
+      "expected": [10, 4, 0],
+      "isHidden": true
+    },
+    {
+      "input": [[["insert", "bee", 1], ["insert", "beer", 2], ["insert", "beet", 3], ["sum", "bee", null]]],
+      "expected": [6],
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "id": "longest-subarray-of-1s-after-deleting-one-element",
+  "title": "Longest Subarray of 1's After Deleting One Element",
+  "pattern": "sliding-window",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Meta"
+  ],
+  "prompt": "Given a binary array `nums`, you should delete exactly one element from it. Return the size of the longest non-empty subarray containing only `1`'s in the resulting array. If there is no such subarray, return `0`.",
+  "examples": [
+    {
+      "input": "nums = [1,1,0,1]",
+      "output": "3",
+      "explanation": "Delete the 0 to get [1,1,1], which has length 3."
+    },
+    {
+      "input": "nums = [0,1,1,1,0,1,1,0,1]",
+      "output": "5",
+      "explanation": "Delete the 0 at index 4 to get [0,1,1,1,1,1,0,1], the longest run of 1's has length 5."
+    },
+    {
+      "input": "nums = [1,1,1]",
+      "output": "2",
+      "explanation": "You must delete exactly one element, and it has to be a 1, so the longest run of 1's afterward has length 2."
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 10^5",
+    "nums[i] is either 0 or 1"
+  ],
+  "hints": [
+    "Deleting exactly one element means the result is equivalent to finding the longest window that contains at most one 0.",
+    "Use a variable-size sliding window and track the count of zeros currently inside it.",
+    "When the zero count in the window exceeds 1, shrink from the left until it's back to at most 1; since exactly one element must always be removed, the answer is the max window length minus 1."
+  ],
+  "solution": {
+    "approach": "Deleting exactly one element and keeping only 1's is equivalent to finding the longest window containing at most one 0 — that 0 is the element you'll delete (or, if the window has no 0, you delete one of its 1's, hence the final -1). Slide a window with a zero counter: expand right, and whenever zero count exceeds 1, shrink from the left until valid again. Track the max window length, then subtract 1 because exactly one element (the zero, or a 1 if none exists) must be removed from every candidate window.",
+    "code": "def longest_subarray(nums):\n    left = 0\n    zero_count = 0\n    best = 0\n\n    for right, num in enumerate(nums):\n        if num == 0:\n            zero_count += 1\n        while zero_count > 1:\n            if nums[left] == 0:\n                zero_count -= 1\n            left += 1\n        best = max(best, right - left + 1)\n\n    return best - 1\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def longest_subarray(nums):\n    # your code here\n    pass\n",
+  "functionName": "longest_subarray",
+  "paramNames": ["nums"],
+  "testCases": [
+    {
+      "input": [[1, 1, 0, 1]],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [[0, 1, 1, 1, 0, 1, 1, 0, 1]],
+      "expected": 5,
+      "isHidden": false
+    },
+    {
+      "input": [[1, 1, 1]],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [[0]],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [[0, 0, 0]],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [[1]],
+      "expected": 0,
+      "isHidden": true
+    }
+  ]
+}

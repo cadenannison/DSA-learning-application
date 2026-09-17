@@ -1,0 +1,81 @@
+{
+  "id": "basic-calculator",
+  "title": "Basic Calculator",
+  "pattern": "stacks-queues",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Facebook",
+    "Amazon",
+    "Microsoft"
+  ],
+  "prompt": "Given a string `s` representing a valid arithmetic expression, implement a basic calculator to evaluate it and return the result as an integer. The expression may contain `+`, `-`, parentheses `(` `)`, non-negative integers, and spaces. It does not contain `*` or `/`. Assume the expression is always valid and the result fits in a 32-bit signed integer.",
+  "examples": [
+    {
+      "input": "s = \"1 + 1\"",
+      "output": "2"
+    },
+    {
+      "input": "s = \" 2-1 + 2 \"",
+      "output": "3"
+    },
+    {
+      "input": "s = \"(1+(4+5+2)-3)+(6+8)\"",
+      "output": "23"
+    }
+  ],
+  "constraints": [
+    "1 <= s.length <= 3 * 10^5",
+    "s consists of digits, '+', '-', '(', ')', and ' '",
+    "s represents a valid expression",
+    "'+' is never used as a unary operator",
+    "'-' may be used as a unary operator (e.g. \"-1\" or \"-(2+3)\")",
+    "Every number and running sum fits in a signed 32-bit integer"
+  ],
+  "hints": [
+    "Parentheses can nest arbitrarily deep, and the sign in front of a parenthesized group flips the sign of everything inside it \u2014 that context needs to be saved and restored.",
+    "Track a running result, a current sign, and use a stack to save (result-so-far, sign-in-effect) whenever you enter a new '(' group, resetting both to start the sub-expression fresh.",
+    "When you hit ')', pop the saved sign and result, then combine: result = saved_result + saved_sign * current_sub_result \u2014 this correctly re-applies the sign that was in front of the parenthesis to the whole evaluated group."
+  ],
+  "solution": {
+    "approach": "Walk the string left to right maintaining a running `result`, the `sign` to apply to the next number (+1 or -1), and a stack for saving context across parentheses. Digits accumulate into the current number; on '+' or '-', fold the pending number (with the current sign) into result and update sign for the next term. On '(', push the current (result, sign) pair onto the stack and reset both to start evaluating the sub-expression as if fresh. On ')', fold the last pending number into result, then pop the saved sign and result and combine: result = saved_result + saved_sign * result — this reapplies whatever sign preceded the parenthesis to the entire evaluated group, correctly handling nested and negated parentheses.",
+    "code": "def calculate(s):\n    result = 0\n    number = 0\n    sign = 1\n    stack = []\n\n    for ch in s:\n        if ch.isdigit():\n            number = number * 10 + int(ch)\n        elif ch in '+-':\n            result += sign * number\n            number = 0\n            sign = 1 if ch == '+' else -1\n        elif ch == '(':\n            stack.append(result)\n            stack.append(sign)\n            result = 0\n            sign = 1\n        elif ch == ')':\n            result += sign * number\n            number = 0\n            result *= stack.pop()  # sign before the '('\n            result += stack.pop()  # result before the '('\n\n    return result + sign * number\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def calculate(s):\n    # your code here\n    pass\n",
+  "functionName": "calculate",
+  "paramNames": ["s"],
+  "testCases": [
+    {
+      "input": ["1 + 1"],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [" 2-1 + 2 "],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": ["(1+(4+5+2)-3)+(6+8)"],
+      "expected": 23,
+      "isHidden": false
+    },
+    {
+      "input": ["-(2+3)"],
+      "expected": -5,
+      "isHidden": true
+    },
+    {
+      "input": ["2-(5-6)"],
+      "expected": 3,
+      "isHidden": true
+    },
+    {
+      "input": ["1"],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

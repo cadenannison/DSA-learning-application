@@ -1,0 +1,65 @@
+{
+  "id": "swim-in-rising-water",
+  "title": "Swim in Rising Water",
+  "pattern": "graphs",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "You are given an `n x n` integer matrix `grid` where each value `grid[i][j]` represents the elevation at that point. It starts raining, and water level rises with time. At time `t`, the water level is `t`, meaning any cell with elevation less than or equal to `t` is submerged and can be swum through.\n\nYou can swim from a square to an adjacent square (up, down, left, right) only if both squares are submerged at the current time (i.e. both have elevation <= current time t). You start at the top-left square `(0, 0)`. Return the minimum time until you can reach the bottom-right square `(n-1, n-1)`.",
+  "examples": [
+    {
+      "input": "grid = [[0,2],[1,3]]",
+      "output": "3",
+      "explanation": "At t=3, the entire grid is submerged (all elevations <= 3), allowing a path from (0,0) to (1,1). No smaller t connects both endpoints."
+    },
+    {
+      "input": "grid = [[0,1,2,3,4],[24,23,22,21,5],[12,13,14,15,16],[11,17,18,19,20],[10,9,8,7,6]]",
+      "output": "16",
+      "explanation": "The optimal path snakes through cells whose maximum elevation along the route is 16, following the spiral of increasing values."
+    }
+  ],
+  "constraints": [
+    "n == grid.length == grid[i].length",
+    "1 <= n <= 50",
+    "0 <= grid[i][j] < n^2",
+    "Each value grid[i][j] is unique"
+  ],
+  "hints": [
+    "You need the path from (0,0) to (n-1,n-1) that minimizes the maximum elevation encountered along the way — this is a 'minimax path' problem, not a simple shortest-path-by-distance problem.",
+    "A modified Dijkstra works: instead of summing edge weights, track the maximum cell elevation seen so far on each path, and always expand the frontier cell with the smallest such maximum next.",
+    "Use a min-heap keyed by 'the highest elevation required to reach this cell so far.' The first time you pop the destination cell off the heap, that value is the answer — this is like Dijkstra but the 'distance' being relaxed is a running max, not a running sum."
+  ],
+  "solution": {
+    "approach": "This is a minimax path problem: find the path minimizing the maximum elevation crossed. Modify Dijkstra so the 'distance' to a cell is the largest elevation encountered on the best path found so far to reach it (rather than a sum). Use a min-heap of (max_elevation_so_far, row, col), always expanding the cell reachable with the smallest such value. When moving to a neighbor, the new candidate value is max(current path's max, neighbor's own elevation) since you must be able to swim over the neighbor too. The first time the destination is popped from the heap, its associated value is the minimum time needed, because Dijkstra's greedy frontier-expansion guarantees no cheaper (lower-max) path could still be found later.",
+    "code": "import heapq\n\n\ndef swim_in_water(grid):\n    n = len(grid)\n    visited = [[False] * n for _ in range(n)]\n    heap = [(grid[0][0], 0, 0)]\n    visited[0][0] = True\n\n    while heap:\n        t, r, c = heapq.heappop(heap)\n        if r == n - 1 and c == n - 1:\n            return t\n        for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n            nr, nc = r + dr, c + dc\n            if 0 <= nr < n and 0 <= nc < n and not visited[nr][nc]:\n                visited[nr][nc] = True\n                heapq.heappush(heap, (max(t, grid[nr][nc]), nr, nc))\n\n    return -1\n",
+    "timeComplexity": "O(n^2 log n)",
+    "spaceComplexity": "O(n^2)"
+  },
+  "starterCode": "def swim_in_water(grid):\n    # your code here\n    pass\n",
+  "functionName": "swim_in_water",
+  "paramNames": ["grid"],
+  "testCases": [
+    {
+      "input": [[[0, 2], [1, 3]]],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [[[0, 1, 2, 3, 4], [24, 23, 22, 21, 5], [12, 13, 14, 15, 16], [11, 17, 18, 19, 20], [10, 9, 8, 7, 6]]],
+      "expected": 16,
+      "isHidden": false
+    },
+    {
+      "input": [[[0]]],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [[[3, 2], [0, 1]]],
+      "expected": 3,
+      "isHidden": true
+    }
+  ]
+}

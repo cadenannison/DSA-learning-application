@@ -1,0 +1,80 @@
+{
+  "id": "squares-of-a-sorted-array",
+  "title": "Squares of a Sorted Array",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Microsoft",
+    "Bloomberg"
+  ],
+  "prompt": "Given an integer array `nums` sorted in non-decreasing order, return an array of the squares of each number, also sorted in non-decreasing order. Because `nums` may contain negative numbers, squaring can reorder values, so a naive square-then-sort takes `O(n log n)`; you should aim for `O(n)`.",
+  "examples": [
+    {
+      "input": "nums = [-4,-1,0,3,10]",
+      "output": "[0,1,9,16,100]",
+      "explanation": "After squaring, [16,1,0,9,100] must be sorted to [0,1,9,16,100]."
+    },
+    {
+      "input": "nums = [-7,-3,2,3,11]",
+      "output": "[4,9,9,49,121]"
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 10^4",
+    "-10^4 <= nums[i] <= 10^4",
+    "nums is sorted in non-decreasing order"
+  ],
+  "hints": [
+    "Squaring and sorting again costs O(n log n) — can you avoid the second sort entirely?",
+    "The largest squared value must come from one of the two ends of the sorted array, since the array is sorted by signed value, not magnitude.",
+    "Use two pointers at each end, comparing magnitudes and filling the result array from the back to the front."
+  ],
+  "solution": {
+    "approach": "Since the array is sorted, the elements with the largest absolute value are always at one of the two ends (either the most negative or the most positive). Use two pointers, one at each end, compare their absolute values, square and place the larger one at the back of the result array, then move that pointer inward. Filling the result from the back guarantees non-decreasing order in one linear pass.",
+    "code": "def sorted_squares(nums):\n    n = len(nums)\n    result = [0] * n\n    lo, hi = 0, n - 1\n    pos = n - 1\n\n    while lo <= hi:\n        left_sq = nums[lo] * nums[lo]\n        right_sq = nums[hi] * nums[hi]\n        if left_sq > right_sq:\n            result[pos] = left_sq\n            lo += 1\n        else:\n            result[pos] = right_sq\n            hi -= 1\n        pos -= 1\n\n    return result\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n) for the output array"
+  },
+  "starterCode": "def sorted_squares(nums):\n    # your code here\n    pass\n",
+  "functionName": "sorted_squares",
+  "paramNames": ["nums"],
+  "testCases": [
+    {
+      "input": [
+        [-4, -1, 0, 3, 10]
+      ],
+      "expected": [0, 1, 9, 16, 100],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [-7, -3, 2, 3, 11]
+      ],
+      "expected": [4, 9, 9, 49, 121],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0]
+      ],
+      "expected": [0],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [-5, -4, -3, -2, -1]
+      ],
+      "expected": [1, 4, 9, 16, 25],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3, 4, 5]
+      ],
+      "expected": [1, 4, 9, 16, 25],
+      "isHidden": true
+    }
+  ]
+}

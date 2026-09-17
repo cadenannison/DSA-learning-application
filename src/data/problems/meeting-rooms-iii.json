@@ -1,0 +1,71 @@
+{
+  "id": "meeting-rooms-iii",
+  "title": "Meeting Rooms III",
+  "pattern": "intervals",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "You are given an integer `n` representing `n` meeting rooms numbered from `0` to `n - 1`, and a 2D array `meetings` where `meetings[i] = [start_i, end_i]` means a meeting will be held during the half-open interval `[start_i, end_i)`. All `start_i` are unique. Meetings are allocated in order of start time using the lowest-numbered available room; if no room is free, the meeting waits until the earliest room frees up and then runs for its same original duration starting at that time. If multiple rooms free up at the same time, the lowest-numbered one is used, and if multiple meetings are waiting for the same freed-up moment, they are held in the order they originally appear (by start time). Return the number of the room that held the most meetings; if there is a tie, return the room with the lowest number.",
+  "examples": [
+    {
+      "input": "n = 2, meetings = [[0,10],[1,5],[2,7],[3,4]]",
+      "output": "0",
+      "explanation": "Meeting 0 uses room 0 from [0,10). Meeting 1 uses room 1 from [1,5). Meeting 2 must wait until room 1 frees at 5, running [5,10). Meeting 3 waits until room 0 frees at 10, running [10,11). Room 0 held 2 meetings, room 1 held 2 meetings; room 0 wins the tie."
+    },
+    {
+      "input": "n = 3, meetings = [[1,20],[2,10],[3,5],[4,9],[6,8]]",
+      "output": "1",
+      "explanation": "Rooms 0, 1, 2 take the first three meetings directly. The 4th and 5th meetings wait for the earliest freed rooms. Room 1 ends up hosting the most."
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 100",
+    "1 <= meetings.length <= 10^5",
+    "meetings[i].length == 2",
+    "0 <= start_i < end_i <= 5 * 10^5",
+    "all start_i values are unique"
+  ],
+  "hints": [
+    "You need two priority queues: one for free room numbers (so you can always grab the lowest-numbered free room), and one for busy rooms tracked by when they'll free up (and which room number).",
+    "Process meetings strictly in start-time order. Before assigning each meeting, first move any room from the busy heap whose free-time is <= the current meeting's start into the free heap.",
+    "If a free room exists when a meeting needs one, assign the lowest-numbered free room and it runs for its full original duration starting at its own start time. If no room is free, pop the busy heap's earliest-freeing room, and the meeting is delayed to start when that room frees, keeping the meeting's ORIGINAL duration (not truncated) — then push that room back onto the busy heap with its new end time, and increment that room's meeting count."
+  ],
+  "solution": {
+    "approach": "Use two heaps: `free` holds available room numbers (min-heap so the lowest-numbered free room is chosen first), and `busy` holds (end_time, room_number) pairs for occupied rooms (min-heap so the room freeing soonest is found first). Process meetings in start-time order. Before handling each meeting, pop every busy room whose end_time is <= the meeting's start into `free`. If `free` is non-empty, assign the meeting to the lowest-numbered free room for its original [start, end) duration. Otherwise, pop the earliest-freeing busy room; the meeting is delayed to begin when that room frees and keeps its original duration, so its new end becomes (that room's free time + meeting duration). Track a count per room, and after processing all meetings, return the room with the highest count (lowest number on ties).",
+    "code": "import heapq\n\n\ndef most_booked(n, meetings):\n    meetings = sorted(meetings)\n    free = list(range(n))\n    heapq.heapify(free)\n    busy = []  # (end_time, room)\n    counts = [0] * n\n\n    for start, end in meetings:\n        while busy and busy[0][0] <= start:\n            _, room = heapq.heappop(busy)\n            heapq.heappush(free, room)\n\n        duration = end - start\n        if free:\n            room = heapq.heappop(free)\n            heapq.heappush(busy, (end, room))\n        else:\n            free_time, room = heapq.heappop(busy)\n            heapq.heappush(busy, (free_time + duration, room))\n\n        counts[room] += 1\n\n    best_room = 0\n    for room in range(n):\n        if counts[room] > counts[best_room]:\n            best_room = room\n    return best_room\n",
+    "timeComplexity": "O(m log n) where m is the number of meetings",
+    "spaceComplexity": "O(n) for the heaps and counts array"
+  },
+  "starterCode": "def most_booked(n, meetings):\n    # your code here\n    pass\n",
+  "functionName": "most_booked",
+  "paramNames": ["n", "meetings"],
+  "testCases": [
+    {
+      "input": [2, [[0, 10], [1, 5], [2, 7], [3, 4]]],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [3, [[1, 20], [2, 10], [3, 5], [4, 9], [6, 8]]],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [1, [[0, 5], [5, 10]]],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [4, [[18, 19], [3, 12], [17, 19], [2, 13], [7, 10]]],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [2, [[0, 1], [1, 2], [2, 3]]],
+      "expected": 0,
+      "isHidden": true
+    }
+  ]
+}

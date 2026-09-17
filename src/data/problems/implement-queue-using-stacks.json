@@ -1,0 +1,93 @@
+{
+  "id": "implement-queue-using-stacks",
+  "title": "Implement Queue using Stacks",
+  "pattern": "stacks-queues",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Bloomberg"
+  ],
+  "prompt": "Implement a first-in-first-out (FIFO) queue using only two stacks. The queue should support `push(x)`, `pop()`, `peek()`, and `empty()`.\n\nYou'll implement this as a single function `run_queue_ops(ops)`, where `ops` is an array of `[operationName, argument]` pairs (argument is `null` for `pop`, `peek`, and `empty`), applied in order to one queue instance. `push` never produces output; `pop`, `peek`, and `empty` each push their result onto the output array, in call order. Return the output array.",
+  "examples": [
+    {
+      "input": "ops = [[\"push\",1],[\"push\",2],[\"peek\",null],[\"pop\",null],[\"empty\",null]]",
+      "output": "[1,1,false]",
+      "explanation": "peek() returns 1 (the front, pushed first). pop() removes and returns 1. empty() is false since 2 remains."
+    }
+  ],
+  "constraints": [
+    "1 <= x <= 9",
+    "At most 100 calls total to push, pop, peek, and empty",
+    "All calls to pop and peek are valid (the queue is non-empty when called)"
+  ],
+  "hints": [
+    "A single stack reverses order, which is the opposite of what a FIFO queue needs — think about how reversing twice restores the original order.",
+    "Use an 'in' stack for incoming pushes and an 'out' stack for outgoing pops/peeks.",
+    "Only transfer elements from 'in' to 'out' when 'out' is empty — that lazy transfer reverses the order exactly once, giving FIFO behavior, and each element moves at most twice total across its lifetime."
+  ],
+  "solution": {
+    "approach": "Maintain two stacks: `in_stack` receives all pushes directly. When a pop or peek is requested and `out_stack` is empty, pour all of `in_stack` into `out_stack` (reversing order so the oldest element ends up on top), then operate on `out_stack`. This lazy transfer means each element is moved at most once from in to out, giving amortized O(1) per operation despite occasional O(n) transfers.",
+    "code": "def run_queue_ops(ops):\n    in_stack = []\n    out_stack = []\n    output = []\n\n    def move_if_needed():\n        if not out_stack:\n            while in_stack:\n                out_stack.append(in_stack.pop())\n\n    for op, arg in ops:\n        if op == 'push':\n            in_stack.append(arg)\n        elif op == 'pop':\n            move_if_needed()\n            output.append(out_stack.pop())\n        elif op == 'peek':\n            move_if_needed()\n            output.append(out_stack[-1])\n        elif op == 'empty':\n            output.append(len(in_stack) == 0 and len(out_stack) == 0)\n\n    return output\n",
+    "timeComplexity": "O(1) amortized per operation",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def run_queue_ops(ops):\n    # your code here\n    pass\n",
+  "functionName": "run_queue_ops",
+  "paramNames": ["ops"],
+  "testCases": [
+    {
+      "input": [
+        [
+          ["push", 1],
+          ["push", 2],
+          ["peek", null],
+          ["pop", null],
+          ["empty", null]
+        ]
+      ],
+      "expected": [1, 1, false],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [
+          ["push", 1],
+          ["empty", null]
+        ]
+      ],
+      "expected": [false],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [
+          ["push", 1],
+          ["push", 2],
+          ["push", 3],
+          ["pop", null],
+          ["push", 4],
+          ["pop", null],
+          ["pop", null],
+          ["pop", null],
+          ["empty", null]
+        ]
+      ],
+      "expected": [1, 2, 3, 4, true],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [
+          ["push", 5],
+          ["peek", null],
+          ["peek", null],
+          ["pop", null],
+          ["empty", null]
+        ]
+      ],
+      "expected": [5, 5, 5, true],
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "id": "remove-duplicates-from-sorted-list-ii",
+  "title": "Remove Duplicates from Sorted List II",
+  "pattern": "linked-list",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Bloomberg",
+    "Facebook"
+  ],
+  "prompt": "Given the `head` of a sorted singly linked list, delete all nodes that have duplicate values, leaving only distinct values from the original list (so any value that appeared more than once is removed entirely, not just trimmed to one occurrence). Return the resulting sorted list.\n\nThe list is given as an array (e.g. `[1,2,3,3,4,4,5]` represents `1 -> 2 -> 3 -> 3 -> 4 -> 4 -> 5 -> null`). The starter code includes helpers to convert between the array and a linked-list node — build the actual list, remove the duplicate-valued nodes entirely by manipulating `next` pointers, then convert back to an array to return.",
+  "examples": [
+    {
+      "input": "head = [1,2,3,3,4,4,5]",
+      "output": "[1,2,5]"
+    },
+    {
+      "input": "head = [1,1,1,2,3]",
+      "output": "[2,3]"
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [0, 300]",
+    "-100 <= Node.val <= 100",
+    "The list is guaranteed to be sorted in non-decreasing order"
+  ],
+  "hints": [
+    "Unlike the simpler version of this problem, a value that repeats must be removed completely, including its first occurrence — so you can't just skip forward from a kept node.",
+    "Use a dummy node before head, since the very first node(s) might themselves be duplicates that get fully removed.",
+    "Keep a pointer to the last confirmed-unique node. Whenever you find a run of one or more nodes sharing a value, check if the run has length > 1; if so, skip the entire run by relinking directly past it."
+  ],
+  "solution": {
+    "approach": "Use a dummy node before head and a pointer `prev` that always trails just behind the region being examined. For each node, look ahead to see how far the run of equal values extends. If the run has more than one node, splice `prev.next` directly past the entire run (removing all of it); otherwise, the single node is unique so far, and prev simply advances onto it. Because the list is sorted, all copies of a value are guaranteed contiguous, so this single pass correctly identifies and removes every duplicated value in full.",
+    "code": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for v in arr:\n        node = ListNode(v)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef delete_duplicates(head_arr):\n    head = arr_to_list(head_arr)\n    dummy = ListNode(0, head)\n    prev = dummy\n    curr = head\n\n    while curr:\n        if curr.next and curr.next.val == curr.val:\n            val = curr.val\n            while curr and curr.val == val:\n                curr = curr.next\n            prev.next = curr\n        else:\n            prev = curr\n            curr = curr.next\n\n    return list_to_arr(dummy.next)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1) auxiliary (excluding the returned list)"
+  },
+  "starterCode": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for v in arr:\n        node = ListNode(v)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef delete_duplicates(head_arr):\n    head = arr_to_list(head_arr)\n    # your code here\n    pass\n",
+  "functionName": "delete_duplicates",
+  "paramNames": ["head_arr"],
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 3, 3, 4, 4, 5]
+      ],
+      "expected": [1, 2, 5],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 1, 1, 2, 3]
+      ],
+      "expected": [2, 3],
+      "isHidden": false
+    },
+    {
+      "input": [
+        []
+      ],
+      "expected": [],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": [1],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 1]
+      ],
+      "expected": [],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 2]
+      ],
+      "expected": [1],
+      "isHidden": true
+    }
+  ]
+}

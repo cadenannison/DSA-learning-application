@@ -1,0 +1,62 @@
+{
+  "id": "reconstruct-itinerary",
+  "title": "Reconstruct Itinerary",
+  "pattern": "graphs",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon",
+    "Airbnb"
+  ],
+  "prompt": "You are given a list of airline `tickets` where `tickets[i] = [from_i, to_i]` represents a flight departing from `from_i` and arriving at `to_i`. Reconstruct the itinerary in order, starting from `\"JFK\"`, and using all the tickets exactly once.\n\nIf there are multiple valid itineraries, return the one that has the smallest lexical order when read as a single string (e.g. `[\"JFK\", \"LGA\"]` is smaller than `[\"JFK\", \"LGB\"]`). You may assume all tickets form at least one valid itinerary that uses every ticket exactly once, starting from `\"JFK\"`.",
+  "examples": [
+    {
+      "input": "tickets = [[\"MUC\",\"LHR\"],[\"JFK\",\"MUC\"],[\"SFO\",\"SJC\"],[\"LHR\",\"SFO\"]]",
+      "output": "[\"JFK\",\"MUC\",\"LHR\",\"SFO\",\"SJC\"]",
+      "explanation": "Following every ticket exactly once starting from JFK gives this unique route."
+    },
+    {
+      "input": "tickets = [[\"JFK\",\"SFO\"],[\"JFK\",\"ATL\"],[\"SFO\",\"ATL\"],[\"ATL\",\"JFK\"],[\"ATL\",\"SFO\"]]",
+      "output": "[\"JFK\",\"ATL\",\"JFK\",\"SFO\",\"ATL\",\"SFO\"]",
+      "explanation": "Two itineraries use every ticket: this one and [\"JFK\",\"SFO\",\"ATL\",\"JFK\",\"ATL\",\"SFO\"] — the first is lexicographically smaller."
+    }
+  ],
+  "constraints": [
+    "1 <= tickets.length <= 300",
+    "tickets[i].length == 2",
+    "from_i.length == 3, to_i.length == 3 (each is a 3-letter airport code)",
+    "from_i != to_i",
+    "All the tickets form at least one valid itinerary"
+  ],
+  "hints": [
+    "This is finding an Eulerian path (a walk using every edge exactly once) starting at JFK, in a directed multigraph.",
+    "To get the lexicographically smallest result, always prefer visiting the smallest available destination first from any airport — sort each airport's destinations.",
+    "Use Hierholzer's algorithm: greedily DFS deepest-first, consuming tickets as you use them, and when you get stuck (no more unused tickets from the current airport), push the airport onto the result and backtrack. The final result, reversed, is the itinerary."
+  ],
+  "solution": {
+    "approach": "Model tickets as a directed multigraph and sort each airport's destination list so the smallest lexical option is always tried first. Run Hierholzer's algorithm for finding an Eulerian path: DFS greedily, always consuming the smallest available outgoing ticket, and when an airport has no unused tickets left, append it to the result (post-order). Because we only 'finish' an airport once all its tickets are used, and we always prefer smaller destinations first, the reversed post-order sequence gives exactly the lexicographically smallest itinerary that uses every ticket.",
+    "code": "from collections import defaultdict\nimport heapq\n\n\ndef find_itinerary(tickets):\n    graph = defaultdict(list)\n    for src, dst in tickets:\n        heapq.heappush(graph[src], dst)\n\n    route = []\n\n    def visit(airport):\n        while graph[airport]:\n            next_airport = heapq.heappop(graph[airport])\n            visit(next_airport)\n        route.append(airport)\n\n    visit(\"JFK\")\n    return route[::-1]\n",
+    "timeComplexity": "O(E log E), E = number of tickets",
+    "spaceComplexity": "O(E)"
+  },
+  "starterCode": "def find_itinerary(tickets):\n    # your code here\n    pass\n",
+  "functionName": "find_itinerary",
+  "paramNames": ["tickets"],
+  "testCases": [
+    {
+      "input": [[["MUC", "LHR"], ["JFK", "MUC"], ["SFO", "SJC"], ["LHR", "SFO"]]],
+      "expected": ["JFK", "MUC", "LHR", "SFO", "SJC"],
+      "isHidden": false
+    },
+    {
+      "input": [[["JFK", "SFO"], ["JFK", "ATL"], ["SFO", "ATL"], ["ATL", "JFK"], ["ATL", "SFO"]]],
+      "expected": ["JFK", "ATL", "JFK", "SFO", "ATL", "SFO"],
+      "isHidden": false
+    },
+    {
+      "input": [[["JFK", "A"], ["A", "JFK"]]],
+      "expected": ["JFK", "A", "JFK"],
+      "isHidden": true
+    }
+  ]
+}

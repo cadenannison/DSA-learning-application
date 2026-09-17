@@ -1,0 +1,79 @@
+{
+  "id": "rotate-image",
+  "title": "Rotate Image",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Meta",
+    "Apple"
+  ],
+  "prompt": "You are given an `n x n` 2D matrix representing an image. Rotate the image by 90 degrees clockwise, in place. You must modify the matrix directly without allocating another 2D matrix.",
+  "examples": [
+    {
+      "input": "matrix = [[1,2,3],[4,5,6],[7,8,9]]",
+      "output": "[[7,4,1],[8,5,2],[9,6,3]]"
+    },
+    {
+      "input": "matrix = [[5,1],[2,4]]",
+      "output": "[[2,5],[4,1]]"
+    }
+  ],
+  "constraints": [
+    "n == matrix.length == matrix[i].length",
+    "1 <= n <= 20",
+    "-1000 <= matrix[i][j] <= 1000"
+  ],
+  "hints": [
+    "Rotating into a brand new n x n matrix and copying it back is O(n^2) time and space — can you eliminate the extra matrix?",
+    "A 90-degree clockwise rotation is exactly the same result as transposing the matrix (swap matrix[i][j] with matrix[j][i]) followed by reversing each row.",
+    "Both the transpose and the row-reversal can be done with simple swaps directly on the original matrix, needing no auxiliary storage."
+  ],
+  "solution": {
+    "approach": "A 90-degree clockwise rotation can be decomposed into two simpler in-place operations: first transpose the matrix (swap matrix[i][j] with matrix[j][i] for all i < j, flipping it across the main diagonal), then reverse each row. Transposing turns columns into rows, and reversing each row then flips left-to-right, which together produce exactly the clockwise rotation. Both steps only swap elements within the existing matrix, so no auxiliary matrix is ever allocated.",
+    "code": "def rotate(matrix):\n    n = len(matrix)\n\n    for i in range(n):\n        for j in range(i + 1, n):\n            matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]\n\n    for row in matrix:\n        row.reverse()\n\n    return matrix\n",
+    "timeComplexity": "O(n^2)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def rotate(matrix):\n    # your code here\n    pass\n",
+  "functionName": "rotate",
+  "paramNames": ["matrix"],
+  "testCases": [
+    {
+      "input": [
+        [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+      ],
+      "expected": [[7, 4, 1], [8, 5, 2], [9, 6, 3]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[5, 1], [2, 4]]
+      ],
+      "expected": [[2, 5], [4, 1]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1]]
+      ],
+      "expected": [[1]],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[1, 2], [3, 4]]
+      ],
+      "expected": [[3, 1], [4, 2]],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13, 14, 15, 16]]
+      ],
+      "expected": [[13, 9, 5, 1], [14, 10, 6, 2], [15, 11, 7, 3], [16, 12, 8, 4]],
+      "isHidden": true
+    }
+  ]
+}

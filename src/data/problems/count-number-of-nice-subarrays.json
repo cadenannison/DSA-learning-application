@@ -1,0 +1,73 @@
+{
+  "id": "count-number-of-nice-subarrays",
+  "title": "Count Number of Nice Subarrays",
+  "pattern": "sliding-window",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "Given an array of integers `nums` and an integer `k`, a continuous subarray is called nice if there are exactly `k` odd numbers in it. Return the number of nice subarrays.",
+  "examples": [
+    {
+      "input": "nums = [1,1,2,1,1], k = 3",
+      "output": "2",
+      "explanation": "The subarrays with exactly 3 odd numbers are [1,1,2,1] and [1,2,1,1]."
+    },
+    {
+      "input": "nums = [2,4,6], k = 1",
+      "output": "0",
+      "explanation": "There are no odd numbers, so no subarray can have exactly 1 odd number."
+    },
+    {
+      "input": "nums = [2,2,2,1,2,2,1,2,2,2], k = 2",
+      "output": "16"
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 5 * 10^4",
+    "1 <= nums[i] <= 10^5",
+    "1 <= k <= nums.length"
+  ],
+  "hints": [
+    "Directly counting subarrays with exactly k odd numbers is awkward with a single window, but 'at most k' is easy with a sliding window, and exactly k = atMost(k) - atMost(k-1).",
+    "Write a helper that counts subarrays with at most k odd numbers using a variable-size sliding window: expand right, and whenever the odd count exceeds k, shrink from the left. For each right endpoint, every left position from the current left pointer up to right contributes a valid subarray, so add (right - left + 1) to the count at each step.",
+    "The final answer is atMostK(k) - atMostK(k - 1), since subarrays with exactly k odds are exactly those counted in 'at most k' but not in 'at most k-1'."
+  ],
+  "solution": {
+    "approach": "Directly counting subarrays with exactly k odd numbers is hard to do with one sliding window, but counting subarrays with at most k odd numbers is straightforward: slide a window and shrink it from the left whenever it holds more than k odd numbers, adding (right - left + 1) for each right endpoint since every subarray ending at right and starting anywhere from left to right is valid. The answer to 'exactly k' is then atMostK(k) minus atMostK(k - 1), since subtracting removes exactly the subarrays with fewer than k odd numbers, leaving those with exactly k.",
+    "code": "def number_of_subarrays(nums, k):\n    def at_most_k(limit):\n        if limit < 0:\n            return 0\n        left = 0\n        odd_count = 0\n        total = 0\n        for right, num in enumerate(nums):\n            if num % 2 == 1:\n                odd_count += 1\n            while odd_count > limit:\n                if nums[left] % 2 == 1:\n                    odd_count -= 1\n                left += 1\n            total += right - left + 1\n        return total\n\n    return at_most_k(k) - at_most_k(k - 1)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def number_of_subarrays(nums, k):\n    # your code here\n    pass\n",
+  "functionName": "number_of_subarrays",
+  "paramNames": ["nums", "k"],
+  "testCases": [
+    {
+      "input": [[1, 1, 2, 1, 1], 3],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [[2, 4, 6], 1],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [[2, 2, 2, 1, 2, 2, 1, 2, 2, 2], 2],
+      "expected": 16,
+      "isHidden": false
+    },
+    {
+      "input": [[1], 1],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [[1, 1, 1], 1],
+      "expected": 3,
+      "isHidden": true
+    }
+  ]
+}

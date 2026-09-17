@@ -1,0 +1,69 @@
+{
+  "id": "redundant-connection",
+  "title": "Redundant Connection",
+  "pattern": "graphs",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon",
+    "Bloomberg"
+  ],
+  "prompt": "You are given a graph that started as a tree with `n` nodes labeled `1` to `n`, with one additional edge added. The added edge has two different vertices chosen among the nodes, and was not an edge that already existed. The graph is represented as an array `edges` of length `n` where `edges[i] = [ai, bi]` indicates an edge between nodes `ai` and `bi`.\n\nReturn an edge that, if removed, results in a valid tree of `n` nodes. If there are multiple answers, return the one that occurs last among the given edges.",
+  "examples": [
+    {
+      "input": "edges = [[1,2],[1,3],[2,3]]",
+      "output": "[2,3]",
+      "explanation": "Removing edge [2,3] leaves the tree 1-2 and 1-3. It's the redundant edge that appears last and closes a cycle."
+    },
+    {
+      "input": "edges = [[1,2],[2,3],[3,4],[1,4],[1,5]]",
+      "output": "[1,4]",
+      "explanation": "Edges 1-2-3-4-1 form a cycle; [1,4] is the last edge in the input that closes it."
+    }
+  ],
+  "constraints": [
+    "n == edges.length",
+    "3 <= n <= 1000",
+    "edges[i].length == 2",
+    "1 <= ai < bi <= edges.length",
+    "ai != bi",
+    "There are no repeated edges",
+    "The given graph is connected"
+  ],
+  "hints": [
+    "Since the graph is a tree plus exactly one extra edge, there's exactly one cycle, and the extra edge is one of the edges on that cycle.",
+    "Process edges in order and use Union-Find: for each edge, check if its two endpoints are already connected before adding it.",
+    "The first edge you encounter whose endpoints are already in the same component is the redundant one — since edges are processed in input order, this is also the last such edge required to appear as the answer."
+  ],
+  "solution": {
+    "approach": "Use Union-Find and process edges in the given order, unioning each edge's endpoints. Because the graph is a tree plus one extra edge, exactly one edge will connect two nodes that are already in the same component (the one that closes the cycle) — that is the redundant edge. Since we scan edges left to right and return as soon as we hit that condition, the edge found is guaranteed to be the last such occurrence overall, matching the required tie-breaking rule.",
+    "code": "def find_redundant_connection(edges):\n    n = len(edges)\n    parent = list(range(n + 1))\n\n    def find(x):\n        while parent[x] != x:\n            parent[x] = parent[parent[x]]\n            x = parent[x]\n        return x\n\n    for a, b in edges:\n        root_a, root_b = find(a), find(b)\n        if root_a == root_b:\n            return [a, b]\n        parent[root_a] = root_b\n\n    return []\n",
+    "timeComplexity": "O(n * alpha(n)), alpha = inverse Ackermann (effectively O(n))",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def find_redundant_connection(edges):\n    # your code here\n    pass\n",
+  "functionName": "find_redundant_connection",
+  "paramNames": ["edges"],
+  "testCases": [
+    {
+      "input": [[[1, 2], [1, 3], [2, 3]]],
+      "expected": [2, 3],
+      "isHidden": false
+    },
+    {
+      "input": [[[1, 2], [2, 3], [3, 4], [1, 4], [1, 5]]],
+      "expected": [1, 4],
+      "isHidden": false
+    },
+    {
+      "input": [[[1, 2], [2, 3], [1, 3]]],
+      "expected": [1, 3],
+      "isHidden": true
+    },
+    {
+      "input": [[[1, 4], [3, 4], [1, 3], [1, 2]]],
+      "expected": [1, 3],
+      "isHidden": true
+    }
+  ]
+}

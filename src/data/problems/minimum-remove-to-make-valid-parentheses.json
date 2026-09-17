@@ -1,0 +1,72 @@
+{
+  "id": "minimum-remove-to-make-valid-parentheses",
+  "title": "Minimum Remove to Make Valid Parentheses",
+  "pattern": "stacks-queues",
+  "difficulty": "medium",
+  "companies": [
+    "Facebook",
+    "Meta",
+    "Amazon"
+  ],
+  "prompt": "Given a string `s` of lowercase English letters, parentheses `(` and `)`, remove the minimum number of parentheses so that the resulting string is a valid parenthesization, and return any valid string that results. A parenthesization is valid if every open parenthesis has a matching close parenthesis and vice versa, matched in the correct order. You must not remove any letters.",
+  "examples": [
+    {
+      "input": "s = \"lee(t(c)o)de)\"",
+      "output": "lee(t(c)o)de",
+      "explanation": "Removing the trailing ')' at the end makes the string valid."
+    },
+    {
+      "input": "s = \"a)b(c)d\"",
+      "output": "ab(c)d"
+    },
+    {
+      "input": "s = \"))((\"",
+      "output": ""
+    }
+  ],
+  "constraints": [
+    "1 <= s.length <= 10^5",
+    "s[i] is a lowercase English letter, '(', or ')'"
+  ],
+  "hints": [
+    "You need to identify exactly which parentheses are 'unmatched' — unmatched closers are easy to spot immediately, but unmatched openers only reveal themselves at the very end.",
+    "Use a stack of indices to track open parentheses seen so far. A ')' with an empty stack is immediately unmatched and should be marked for removal.",
+    "After the scan, any indices still left on the stack are unmatched openers — mark those for removal too, then build the result by skipping every marked index."
+  ],
+  "solution": {
+    "approach": "Scan the string with a stack holding indices of unmatched '(' seen so far. On '(', push its index. On ')', pop the stack if it's non-empty (a match found) — if the stack is empty, this ')' is unmatched, so record its index in a removal set. After the scan, any indices remaining on the stack are unmatched '(' characters, so add them to the removal set too. Finally, build the result by including every character whose index is not in the removal set.",
+    "code": "def min_remove_to_make_valid(s):\n    stack = []\n    to_remove = set()\n\n    for i, ch in enumerate(s):\n        if ch == '(':\n            stack.append(i)\n        elif ch == ')':\n            if stack:\n                stack.pop()\n            else:\n                to_remove.add(i)\n\n    to_remove.update(stack)\n\n    return ''.join(ch for i, ch in enumerate(s) if i not in to_remove)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def min_remove_to_make_valid(s):\n    # your code here\n    pass\n",
+  "functionName": "min_remove_to_make_valid",
+  "paramNames": ["s"],
+  "testCases": [
+    {
+      "input": ["lee(t(c)o)de)"],
+      "expected": "lee(t(c)o)de",
+      "isHidden": false
+    },
+    {
+      "input": ["a)b(c)d"],
+      "expected": "ab(c)d",
+      "isHidden": false
+    },
+    {
+      "input": ["))(("],
+      "expected": "",
+      "isHidden": false
+    },
+    {
+      "input": ["()"],
+      "expected": "()",
+      "isHidden": true
+    },
+    {
+      "input": ["(a(b(c)d)"],
+      "expected": "a(b(c)d)",
+      "isHidden": true
+    }
+  ]
+}

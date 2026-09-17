@@ -1,0 +1,68 @@
+{
+  "id": "maximum-xor-of-two-numbers-in-an-array",
+  "title": "Maximum XOR of Two Numbers in an Array",
+  "pattern": "tries",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Facebook"
+  ],
+  "prompt": "Given an integer array `nums`, return the maximum result of `nums[i] XOR nums[j]`, where `0 <= i, j < nums.length` (i and j may be equal only if that doesn't matter for the maximum, though in practice the best pair is always distinct indices since `x XOR x = 0`).",
+  "examples": [
+    {
+      "input": "nums = [3,10,5,25,2,8]",
+      "output": "28",
+      "explanation": "The maximum result is 5 XOR 25 = 28."
+    },
+    {
+      "input": "nums = [14,70,53,83,49,91,36,80,92,51,66,70]",
+      "output": "127",
+      "explanation": "Some pair in the array XORs to 127."
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 2 * 10^5",
+    "0 <= nums[i] <= 2^31 - 1"
+  ],
+  "hints": [
+    "Trying every pair is O(n^2), which is too slow at the given size; you need to find, for each number, its best XOR partner faster than by brute force.",
+    "Think of each number as a fixed-length binary string (say 32 bits) and insert all of them into a binary trie, where each node has at most two children: 0 and 1.",
+    "For each number, walk the trie bit by bit from the most significant bit, greedily choosing the child representing the OPPOSITE bit whenever it exists — that greedy choice is always safe because a higher bit set to 1 in the XOR result dominates any combination of lower bits."
+  ],
+  "solution": {
+    "approach": "Insert every number into a binary trie, processing each number's bits from most significant (bit 31) to least significant, so shared high-order bits share trie paths. Then for each number, greedily walk the trie trying, at each bit, to go to the child representing the opposite bit of the current number — since a 1 in a higher XOR bit position is worth more than any combination of all lower bits combined, greedily maximizing from the top down is always optimal. If the opposite-bit child doesn't exist, fall back to the same-bit child. Track the best XOR value found across all numbers.",
+    "code": "def find_maximum_xor(nums):\n    if len(nums) < 2:\n        return 0\n\n    HIGH_BIT = 31\n    root = {}\n\n    def insert(num):\n        node = root\n        for i in range(HIGH_BIT, -1, -1):\n            bit = (num >> i) & 1\n            node = node.setdefault(bit, {})\n\n    def best_xor(num):\n        node = root\n        result = 0\n        for i in range(HIGH_BIT, -1, -1):\n            bit = (num >> i) & 1\n            desired = 1 - bit\n            if desired in node:\n                result |= (1 << i)\n                node = node[desired]\n            else:\n                node = node[bit]\n        return result\n\n    for num in nums:\n        insert(num)\n\n    return max(best_xor(num) for num in nums)\n",
+    "timeComplexity": "O(n * 32) = O(n)",
+    "spaceComplexity": "O(n * 32) = O(n) for the trie"
+  },
+  "starterCode": "def find_maximum_xor(nums):\n    # your code here\n    pass\n",
+  "functionName": "find_maximum_xor",
+  "paramNames": ["nums"],
+  "testCases": [
+    {
+      "input": [[3, 10, 5, 25, 2, 8]],
+      "expected": 28,
+      "isHidden": false
+    },
+    {
+      "input": [[14, 70, 53, 83, 49, 91, 36, 80, 92, 51, 66, 70]],
+      "expected": 127,
+      "isHidden": false
+    },
+    {
+      "input": [[0, 0]],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [[2, 4]],
+      "expected": 6,
+      "isHidden": true
+    },
+    {
+      "input": [[8, 10, 2]],
+      "expected": 10,
+      "isHidden": true
+    }
+  ]
+}

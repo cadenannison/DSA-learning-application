@@ -1,0 +1,79 @@
+{
+  "id": "backspace-string-compare",
+  "title": "Backspace String Compare",
+  "pattern": "stacks-queues",
+  "difficulty": "easy",
+  "companies": [
+    "Google",
+    "Facebook",
+    "Amazon"
+  ],
+  "prompt": "Given two strings `s` and `t`, each representing text typed into a text editor where `#` means a backspace character (deleting the previous character, if any), return `true` if the two strings are equal once backspaces are applied.",
+  "examples": [
+    {
+      "input": "s = \"ab#c\", t = \"ad#c\"",
+      "output": "true",
+      "explanation": "Both s and t become \"ac\"."
+    },
+    {
+      "input": "s = \"ab##\", t = \"c#d#\"",
+      "output": "true",
+      "explanation": "Both s and t become the empty string."
+    },
+    {
+      "input": "s = \"a#c\", t = \"b\"",
+      "output": "false",
+      "explanation": "s becomes \"c\" while t stays \"b\"."
+    }
+  ],
+  "constraints": [
+    "1 <= s.length, t.length <= 200",
+    "s and t only contain lowercase letters and '#' characters"
+  ],
+  "hints": [
+    "Building the final string by simulating deletions with a naive list shift is fine, but there's a cleaner structure to model 'delete the previous character'.",
+    "A stack is a natural fit: push letters, and pop on '#' (if the stack isn't empty).",
+    "Build the final version of each string independently using a stack, then compare the two results directly."
+  ],
+  "solution": {
+    "approach": "For each string, simulate typing with a stack: push each letter, and on '#' pop the stack if it's non-empty (backspacing does nothing on an empty buffer). This naturally handles chained backspaces and backspaces with nothing to delete. Build the final text for both s and t this way, then compare the two results for equality.",
+    "code": "def backspace_compare(s, t):\n    def build(text):\n        stack = []\n        for ch in text:\n            if ch == '#':\n                if stack:\n                    stack.pop()\n            else:\n                stack.append(ch)\n        return ''.join(stack)\n\n    return build(s) == build(t)\n",
+    "timeComplexity": "O(n + m)",
+    "spaceComplexity": "O(n + m)"
+  },
+  "starterCode": "def backspace_compare(s, t):\n    # your code here\n    pass\n",
+  "functionName": "backspace_compare",
+  "paramNames": ["s", "t"],
+  "testCases": [
+    {
+      "input": ["ab#c", "ad#c"],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": ["ab##", "c#d#"],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": ["a#c", "b"],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": ["a##c", "#a#c"],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": ["a#c", "adc"],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": ["####", "#"],
+      "expected": true,
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "id": "validate-stack-sequences",
+  "title": "Validate Stack Sequences",
+  "pattern": "stacks-queues",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "Given two integer arrays `pushed` and `popped`, each with distinct values, return `true` if this could have been the result of a sequence of push and pop operations on an initially empty stack, where `pushed` is the order elements were pushed and `popped` is the order elements were popped, otherwise return `false`.",
+  "examples": [
+    {
+      "input": "pushed = [1,2,3,4,5], popped = [4,5,3,2,1]",
+      "output": "true",
+      "explanation": "Push 1,2,3,4, pop 4, push 5, pop 5,3,2,1."
+    },
+    {
+      "input": "pushed = [1,2,3,4,5], popped = [4,3,5,1,2]",
+      "output": "false",
+      "explanation": "1 and 2 cannot be popped before 5, since 5 was pushed on top of them and hasn't been popped yet."
+    }
+  ],
+  "constraints": [
+    "1 <= pushed.length <= 1000",
+    "0 <= pushed[i] <= 1000",
+    "All the elements of pushed are unique",
+    "popped.length == pushed.length",
+    "popped is a permutation of pushed"
+  ],
+  "hints": [
+    "You can directly simulate the process rather than reasoning about it abstractly — just run an actual stack through the pushed sequence.",
+    "Push elements from 'pushed' one at a time onto a simulation stack; after each push, check if the stack's top matches the next value that's supposed to be popped.",
+    "Whenever the stack's top matches the next expected pop, pop it and advance the pop-pointer, repeating greedily before pushing the next pushed element. At the end, the sequence is valid exactly when the simulation stack ends up empty."
+  ],
+  "solution": {
+    "approach": "Simulate the process directly with an actual stack. Push each value from `pushed` in order. After every push, greedily check whether the stack's top equals the next value expected in `popped` (tracked with a pointer) — if so, pop it and advance the pointer, repeating as long as matches continue (a single push can be immediately followed by several pops). If, after processing all pushes, the pop pointer has consumed all of `popped` (equivalently the stack is empty), the sequence is achievable.",
+    "code": "def validate_stack_sequences(pushed, popped):\n    stack = []\n    j = 0\n    for x in pushed:\n        stack.append(x)\n        while stack and j < len(popped) and stack[-1] == popped[j]:\n            stack.pop()\n            j += 1\n    return not stack\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def validate_stack_sequences(pushed, popped):\n    # your code here\n    pass\n",
+  "functionName": "validate_stack_sequences",
+  "paramNames": ["pushed", "popped"],
+  "testCases": [
+    {
+      "input": [[1, 2, 3, 4, 5], [4, 5, 3, 2, 1]],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [[1, 2, 3, 4, 5], [4, 3, 5, 1, 2]],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [[1], [1]],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [[1, 2, 3], [3, 2, 1]],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [[1, 2, 3], [1, 2, 3]],
+      "expected": true,
+      "isHidden": true
+    }
+  ]
+}

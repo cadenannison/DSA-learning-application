@@ -1,0 +1,89 @@
+{
+  "id": "remove-duplicates-from-sorted-list",
+  "title": "Remove Duplicates from Sorted List",
+  "pattern": "linked-list",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Bloomberg"
+  ],
+  "prompt": "Given the `head` of a sorted singly linked list, delete all duplicate values so that each element appears only once, and return the resulting sorted list.\n\nThe list is given as an array (e.g. `[1,1,2,3,3]` represents `1 -> 1 -> 2 -> 3 -> 3 -> null`). The starter code includes helpers to convert between the array and a linked-list node — build the actual list, remove duplicates by manipulating `next` pointers, then convert back to an array to return.",
+  "examples": [
+    {
+      "input": "head = [1,1,2]",
+      "output": "[1,2]"
+    },
+    {
+      "input": "head = [1,1,2,3,3]",
+      "output": "[1,2,3]"
+    },
+    {
+      "input": "head = []",
+      "output": "[]"
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [0, 300]",
+    "-100 <= Node.val <= 100",
+    "The list is guaranteed to be sorted in non-decreasing order"
+  ],
+  "hints": [
+    "Because the list is sorted, all duplicates of a value are guaranteed to sit next to each other.",
+    "Walk a single pointer through the list, comparing each node to the one after it.",
+    "While the next node has the same value as the current node, skip over it; otherwise advance to the next node."
+  ],
+  "solution": {
+    "approach": "Since the list is sorted, duplicate values always appear consecutively, so a single forward pass suffices. Walk a pointer `curr` through the list; while curr.next exists and shares curr's value, splice it out via curr.next = curr.next.next. Otherwise, advance curr. This leaves exactly one node per distinct value.",
+    "code": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for v in arr:\n        node = ListNode(v)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef delete_duplicates(head_arr):\n    head = arr_to_list(head_arr)\n    curr = head\n    while curr and curr.next:\n        if curr.next.val == curr.val:\n            curr.next = curr.next.next\n        else:\n            curr = curr.next\n    return list_to_arr(head)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1) auxiliary (excluding the returned list)"
+  },
+  "starterCode": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for v in arr:\n        node = ListNode(v)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef delete_duplicates(head_arr):\n    head = arr_to_list(head_arr)\n    # your code here\n    pass\n",
+  "functionName": "delete_duplicates",
+  "paramNames": ["head_arr"],
+  "testCases": [
+    {
+      "input": [
+        [1, 1, 2]
+      ],
+      "expected": [1, 2],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 1, 2, 3, 3]
+      ],
+      "expected": [1, 2, 3],
+      "isHidden": false
+    },
+    {
+      "input": [
+        []
+      ],
+      "expected": [],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": [1],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 1, 1, 1]
+      ],
+      "expected": [1],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [-2, -2, -1, 0, 0, 0, 5]
+      ],
+      "expected": [-2, -1, 0, 5],
+      "isHidden": true
+    }
+  ]
+}

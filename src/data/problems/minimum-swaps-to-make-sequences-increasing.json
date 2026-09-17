@@ -1,0 +1,63 @@
+{
+  "id": "minimum-swaps-to-make-sequences-increasing",
+  "title": "Minimum Swaps To Make Sequences Increasing",
+  "pattern": "greedy",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "You are given two integer arrays of the same length `nums1` and `nums2`. In one operation, you can swap the elements at any index `i` of `nums1` and `nums2` (i.e. swap `nums1[i]` with `nums2[i]`). Both arrays must be made strictly increasing (each array's own sequence, comparing only within that array) using the minimum number of swaps. Return the minimum number of swaps needed, and it's guaranteed the input allows some sequence of swaps to make both arrays strictly increasing.",
+  "examples": [
+    {
+      "input": "nums1 = [1,3,5,4], nums2 = [1,2,3,7]",
+      "output": "1",
+      "explanation": "Swapping nums1[3] and nums2[3] gives nums1 = [1,3,5,7] and nums2 = [1,2,3,4], both strictly increasing."
+    },
+    {
+      "input": "nums1 = [0,3,5,8,9], nums2 = [2,1,4,6,9]",
+      "output": "1"
+    }
+  ],
+  "constraints": [
+    "2 <= nums1.length <= 10^5",
+    "nums2.length == nums1.length",
+    "0 <= nums1[i], nums2[i] <= 2 * 10^5"
+  ],
+  "hints": [
+    "Think of this as a DP over positions, where at each index you track two scenarios: the minimum swaps if you don't swap at this index, and the minimum swaps if you do.",
+    "At each index i, compare (nums1[i-1], nums2[i-1]) to (nums1[i], nums2[i]) under both the 'no swap here' and 'swap here' assumptions from the previous index, to see which transitions keep both sequences strictly increasing.",
+    "Maintain keep[i] (min swaps up to i with no swap at i) and swap[i] (min swaps up to i with a swap at i). For each index, check the 'natural' condition (nums1[i-1] < nums1[i] and nums2[i-1] < nums2[i]) and the 'cross' condition (nums1[i-1] < nums2[i] and nums2[i-1] < nums1[i]) to determine valid transitions from keep[i-1] and swap[i-1]."
+  ],
+  "solution": {
+    "approach": "Use dynamic programming with two running values: keep, the minimum swaps needed through index i if index i is not swapped, and swap, the minimum swaps needed through index i if index i is swapped. At each step, check the 'natural' (no-cross) condition, nums1[i-1] < nums1[i] and nums2[i-1] < nums2[i], which allows carrying forward keep and swap without forcing a relationship between them; and the 'cross' condition, nums1[i-1] < nums2[i] and nums2[i-1] < nums1[i], which allows mixing a swapped previous state with a kept current state or vice versa. Combine whichever transitions are valid at each step, taking minimums, and add 1 to any path that swaps the current index. The answer is the minimum of keep and swap after processing all indices.",
+    "code": "def min_swap(nums1, nums2):\n    n = len(nums1)\n    keep = 0\n    swap = 1\n\n    for i in range(1, n):\n        new_keep = float('inf')\n        new_swap = float('inf')\n\n        if nums1[i - 1] < nums1[i] and nums2[i - 1] < nums2[i]:\n            new_keep = min(new_keep, keep)\n            new_swap = min(new_swap, swap + 1)\n\n        if nums1[i - 1] < nums2[i] and nums2[i - 1] < nums1[i]:\n            new_keep = min(new_keep, swap)\n            new_swap = min(new_swap, keep + 1)\n\n        keep, swap = new_keep, new_swap\n\n    return min(keep, swap)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def min_swap(nums1, nums2):\n    # your code here\n    pass\n",
+  "functionName": "min_swap",
+  "paramNames": ["nums1", "nums2"],
+  "testCases": [
+    {
+      "input": [[1, 3, 5, 4], [1, 2, 3, 7]],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [[0, 3, 5, 8, 9], [2, 1, 4, 6, 9]],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [[1, 2], [2, 3]],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [[0, 1], [1, 2]],
+      "expected": 0,
+      "isHidden": true
+    }
+  ]
+}

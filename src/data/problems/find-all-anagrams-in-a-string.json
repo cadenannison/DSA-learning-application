@@ -1,0 +1,70 @@
+{
+  "id": "find-all-anagrams-in-a-string",
+  "title": "Find All Anagrams in a String",
+  "pattern": "sliding-window",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Meta",
+    "Microsoft",
+    "Google"
+  ],
+  "prompt": "Given two strings `s` and `p`, return an array of all the start indices of `p`'s anagrams in `s`. You may return the answer in any order.",
+  "examples": [
+    {
+      "input": "s = \"cbaebabacd\", p = \"abc\"",
+      "output": "[0,6]",
+      "explanation": "The substring starting at index 0 is \"cba\", an anagram of \"abc\". The substring starting at index 6 is \"bac\", also an anagram of \"abc\"."
+    },
+    {
+      "input": "s = \"abab\", p = \"ab\"",
+      "output": "[0,1,2]",
+      "explanation": "The substrings starting at indices 0, 1, and 2 are all anagrams of \"ab\"."
+    }
+  ],
+  "constraints": [
+    "1 <= s.length, p.length <= 3 * 10^4",
+    "s and p consist of lowercase English letters only"
+  ],
+  "hints": [
+    "This asks for every window that is an anagram, not just whether one exists — reuse the fixed-size window idea but record every match.",
+    "Use a fixed-size sliding window of length len(p) over s, comparing frequency counts.",
+    "Track a single integer counter of how many of the 26 letters currently have matching counts between the window and p, updating it incrementally on each slide rather than comparing whole arrays every time."
+  ],
+  "solution": {
+    "approach": "Build a frequency count of p and of the first window of s with matching length. Slide the window across s one character at a time, incrementally updating the window's frequency count by adding the new right character and removing the old left character. Whenever the window's frequency array exactly equals p's, record the window's starting index. This is the same fixed-window incremental technique as checking for a single permutation, but collecting every match instead of stopping at the first.",
+    "code": "def find_anagrams(s, p):\n    n, m = len(s), len(p)\n    result = []\n    if m > n:\n        return result\n\n    need = [0] * 26\n    window = [0] * 26\n    for ch in p:\n        need[ord(ch) - ord('a')] += 1\n    for i in range(m):\n        window[ord(s[i]) - ord('a')] += 1\n\n    if window == need:\n        result.append(0)\n\n    for i in range(m, n):\n        window[ord(s[i]) - ord('a')] += 1\n        window[ord(s[i - m]) - ord('a')] -= 1\n        if window == need:\n            result.append(i - m + 1)\n\n    return result\n",
+    "timeComplexity": "O(n * 26) which simplifies to O(n)",
+    "spaceComplexity": "O(1) (fixed 26-letter arrays, excluding output)"
+  },
+  "starterCode": "def find_anagrams(s, p):\n    # your code here\n    pass\n",
+  "functionName": "find_anagrams",
+  "paramNames": ["s", "p"],
+  "testCases": [
+    {
+      "input": ["cbaebabacd", "abc"],
+      "expected": [0, 6],
+      "isHidden": false
+    },
+    {
+      "input": ["abab", "ab"],
+      "expected": [0, 1, 2],
+      "isHidden": false
+    },
+    {
+      "input": ["a", "a"],
+      "expected": [0],
+      "isHidden": true
+    },
+    {
+      "input": ["a", "ab"],
+      "expected": [],
+      "isHidden": true
+    },
+    {
+      "input": ["aaaaa", "aa"],
+      "expected": [0, 1, 2, 3],
+      "isHidden": true
+    }
+  ]
+}

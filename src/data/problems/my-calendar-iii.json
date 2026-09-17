@@ -1,0 +1,63 @@
+{
+  "id": "my-calendar-iii",
+  "title": "My Calendar III",
+  "pattern": "intervals",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "A k-booking happens when k events all have some non-empty intersection at a common moment. Design a `MyCalendarThree` class that, given events represented by half-open intervals `[start, end)`, supports `book(start, end)` which adds the event and returns an integer representing the maximum k-booking currently achieved by any moment in the calendar, i.e. the maximum number of events that overlap at any single point in time after this booking is added.",
+  "examples": [
+    {
+      "input": "book(10,20)->1, book(50,60)->1, book(10,40)->2, book(5,15)->3, book(5,10)->3, book(25,55)->3",
+      "output": "[1, 1, 2, 3, 3, 3]",
+      "explanation": "After book(5,15), the point 10 is covered by [10,20), [10,40), and [5,15) — a triple booking, so the running maximum k becomes 3."
+    }
+  ],
+  "constraints": [
+    "0 <= start < end <= 10^9",
+    "at most 400 calls will be made to book"
+  ],
+  "hints": [
+    "Think of this as a sweep-line problem: each booking is a +1 event at `start` and a -1 event at `end`. The maximum k-booking overall is the maximum running sum at any point across all events seen so far.",
+    "You don't need a segment tree for this constraint size — a sorted map (or dictionary plus sorted keys) from position to delta works, since you re-sweep from scratch on every call.",
+    "After adding the new +1/-1 deltas, sort all keys and sweep left to right accumulating the running sum, tracking its maximum. This max is the answer to return for this call."
+  ],
+  "solution": {
+    "approach": "Model every booking as two delta events: +1 at `start` and -1 at `end`, stored in a dictionary keyed by position. After adding the new event's deltas, sweep through all keys in sorted order, accumulating a running sum (the number of events active at that position) and tracking the maximum value reached. This maximum is exactly the highest k-booking achieved anywhere on the timeline, since the running sum after processing all deltas up to and including a given position equals the count of active events at that instant. Given the small call limit (at most 400), re-sweeping all events on every call is efficient enough; a segment tree with coordinate compression or lazy propagation would be used for much larger constraints.",
+    "code": "from collections import defaultdict\n\n\ndef my_calendar_three(operations, args):\n    delta = defaultdict(int)\n    results = []\n\n    for op, arg in zip(operations, args):\n        if op != 'book':\n            continue\n        start, end = arg[0], arg[1]\n        delta[start] += 1\n        delta[end] -= 1\n\n        running = 0\n        best = 0\n        for pos in sorted(delta.keys()):\n            running += delta[pos]\n            best = max(best, running)\n        results.append(best)\n\n    return results\n",
+    "timeComplexity": "O(n^2 log n) overall for n calls (each call re-sorts up to n keys)",
+    "spaceComplexity": "O(n) for the delta map"
+  },
+  "starterCode": "def my_calendar_three(operations, args):\n    # operations is a list of method names (always 'book' after construction)\n    # args is a list of argument lists for each operation, e.g. [[10, 20], [15, 25]]\n    # return a list of the integer k-booking results of each book() call, in order\n    # your code here\n    pass\n",
+  "functionName": "my_calendar_three",
+  "paramNames": ["operations", "args"],
+  "testCases": [
+    {
+      "input": [["book", "book", "book", "book", "book", "book"], [[10, 20], [50, 60], [10, 40], [5, 15], [5, 10], [25, 55]]],
+      "expected": [1, 1, 2, 3, 3, 3],
+      "isHidden": false
+    },
+    {
+      "input": [["book"], [[1, 10]]],
+      "expected": [1],
+      "isHidden": false
+    },
+    {
+      "input": [["book", "book", "book"], [[1, 5], [5, 10], [10, 15]]],
+      "expected": [1, 1, 1],
+      "isHidden": true
+    },
+    {
+      "input": [["book", "book", "book"], [[1, 10], [1, 10], [1, 10]]],
+      "expected": [1, 2, 3],
+      "isHidden": true
+    },
+    {
+      "input": [["book", "book"], [[0, 1000000000], [0, 1000000000]]],
+      "expected": [1, 2],
+      "isHidden": true
+    }
+  ]
+}

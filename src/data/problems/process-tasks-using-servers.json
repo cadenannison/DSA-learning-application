@@ -1,0 +1,65 @@
+{
+  "id": "process-tasks-using-servers",
+  "title": "Process Tasks Using Servers",
+  "pattern": "heaps",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "You are given two 0-indexed integer arrays `servers` and `tasks` of lengths `n` and `m` respectively. `servers[i]` is the weight of the i-th server, and `tasks[j]` is the time needed to process the j-th task.\n\nTasks are assigned to servers according to the following rules: task `j` becomes available for assignment at second `j` (i.e. tasks arrive one per second, in order, starting at second 0). Whenever a server is free at or after a task's arrival second, the free server with the smallest weight is assigned the task first available; ties are broken by the smallest index. If no server is free when a task arrives, it waits until the earliest moment a server frees up. Once assigned, a server stays busy for the task's processing time, then becomes free again.\n\nReturn an array `ans` of length `m`, where `ans[j]` is the index of the server that processes task `j`.",
+  "examples": [
+    {
+      "input": "servers = [3,3,2], tasks = [1,2,3,2,1,2]",
+      "output": "[2,2,0,2,1,2]",
+      "explanation": "At second 0, all servers free; server 2 (weight 2) is smallest, takes task 0 (duration 1), free again at second 1. At second 1, server 2 free again and smallest, takes task 1. And so on, following the smallest-free-server rule at each task's arrival or as soon as one frees up."
+    },
+    {
+      "input": "servers = [5,1,4,3,2], tasks = [2,1,2,4,5,2,1]",
+      "output": "[1,4,1,4,1,3,2]"
+    }
+  ],
+  "constraints": [
+    "servers.length == n",
+    "1 <= n <= 10^5",
+    "tasks.length == m",
+    "1 <= m <= 2*10^5",
+    "1 <= servers[i], tasks[j] <= 2*10^5"
+  ],
+  "hints": [
+    "You need fast access to both 'the smallest-weight free server' and 'the server that will free up soonest' — two different heaps for two different questions.",
+    "Maintain a min-heap of free servers keyed by (weight, index), and a min-heap of busy servers keyed by (free_at_time, weight, index).",
+    "At each task's arrival time, first move any servers from the busy heap into the free heap if their free_at_time has passed; if the free heap is still empty, jump forward in time to the busy heap's earliest free_at_time instead of waiting second by second."
+  ],
+  "solution": {
+    "approach": "Maintain two heaps: `free` holding (weight, index) for servers currently idle, and `busy` holding (free_at_time, weight, index) for servers currently processing a task. For each task j (arriving at time j), first pop every server from `busy` whose free_at_time <= current time into `free`. If `free` is still empty after that, no server is available yet, so fast-forward the current time to the busy heap's minimum free_at_time and repeat the drain. Once `free` has a server, pop its minimum (smallest weight, tie-broken by index), assign it to task j, and push it onto `busy` with free_at_time = current_time + tasks[j]. This avoids simulating time second by second and always picks the correct server per the tie-break rules via tuple ordering.",
+    "code": "import heapq\n\ndef process_tasks_using_servers(servers, tasks):\n    free = [(w, i) for i, w in enumerate(servers)]\n    heapq.heapify(free)\n    busy = []\n    result = []\n\n    for j, duration in enumerate(tasks):\n        current_time = j\n        while busy and busy[0][0] <= current_time:\n            _, w, i = heapq.heappop(busy)\n            heapq.heappush(free, (w, i))\n\n        if not free:\n            current_time = busy[0][0]\n            while busy and busy[0][0] <= current_time:\n                _, w, i = heapq.heappop(busy)\n                heapq.heappush(free, (w, i))\n\n        w, i = heapq.heappop(free)\n        result.append(i)\n        heapq.heappush(busy, (current_time + duration, w, i))\n\n    return result\n",
+    "timeComplexity": "O((n + m) log n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def process_tasks_using_servers(servers, tasks):\n    # your code here\n    pass\n",
+  "functionName": "process_tasks_using_servers",
+  "paramNames": ["servers", "tasks"],
+  "testCases": [
+    {
+      "input": [[3, 3, 2], [1, 2, 3, 2, 1, 2]],
+      "expected": [2, 2, 0, 2, 1, 2],
+      "isHidden": false
+    },
+    {
+      "input": [[5, 1, 4, 3, 2], [2, 1, 2, 4, 5, 2, 1]],
+      "expected": [1, 4, 1, 4, 1, 3, 2],
+      "isHidden": false
+    },
+    {
+      "input": [[1], [1, 1, 1]],
+      "expected": [0, 0, 0],
+      "isHidden": true
+    },
+    {
+      "input": [[2, 1], [1, 2]],
+      "expected": [1, 1],
+      "isHidden": true
+    }
+  ]
+}

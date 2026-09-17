@@ -1,0 +1,68 @@
+{
+  "id": "minimum-cost-to-connect-sticks",
+  "title": "Minimum Cost to Connect Sticks",
+  "pattern": "heaps",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "You have some sticks with positive integer lengths given in the array `sticks`. You can connect any two sticks of lengths `x` and `y` into one stick of length `x + y`. The cost of this connection is `x + y`.\n\nYou must connect all the sticks into one stick. Return the minimum total cost to connect all the given sticks into one stick.",
+  "examples": [
+    {
+      "input": "sticks = [2,4,3]",
+      "output": "14",
+      "explanation": "Connect 2 and 3 for a cost of 5, giving sticks [5,4]. Connect 5 and 4 for a cost of 9. Total cost: 5 + 9 = 14."
+    },
+    {
+      "input": "sticks = [1,8,3,5]",
+      "output": "30",
+      "explanation": "Connect 1 and 3 (cost 4) -> [4,8,5]. Connect 4 and 5 (cost 9) -> [9,8]. Connect 9 and 8 (cost 17). Total: 4+9+17=30."
+    }
+  ],
+  "constraints": [
+    "1 <= sticks.length <= 10^4",
+    "1 <= sticks[i] <= 10^4"
+  ],
+  "hints": [
+    "Since every connection cost is added to the running total and also becomes part of future sticks, connecting large sticks early multiplies their cost into later merges — you want to connect the smallest sticks first.",
+    "This is the same greedy structure as Huffman coding: always combine the two currently-smallest items.",
+    "A min-heap gives O(log n) access to the two smallest sticks at each step; repeat until only one stick remains."
+  ],
+  "solution": {
+    "approach": "Always merge the two currently smallest sticks, exactly like building a Huffman tree: since every merge's cost propagates into all future merges of the resulting stick, delaying small sticks would make them contribute to more downstream costs. A min-heap gives O(log n) access to the two smallest sticks at every step. Push all sticks into the heap, then repeatedly pop the two smallest, add their sum to the total cost, and push the sum back until one stick remains.",
+    "code": "import heapq\n\ndef minimum_cost_to_connect_sticks(sticks):\n    heap = list(sticks)\n    heapq.heapify(heap)\n\n    total_cost = 0\n    while len(heap) > 1:\n        x = heapq.heappop(heap)\n        y = heapq.heappop(heap)\n        cost = x + y\n        total_cost += cost\n        heapq.heappush(heap, cost)\n\n    return total_cost\n",
+    "timeComplexity": "O(n log n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def minimum_cost_to_connect_sticks(sticks):\n    # your code here\n    pass\n",
+  "functionName": "minimum_cost_to_connect_sticks",
+  "paramNames": ["sticks"],
+  "testCases": [
+    {
+      "input": [[2, 4, 3]],
+      "expected": 14,
+      "isHidden": false
+    },
+    {
+      "input": [[1, 8, 3, 5]],
+      "expected": 30,
+      "isHidden": false
+    },
+    {
+      "input": [[5]],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [[1, 1]],
+      "expected": 2,
+      "isHidden": true
+    },
+    {
+      "input": [[1, 2, 3, 4, 5]],
+      "expected": 33,
+      "isHidden": true
+    }
+  ]
+}

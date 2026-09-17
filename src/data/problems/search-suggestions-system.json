@@ -1,0 +1,67 @@
+{
+  "id": "search-suggestions-system",
+  "title": "Search Suggestions System",
+  "pattern": "tries",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "Given an array of strings `products` and a string `searchWord`, design a system that, after each character of `searchWord` is typed, suggests at most 3 product names from `products` that share a common prefix with the `searchWord` typed so far. If more than 3 products match a given prefix, return the 3 lexicographically smallest ones.\n\nReturn a list of lists, where the i-th list contains the suggestions after the first `i + 1` characters of `searchWord` are typed.",
+  "examples": [
+    {
+      "input": "products = [\"mobile\",\"mouse\",\"moneypot\",\"monitor\",\"mousepad\"], searchWord = \"mouse\"",
+      "output": "[[\"mobile\",\"moneypot\",\"monitor\"],[\"mobile\",\"moneypot\",\"monitor\"],[\"mouse\",\"mousepad\"],[\"mouse\",\"mousepad\"],[\"mouse\",\"mousepad\"]]",
+      "explanation": "After typing 'm' and 'mo', the three lexicographically smallest matches among products starting with that prefix are shown. After 'mou', 'mous', 'mouse', only \"mouse\" and \"mousepad\" match, so both are shown."
+    },
+    {
+      "input": "products = [\"havana\"], searchWord = \"havana\"",
+      "output": "[[\"havana\"],[\"havana\"],[\"havana\"],[\"havana\"],[\"havana\"],[\"havana\"]]",
+      "explanation": "The single product matches every prefix of the search word."
+    }
+  ],
+  "constraints": [
+    "1 <= products.length <= 1000",
+    "1 <= products[i].length <= 3000",
+    "1 <= sum(products[i].length) <= 2 * 10^4",
+    "products[i] consists of lowercase English letters",
+    "1 <= searchWord.length <= 1000",
+    "searchWord consists of lowercase English letters"
+  ],
+  "hints": [
+    "Sorting products once up front means that for any prefix, the lexicographically smallest matches are simply the first few products (in sorted order) that start with that prefix.",
+    "Insert the sorted products into a trie one at a time, and at each node along a product's path, append that product to a small list stored at the node (capping the stored list at 3 entries keeps memory bounded).",
+    "For each prefix of searchWord, walk down the trie following its characters; the list of up to 3 suggestions is directly available at the node you land on, or empty if the path doesn't exist."
+  ],
+  "solution": {
+    "approach": "Sort products lexicographically first. Build a trie by inserting each product in sorted order, and at every node visited along a product's insertion path, append the product to that node's suggestion list only if the list has fewer than 3 entries already — since products are inserted in sorted order, each node's list naturally ends up holding the 3 lexicographically smallest matches for that prefix. Then walk the trie once character by character through searchWord, reading off each node's suggestion list (or an empty list once the path runs out) to build the answer for every prefix length.",
+    "code": "def suggested_products(products, search_word):\n    products.sort()\n    root = {'children': {}, 'suggestions': []}\n\n    for product in products:\n        node = root\n        for ch in product:\n            node = node['children'].setdefault(ch, {'children': {}, 'suggestions': []})\n            if len(node['suggestions']) < 3:\n                node['suggestions'].append(product)\n\n    result = []\n    node = root\n    fell_off = False\n    for ch in search_word:\n        if fell_off or ch not in node['children']:\n            fell_off = True\n            result.append([])\n            continue\n        node = node['children'][ch]\n        result.append(node['suggestions'])\n\n    return result\n",
+    "timeComplexity": "O(sum of product lengths * log(number of products)) for sorting and building, O(len(searchWord)) for querying",
+    "spaceComplexity": "O(sum of product lengths)"
+  },
+  "starterCode": "def suggested_products(products, search_word):\n    # your code here\n    pass\n",
+  "functionName": "suggested_products",
+  "paramNames": ["products", "search_word"],
+  "testCases": [
+    {
+      "input": [["mobile", "mouse", "moneypot", "monitor", "mousepad"], "mouse"],
+      "expected": [["mobile", "moneypot", "monitor"], ["mobile", "moneypot", "monitor"], ["mouse", "mousepad"], ["mouse", "mousepad"], ["mouse", "mousepad"]],
+      "isHidden": false
+    },
+    {
+      "input": [["havana"], "havana"],
+      "expected": [["havana"], ["havana"], ["havana"], ["havana"], ["havana"], ["havana"]],
+      "isHidden": false
+    },
+    {
+      "input": [["bags", "baggage", "banner", "box", "cloths"], "bags"],
+      "expected": [["baggage", "bags", "banner"], ["baggage", "bags", "banner"], ["baggage", "bags"], ["bags"]],
+      "isHidden": true
+    },
+    {
+      "input": [["havana"], "tatiana"],
+      "expected": [[], [], [], [], [], [], []],
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "id": "make-the-string-great",
+  "title": "Make the String Great",
+  "pattern": "stacks-queues",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon"
+  ],
+  "prompt": "A string is called \"good\" if it does not contain two adjacent characters that are the same letter but with opposite case, e.g. `a` and `A`. Given a string `s`, repeatedly remove such adjacent bad pairs until the string is good, then return the resulting string. The result is guaranteed to be unique.",
+  "examples": [
+    {
+      "input": "s = \"leEeetcode\"",
+      "output": "leetcode",
+      "explanation": "Removing \"Ee\" gives \"leetcode\", which has no adjacent same-letter opposite-case pairs left."
+    },
+    {
+      "input": "s = \"abBAcC\"",
+      "output": "",
+      "explanation": "Removing \"bB\" gives \"aAcC\"; removing \"aA\" gives \"cC\"; removing \"cC\" gives \"\"."
+    },
+    {
+      "input": "s = \"s\"",
+      "output": "s"
+    }
+  ],
+  "constraints": [
+    "1 <= s.length <= 100",
+    "s consists of uppercase and lowercase English letters"
+  ],
+  "hints": [
+    "Removing a pair can create a brand new adjacent bad pair right where the removal happened \u2014 repeatedly rescanning the string is wasteful.",
+    "A stack lets you handle cascading removals in a single left-to-right pass.",
+    "Push each character; before pushing, check if it forms a bad pair with the stack's current top (same letter, opposite case) \u2014 if so, pop instead of pushing."
+  ],
+  "solution": {
+    "approach": "Process the string left to right with a stack. For each character, check whether it and the stack's top are the same letter in opposite case (checked via case-insensitive equality plus differing case) \u2014 if so, pop the top (canceling the pair) instead of pushing the new character. Otherwise push it. Because the stack always reflects the current 'good' prefix, any cascading collapse (a removal exposing a new bad pair) is handled automatically as later characters are processed.",
+    "code": "def make_good(s):\n    stack = []\n    for ch in s:\n        if stack and stack[-1] != ch and stack[-1].lower() == ch.lower():\n            stack.pop()\n        else:\n            stack.append(ch)\n    return ''.join(stack)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def make_good(s):\n    # your code here\n    pass\n",
+  "functionName": "make_good",
+  "paramNames": ["s"],
+  "testCases": [
+    {
+      "input": ["leEeetcode"],
+      "expected": "leetcode",
+      "isHidden": false
+    },
+    {
+      "input": ["abBAcC"],
+      "expected": "",
+      "isHidden": false
+    },
+    {
+      "input": ["s"],
+      "expected": "s",
+      "isHidden": false
+    },
+    {
+      "input": ["Pp"],
+      "expected": "",
+      "isHidden": true
+    },
+    {
+      "input": ["abc"],
+      "expected": "abc",
+      "isHidden": true
+    }
+  ]
+}

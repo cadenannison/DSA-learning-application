@@ -1,0 +1,79 @@
+{
+  "id": "longest-valid-parentheses",
+  "title": "Longest Valid Parentheses",
+  "pattern": "dynamic-programming",
+  "difficulty": "hard",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Facebook",
+    "Microsoft"
+  ],
+  "prompt": "Given a string `s` containing just the characters `(` and `)`, return the length of the longest valid (well-formed) parentheses substring.",
+  "examples": [
+    {
+      "input": "s = \"(()\"",
+      "output": "2",
+      "explanation": "The longest valid parentheses substring is \"()\"."
+    },
+    {
+      "input": "s = \")()())\"",
+      "output": "4",
+      "explanation": "The longest valid parentheses substring is \"()()\"."
+    },
+    {
+      "input": "s = \"\"",
+      "output": "0"
+    }
+  ],
+  "constraints": [
+    "0 <= s.length <= 3 * 10^4",
+    "s[i] is '(' or ')'"
+  ],
+  "hints": [
+    "Only a ')' can ever complete or extend a valid run, so think of dp[i] as: the length of the longest valid substring ENDING exactly at index i (only meaningful when s[i] == ')').",
+    "If s[i] == ')' and s[i-1] == '(', they form a fresh pair, extending whatever valid substring ended right before that pair: dp[i] = dp[i-2] + 2.",
+    "If s[i] == ')' and s[i-1] == ')', check whether the character just before the matching valid run that ends at i-1 is a '(': if s[i - dp[i-1] - 1] == '(', this new ')' closes over that whole run, so dp[i] = dp[i-1] + 2 + dp[i - dp[i-1] - 2] (the last term folds in anything valid immediately before that matched block)."
+  ],
+  "solution": {
+    "approach": "Define dp[i] as the length of the longest valid parentheses substring ending exactly at index i (0 whenever s[i] is '(' since a valid substring can't end on an open paren). Two cases when s[i] == ')': if s[i-1] == '(', it directly closes a fresh pair, extending whatever was valid before it, dp[i] = dp[i-2] + 2 (or 2 if i < 2). If s[i-1] == ')', it might close over an entire valid run ending at i-1: check the character immediately before that run, at index i - dp[i-1] - 1; if it's '(', this ')' matches it, so dp[i] = dp[i-1] + 2 plus any valid run immediately preceding that opening bracket (dp[i - dp[i-1] - 2], guarded against negative indices). Track the maximum dp value seen as the answer.",
+    "code": "def longest_valid_parentheses(s):\n    n = len(s)\n    dp = [0] * n\n    best = 0\n\n    for i in range(1, n):\n        if s[i] == ')':\n            if s[i - 1] == '(':\n                dp[i] = (dp[i - 2] if i >= 2 else 0) + 2\n            elif i - dp[i - 1] - 1 >= 0 and s[i - dp[i - 1] - 1] == '(':\n                dp[i] = dp[i - 1] + 2\n                if i - dp[i - 1] - 2 >= 0:\n                    dp[i] += dp[i - dp[i - 1] - 2]\n            best = max(best, dp[i])\n\n    return best\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def longest_valid_parentheses(s):\n    # your code here\n    pass\n",
+  "functionName": "longest_valid_parentheses",
+  "paramNames": ["s"],
+  "testCases": [
+    {
+      "input": ["(()"],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [")()())"],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [""],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": ["()(()"],
+      "expected": 2,
+      "isHidden": true
+    },
+    {
+      "input": ["()(())"],
+      "expected": 6,
+      "isHidden": true
+    },
+    {
+      "input": ["((("],
+      "expected": 0,
+      "isHidden": true
+    }
+  ]
+}

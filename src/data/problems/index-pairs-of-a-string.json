@@ -1,0 +1,71 @@
+{
+  "id": "index-pairs-of-a-string",
+  "title": "Index Pairs of a String",
+  "pattern": "tries",
+  "difficulty": "easy",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "Given a string `text` and an array of strings `words`, return an array of all index pairs `[i, j]` such that the substring `text[i..j]` (inclusive on both ends) equals some word in `words`.\n\nReturn the pairs sorted first by `i`, and if `i` is the same, then by `j`.",
+  "examples": [
+    {
+      "input": "text = \"thestoryofleetcodeandme\", words = [\"story\",\"fleet\",\"leetcode\"]",
+      "output": "[[3,7],[9,13],[10,17]]",
+      "explanation": "\"story\" occurs at indices 3-7, \"fleet\" occurs at indices 9-13, \"leetcode\" occurs at indices 10-17."
+    },
+    {
+      "input": "text = \"ababa\", words = [\"aba\",\"ab\"]",
+      "output": "[[0,1],[0,2],[2,3],[2,4]]",
+      "explanation": "\"ab\" occurs starting at index 0 and index 2. \"aba\" occurs starting at index 0 and index 2, both overlapping matches are included."
+    }
+  ],
+  "constraints": [
+    "1 <= text.length <= 100",
+    "1 <= words.length <= 20",
+    "1 <= words[i].length <= 50",
+    "text and words[i] consist of lowercase English letters",
+    "All strings in words are distinct"
+  ],
+  "hints": [
+    "With such small constraints, checking every starting index against every word directly is already fast enough, but a trie lets you check all words sharing a prefix in one pass down from each starting index.",
+    "Insert all words into a trie. For each starting index i in text, walk down the trie following text's characters starting at i; whenever you land on a node marked as a word's end, record the pair [i, current index].",
+    "Continue the trie walk past a matched word's end (don't stop early) since a longer word in the dictionary might share the same prefix and also match starting at the same index."
+  ],
+  "solution": {
+    "approach": "Insert every word into a trie, marking word-ending nodes. For each starting index i in text, walk down the trie one character at a time following text[i], text[i+1], ... as far as the trie path exists; every time the current node is marked as a word ending, record the pair [i, current index] before continuing the walk (a longer dictionary word could share the same prefix, so we don't stop at the first match). This checks all words sharing prefixes together in a single walk per starting index rather than restarting a full string comparison per word.",
+    "code": "def index_pairs(text, words):\n    root = {}\n    for word in words:\n        node = root\n        for ch in word:\n            node = node.setdefault(ch, {})\n        node['$'] = True\n\n    result = []\n    n = len(text)\n    for i in range(n):\n        node = root\n        for j in range(i, n):\n            ch = text[j]\n            if ch not in node:\n                break\n            node = node[ch]\n            if node.get('$'):\n                result.append([i, j])\n\n    result.sort()\n    return result\n",
+    "timeComplexity": "O(n * maxWordLength) where n is the length of text",
+    "spaceComplexity": "O(sum of word lengths) for the trie"
+  },
+  "starterCode": "def index_pairs(text, words):\n    # your code here\n    pass\n",
+  "functionName": "index_pairs",
+  "paramNames": ["text", "words"],
+  "testCases": [
+    {
+      "input": ["thestoryofleetcodeandme", ["story", "fleet", "leetcode"]],
+      "expected": [[3, 7], [9, 13], [10, 17]],
+      "isHidden": false
+    },
+    {
+      "input": ["ababa", ["aba", "ab"]],
+      "expected": [[0, 1], [0, 2], [2, 3], [2, 4]],
+      "isHidden": false
+    },
+    {
+      "input": ["abc", ["d"]],
+      "expected": [],
+      "isHidden": true
+    },
+    {
+      "input": ["aaa", ["a"]],
+      "expected": [[0, 0], [1, 1], [2, 2]],
+      "isHidden": true
+    },
+    {
+      "input": ["a", ["a"]],
+      "expected": [[0, 0]],
+      "isHidden": true
+    }
+  ]
+}

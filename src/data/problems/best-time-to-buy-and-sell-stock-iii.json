@@ -1,0 +1,79 @@
+{
+  "id": "best-time-to-buy-and-sell-stock-iii",
+  "title": "Best Time to Buy and Sell Stock III",
+  "pattern": "dynamic-programming",
+  "difficulty": "hard",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Bloomberg"
+  ],
+  "prompt": "You are given an array `prices` where `prices[i]` is the price of a stock on day `i`. Find the maximum profit achievable with at most two transactions (a transaction is one buy followed by one sell). You must sell the stock before you buy again.",
+  "examples": [
+    {
+      "input": "prices = [3,3,5,0,0,3,1,4]",
+      "output": "6",
+      "explanation": "Buy on day 3 (price=0), sell on day 5 (price=3), profit=3. Buy on day 6 (price=1), sell on day 7 (price=4), profit=3. Total=6."
+    },
+    {
+      "input": "prices = [1,2,3,4,5]",
+      "output": "4",
+      "explanation": "Buy on day 0, sell on day 4. Only one transaction is needed/beneficial."
+    },
+    {
+      "input": "prices = [7,6,4,3,1]",
+      "output": "0",
+      "explanation": "Prices only decrease, so no transaction is profitable."
+    }
+  ],
+  "constraints": [
+    "1 <= prices.length <= 10^5",
+    "0 <= prices[i] <= 10^5"
+  ],
+  "hints": [
+    "Track four running states as you scan through the prices once: after first buy, after first sell, after second buy, after second sell.",
+    "Each state can only improve by transitioning from the previous state on the current day's price: e.g. 'after second buy' = max(staying the same, 'after first sell' profit minus today's price).",
+    "Initialize the two 'after buy' states to negative infinity (or -prices[0]) since you can't be in a bought state before buying anything, and the two 'after sell' states to 0."
+  ],
+  "solution": {
+    "approach": "Track four rolling quantities representing the best profit achievable so far in each of four states: buy1 (cost basis after first buy, as negative profit), sell1 (profit after first sell), buy2 (net profit after second buy, accounting for reinvesting sell1's profit), sell2 (profit after second sell). Initialize buy1 = buy2 = -infinity and sell1 = sell2 = 0. For each day's price, update in order: buy1 = max(buy1, -price) (cheapest first purchase so far), sell1 = max(sell1, buy1 + price) (best profit closing the first transaction today), buy2 = max(buy2, sell1 - price) (reinvest first profit into a second purchase), sell2 = max(sell2, buy2 + price) (best profit closing the second transaction today). Because each day's price feeds all four updates in this dependency order using values from before today's update, this single pass correctly enforces that transactions don't overlap. The answer is sell2.",
+    "code": "def max_profit(prices):\n    buy1 = buy2 = float('-inf')\n    sell1 = sell2 = 0\n\n    for price in prices:\n        buy1 = max(buy1, -price)\n        sell1 = max(sell1, buy1 + price)\n        buy2 = max(buy2, sell1 - price)\n        sell2 = max(sell2, buy2 + price)\n\n    return sell2\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def max_profit(prices):\n    # your code here\n    pass\n",
+  "functionName": "max_profit",
+  "paramNames": ["prices"],
+  "testCases": [
+    {
+      "input": [[3, 3, 5, 0, 0, 3, 1, 4]],
+      "expected": 6,
+      "isHidden": false
+    },
+    {
+      "input": [[1, 2, 3, 4, 5]],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [[7, 6, 4, 3, 1]],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [[1]],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [[1, 2]],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [[6, 1, 3, 2, 4, 7]],
+      "expected": 7,
+      "isHidden": true
+    }
+  ]
+}

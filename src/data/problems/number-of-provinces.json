@@ -1,0 +1,72 @@
+{
+  "id": "number-of-provinces",
+  "title": "Number of Provinces",
+  "pattern": "graphs",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Facebook",
+    "Bloomberg"
+  ],
+  "prompt": "There are `n` cities. Some of them are directly connected, while others are not. A province is a group of directly or indirectly connected cities, with no other cities outside the group.\n\nYou are given an `n x n` matrix `isConnected` where `isConnected[i][j] = 1` if the `i`th city and `j`th city are directly connected, and `0` otherwise. Return the total number of provinces.",
+  "examples": [
+    {
+      "input": "isConnected = [[1,1,0],[1,1,0],[0,0,1]]",
+      "output": "2",
+      "explanation": "Cities 0 and 1 are directly connected, forming one province; city 2 is isolated, forming its own province."
+    },
+    {
+      "input": "isConnected = [[1,0,0],[0,1,0],[0,0,1]]",
+      "output": "3",
+      "explanation": "No two cities are connected, so each city is its own province."
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 200",
+    "n == isConnected.length == isConnected[i].length",
+    "isConnected[i][j] is 1 or 0",
+    "isConnected[i][i] == 1",
+    "isConnected[i][j] == isConnected[j][i]"
+  ],
+  "hints": [
+    "This is exactly counting connected components, just with the graph given as an adjacency matrix instead of an edge list.",
+    "Pick an unvisited city, DFS (or BFS) to every city reachable through direct connections, mark them all visited, and count that as one province.",
+    "Union-Find also works cleanly: union every pair (i, j) where isConnected[i][j] == 1, then count the number of distinct roots."
+  ],
+  "solution": {
+    "approach": "Treat isConnected as an adjacency matrix and run DFS from every unvisited city, marking every city reachable via direct connections (rows with a 1) as visited and belonging to the current province. Each time we start a DFS from a fresh unvisited city, that's a new province, since every city already reachable from a previous DFS is already marked visited.",
+    "code": "def find_circle_num(is_connected):\n    n = len(is_connected)\n    visited = [False] * n\n    provinces = 0\n\n    def dfs(city):\n        visited[city] = True\n        for neighbor in range(n):\n            if is_connected[city][neighbor] == 1 and not visited[neighbor]:\n                dfs(neighbor)\n\n    for city in range(n):\n        if not visited[city]:\n            dfs(city)\n            provinces += 1\n\n    return provinces\n",
+    "timeComplexity": "O(n^2)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def find_circle_num(is_connected):\n    # your code here\n    pass\n",
+  "functionName": "find_circle_num",
+  "paramNames": ["is_connected"],
+  "testCases": [
+    {
+      "input": [[[1, 1, 0], [1, 1, 0], [0, 0, 1]]],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [[[1, 0, 0], [0, 1, 0], [0, 0, 1]]],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [[[1]]],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [[[1, 1, 1], [1, 1, 1], [1, 1, 1]]],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [[[1, 0, 0, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 1]]],
+      "expected": 3,
+      "isHidden": true
+    }
+  ]
+}

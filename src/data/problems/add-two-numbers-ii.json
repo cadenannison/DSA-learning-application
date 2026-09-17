@@ -1,0 +1,89 @@
+{
+  "id": "add-two-numbers-ii",
+  "title": "Add Two Numbers II",
+  "pattern": "linked-list",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Meta",
+    "Google"
+  ],
+  "prompt": "You are given two non-empty linked lists representing two non-negative integers. The most significant digit comes first (unlike the reverse-order version of this problem), and each node contains a single digit. Add the two numbers and return the sum as a linked list, also in most-significant-digit-first order. You may not modify the input lists' digit order (e.g. no reversing that leaves them mutated) — assume fresh copies are built for you each call.\n\nEach list is given as an array (e.g. `[7,2,4,3]` represents the number 7243, stored as `7 -> 2 -> 4 -> 3 -> null`). The starter code includes helpers to convert between arrays and linked-list nodes — build the actual lists, compute the digit-wise sum (most significant digit first), then convert the result back to an array.",
+  "examples": [
+    {
+      "input": "l1 = [7,2,4,3], l2 = [5,6,4]",
+      "output": "[7,8,0,7]",
+      "explanation": "7243 + 564 = 7807."
+    },
+    {
+      "input": "l1 = [2,4,3], l2 = [5,6,4]",
+      "output": "[8,0,7]"
+    },
+    {
+      "input": "l1 = [0], l2 = [0]",
+      "output": "[0]"
+    }
+  ],
+  "constraints": [
+    "The number of nodes in each list is in the range [1, 100]",
+    "0 <= Node.val <= 9",
+    "Neither list has leading zeros except the number 0 itself"
+  ],
+  "hints": [
+    "With digits most-significant-first, you can't add from the head the way you would by hand — you need to reach the least-significant digits first.",
+    "A stack naturally reverses order: push every digit of each list onto its own stack, then pop from both simultaneously to add from the ones place upward.",
+    "Build the result by prepending each computed digit to the front of a new list (or building it and reversing at the end), and don't forget a possible leading carry digit."
+  ],
+  "solution": {
+    "approach": "Push all digits of each list onto two separate stacks, which reverses each list's order to least-significant-digit-first. Pop from both stacks simultaneously (treating an empty stack as digit 0), summing with a running carry just like elementary addition, and prepend each resulting digit to the front of the answer list. Continue until both stacks are empty and there is no carry left, which naturally handles a final leading carry digit.",
+    "code": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for v in arr:\n        node = ListNode(v)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef add_two_numbers(l1_arr, l2_arr):\n    l1 = arr_to_list(l1_arr)\n    l2 = arr_to_list(l2_arr)\n\n    stack1, stack2 = [], []\n    node = l1\n    while node:\n        stack1.append(node.val)\n        node = node.next\n    node = l2\n    while node:\n        stack2.append(node.val)\n        node = node.next\n\n    carry = 0\n    result_head = None\n    while stack1 or stack2 or carry:\n        v1 = stack1.pop() if stack1 else 0\n        v2 = stack2.pop() if stack2 else 0\n        total = v1 + v2 + carry\n        carry = total // 10\n        result_head = ListNode(total % 10, result_head)\n\n    return list_to_arr(result_head)\n",
+    "timeComplexity": "O(n + m)",
+    "spaceComplexity": "O(n + m) for the two digit stacks"
+  },
+  "starterCode": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for v in arr:\n        node = ListNode(v)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef add_two_numbers(l1_arr, l2_arr):\n    l1 = arr_to_list(l1_arr)\n    l2 = arr_to_list(l2_arr)\n    # your code here\n    pass\n",
+  "functionName": "add_two_numbers",
+  "paramNames": ["l1_arr", "l2_arr"],
+  "testCases": [
+    {
+      "input": [
+        [7, 2, 4, 3],
+        [5, 6, 4]
+      ],
+      "expected": [7, 8, 0, 7],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [2, 4, 3],
+        [5, 6, 4]
+      ],
+      "expected": [8, 0, 7],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0],
+        [0]
+      ],
+      "expected": [0],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [9, 9],
+        [1]
+      ],
+      "expected": [1, 0, 0],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 8],
+        [0]
+      ],
+      "expected": [1, 8],
+      "isHidden": true
+    }
+  ]
+}

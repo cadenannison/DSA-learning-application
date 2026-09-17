@@ -1,0 +1,85 @@
+{
+  "id": "path-sum-ii",
+  "title": "Path Sum II",
+  "pattern": "trees",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Facebook"
+  ],
+  "prompt": "Given the `root` of a binary tree and an integer `targetSum`, return all root-to-leaf paths where each path's node values sum to `targetSum`, as a list of lists. Each path should be listed in the order discovered by a left-then-right DFS.\n\nThe tree is given as a level-order array where `null` marks a missing child (the standard LeetCode serialization). Your function receives this array and `targetSum`; the starter code includes a helper that builds the tree from the array, so you only need to find the qualifying paths.",
+  "examples": [
+    {
+      "input": "root = [5,4,8,11,null,13,4,7,2,null,null,5,1], targetSum = 22",
+      "output": "[[5,4,11,2],[5,8,4,5]]",
+      "explanation": "Both paths sum to 22: 5+4+11+2=22 and 5+8+4+5=22."
+    },
+    {
+      "input": "root = [1,2,3], targetSum = 5",
+      "output": "[]",
+      "explanation": "Neither root-to-leaf path (1->2 sums to 3, 1->3 sums to 4) equals 5."
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [0, 5000]",
+    "-1000 <= Node.val <= 1000",
+    "-1000 <= targetSum <= 1000"
+  ],
+  "hints": [
+    "This is a backtracking extension of the basic Path Sum problem — track the path taken so far, not just whether a valid path exists.",
+    "Add the current node to the path and subtract its value from the remaining target before recursing; at a leaf, check if the remaining target is exactly zero.",
+    "After finishing both subtrees for a node, remove it from the path (backtrack) before returning, so sibling branches don't see stale path data."
+  ],
+  "solution": {
+    "approach": "DFS from the root, maintaining a running path list and the remaining target sum. Append the current node to the path and subtract its value from the remaining sum. If it's a leaf and the remaining sum is exactly zero, record a copy of the path. Otherwise recurse into left then right children. After both recursive calls return, pop the current node off the path (backtrack) so it doesn't leak into sibling branches.",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef path_sum_ii(root_arr, target_sum):\n    root = build_tree(root_arr)\n    result = []\n    path = []\n\n    def dfs(node, remaining):\n        if node is None:\n            return\n        path.append(node.val)\n        remaining -= node.val\n        if node.left is None and node.right is None and remaining == 0:\n            result.append(list(path))\n        else:\n            dfs(node.left, remaining)\n            dfs(node.right, remaining)\n        path.pop()\n\n    dfs(root, target_sum)\n    return result\n",
+    "timeComplexity": "O(n^2) worst case (copying paths), O(n log n) typical",
+    "spaceComplexity": "O(h), h = tree height, excluding output"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef path_sum_ii(root_arr, target_sum):\n    root = build_tree(root_arr)\n    # your code here\n    pass\n",
+  "functionName": "path_sum_ii",
+  "paramNames": ["root_arr", "target_sum"],
+  "testCases": [
+    {
+      "input": [
+        [5, 4, 8, 11, null, 13, 4, 7, 2, null, null, 5, 1],
+        22
+      ],
+      "expected": [[5, 4, 11, 2], [5, 8, 4, 5]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3],
+        5
+      ],
+      "expected": [],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2],
+        0
+      ],
+      "expected": [],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [],
+        0
+      ],
+      "expected": [],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1],
+        1
+      ],
+      "expected": [[1]],
+      "isHidden": true
+    }
+  ]
+}

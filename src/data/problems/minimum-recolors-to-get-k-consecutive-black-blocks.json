@@ -1,0 +1,70 @@
+{
+  "id": "minimum-recolors-to-get-k-consecutive-black-blocks",
+  "title": "Minimum Recolors to Get K Consecutive Black Blocks",
+  "pattern": "sliding-window",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "You are given a 0-indexed string `blocks` consisting only of characters `'W'` (white block) and `'B'` (black block), and an integer `k`. You want exactly `k` consecutive black blocks. In one operation you can recolor a white block to black. Return the minimum number of operations needed to have at least one window of `k` consecutive black blocks.",
+  "examples": [
+    {
+      "input": "blocks = \"WBBWWBBWBW\", k = 7",
+      "output": "3",
+      "explanation": "Recolor the blocks at indices 0, 3, and 4 to get \"BBBBBBBWBW\", which contains 7 consecutive black blocks starting at index 0."
+    },
+    {
+      "input": "blocks = \"WBWBBBW\", k = 2",
+      "output": "0",
+      "explanation": "There's already a window of 2 consecutive black blocks, so no recoloring is needed."
+    }
+  ],
+  "constraints": [
+    "n == blocks.length",
+    "1 <= n <= 100",
+    "blocks[i] is either 'W' or 'B'",
+    "1 <= k <= n"
+  ],
+  "hints": [
+    "Checking every possible window of size k independently recomputes the white count each time — that's wasteful.",
+    "Use a fixed-size sliding window of length k and maintain a running count of 'W' characters inside it.",
+    "As the window slides by one position, update the white count in O(1) by checking the character leaving and the character entering; the answer is the minimum white count seen across all windows."
+  ],
+  "solution": {
+    "approach": "Slide a fixed-size window of length k across the string while maintaining a running count of white blocks inside it (each white block needs one recolor). Initialize the count from the first window, then as the window shifts right by one, adjust the count by removing the leaving character's contribution and adding the entering character's. The minimum white count over all window positions is the minimum number of recolors needed.",
+    "code": "def minimum_recolors(blocks, k):\n    white_count = blocks[:k].count('W')\n    min_recolors = white_count\n    for i in range(k, len(blocks)):\n        if blocks[i] == 'W':\n            white_count += 1\n        if blocks[i - k] == 'W':\n            white_count -= 1\n        min_recolors = min(min_recolors, white_count)\n    return min_recolors\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def minimum_recolors(blocks, k):\n    # your code here\n    pass\n",
+  "functionName": "minimum_recolors",
+  "paramNames": ["blocks", "k"],
+  "testCases": [
+    {
+      "input": ["WBBWWBBWBW", 7],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": ["WBWBBBW", 2],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": ["WWWW", 4],
+      "expected": 4,
+      "isHidden": true
+    },
+    {
+      "input": ["BBBB", 1],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": ["W", 1],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

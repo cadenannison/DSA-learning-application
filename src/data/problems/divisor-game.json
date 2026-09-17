@@ -1,0 +1,71 @@
+{
+  "id": "divisor-game",
+  "title": "Divisor Game",
+  "pattern": "dynamic-programming",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon"
+  ],
+  "prompt": "Alice and Bob take turns playing a game, with Alice starting first. On each player's turn, given the current number `n` on the chalkboard, the player chooses any `x` with `0 < x < n` and `n % x == 0`, and replaces `n` with `n - x`. If a player cannot make a move, they lose the game. Given the starting number `n`, return true if Alice wins the game, assuming both players play optimally, or false if Bob wins.",
+  "examples": [
+    {
+      "input": "n = 2",
+      "output": "true",
+      "explanation": "Alice picks x = 1, leaving n = 1 for Bob, who has no valid move and loses."
+    },
+    {
+      "input": "n = 1",
+      "output": "false",
+      "explanation": "Alice has no valid divisor to pick (no 0 < x < 1), so she loses immediately."
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 1000"
+  ],
+  "hints": [
+    "Simulating every possible sequence of moves for both players is expensive — look for a pattern instead by computing small cases by hand.",
+    "Define dp[i] = true if the player whose turn it is with the number i on the board wins. dp[i] is true if there exists some valid x such that dp[i - x] is false (leaving the opponent in a losing position).",
+    "Try n = 1 through 6 by hand: you'll notice the winner depends only on whether n is even or odd."
+  ],
+  "solution": {
+    "approach": "This is a game-theory DP problem. Define dp[i] as true if the current player to move, facing number i, wins with optimal play. dp[1] = False (no valid move). For i > 1, dp[i] is True if any divisor x of i lets the player move to i - x where dp[i - x] is False, handing the opponent a losing position. Computing this bottom-up for small i reveals dp[i] is True exactly when i is even: an even number can always subtract 1 (always a valid divisor) to leave an odd number for the opponent, and odd numbers only have odd divisors, so subtracting one always leaves an even number back — meaning the parity flips every turn and starting even guarantees eventually forcing the opponent to 1. This lets the whole problem collapse to a single parity check in O(1), though the DP table view is what proves it.",
+    "code": "def divisor_game(n):\n    return n % 2 == 0\n",
+    "timeComplexity": "O(1)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def divisor_game(n):\n    # your code here\n    pass\n",
+  "functionName": "divisor_game",
+  "paramNames": ["n"],
+  "testCases": [
+    {
+      "input": [2],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [1],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [3],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": [4],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [1000],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [999],
+      "expected": false,
+      "isHidden": true
+    }
+  ]
+}

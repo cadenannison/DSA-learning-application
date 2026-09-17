@@ -1,0 +1,83 @@
+{
+  "id": "leaf-similar-trees",
+  "title": "Leaf-Similar Trees",
+  "pattern": "trees",
+  "difficulty": "easy",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "Consider all the leaf nodes of a binary tree, from left to right, forming a sequence of leaf values called the tree's leaf value sequence. Given the roots of two binary trees `root1` and `root2`, return `true` if and only if the two trees have the same leaf value sequence.\n\nBoth trees are given as level-order arrays where `null` marks a missing child (the standard LeetCode serialization). Your function receives both arrays directly; the starter code includes a helper that builds a tree from an array, so you only need to compare the leaf sequences.",
+  "examples": [
+    {
+      "input": "root1 = [3,5,1,6,2,9,8,null,null,7,4], root2 = [3,5,1,6,7,4,2,null,null,null,null,null,null,9,8]",
+      "output": "true",
+      "explanation": "Both trees produce the leaf sequence [6,7,4,9,8] when read left to right."
+    },
+    {
+      "input": "root1 = [1,2,3], root2 = [1,3,2]",
+      "output": "false",
+      "explanation": "root1's leaves in order are [2,3]; root2's leaves in order are [3,2] — different sequences."
+    }
+  ],
+  "constraints": [
+    "The number of nodes in each tree is in the range [1, 200]",
+    "1 <= Node.val <= 200"
+  ],
+  "hints": [
+    "You don't need to build the full tree structures to compare — just extract the sequence of leaf values from each tree via a left-to-right DFS.",
+    "A node is a leaf if it has no left and no right child; collect its value into a list only when this is true.",
+    "Once you have both leaf sequences, the trees are leaf-similar exactly when the two lists are equal element-for-element."
+  ],
+  "solution": {
+    "approach": "Run a DFS (preferring left before right, so the order matches left-to-right reading) on each tree, collecting the value of every node with no children into a list. Two trees are leaf-similar exactly when these two leaf sequences are identical.",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef leaf_similar(root1_arr, root2_arr):\n    root1 = build_tree(root1_arr)\n    root2 = build_tree(root2_arr)\n\n    def leaves(node, acc):\n        if node is None:\n            return\n        if node.left is None and node.right is None:\n            acc.append(node.val)\n            return\n        leaves(node.left, acc)\n        leaves(node.right, acc)\n\n    seq1, seq2 = [], []\n    leaves(root1, seq1)\n    leaves(root2, seq2)\n    return seq1 == seq2\n",
+    "timeComplexity": "O(m + n)",
+    "spaceComplexity": "O(m + n)"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef leaf_similar(root1_arr, root2_arr):\n    root1 = build_tree(root1_arr)\n    root2 = build_tree(root2_arr)\n    # your code here\n    pass\n",
+  "functionName": "leaf_similar",
+  "paramNames": ["root1_arr", "root2_arr"],
+  "testCases": [
+    {
+      "input": [
+        [3, 5, 1, 6, 2, 9, 8, null, null, 7, 4],
+        [3, 5, 1, 6, 7, 4, 2, null, null, null, null, null, null, 9, 8]
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3],
+        [1, 3, 2]
+      ],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1],
+        [1]
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2],
+        [2, 1]
+      ],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3],
+        [1, 2, 3, null, null, 4]
+      ],
+      "expected": false,
+      "isHidden": true
+    }
+  ]
+}

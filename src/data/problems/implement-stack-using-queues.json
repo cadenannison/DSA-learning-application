@@ -1,0 +1,90 @@
+{
+  "id": "implement-stack-using-queues",
+  "title": "Implement Stack using Queues",
+  "pattern": "stacks-queues",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Microsoft"
+  ],
+  "prompt": "Implement a last-in-first-out (LIFO) stack using only queues. The stack should support `push(x)`, `pop()`, `top()`, and `empty()`.\n\nYou'll implement this as a single function `run_stack_ops(ops)`, where `ops` is an array of `[operationName, argument]` pairs (argument is `null` for `pop`, `top`, and `empty`), applied in order to one stack instance. `push` never produces output; `pop`, `top`, and `empty` each push their result onto the output array, in call order. Return the output array.",
+  "examples": [
+    {
+      "input": "ops = [[\"push\",1],[\"push\",2],[\"top\",null],[\"pop\",null],[\"empty\",null]]",
+      "output": "[2,2,false]",
+      "explanation": "top() returns 2 (the most recently pushed). pop() removes and returns 2. empty() is false since 1 remains."
+    }
+  ],
+  "constraints": [
+    "1 <= x <= 9",
+    "At most 100 calls total to push, pop, top, and empty",
+    "All calls to pop and top are valid (the stack is non-empty when called)"
+  ],
+  "hints": [
+    "A queue is FIFO, so a plain enqueue/dequeue gives you the oldest element first — the opposite of what a stack's top needs.",
+    "Use a single queue, but change how push works instead of how pop works.",
+    "After enqueueing a new element, rotate the queue by dequeuing and re-enqueueing all the earlier elements behind it — that puts the newest element at the front, so the front of the queue is always the stack's top."
+  ],
+  "solution": {
+    "approach": "Use a single queue (deque). On push, add the new element to the back, then rotate the queue by moving every element that was already there (all except the one just pushed) from front to back. This puts the just-pushed element at the front, so the front of the queue always mirrors the top of a stack. pop, top, and empty then just operate on the front of the queue directly.",
+    "code": "from collections import deque\n\ndef run_stack_ops(ops):\n    q = deque()\n    output = []\n\n    for op, arg in ops:\n        if op == 'push':\n            q.append(arg)\n            for _ in range(len(q) - 1):\n                q.append(q.popleft())\n        elif op == 'pop':\n            output.append(q.popleft())\n        elif op == 'top':\n            output.append(q[0])\n        elif op == 'empty':\n            output.append(len(q) == 0)\n\n    return output\n",
+    "timeComplexity": "O(n) per push, O(1) for pop/top/empty",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def run_stack_ops(ops):\n    # your code here\n    pass\n",
+  "functionName": "run_stack_ops",
+  "paramNames": ["ops"],
+  "testCases": [
+    {
+      "input": [
+        [
+          ["push", 1],
+          ["push", 2],
+          ["top", null],
+          ["pop", null],
+          ["empty", null]
+        ]
+      ],
+      "expected": [2, 2, false],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [
+          ["push", 1],
+          ["empty", null]
+        ]
+      ],
+      "expected": [false],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [
+          ["push", 1],
+          ["push", 2],
+          ["push", 3],
+          ["pop", null],
+          ["pop", null],
+          ["pop", null],
+          ["empty", null]
+        ]
+      ],
+      "expected": [3, 2, 1, true],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [
+          ["push", 9],
+          ["top", null],
+          ["top", null],
+          ["pop", null],
+          ["empty", null]
+        ]
+      ],
+      "expected": [9, 9, 9, true],
+      "isHidden": true
+    }
+  ]
+}

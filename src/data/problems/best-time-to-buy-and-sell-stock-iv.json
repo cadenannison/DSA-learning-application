@@ -1,0 +1,75 @@
+{
+  "id": "best-time-to-buy-and-sell-stock-iv",
+  "title": "Best Time to Buy and Sell Stock IV",
+  "pattern": "dynamic-programming",
+  "difficulty": "hard",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Bloomberg"
+  ],
+  "prompt": "You are given an integer `k` and an array `prices` where `prices[i]` is the price of a stock on day `i`. Find the maximum profit achievable with at most `k` transactions (a transaction is one buy followed by one sell). You must sell the stock before you buy again.",
+  "examples": [
+    {
+      "input": "k = 2, prices = [2,4,1]",
+      "output": "2",
+      "explanation": "Buy on day 0 (price=2), sell on day 1 (price=4), profit=2. A second transaction isn't profitable."
+    },
+    {
+      "input": "k = 2, prices = [3,2,6,5,0,3]",
+      "output": "7",
+      "explanation": "Buy on day 1 (price=2), sell on day 2 (price=6), profit=4. Buy on day 4 (price=0), sell on day 5 (price=3), profit=3. Total=7."
+    }
+  ],
+  "constraints": [
+    "1 <= k <= 100",
+    "1 <= prices.length <= 1000",
+    "0 <= prices[i] <= 1000"
+  ],
+  "hints": [
+    "This generalizes the 'at most 2 transactions' version: instead of 4 fixed rolling variables, you need 2*k of them, one buy/sell pair per allowed transaction.",
+    "If k is very large (>= prices.length / 2), the transaction limit is not actually binding — you can treat it like the unlimited-transactions version and just sum every profitable adjacent price increase, which is much cheaper than the general DP.",
+    "Otherwise, maintain buy[1..k] and sell[1..k] arrays. For each day's price, update buy[t] = max(buy[t], sell[t-1] - price) and sell[t] = max(sell[t], buy[t] + price) for t from 1 to k, using sell[0] = 0 as the base."
+  ],
+  "solution": {
+    "approach": "Generalize the fixed-two-transaction rolling-variable trick to k transactions. Maintain buy[t] and sell[t] for t = 1..k, where buy[t] is the best net profit after the t-th purchase and sell[t] is the best profit after the t-th sale. Initialize every buy[t] to -infinity and sell[t] to 0. For each day's price, update t from 1 to k in increasing order: buy[t] = max(buy[t], sell[t-1] - price) (start the t-th transaction by reinvesting profit from the (t-1)-th) and sell[t] = max(sell[t], buy[t] + price) (close the t-th transaction today). As a critical optimization, if k >= len(prices) // 2, the transaction cap can never actually bind (you can't complete more than len(prices)//2 disjoint transactions anyway), so the problem degenerates to the unlimited-transactions case: just sum every positive day-over-day price increase, which is O(n) instead of O(n*k). The final answer is sell[k] in the general case.",
+    "code": "def max_profit(k, prices):\n    n = len(prices)\n    if n == 0 or k == 0:\n        return 0\n\n    if k >= n // 2:\n        return sum(max(prices[i + 1] - prices[i], 0) for i in range(n - 1))\n\n    buy = [float('-inf')] * (k + 1)\n    sell = [0] * (k + 1)\n\n    for price in prices:\n        for t in range(1, k + 1):\n            buy[t] = max(buy[t], sell[t - 1] - price)\n            sell[t] = max(sell[t], buy[t] + price)\n\n    return sell[k]\n",
+    "timeComplexity": "O(n * k) in general, O(n) when k is large enough to be non-binding",
+    "spaceComplexity": "O(k)"
+  },
+  "starterCode": "def max_profit(k, prices):\n    # your code here\n    pass\n",
+  "functionName": "max_profit",
+  "paramNames": ["k", "prices"],
+  "testCases": [
+    {
+      "input": [2, [2, 4, 1]],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [2, [3, 2, 6, 5, 0, 3]],
+      "expected": 7,
+      "isHidden": false
+    },
+    {
+      "input": [1, [7, 1, 5, 3, 6, 4]],
+      "expected": 5,
+      "isHidden": true
+    },
+    {
+      "input": [0, [1, 2, 3]],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [100, [1, 2, 3, 4, 5]],
+      "expected": 4,
+      "isHidden": true
+    },
+    {
+      "input": [2, [1]],
+      "expected": 0,
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "id": "exclusive-time-of-functions",
+  "title": "Exclusive Time of Functions",
+  "pattern": "stacks-queues",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "On a single-threaded CPU, `n` functions numbered `0` to `n-1` execute, possibly recursively, and only one at a time. Function calls have a valid parenthesis-like structure (a function's start/end logs are strictly nested or sequential with respect to others). You're given `n` and `logs`, where each log is a string `\"{function_id}:{'start' or 'end'}:{timestamp}\"`, sorted by timestamp, meaning the function with `function_id` either started or ended execution at that timestamp.\n\nExclusive time is defined as the sum of execution time for a function, excluding time spent for calls made by that function to any other function it invokes. Return an array where the `i`-th element is the exclusive time of function `i`.",
+  "examples": [
+    {
+      "input": "n = 2, logs = [\"0:start:0\",\"1:start:2\",\"1:end:5\",\"0:end:6\"]",
+      "output": "[3,4]",
+      "explanation": "Function 0 starts at 0, calls function 1 at 2. Function 1 runs from 2 to 5 inclusive (4 units). Function 0 resumes and ends at 6, having run 0-2 and 5-6, i.e. 3 units."
+    },
+    {
+      "input": "n = 1, logs = [\"0:start:0\",\"0:start:2\",\"0:end:5\",\"0:end:6\"]",
+      "output": "[7]",
+      "explanation": "Function 0 recursively calls itself. Total wall time 0 to 6 inclusive is 7 units, all attributed to function 0 since there's no other function."
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 100",
+    "1 <= logs.length <= 500",
+    "0 <= function_id < n",
+    "1 <= timestamp <= 10^9",
+    "No two start events happen at the same timestamp, no two end events happen at the same timestamp",
+    "Each function has an 'end' log for each 'start' log"
+  ],
+  "hints": [
+    "Since calls nest like parentheses (a called function always finishes before its caller resumes), a stack of currently active function ids tracks exactly who is 'on top' at any moment.",
+    "Track the timestamp where the current top-of-stack function last resumed running; whenever a start or end event happens, that tells you how long the previous top-of-stack function ran before being interrupted or finishing.",
+    "Be careful with the 'end' timestamp being inclusive: a function that starts and ends at the same timestamp ran for 1 unit, and the next segment must begin at end_timestamp + 1, not end_timestamp."
+  ],
+  "solution": {
+    "approach": "Use a stack representing the current call stack of active functions, plus a running 'previous timestamp' marker. On a 'start' log, if there's a function already on top of the stack, credit it with (current timestamp - previous timestamp) exclusive time (time it ran before being interrupted by this call), then push the new function id. On an 'end' log, pop the function and credit it with (current timestamp - previous timestamp + 1) time (inclusive of the end timestamp itself), then update previous timestamp to end_time + 1 so the next segment starts right after. This correctly attributes only the time each function actually ran, not time spent in nested calls.",
+    "code": "def exclusive_time(n, logs):\n    result = [0] * n\n    stack = []\n    prev_time = 0\n\n    for log in logs:\n        parts = log.split(':')\n        fid = int(parts[0])\n        action = parts[1]\n        timestamp = int(parts[2])\n\n        if action == 'start':\n            if stack:\n                result[stack[-1]] += timestamp - prev_time\n            stack.append(fid)\n            prev_time = timestamp\n        else:\n            result[stack.pop()] += timestamp - prev_time + 1\n            prev_time = timestamp + 1\n\n    return result\n",
+    "timeComplexity": "O(logs.length)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def exclusive_time(n, logs):\n    # your code here\n    pass\n",
+  "functionName": "exclusive_time",
+  "paramNames": ["n", "logs"],
+  "testCases": [
+    {
+      "input": [2, ["0:start:0", "1:start:2", "1:end:5", "0:end:6"]],
+      "expected": [3, 4],
+      "isHidden": false
+    },
+    {
+      "input": [1, ["0:start:0", "0:start:2", "0:end:5", "0:end:6"]],
+      "expected": [7],
+      "isHidden": false
+    },
+    {
+      "input": [2, ["0:start:0", "0:end:0", "1:start:1", "1:end:1"]],
+      "expected": [1, 1],
+      "isHidden": true
+    },
+    {
+      "input": [2, ["0:start:0", "1:start:5", "1:end:7", "0:end:8"]],
+      "expected": [6, 3],
+      "isHidden": true
+    }
+  ]
+}

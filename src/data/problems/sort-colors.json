@@ -1,0 +1,79 @@
+{
+  "id": "sort-colors",
+  "title": "Sort Colors",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Meta",
+    "Microsoft",
+    "Bloomberg"
+  ],
+  "prompt": "Given an array `nums` with `n` objects colored red, white, or blue, represented by the integers `0`, `1`, and `2` respectively, sort them in place so that objects of the same color are adjacent, in the order red, white, and blue. You must solve this without using the library's built-in sort function, in one pass using only constant extra space.",
+  "examples": [
+    {
+      "input": "nums = [2,0,2,1,1,0]",
+      "output": "[0,0,1,1,2,2]"
+    },
+    {
+      "input": "nums = [2,0,1]",
+      "output": "[0,1,2]"
+    }
+  ],
+  "constraints": [
+    "n == nums.length",
+    "1 <= n <= 300",
+    "nums[i] is 0, 1, or 2"
+  ],
+  "hints": [
+    "Counting occurrences of each value then overwriting the array works in two passes — can you do it in a single pass?",
+    "This is the Dutch National Flag problem: partition the array into three regions using three pointers instead of two.",
+    "Keep low, mid, and high pointers. If nums[mid] is 0, swap it to the low region and advance both low and mid; if it's 2, swap it to the high region and shrink high (but don't advance mid, since the swapped-in value is unexamined); if it's 1, it's already in place, just advance mid."
+  ],
+  "solution": {
+    "approach": "Use the Dutch National Flag algorithm with three pointers: low marks the boundary after which all 0s end, high marks the boundary before which all 2s start, and mid scans the unexamined middle region. When nums[mid] is 0, swap it into the low region and advance both low and mid (the swapped element is already known to be a 1 or otherwise-processed since low <= mid). When it's 2, swap it into the high region and decrement high without advancing mid, since the newly swapped-in value at mid hasn't been classified yet. When it's 1, it's already correctly placed, so just advance mid. This partitions the array into three contiguous regions in a single O(n) pass.",
+    "code": "def sort_colors(nums):\n    low, mid, high = 0, 0, len(nums) - 1\n\n    while mid <= high:\n        if nums[mid] == 0:\n            nums[low], nums[mid] = nums[mid], nums[low]\n            low += 1\n            mid += 1\n        elif nums[mid] == 2:\n            nums[mid], nums[high] = nums[high], nums[mid]\n            high -= 1\n        else:\n            mid += 1\n\n    return nums\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def sort_colors(nums):\n    # your code here\n    pass\n",
+  "functionName": "sort_colors",
+  "paramNames": ["nums"],
+  "testCases": [
+    {
+      "input": [
+        [2, 0, 2, 1, 1, 0]
+      ],
+      "expected": [0, 0, 1, 1, 2, 2],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [2, 0, 1]
+      ],
+      "expected": [0, 1, 2],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0]
+      ],
+      "expected": [0],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 0]
+      ],
+      "expected": [0, 1, 2],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [2, 2, 2, 1, 1, 0, 0]
+      ],
+      "expected": [0, 0, 1, 1, 2, 2, 2],
+      "isHidden": true
+    }
+  ]
+}

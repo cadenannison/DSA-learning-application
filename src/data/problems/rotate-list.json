@@ -1,0 +1,93 @@
+{
+  "id": "rotate-list",
+  "title": "Rotate List",
+  "pattern": "linked-list",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Bloomberg",
+    "Facebook"
+  ],
+  "prompt": "Given the `head` of a singly linked list and an integer `k`, rotate the list to the right by `k` places and return the new head.\n\nThe list is given as an array (e.g. `[1,2,3,4,5]` represents `1 -> 2 -> 3 -> 4 -> 5 -> null`). The starter code includes helpers to convert between the array and a linked-list node — build the actual list, rotate it by manipulating `next` pointers, then convert back to an array to return.",
+  "examples": [
+    {
+      "input": "head = [1,2,3,4,5], k = 2",
+      "output": "[4,5,1,2,3]"
+    },
+    {
+      "input": "head = [0,1,2], k = 4",
+      "output": "[2,0,1]",
+      "explanation": "k can be larger than the list length; only k % length rotations actually matter."
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [0, 500]",
+    "-100 <= Node.val <= 100",
+    "0 <= k <= 2 * 10^9"
+  ],
+  "hints": [
+    "k can be much larger than the list's length — the effective rotation only ever depends on k modulo the length.",
+    "If you connect the tail back to the head, the list becomes circular; rotating right by k then just means picking a new 'break point'.",
+    "Find the list's length first, compute k % length, then walk (length - k % length - 1) steps from head to find the new tail; the node after it is the new head. Break the circle there."
+  ],
+  "solution": {
+    "approach": "Compute the list length while finding the tail, then join tail.next to head to make the list circular — this makes any rotation just a matter of choosing where to 'cut' the circle. The effective rotation is k % length (rotating by the full length or a multiple of it changes nothing). The new tail sits at position (length - k % length - 1) from the original head; walking there and breaking the next pointer right after it produces the rotated list starting at the following node.",
+    "code": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for v in arr:\n        node = ListNode(v)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef rotate_right(head_arr, k):\n    head = arr_to_list(head_arr)\n    if not head or not head.next or k == 0:\n        return list_to_arr(head)\n\n    length = 1\n    tail = head\n    while tail.next:\n        tail = tail.next\n        length += 1\n\n    k %= length\n    if k == 0:\n        return list_to_arr(head)\n\n    tail.next = head\n    steps_to_new_tail = length - k - 1\n    new_tail = head\n    for _ in range(steps_to_new_tail):\n        new_tail = new_tail.next\n    new_head = new_tail.next\n    new_tail.next = None\n\n    return list_to_arr(new_head)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1) auxiliary (excluding the returned list)"
+  },
+  "starterCode": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for v in arr:\n        node = ListNode(v)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef rotate_right(head_arr, k):\n    head = arr_to_list(head_arr)\n    # your code here\n    pass\n",
+  "functionName": "rotate_right",
+  "paramNames": ["head_arr", "k"],
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 3, 4, 5],
+        2
+      ],
+      "expected": [4, 5, 1, 2, 3],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0, 1, 2],
+        4
+      ],
+      "expected": [2, 0, 1],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [],
+        0
+      ],
+      "expected": [],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1],
+        99
+      ],
+      "expected": [1],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2],
+        0
+      ],
+      "expected": [1, 2],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3],
+        3
+      ],
+      "expected": [1, 2, 3],
+      "isHidden": true
+    }
+  ]
+}

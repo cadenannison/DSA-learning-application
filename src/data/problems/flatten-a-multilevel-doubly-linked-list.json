@@ -1,0 +1,85 @@
+{
+  "id": "flatten-a-multilevel-doubly-linked-list",
+  "title": "Flatten a Multilevel Doubly Linked List",
+  "pattern": "linked-list",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Google"
+  ],
+  "prompt": "You are given a doubly linked list, in which each node also has a `child` pointer that may point to a separate doubly linked list (which may itself contain nodes with their own children, nested arbitrarily deep). Flatten the list so that all nodes appear in a single-level, doubly linked list: whenever a node with a child is encountered, that child list should be spliced in directly after the node and before whatever originally followed it, and all `child` pointers should be set to `null` in the final result.\n\nSince a JSON test case can't express nested pointer structures directly, the input is encoded as `[vals, children]`, two parallel arrays over the SAME set of nodes, indexed by each node's position in the flattened depth-first order (which is exactly the correct final answer). `vals[i]` is that node's value. `children[i]` is either `null` (no child) or itself a `[vals, children]` pair describing that node's nested child list (which can recurse arbitrarily deep the same way). Your function reconstructs the true multilevel doubly linked structure from this nested encoding, flattens it in place by splicing child lists where they belong, and returns the final flat array of values.",
+  "examples": [
+    {
+      "input": "vals = [1,2,3], children = [null, [[4,5],[null,null]], null]",
+      "output": "[1,2,4,5,3]",
+      "explanation": "Node 2 has a child list 4 -> 5, which gets spliced in between node 2 and node 3."
+    },
+    {
+      "input": "vals = [1,2,3], children = [null, null, null]",
+      "output": "[1,2,3]",
+      "explanation": "No nodes have children, so the list is already flat."
+    }
+  ],
+  "constraints": [
+    "The number of nodes across all levels combined is in the range [0, 1000]",
+    "1 <= Node.val <= 10^5",
+    "children entries correctly describe a valid nested structure"
+  ],
+  "hints": [
+    "Think recursively or with an explicit stack: whenever you encounter a node with a non-null child, that entire child sub-list (and any of ITS children) needs to be fully flattened before you continue with the node's original next.",
+    "An iterative approach: use a stack. Whenever the current node has a child, push its original 'next' onto the stack (to resume later), then descend into the child immediately by relinking current.next to the child's head. Set child to null.",
+    "Whenever current.next becomes null, and the stack isn't empty, pop the next node to resume from the stack — that's how the traversal returns to an outer level after fully consuming a nested branch."
+  ],
+  "solution": {
+    "approach": "Recursively rebuild the true multilevel structure from the nested (vals, children) encoding: each level becomes a real doubly linked list, and any node with a non-null children entry gets its child pointer set to the recursively-built sub-list. Then flatten iteratively with an explicit stack: walk the main chain with `curr`; whenever curr has a child, push curr.next (to resume later, or nothing if curr.next is None) onto the stack, splice curr.next to the child's head, fix up prev, and clear curr.child. Whenever curr.next becomes null and the stack is non-empty, pop the next node to resume there. This depth-first splices every nested level directly into the main chain in the correct order.",
+    "code": "class Node:\n    def __init__(self, val, prev=None, next=None, child=None):\n        self.val = val\n        self.prev = prev\n        self.next = next\n        self.child = child\n\n\ndef build_multilevel(vals, children):\n    if not vals:\n        return None\n\n    nodes = [Node(v) for v in vals]\n    for i in range(len(nodes) - 1):\n        nodes[i].next = nodes[i + 1]\n        nodes[i + 1].prev = nodes[i]\n\n    for i, child_encoding in enumerate(children):\n        if child_encoding is not None:\n            child_vals, child_children = child_encoding\n            nodes[i].child = build_multilevel(child_vals, child_children)\n\n    return nodes[0]\n\n\ndef flatten(head):\n    curr = head\n    stack = []\n    while curr:\n        if curr.child:\n            if curr.next:\n                stack.append(curr.next)\n            curr.next = curr.child\n            curr.next.prev = curr\n            curr.child = None\n        elif not curr.next and stack:\n            nxt = stack.pop()\n            curr.next = nxt\n            nxt.prev = curr\n        curr = curr.next\n    return head\n\n\ndef flatten_multilevel_list(vals, children):\n    head = build_multilevel(vals, children)\n    flat_head = flatten(head)\n    result = []\n    node = flat_head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(d) for the stack, where d is the maximum nesting depth"
+  },
+  "starterCode": "class Node:\n    def __init__(self, val, prev=None, next=None, child=None):\n        self.val = val\n        self.prev = prev\n        self.next = next\n        self.child = child\n\n\ndef build_multilevel(vals, children):\n    if not vals:\n        return None\n\n    nodes = [Node(v) for v in vals]\n    for i in range(len(nodes) - 1):\n        nodes[i].next = nodes[i + 1]\n        nodes[i + 1].prev = nodes[i]\n\n    for i, child_encoding in enumerate(children):\n        if child_encoding is not None:\n            child_vals, child_children = child_encoding\n            nodes[i].child = build_multilevel(child_vals, child_children)\n\n    return nodes[0]\n\n\ndef flatten_multilevel_list(vals, children):\n    head = build_multilevel(vals, children)\n    # your code here — flatten `head` in place, then walk it and return the list of values\n    pass\n",
+  "functionName": "flatten_multilevel_list",
+  "paramNames": ["vals", "children"],
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 3],
+        [null, [[4, 5], [null, null]], null]
+      ],
+      "expected": [1, 2, 4, 5, 3],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3],
+        [null, null, null]
+      ],
+      "expected": [1, 2, 3],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [],
+        []
+      ],
+      "expected": [],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1],
+        [null]
+      ],
+      "expected": [1],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2],
+        [[[3], [[[9], [null]]]], null]
+      ],
+      "expected": [1, 3, 9, 2],
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "id": "maximum-gap",
+  "title": "Maximum Gap",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "hard",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Meta"
+  ],
+  "prompt": "Given an integer array `nums`, return the maximum difference between two successive elements in its sorted form. If the array contains fewer than two elements, return `0`. You must write an algorithm that runs in linear time and uses linear extra space.",
+  "examples": [
+    {
+      "input": "nums = [3,6,9,1]",
+      "output": "3",
+      "explanation": "The sorted form is [1,3,6,9], and the maximum gap between successive elements is 3 (either 3-... or 6-3 or 9-6, the max being 3)."
+    },
+    {
+      "input": "nums = [10]",
+      "output": "0"
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 10^5",
+    "0 <= nums[i] <= 10^9"
+  ],
+  "hints": [
+    "Sorting first and scanning for the max adjacent gap is trivially correct but costs O(n log n) — the linear-time requirement rules out comparison sorts.",
+    "Use a pigeonhole argument: if you distribute n numbers across buckets sized just under (max-min)/(n-1), the maximum gap can never occur between two numbers in the SAME bucket — it must occur between buckets.",
+    "Bucket sort by value range: for each non-empty bucket, only its min and max matter. The answer is the maximum, over all adjacent non-empty buckets, of (this bucket's min - previous non-empty bucket's max)."
+  ],
+  "solution": {
+    "approach": "Use a pigeonhole-based bucket sort. With n numbers spanning [min, max], divide the range into n-1 buckets each of size roughly (max-min)/(n-1); by pigeonhole, at least one bucket must be empty, which guarantees the true maximum gap never occurs between two numbers placed in the same bucket (since a full bucket's span is smaller than the required per-bucket size). For each bucket, only its minimum and maximum values are needed. Scanning through buckets left to right and tracking a running previous-bucket-max, the answer is the largest difference between the current bucket's min and the last non-empty bucket's max. This avoids ever fully sorting the array, achieving O(n) time and O(n) space.",
+    "code": "def maximum_gap(nums):\n    n = len(nums)\n    if n < 2:\n        return 0\n\n    lo, hi = min(nums), max(nums)\n    if lo == hi:\n        return 0\n\n    bucket_size = max(1, (hi - lo) // (n - 1))\n    bucket_count = (hi - lo) // bucket_size + 1\n    bucket_min = [None] * bucket_count\n    bucket_max = [None] * bucket_count\n\n    for num in nums:\n        idx = (num - lo) // bucket_size\n        if bucket_min[idx] is None or num < bucket_min[idx]:\n            bucket_min[idx] = num\n        if bucket_max[idx] is None or num > bucket_max[idx]:\n            bucket_max[idx] = num\n\n    result = 0\n    prev_max = lo\n    for i in range(bucket_count):\n        if bucket_min[i] is None:\n            continue\n        result = max(result, bucket_min[i] - prev_max)\n        prev_max = bucket_max[i]\n\n    return result\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def maximum_gap(nums):\n    # your code here\n    pass\n",
+  "functionName": "maximum_gap",
+  "paramNames": ["nums"],
+  "testCases": [
+    {
+      "input": [
+        [3, 6, 9, 1]
+      ],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [10]
+      ],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 1, 1, 1]
+      ],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 10000000]
+      ],
+      "expected": 9999999,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 3, 6, 9, 12]
+      ],
+      "expected": 3,
+      "isHidden": true
+    }
+  ]
+}

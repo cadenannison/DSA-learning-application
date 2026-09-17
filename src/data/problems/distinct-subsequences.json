@@ -1,0 +1,68 @@
+{
+  "id": "distinct-subsequences",
+  "title": "Distinct Subsequences",
+  "pattern": "dynamic-programming",
+  "difficulty": "hard",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Microsoft"
+  ],
+  "prompt": "Given two strings `s` and `t`, return the number of distinct subsequences of `s` which equal `t`. A subsequence is formed by deleting some (possibly zero) characters of `s` without disturbing the relative order of the remaining characters.",
+  "examples": [
+    {
+      "input": "s = \"rabbbit\", t = \"rabbit\"",
+      "output": "3",
+      "explanation": "There are 3 ways to remove one of the three 'b's from \"rabbbit\" to leave \"rabbit\"."
+    },
+    {
+      "input": "s = \"babgbag\", t = \"bag\"",
+      "output": "5"
+    }
+  ],
+  "constraints": [
+    "1 <= s.length, t.length <= 1000",
+    "s and t consist of English letters"
+  ],
+  "hints": [
+    "Think about matching s and t from the end: for the last character of t, you either use the last character of s to match it (if they're equal) or you skip the last character of s entirely.",
+    "Define dp[i][j] as the number of ways s[0:i] forms t[0:j] as a subsequence. dp[i][0] = 1 for all i (the empty target is always achieved exactly once, by deleting everything).",
+    "If s[i-1] == t[j-1], dp[i][j] = dp[i-1][j-1] (use this character to match) + dp[i-1][j] (skip it, hoping earlier characters of s still form t[0:j]). If they differ, only the skip option applies: dp[i][j] = dp[i-1][j]."
+  ],
+  "solution": {
+    "approach": "Define dp[i][j] as the number of distinct subsequences of s[0:i] equal to t[0:j]. Base case dp[i][0] = 1 for every i, since deleting all of s[0:i] always produces the empty string exactly one way. When s[i-1] == t[j-1], there are two ways to extend a match: use s[i-1] to match t[j-1] (contributing dp[i-1][j-1] ways to match the rest) or skip s[i-1] entirely and still try to match all of t[0:j] using only s[0:i-1] (contributing dp[i-1][j] ways) — these are added since both are valid distinct subsequence choices. When the characters differ, s[i-1] cannot contribute to matching t[j-1], so the only option is to skip it: dp[i][j] = dp[i-1][j]. The answer is dp[len(s)][len(t)].",
+    "code": "def num_distinct(s, t):\n    m, n = len(s), len(t)\n    dp = [[0] * (n + 1) for _ in range(m + 1)]\n    for i in range(m + 1):\n        dp[i][0] = 1\n\n    for i in range(1, m + 1):\n        for j in range(1, n + 1):\n            dp[i][j] = dp[i - 1][j]\n            if s[i - 1] == t[j - 1]:\n                dp[i][j] += dp[i - 1][j - 1]\n\n    return dp[m][n]\n",
+    "timeComplexity": "O(m * n)",
+    "spaceComplexity": "O(m * n)"
+  },
+  "starterCode": "def num_distinct(s, t):\n    # your code here\n    pass\n",
+  "functionName": "num_distinct",
+  "paramNames": ["s", "t"],
+  "testCases": [
+    {
+      "input": ["rabbbit", "rabbit"],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": ["babgbag", "bag"],
+      "expected": 5,
+      "isHidden": false
+    },
+    {
+      "input": ["a", "a"],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": ["a", "b"],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": ["abc", ""],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

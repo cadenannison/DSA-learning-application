@@ -1,0 +1,78 @@
+{
+  "id": "find-the-town-judge",
+  "title": "Find the Town Judge",
+  "pattern": "graphs",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Bloomberg"
+  ],
+  "prompt": "In a town of `n` people labeled `1` to `n`, there might exist a town judge. You are given an array `trust` where `trust[i] = [a, b]` means person `a` trusts person `b`. The town judge, if it exists, is the one person who trusts nobody, but is trusted by every other person in town.\n\nReturn the label of the town judge if such a person exists and can be identified, or `-1` otherwise.",
+  "examples": [
+    {
+      "input": "n = 2, trust = [[1,2]]",
+      "output": "2",
+      "explanation": "Person 1 trusts person 2, and person 2 trusts nobody, so person 2 is the judge."
+    },
+    {
+      "input": "n = 3, trust = [[1,3],[2,3],[3,1]]",
+      "output": "-1",
+      "explanation": "Person 3 trusts person 1, so person 3 cannot be the judge, and no one else qualifies either."
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 1000",
+    "0 <= trust.length <= 10^4",
+    "trust[i].length == 2",
+    "All the pairs of trust are unique",
+    "ai != bi",
+    "1 <= ai, bi <= n"
+  ],
+  "hints": [
+    "Checking every candidate against every trust pair directly would be O(n * trust.length) — think about what property a 'trusts everyone else, trusted by no one' node has in terms of edges.",
+    "Model this as a directed graph: an edge a -> b means a trusts b. Track each person's out-degree (how many people they trust) and in-degree (how many people trust them).",
+    "The judge, if one exists, is the unique person with out-degree exactly 0 and in-degree exactly n - 1. Compute both degree arrays in a single pass over trust."
+  ],
+  "solution": {
+    "approach": "Treat trust pairs as directed edges and maintain a single net score per person: increment the score of the trusted person and decrement the score of the truster. A person who trusts no one and is trusted by everyone else ends up with a net score of exactly n - 1, and no one else can reach that value (trusting even one person costs you at least one point). Scan the score array for a person whose score equals n - 1.",
+    "code": "def find_judge(n, trust):\n    score = [0] * (n + 1)\n    for a, b in trust:\n        score[a] -= 1\n        score[b] += 1\n\n    for person in range(1, n + 1):\n        if score[person] == n - 1:\n            return person\n    return -1\n",
+    "timeComplexity": "O(n + trust.length)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def find_judge(n, trust):\n    # your code here\n    pass\n",
+  "functionName": "find_judge",
+  "paramNames": ["n", "trust"],
+  "testCases": [
+    {
+      "input": [2, [[1, 2]]],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [3, [[1, 3], [2, 3], [3, 1]]],
+      "expected": -1,
+      "isHidden": false
+    },
+    {
+      "input": [3, [[1, 3], [2, 3]]],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [1, []],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [4, [[1, 3], [1, 4], [2, 3], [2, 4], [4, 3]]],
+      "expected": 3,
+      "isHidden": true
+    },
+    {
+      "input": [3, [[1, 2], [2, 3], [3, 1]]],
+      "expected": -1,
+      "isHidden": true
+    }
+  ]
+}

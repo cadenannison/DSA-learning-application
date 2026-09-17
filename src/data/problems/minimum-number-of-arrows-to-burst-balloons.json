@@ -1,0 +1,81 @@
+{
+  "id": "minimum-number-of-arrows-to-burst-balloons",
+  "title": "Minimum Number of Arrows to Burst Balloons",
+  "pattern": "intervals",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Meta",
+    "Microsoft"
+  ],
+  "prompt": "There are spherical balloons taped onto a flat wall. Each balloon is represented as a 2D integer array `points` where `points[i] = [x_start, x_end]` denotes a balloon whose horizontal diameter stretches from `x_start` to `x_end` inclusive. An arrow can be shot straight up (vertically) from any horizontal position, and a balloon bursts if the arrow's x-position is within `[x_start, x_end]`. An arrow can burst any number of balloons it passes through, and there is no limit to how far an arrow can travel. Return the minimum number of arrows needed to burst all balloons.",
+  "examples": [
+    {
+      "input": "points = [[10,16],[2,8],[1,6],[7,12]]",
+      "output": "2",
+      "explanation": "One arrow at x=6 bursts [2,8] and [1,6]. Another arrow at x=11 bursts [10,16] and [7,12]."
+    },
+    {
+      "input": "points = [[1,2],[3,4],[5,6],[7,8]]",
+      "output": "4",
+      "explanation": "None of the balloons overlap, so each needs its own arrow."
+    },
+    {
+      "input": "points = [[1,2],[2,3],[3,4],[4,5]]",
+      "output": "2",
+      "explanation": "One arrow at x=2 bursts [1,2] and [2,3]. Another at x=4 bursts [3,4] and [4,5]."
+    }
+  ],
+  "constraints": [
+    "1 <= points.length <= 10^5",
+    "points[i].length == 2",
+    "-2^31 <= x_start < x_end <= 2^31 - 1"
+  ],
+  "hints": [
+    "This looks similar to interval merging, but here you want to count groups of overlapping intervals rather than merge them.",
+    "Sort the balloons by their end coordinate — greedily shooting an arrow at the smallest possible end point maximizes how many other balloons it can also burst.",
+    "Keep track of the current arrow's position (the end of the first balloon in a new group). Any balloon whose start is <= that position is burst by the same arrow; the first balloon whose start exceeds it needs a new arrow, whose position becomes that balloon's end."
+  ],
+  "solution": {
+    "approach": "Sort balloons by their end coordinate. Greedily place the first arrow at the end of the first balloon. Any subsequent balloon whose start is <= the current arrow position is already burst. The first balloon that starts after the current arrow position needs a new arrow, placed at that balloon's end. This greedy is optimal because placing the arrow as early as possible (at the smallest end in the group) never hurts — it can only burst equally many or more of the remaining balloons than any later placement would.",
+    "code": "def find_min_arrow_shots(points):\n    if not points:\n        return 0\n\n    sorted_points = sorted(points, key=lambda p: p[1])\n    arrows = 1\n    arrow_pos = sorted_points[0][1]\n\n    for start, end in sorted_points[1:]:\n        if start > arrow_pos:\n            arrows += 1\n            arrow_pos = end\n\n    return arrows\n",
+    "timeComplexity": "O(n log n)",
+    "spaceComplexity": "O(n) for the sorted copy"
+  },
+  "starterCode": "def find_min_arrow_shots(points):\n    # your code here\n    pass\n",
+  "functionName": "find_min_arrow_shots",
+  "paramNames": ["points"],
+  "testCases": [
+    {
+      "input": [[[10, 16], [2, 8], [1, 6], [7, 12]]],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [[[1, 2], [3, 4], [5, 6], [7, 8]]],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [[[1, 2], [2, 3], [3, 4], [4, 5]]],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [[[1, 2]]],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [[[-2147483646, -2147483645], [2147483646, 2147483647]]],
+      "expected": 2,
+      "isHidden": true
+    },
+    {
+      "input": [[[1, 10], [2, 9], [3, 8], [4, 7]]],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

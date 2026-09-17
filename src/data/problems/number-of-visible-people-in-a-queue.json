@@ -1,0 +1,69 @@
+{
+  "id": "number-of-visible-people-in-a-queue",
+  "title": "Number of Visible People in a Queue",
+  "pattern": "stacks-queues",
+  "difficulty": "hard",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "There are `n` people standing in a queue, given by an array `heights` of distinct integers where `heights[i]` is the height of the `i`-th person, ordered front-to-back is actually back-to-front here: `heights[i]` represents the `i`-th person from left to right, and person `i` can see person `j` (with `j > i`) if everyone between them (exclusive) is shorter than both `heights[i]` and `heights[j]`. Note that person `i` can see person `j` even if a taller person is beyond `j`, as long as nobody between `i` and `j` blocks the view, and the first person taller than or equal to `heights[i]` blocks any further view beyond them.\n\nReturn an array `answer` where `answer[i]` is the number of people the `i`-th person can see to their right.",
+  "examples": [
+    {
+      "input": "heights = [10,6,8,5,11,9]",
+      "output": "[3,1,2,1,1,0]",
+      "explanation": "Person 0 (10) sees person 1 (6, shorter, visible), person 2 (8, shorter, visible), and person 4 (11, taller, visible and blocks further view) = 3. Person 5 (9) is last, sees 0."
+    },
+    {
+      "input": "heights = [5,1,2,3,10]",
+      "output": "[4,1,1,1,0]"
+    }
+  ],
+  "constraints": [
+    "n == heights.length",
+    "1 <= n <= 10^5",
+    "1 <= heights[i] <= 10^5",
+    "All the values of heights are unique"
+  ],
+  "hints": [
+    "Process people from right to left, since whether person i can see someone depends only on people to their right.",
+    "Maintain a monotonic decreasing stack (from bottom to top, heights decrease) of people who are still potentially visible to whoever is next added on the left.",
+    "For the current person, count and pop everyone on the stack shorter than them (all visible, since they're progressively taller than everything below until you exceed the current person), then if the stack isn't empty after that, the current person can also see that one taller-or-equal person (add 1) before pushing themselves."
+  ],
+  "solution": {
+    "approach": "Process people from right to left with a monotonic decreasing stack representing candidates still visible to someone further left. For the current person, pop everyone on the stack shorter than them, counting each pop as visible (since walking outward from the current person, each popped person is progressively taller than everyone below it up to that point, so all are visible until a blocker is reached). If, after popping, the stack still has someone left, that person is taller than or equal to the current person and blocks further view, but is still visible (add 1 to the count). Push the current person's height. Each person is pushed and popped at most once, giving O(n) total.",
+    "code": "def can_see_persons_count(heights):\n    n = len(heights)\n    answer = [0] * n\n    stack = []\n\n    for i in range(n - 1, -1, -1):\n        count = 0\n        while stack and stack[-1] < heights[i]:\n            stack.pop()\n            count += 1\n        if stack:\n            count += 1\n        answer[i] = count\n        stack.append(heights[i])\n\n    return answer\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def can_see_persons_count(heights):\n    # your code here\n    pass\n",
+  "functionName": "can_see_persons_count",
+  "paramNames": ["heights"],
+  "testCases": [
+    {
+      "input": [[10, 6, 8, 5, 11, 9]],
+      "expected": [3, 1, 2, 1, 1, 0],
+      "isHidden": false
+    },
+    {
+      "input": [[5, 1, 2, 3, 10]],
+      "expected": [4, 1, 1, 1, 0],
+      "isHidden": false
+    },
+    {
+      "input": [[1]],
+      "expected": [0],
+      "isHidden": true
+    },
+    {
+      "input": [[1, 2, 3, 4, 5]],
+      "expected": [1, 1, 1, 1, 0],
+      "isHidden": true
+    },
+    {
+      "input": [[5, 4, 3, 2, 1]],
+      "expected": [1, 1, 1, 1, 0],
+      "isHidden": true
+    }
+  ]
+}

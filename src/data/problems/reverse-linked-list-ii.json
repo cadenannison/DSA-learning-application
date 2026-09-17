@@ -1,0 +1,89 @@
+{
+  "id": "reverse-linked-list-ii",
+  "title": "Reverse Linked List II",
+  "pattern": "linked-list",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Facebook"
+  ],
+  "prompt": "Given the `head` of a singly linked list and two integers `left` and `right` (1-indexed), reverse the nodes of the list from position `left` to position `right`, and return the resulting list. Try to do it in a single pass.\n\nThe list is given as an array (e.g. `[1,2,3,4,5]` represents `1 -> 2 -> 3 -> 4 -> 5 -> null`). The starter code includes helpers to convert between the array and a linked-list node — build the actual list, reverse the specified sublist by manipulating `next` pointers, then convert back to an array to return.",
+  "examples": [
+    {
+      "input": "head = [1,2,3,4,5], left = 2, right = 4",
+      "output": "[1,4,3,2,5]"
+    },
+    {
+      "input": "head = [5], left = 1, right = 1",
+      "output": "[5]"
+    }
+  ],
+  "constraints": [
+    "The number of nodes is n",
+    "1 <= n <= 500",
+    "-500 <= Node.val <= 500",
+    "1 <= left <= right <= n"
+  ],
+  "hints": [
+    "Use a dummy node before head so that a reversal starting exactly at the head doesn't need special-casing.",
+    "Walk to the node just before position `left` — call it `prev` — since that node's next pointer will need to point at the new front of the reversed section once you're done.",
+    "From `prev`, repeatedly take the node right after prev (always prev.next) and move it to the front of the sublist being reversed; doing this (right - left) times reverses the whole section in place in one pass."
+  ],
+  "solution": {
+    "approach": "Use a dummy node before head, and walk `prev` to the node immediately before position `left`. Then use the standard 'insertion at front' in-place reversal: repeatedly detach the node right after prev (which, after each iteration, is the next node still in its original position) and re-insert it right after prev, effectively pushing each subsequent node to the front of the reversed section one at a time. Doing this (right - left) times fully reverses the sublist in a single pass without needing extra space or a second traversal.",
+    "code": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for v in arr:\n        node = ListNode(v)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef reverse_between(head_arr, left, right):\n    head = arr_to_list(head_arr)\n    dummy = ListNode(0, head)\n    prev = dummy\n    for _ in range(left - 1):\n        prev = prev.next\n\n    curr = prev.next\n    for _ in range(right - left):\n        moved = curr.next\n        curr.next = moved.next\n        moved.next = prev.next\n        prev.next = moved\n\n    return list_to_arr(dummy.next)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1) auxiliary (excluding the returned list)"
+  },
+  "starterCode": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for v in arr:\n        node = ListNode(v)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef reverse_between(head_arr, left, right):\n    head = arr_to_list(head_arr)\n    # your code here\n    pass\n",
+  "functionName": "reverse_between",
+  "paramNames": ["head_arr", "left", "right"],
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 3, 4, 5],
+        2,
+        4
+      ],
+      "expected": [1, 4, 3, 2, 5],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [5],
+        1,
+        1
+      ],
+      "expected": [5],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3, 4, 5],
+        1,
+        5
+      ],
+      "expected": [5, 4, 3, 2, 1],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3],
+        1,
+        2
+      ],
+      "expected": [2, 1, 3],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3, 4],
+        3,
+        4
+      ],
+      "expected": [1, 2, 4, 3],
+      "isHidden": true
+    }
+  ]
+}

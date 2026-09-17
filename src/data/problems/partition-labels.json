@@ -1,0 +1,68 @@
+{
+  "id": "partition-labels",
+  "title": "Partition Labels",
+  "pattern": "greedy",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Meta"
+  ],
+  "prompt": "You are given a string `s`. Partition `s` into as many parts as possible so that each letter appears in at most one part, and return a list of the lengths of these parts. The partition must cover the whole string, and each part must be a contiguous substring.",
+  "examples": [
+    {
+      "input": "s = \"ababcbacadefegdehijhklij\"",
+      "output": "[9,7,8]",
+      "explanation": "The partition is \"ababcbaca\", \"defegde\", \"hijhklij\". Each letter appears in only one part."
+    },
+    {
+      "input": "s = \"eccbbbbdec\"",
+      "output": "[10]"
+    }
+  ],
+  "constraints": [
+    "1 <= s.length <= 500",
+    "s consists of lowercase English letters"
+  ],
+  "hints": [
+    "For each character, you need to know how far its influence extends — precompute the last index at which each letter appears.",
+    "Scan left to right while tracking the furthest 'end' any character seen so far requires, similar to merging intervals.",
+    "When the current index reaches the tracked end, that marks the boundary of a valid partition, since no character in the current part appears again later. Record the partition length and start a new one."
+  ],
+  "solution": {
+    "approach": "Precompute the last occurrence index of every character in s. Scan through s while tracking 'end', the furthest last-occurrence index among all characters seen since the current partition started. Whenever the current index reaches this end, it means every character seen so far in this partition doesn't reappear beyond this point, so it's safe to close the partition here; record its length and start a new partition from the next index. This greedy expansion always produces the maximum number of parts because closing a partition as early as this invariant allows can never block a valid closure that a later split might have needed.",
+    "code": "def partition_labels(s):\n    last_occurrence = {char: i for i, char in enumerate(s)}\n    result = []\n    start = 0\n    end = 0\n    for i, char in enumerate(s):\n        end = max(end, last_occurrence[char])\n        if i == end:\n            result.append(end - start + 1)\n            start = i + 1\n    return result\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1) (bounded by 26 letters, excluding output)"
+  },
+  "starterCode": "def partition_labels(s):\n    # your code here\n    pass\n",
+  "functionName": "partition_labels",
+  "paramNames": ["s"],
+  "testCases": [
+    {
+      "input": ["ababcbacadefegdehijhklij"],
+      "expected": [9, 7, 8],
+      "isHidden": false
+    },
+    {
+      "input": ["eccbbbbdec"],
+      "expected": [10],
+      "isHidden": false
+    },
+    {
+      "input": ["a"],
+      "expected": [1],
+      "isHidden": true
+    },
+    {
+      "input": ["abcabc"],
+      "expected": [6],
+      "isHidden": true
+    },
+    {
+      "input": ["abcdef"],
+      "expected": [1, 1, 1, 1, 1, 1],
+      "isHidden": true
+    }
+  ]
+}

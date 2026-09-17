@@ -1,0 +1,73 @@
+{
+  "id": "single-number",
+  "title": "Single Number",
+  "pattern": "greedy",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Apple",
+    "Airbnb"
+  ],
+  "prompt": "Given a non-empty array of integers `nums`, every element appears exactly twice except for one element which appears only once. Find that single element. Your algorithm should run in linear time and use only constant extra space.",
+  "examples": [
+    {
+      "input": "nums = [2,2,1]",
+      "output": "1"
+    },
+    {
+      "input": "nums = [4,1,2,1,2]",
+      "output": "4"
+    },
+    {
+      "input": "nums = [1]",
+      "output": "1"
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 3 * 10^4",
+    "-3 * 10^4 <= nums[i] <= 3 * 10^4",
+    "Each element appears twice except for one element which appears once"
+  ],
+  "hints": [
+    "A hash set could track seen numbers, but that costs O(n) space — the problem asks for O(1) space.",
+    "Think about a bitwise operation that cancels out a value when applied to itself twice.",
+    "XOR is commutative and associative, and x XOR x = 0. XOR every number together — all the pairs cancel out, leaving only the single number."
+  ],
+  "solution": {
+    "approach": "XOR every number in the array together. Because XOR is commutative and associative, the order doesn't matter, and any value XORed with itself is 0. Every number that appears exactly twice cancels itself out, leaving only the number that appears once as the final accumulated result.",
+    "code": "def single_number(nums):\n    result = 0\n    for num in nums:\n        result ^= num\n    return result\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def single_number(nums):\n    # your code here\n    pass\n",
+  "functionName": "single_number",
+  "paramNames": ["nums"],
+  "testCases": [
+    {
+      "input": [[2, 2, 1]],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [[4, 1, 2, 1, 2]],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [[1]],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [[-1, -1, -2]],
+      "expected": -2,
+      "isHidden": true
+    },
+    {
+      "input": [[0, 1, 0]],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

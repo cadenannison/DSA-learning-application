@@ -1,0 +1,79 @@
+{
+  "id": "house-robber-iii",
+  "title": "House Robber III",
+  "pattern": "trees",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Microsoft"
+  ],
+  "prompt": "The houses in a neighborhood form a binary tree; each node's value is the amount of money stashed in that house. A thief wants to rob houses, but cannot rob two directly connected houses (a node and its direct parent or child) on the same night, or the alarm system alerts the police.\n\nGiven the `root` of this binary tree, return the maximum amount of money the thief can rob without alerting the police. The tree is given as a level-order array where `null` marks a missing child (the standard LeetCode serialization). Your function receives this array directly; the starter code includes a helper that builds the tree from it, so you only need to compute the maximum amount.",
+  "examples": [
+    {
+      "input": "root = [3,2,3,null,3,null,1]",
+      "output": "7",
+      "explanation": "Rob houses 3 (root), 3, and 1 for a total of 3+3+1=7; robbing the root's direct children (2 and 3) instead only gives 2+3=5."
+    },
+    {
+      "input": "root = [3,4,5,1,3,null,1]",
+      "output": "9",
+      "explanation": "Rob the two houses valued 4 and 5 (skipping the root) for 4+5=9, which beats other combinations."
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [1, 10^4]",
+    "0 <= Node.val <= 10^4"
+  ],
+  "hints": [
+    "For every node, you eventually need two numbers: the best result if this node IS robbed, and the best result if it is NOT robbed.",
+    "If a node is robbed, neither of its direct children can be robbed, so the total is node.val plus the 'not robbed' result from both children.",
+    "If a node is NOT robbed, each child is free to be robbed or not — take whichever is larger for each child independently, then sum those best results."
+  ],
+  "solution": {
+    "approach": "Do a post-order DFS where each call returns a pair (rob_this, not_rob_this): the best total achievable in that subtree if the current node is robbed, versus if it isn't. If robbed, the current node's value is added to both children's 'not robbed' totals (since robbing it forbids robbing its direct children). If not robbed, each child can independently choose whichever of its own two options is larger. The final answer is the max of the root's two options.",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef rob(root_arr):\n    root = build_tree(root_arr)\n\n    def dfs(node):\n        if node is None:\n            return (0, 0)\n        left_rob, left_not = dfs(node.left)\n        right_rob, right_not = dfs(node.right)\n        rob_this = node.val + left_not + right_not\n        not_rob_this = max(left_rob, left_not) + max(right_rob, right_not)\n        return (rob_this, not_rob_this)\n\n    rob_root, not_rob_root = dfs(root)\n    return max(rob_root, not_rob_root)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(h), h = tree height"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef rob(root_arr):\n    root = build_tree(root_arr)\n    # your code here\n    pass\n",
+  "functionName": "rob",
+  "paramNames": ["root_arr"],
+  "testCases": [
+    {
+      "input": [
+        [3, 2, 3, null, 3, null, 1]
+      ],
+      "expected": 7,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [3, 4, 5, 1, 3, null, 1]
+      ],
+      "expected": 9,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [4, 1, null, 2, null, 3]
+      ],
+      "expected": 7,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [2, 1, 3, null, 4]
+      ],
+      "expected": 7,
+      "isHidden": true
+    }
+  ]
+}

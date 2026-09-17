@@ -1,0 +1,86 @@
+{
+  "id": "delete-node-in-a-linked-list",
+  "title": "Delete Node in a Linked List",
+  "pattern": "linked-list",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Apple",
+    "Adobe"
+  ],
+  "prompt": "You are given a node (not the head, and not the tail) of a singly linked list, with no access to the head of the list. Delete that node from the list by only modifying the given node itself, so that the list, when read from the head, no longer contains its original value.\n\nSince the harness can only pass plain data, the list is encoded as `[values, index]`: `values` is the array of node values in order, and `index` is the position of the node you are given (guaranteed not the last node). Your function should build the real list, locate the node at `index`, delete it using only that node reference (never touching earlier nodes), then return the entire list (from the true head) as an array.",
+  "examples": [
+    {
+      "input": "values = [4,5,1,9], index = 1",
+      "output": "[4,1,9]",
+      "explanation": "The node with value 5 is given; after deletion the list reads 4 -> 1 -> 9."
+    },
+    {
+      "input": "values = [4,5,1,9], index = 2",
+      "output": "[4,5,9]",
+      "explanation": "The node with value 1 is given; after deletion the list reads 4 -> 5 -> 9."
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [2, 1000]",
+    "-1000 <= Node.val <= 1000",
+    "The given node is not the tail node (index is not the last position)",
+    "All node values are distinct"
+  ],
+  "hints": [
+    "You can't relink the previous node's `next` pointer since you don't have a reference to it — think about what you CAN change.",
+    "You do have access to the given node's own val and next pointer.",
+    "Copy the value from the next node into the given node, then skip over the next node entirely — effectively the given node 'becomes' its successor."
+  ],
+  "solution": {
+    "approach": "Since there's no reference to the previous node, deletion can't be done the usual way. Instead, overwrite the given node's value with its successor's value, then point its next to the successor's next, effectively skipping the successor. The given node now looks exactly like what its next node used to be, and the true successor is removed from the chain, achieving the same end result as deleting the given node.",
+    "code": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for v in arr:\n        node = ListNode(v)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef delete_node(values, index):\n    head = arr_to_list(values)\n    node = head\n    for _ in range(index):\n        node = node.next\n\n    node.val = node.next.val\n    node.next = node.next.next\n\n    return list_to_arr(head)\n",
+    "timeComplexity": "O(1) for the deletion logic itself (locating the node for the test harness is O(index))",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for v in arr:\n        node = ListNode(v)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef delete_node(values, index):\n    head = arr_to_list(values)\n    node = head\n    for _ in range(index):\n        node = node.next\n    # your code here (delete `node` using only its own val/next)\n    pass\n",
+  "functionName": "delete_node",
+  "paramNames": ["values", "index"],
+  "testCases": [
+    {
+      "input": [
+        [4, 5, 1, 9],
+        1
+      ],
+      "expected": [4, 1, 9],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [4, 5, 1, 9],
+        2
+      ],
+      "expected": [4, 5, 9],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2],
+        0
+      ],
+      "expected": [2],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [-1, 0, 5, 3],
+        0
+      ],
+      "expected": [0, 5, 3],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [10, 20, 30, 40, 50],
+        3
+      ],
+      "expected": [10, 20, 30, 50],
+      "isHidden": true
+    }
+  ]
+}

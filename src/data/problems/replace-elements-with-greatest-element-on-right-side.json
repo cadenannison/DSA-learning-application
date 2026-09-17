@@ -1,0 +1,76 @@
+{
+  "id": "replace-elements-with-greatest-element-on-right-side",
+  "title": "Replace Elements with Greatest Element on Right Side",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Bloomberg"
+  ],
+  "prompt": "Given an array `arr`, replace every element with the greatest element among the elements to its right, and replace the last element with `-1`. After doing so, return the array.",
+  "examples": [
+    {
+      "input": "arr = [17,18,5,4,6,1]",
+      "output": "[18,6,6,6,1,-1]"
+    },
+    {
+      "input": "arr = [400]",
+      "output": "[-1]"
+    }
+  ],
+  "constraints": [
+    "1 <= arr.length <= 10^4",
+    "1 <= arr[i] <= 10^5"
+  ],
+  "hints": [
+    "Recomputing the max of everything to the right for each index directly is O(n^2). Can you avoid recomputing from scratch each time?",
+    "Walking from the right, you can carry along the best value seen so far.",
+    "Scan right to left, keeping a running max of everything already visited; at each index, save that running max as the answer for this index BEFORE folding the current (pre-replacement) value into the running max."
+  ],
+  "solution": {
+    "approach": "Scan the array from right to left while tracking the maximum value seen so far among elements to the right of the current index. At each position, first record that running max as the replacement for the current element (or -1 for the last position, where the running max starts), then update the running max using the original value at this position before moving further left. Processing in this order ensures each element is always compared against the ORIGINAL values strictly to its right, in a single O(n) pass.",
+    "code": "def replace_elements(arr):\n    n = len(arr)\n    max_right = -1\n\n    for i in range(n - 1, -1, -1):\n        current = arr[i]\n        arr[i] = max_right\n        max_right = max(max_right, current)\n\n    return arr\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1) extra space, excluding output"
+  },
+  "starterCode": "def replace_elements(arr):\n    # your code here\n    pass\n",
+  "functionName": "replace_elements",
+  "paramNames": ["arr"],
+  "testCases": [
+    {
+      "input": [
+        [17, 18, 5, 4, 6, 1]
+      ],
+      "expected": [18, 6, 6, 6, 1, -1],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [400]
+      ],
+      "expected": [-1],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 1, 1]
+      ],
+      "expected": [1, 1, -1],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [5, 4, 3, 2, 1]
+      ],
+      "expected": [4, 3, 2, 1, -1],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3, 4, 5]
+      ],
+      "expected": [5, 5, 5, 5, -1],
+      "isHidden": true
+    }
+  ]
+}

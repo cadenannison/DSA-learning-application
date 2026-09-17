@@ -251,7 +251,7 @@ function TodaysPlanCard({
 
       {entries.length > 0 && (
         <Link
-          href={`/study-plan/${planId}/${entries[0].studyPatternId}/practice`}
+          href={`/study-plan/${planId}`}
           className="mt-auto flex min-h-[40px] w-fit items-center gap-2 rounded-[9px] bg-accent px-4 text-[13.5px] font-semibold text-bg"
         >
           Resume lesson

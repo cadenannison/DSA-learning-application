@@ -35,6 +35,7 @@ import type {
   readinessChecklistOverviewSchema,
   readinessSourceSchema,
   readinessTriStateSchema,
+  recommendedProblemSchema,
   registerRequestSchema,
   resourceTypeSchema,
   roadmapOverviewSchema,
@@ -61,6 +62,7 @@ import type {
   submitStudyProblemRequestSchema,
   submitStudyProblemResponseSchema,
   themePreferenceSchema,
+  todayFocusEntrySchema,
   updateReadinessChecklistItemRequestSchema,
   updateSkillRequestSchema,
   userSchema,
@@ -69,6 +71,7 @@ import type {
 export type Difficulty = z.infer<typeof difficultySchema>
 export type DsaPattern = z.infer<typeof dsaPatternSchema>
 export type Problem = z.infer<typeof problemSchema>
+export type TestCase = Problem["testCases"][number]
 export type StrippedProblem = z.infer<typeof strippedProblemSchema>
 export type ProblemSummary = z.infer<typeof problemSummarySchema>
 export type ProgressStatus = z.infer<typeof progressStatusSchema>
@@ -133,6 +136,8 @@ export type StudyPlanSummary = z.infer<typeof studyPlanSummarySchema>
 export type CreateStudyPlanRequest = z.infer<typeof createStudyPlanRequestSchema>
 export type StudyRecommendation = z.infer<typeof studyRecommendationSchema>
 export type DrillQueueEntry = z.infer<typeof drillQueueEntrySchema>
+export type RecommendedProblem = z.infer<typeof recommendedProblemSchema>
+export type TodayFocusEntry = z.infer<typeof todayFocusEntrySchema>
 export type StudyPlanOverview = z.infer<typeof studyPlanOverviewSchema>
 export type ExtendedLesson = z.infer<typeof extendedLessonSchema>
 export type BugTracingExercise = z.infer<typeof bugTracingExerciseSchema>

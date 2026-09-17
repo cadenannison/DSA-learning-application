@@ -1,0 +1,65 @@
+{
+  "id": "combination-sum-ii",
+  "title": "Combination Sum II",
+  "pattern": "backtracking",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Uber",
+    "Facebook",
+    "Airbnb"
+  ],
+  "prompt": "Given a collection of candidate numbers `candidates` (which may contain duplicates) and a target integer `target`, return all unique combinations of `candidates` where the chosen numbers sum to `target`. Each number in `candidates` may only be used once in a combination.\n\nFor deterministic comparison, sort each inner combination in ascending order, and sort the outer list of combinations lexicographically.",
+  "examples": [
+    {
+      "input": "candidates = [10,1,2,7,6,1,5], target = 8",
+      "output": "[[1,1,6],[1,2,5],[1,7],[2,6]]",
+      "explanation": "Sorting candidates first ([1,1,2,5,6,7,10]) and skipping repeated values at the same recursion depth avoids duplicate combinations even though 1 appears twice in the input."
+    },
+    {
+      "input": "candidates = [2,5,2,1,2], target = 5",
+      "output": "[[1,2,2],[5]]"
+    }
+  ],
+  "constraints": [
+    "1 <= candidates.length <= 100",
+    "1 <= candidates[i] <= 50",
+    "1 <= target <= 30"
+  ],
+  "hints": [
+    "This resembles Combination Sum, but each candidate can only be used once and the input can contain duplicate values — both constraints can create duplicate output combinations if handled naively.",
+    "Sort candidates first. Using an index that always advances past the current position (not just 'start onward, same index allowed') naturally enforces 'use each element once'.",
+    "To avoid duplicate combinations from repeated values, at each recursion level skip a candidate if it equals the previous candidate considered AT THE SAME LEVEL (i.e. i > start and candidates[i] == candidates[i-1]). Prune whenever the sorted candidate exceeds the remaining target, since nothing later in the sorted array can help either."
+  ],
+  "solution": {
+    "approach": "Sort candidates so equal values are adjacent and pruning by size becomes possible. Backtrack with a forward-only start index, advancing to i+1 on each recursive call (not i, since each element is usable only once). At each level, skip candidates[i] if it equals candidates[i-1] and i > start — this means we already explored including this value at this position and are now trying to skip past it, so re-trying an identical value would just regenerate the same combination. Prune the loop entirely once candidates[i] exceeds the remaining target, since the sorted order guarantees nothing further in the loop can work either. Record the path whenever remaining hits exactly 0.",
+    "code": "def combination_sum2(candidates, target):\n    candidates = sorted(candidates)\n    result = []\n    path = []\n\n    def backtrack(start, remaining):\n        if remaining == 0:\n            result.append(path[:])\n            return\n        for i in range(start, len(candidates)):\n            if i > start and candidates[i] == candidates[i - 1]:\n                continue\n            if candidates[i] > remaining:\n                break\n            path.append(candidates[i])\n            backtrack(i + 1, remaining - candidates[i])\n            path.pop()\n\n    backtrack(0, target)\n    result.sort()\n    return result\n",
+    "timeComplexity": "O(2^n) worst case, bounded by the branching of the search tree",
+    "spaceComplexity": "O(n) recursion depth, plus output size"
+  },
+  "starterCode": "def combination_sum2(candidates, target):\n    # your code here\n    pass\n",
+  "functionName": "combination_sum2",
+  "paramNames": ["candidates", "target"],
+  "testCases": [
+    {
+      "input": [[10, 1, 2, 7, 6, 1, 5], 8],
+      "expected": [[1, 1, 6], [1, 2, 5], [1, 7], [2, 6]],
+      "isHidden": false
+    },
+    {
+      "input": [[2, 5, 2, 1, 2], 5],
+      "expected": [[1, 2, 2], [5]],
+      "isHidden": false
+    },
+    {
+      "input": [[1], 2],
+      "expected": [],
+      "isHidden": true
+    },
+    {
+      "input": [[1, 1], 2],
+      "expected": [[1, 1]],
+      "isHidden": true
+    }
+  ]
+}

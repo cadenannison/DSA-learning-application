@@ -1,0 +1,101 @@
+{
+  "id": "design-circular-deque",
+  "title": "Design Circular Deque",
+  "pattern": "stacks-queues",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "Design your implementation of a double-ended queue with a fixed capacity `k`, supporting `insertFront(value)`, `insertLast(value)`, `deleteFront()`, `deleteLast()`, `getFront()` (-1 if empty), `getRear()` (-1 if empty), `isEmpty()`, and `isFull()`.\n\nYou'll implement this as a single function `run_circular_deque_ops(k, ops)`, where `k` is the deque's capacity and `ops` is an array of `[operationName, argument]` pairs (argument is `null` except for `insertFront`/`insertLast`), applied in order to one deque instance. Insert/delete operations push their boolean success result onto the output array; getFront/getRear push the value (or -1); isEmpty/isFull push their boolean. Return the output array, one entry per operation, in call order.",
+  "examples": [
+    {
+      "input": "k = 3, ops = [[\"insertLast\",1],[\"insertLast\",2],[\"insertFront\",3],[\"insertFront\",4],[\"getRear\",null],[\"isFull\",null],[\"deleteLast\",null],[\"insertFront\",4],[\"getFront\",null]]",
+      "output": "[true,true,true,false,2,true,true,true,4]",
+      "explanation": "After inserting 1,2 at the back and 3 at the front, the deque [3,1,2] is full, so insertFront(4) fails. getRear is 2. After deleteLast, there's room to insertFront(4) again, making getFront 4."
+    }
+  ],
+  "constraints": [
+    "1 <= k <= 1000",
+    "0 <= value <= 1000",
+    "At most 3000 calls total across all operations"
+  ],
+  "hints": [
+    "You need O(1) insertion/removal at both ends within a fixed-size buffer \u2014 a plain list with insert(0, x) is O(n).",
+    "Use a fixed-size array with a head index and a count of stored elements, exactly like a circular queue, but allow inserting/removing at both head and tail with modular arithmetic.",
+    "insertFront moves head backward (mod k) before writing; insertLast writes at (head + count) % k; deleteFront moves head forward; deleteLast just decrements count (the slot at the rear naturally becomes unused)."
+  ],
+  "solution": {
+    "approach": "Use a fixed-size array of length k with a head index and a count of currently stored elements, supporting insertion/removal at both ends via modular arithmetic. insertFront decrements head (wrapping with % k) and writes the value there. insertLast writes at (head + count) % k. deleteFront just advances head. deleteLast doesn't need to move anything since the rear slot naturally falls out of range once count decreases. getFront reads data[head]; getRear reads data[(head + count - 1) % k]. All operations are guarded by isFull/isEmpty checks first.",
+    "code": "def run_circular_deque_ops(k, ops):\n    data = [0] * k\n    head = 0\n    count = 0\n    output = []\n\n    for op, arg in ops:\n        if op == 'insertFront':\n            if count == k:\n                output.append(False)\n            else:\n                head = (head - 1) % k\n                data[head] = arg\n                count += 1\n                output.append(True)\n        elif op == 'insertLast':\n            if count == k:\n                output.append(False)\n            else:\n                data[(head + count) % k] = arg\n                count += 1\n                output.append(True)\n        elif op == 'deleteFront':\n            if count == 0:\n                output.append(False)\n            else:\n                head = (head + 1) % k\n                count -= 1\n                output.append(True)\n        elif op == 'deleteLast':\n            if count == 0:\n                output.append(False)\n            else:\n                count -= 1\n                output.append(True)\n        elif op == 'getFront':\n            output.append(data[head] if count > 0 else -1)\n        elif op == 'getRear':\n            output.append(data[(head + count - 1) % k] if count > 0 else -1)\n        elif op == 'isEmpty':\n            output.append(count == 0)\n        elif op == 'isFull':\n            output.append(count == k)\n\n    return output\n",
+    "timeComplexity": "O(1) per operation",
+    "spaceComplexity": "O(k)"
+  },
+  "starterCode": "def run_circular_deque_ops(k, ops):\n    # your code here\n    pass\n",
+  "functionName": "run_circular_deque_ops",
+  "paramNames": ["k", "ops"],
+  "testCases": [
+    {
+      "input": [
+        3,
+        [
+          ["insertLast", 1],
+          ["insertLast", 2],
+          ["insertFront", 3],
+          ["insertFront", 4],
+          ["getRear", null],
+          ["isFull", null],
+          ["deleteLast", null],
+          ["insertFront", 4],
+          ["getFront", null]
+        ]
+      ],
+      "expected": [true, true, true, false, 2, true, true, true, 4],
+      "isHidden": false
+    },
+    {
+      "input": [
+        1,
+        [
+          ["insertFront", 9],
+          ["isFull", null],
+          ["getFront", null],
+          ["getRear", null],
+          ["deleteFront", null],
+          ["isEmpty", null]
+        ]
+      ],
+      "expected": [true, true, 9, 9, true, true],
+      "isHidden": false
+    },
+    {
+      "input": [
+        2,
+        [
+          ["isEmpty", null],
+          ["deleteFront", null],
+          ["deleteLast", null],
+          ["getFront", null]
+        ]
+      ],
+      "expected": [true, false, false, -1],
+      "isHidden": true
+    },
+    {
+      "input": [
+        4,
+        [
+          ["insertLast", 1],
+          ["insertFront", 2],
+          ["insertLast", 3],
+          ["getFront", null],
+          ["getRear", null],
+          ["deleteFront", null],
+          ["getFront", null]
+        ]
+      ],
+      "expected": [true, true, true, 2, 3, true, 1],
+      "isHidden": true
+    }
+  ]
+}

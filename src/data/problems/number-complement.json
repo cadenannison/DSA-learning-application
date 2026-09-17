@@ -1,0 +1,67 @@
+{
+  "id": "number-complement",
+  "title": "Number Complement",
+  "pattern": "greedy",
+  "difficulty": "easy",
+  "companies": [
+    "Facebook",
+    "Adobe"
+  ],
+  "prompt": "For a given positive integer `num`, the complement is formed by flipping every bit in its binary representation (0 to 1 and 1 to 0), considering only the bits used to represent `num` (no extra leading zero bits). Return the complement of `num` as an integer.",
+  "examples": [
+    {
+      "input": "num = 5",
+      "output": "2",
+      "explanation": "5 is 101 in binary. Flipping every bit gives 010, which is 2."
+    },
+    {
+      "input": "num = 1",
+      "output": "0",
+      "explanation": "1 is 1 in binary. Flipping gives 0."
+    }
+  ],
+  "constraints": [
+    "1 <= num <= 2^31 - 1"
+  ],
+  "hints": [
+    "The naive approach converts to a binary string and flips each character, but there's a direct bitwise way.",
+    "Find the smallest mask of all 1 bits that is at least as large as num.",
+    "Compute a mask with the same bit length as num (all 1s), then XOR num with that mask to flip exactly the meaningful bits."
+  ],
+  "solution": {
+    "approach": "Compute the bit length of num, then build a mask of that many 1 bits: (1 << bit_length) - 1. XORing num with this mask flips every bit within num's actual width, producing exactly its complement without introducing extra high-order bits.",
+    "code": "def find_complement(num):\n    bit_length = num.bit_length()\n    mask = (1 << bit_length) - 1\n    return num ^ mask\n",
+    "timeComplexity": "O(log num)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def find_complement(num):\n    # your code here\n    pass\n",
+  "functionName": "find_complement",
+  "paramNames": ["num"],
+  "testCases": [
+    {
+      "input": [5],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [1],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [2147483647],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [8],
+      "expected": 7,
+      "isHidden": true
+    },
+    {
+      "input": [10],
+      "expected": 5,
+      "isHidden": true
+    }
+  ]
+}

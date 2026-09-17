@@ -1,0 +1,82 @@
+{
+  "id": "swap-nodes-in-pairs",
+  "title": "Swap Nodes in Pairs",
+  "pattern": "linked-list",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Bloomberg",
+    "Apple"
+  ],
+  "prompt": "Given the `head` of a singly linked list, swap every two adjacent nodes and return the head of the resulting list. You must solve it without modifying the values stored in the nodes (only the `next` pointers may change), and if the list has an odd number of nodes, the last node stays in place.\n\nThe list is given as an array (e.g. `[1,2,3,4]` represents `1 -> 2 -> 3 -> 4 -> null`). The starter code includes helpers to convert between the array and a linked-list node — build the actual list, swap pairs by manipulating `next` pointers, then convert back to an array to return.",
+  "examples": [
+    {
+      "input": "head = [1,2,3,4]",
+      "output": "[2,1,4,3]"
+    },
+    {
+      "input": "head = []",
+      "output": "[]"
+    },
+    {
+      "input": "head = [1]",
+      "output": "[1]"
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [0, 100]",
+    "0 <= Node.val <= 100"
+  ],
+  "hints": [
+    "Swapping values instead of nodes would technically pass the output check but violates the 'no value modification' requirement — think in terms of rewiring next pointers between real node pairs.",
+    "A dummy node before head simplifies keeping track of 'the node right before the current pair', which needs to point to the new first node of each swapped pair.",
+    "For each pair (first, second), relink: prev.next -> second, second.next -> first, first.next -> whatever came after second — then advance prev to first for the next pair."
+  ],
+  "solution": {
+    "approach": "Use a dummy node before head, and a `prev` pointer starting at dummy. For each pair of nodes (first = prev.next, second = first.next), rewire prev.next to second, second.next to first, and first.next to whatever followed second, which swaps the pair while preserving the rest of the list. Advance prev to first (the pair's new tail) and repeat while a full pair remains. An odd node left at the end has no pair and is left untouched.",
+    "code": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for v in arr:\n        node = ListNode(v)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef swap_pairs(head_arr):\n    head = arr_to_list(head_arr)\n    dummy = ListNode(0, head)\n    prev = dummy\n\n    while prev.next and prev.next.next:\n        first = prev.next\n        second = first.next\n        first.next = second.next\n        second.next = first\n        prev.next = second\n        prev = first\n\n    return list_to_arr(dummy.next)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1) auxiliary (excluding the returned list)"
+  },
+  "starterCode": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for v in arr:\n        node = ListNode(v)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef swap_pairs(head_arr):\n    head = arr_to_list(head_arr)\n    # your code here\n    pass\n",
+  "functionName": "swap_pairs",
+  "paramNames": ["head_arr"],
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 3, 4]
+      ],
+      "expected": [2, 1, 4, 3],
+      "isHidden": false
+    },
+    {
+      "input": [
+        []
+      ],
+      "expected": [],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": [1],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3]
+      ],
+      "expected": [2, 1, 3],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3, 4, 5, 6]
+      ],
+      "expected": [2, 1, 4, 3, 6, 5],
+      "isHidden": true
+    }
+  ]
+}

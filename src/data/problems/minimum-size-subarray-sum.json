@@ -1,0 +1,88 @@
+{
+  "id": "minimum-size-subarray-sum",
+  "title": "Minimum Size Subarray Sum",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Meta",
+    "Microsoft"
+  ],
+  "prompt": "Given an array of positive integers `nums` and a positive integer `target`, return the minimal length of a contiguous subarray whose sum is greater than or equal to `target`. If there is no such subarray, return `0` instead.",
+  "examples": [
+    {
+      "input": "target = 7, nums = [2,3,1,2,4,3]",
+      "output": "2",
+      "explanation": "The subarray [4,3] has sum 7 and is the smallest length satisfying the condition."
+    },
+    {
+      "input": "target = 4, nums = [1,4,4]",
+      "output": "1"
+    },
+    {
+      "input": "target = 11, nums = [1,1,1,1,1,1,1,1]",
+      "output": "0"
+    }
+  ],
+  "constraints": [
+    "1 <= target <= 10^9",
+    "1 <= nums.length <= 10^5",
+    "1 <= nums[i] <= 10^4"
+  ],
+  "hints": [
+    "Checking every subarray's sum directly is O(n^2) (or O(n^3) with naive summation). Since all values are positive, sums only grow as the window widens.",
+    "Because every element is positive, a sliding window's sum increases monotonically as you extend the right edge and decreases as you shrink the left edge — this monotonicity is what makes two pointers valid here.",
+    "Expand the right pointer to grow the window's sum; once the sum meets or exceeds target, shrink from the left as much as possible while still satisfying the condition, recording the window length each time."
+  ],
+  "solution": {
+    "approach": "Because all values are positive, the sum of a window strictly increases as the right pointer extends and strictly decreases as the left pointer advances, which is exactly the monotonicity two pointers need. Expand the window by moving right and adding to a running sum; whenever the sum is at least target, record the window length and repeatedly shrink from the left (subtracting from the running sum) as long as the condition still holds, since a smaller window is always preferred. Each pointer only moves forward across the whole scan, giving O(n) total work instead of the O(n^2) brute force over all subarrays.",
+    "code": "def min_sub_array_len(target, nums):\n    n = len(nums)\n    left = 0\n    total = 0\n    best = n + 1\n\n    for right in range(n):\n        total += nums[right]\n        while total >= target:\n            best = min(best, right - left + 1)\n            total -= nums[left]\n            left += 1\n\n    return best if best <= n else 0\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def min_sub_array_len(target, nums):\n    # your code here\n    pass\n",
+  "functionName": "min_sub_array_len",
+  "paramNames": ["target", "nums"],
+  "testCases": [
+    {
+      "input": [
+        7,
+        [2, 3, 1, 2, 4, 3]
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        4,
+        [1, 4, 4]
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        11,
+        [1, 1, 1, 1, 1, 1, 1, 1]
+      ],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [
+        15,
+        [1, 2, 3, 4, 5]
+      ],
+      "expected": 5,
+      "isHidden": true
+    },
+    {
+      "input": [
+        5,
+        [5]
+      ],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

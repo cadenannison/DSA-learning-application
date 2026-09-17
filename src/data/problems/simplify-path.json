@@ -1,0 +1,78 @@
+{
+  "id": "simplify-path",
+  "title": "Simplify Path",
+  "pattern": "stacks-queues",
+  "difficulty": "medium",
+  "companies": [
+    "Facebook",
+    "Amazon",
+    "Microsoft",
+    "Bloomberg"
+  ],
+  "prompt": "Given an absolute path for a Unix-style file system, which begins with `/`, transform it into its simplified canonical path.\n\nIn a Unix-style file system, a single period `.` refers to the current directory, a double period `..` refers to the parent directory, and multiple consecutive slashes are treated as a single slash. The canonical path should have exactly one slash between directory names, must not end with a trailing slash unless it's the root, and must use only single periods to represent single-level directories where actually needed (i.e. `.` and `..` are resolved away, not kept literally).",
+  "examples": [
+    {
+      "input": "path = \"/home/\"",
+      "output": "/home"
+    },
+    {
+      "input": "path = \"/home//foo/\"",
+      "output": "/home/foo"
+    },
+    {
+      "input": "path = \"/a/./b/../../c/\"",
+      "output": "/c"
+    }
+  ],
+  "constraints": [
+    "1 <= path.length <= 3000",
+    "path consists of English letters, digits, '.', '/', or '_'",
+    "path is a valid absolute Unix path"
+  ],
+  "hints": [
+    "Splitting the path on '/' gives you a sequence of components you can process one at a time, keeping track of the current directory stack.",
+    "A stack of directory names naturally models '..' (pop the last directory) and ignores empty segments / '.' (do nothing).",
+    "After processing every component, join whatever remains on the stack with '/' and prefix with a leading '/' — if the stack is empty, the canonical path is just '/'."
+  ],
+  "solution": {
+    "approach": "Split the path on '/' to get individual components (this naturally collapses consecutive slashes into empty strings that can be skipped). Walk the components with a stack representing the current directory path: skip empty strings and '.', pop the stack on '..' (if non-empty, since you can't go above root), and push any other real directory name. Finally join the stack with '/' and prepend a leading '/' to form the canonical path.",
+    "code": "def simplify_path(path):\n    stack = []\n    for part in path.split('/'):\n        if part == '' or part == '.':\n            continue\n        elif part == '..':\n            if stack:\n                stack.pop()\n        else:\n            stack.append(part)\n    return '/' + '/'.join(stack)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def simplify_path(path):\n    # your code here\n    pass\n",
+  "functionName": "simplify_path",
+  "paramNames": ["path"],
+  "testCases": [
+    {
+      "input": ["/home/"],
+      "expected": "/home",
+      "isHidden": false
+    },
+    {
+      "input": ["/home//foo/"],
+      "expected": "/home/foo",
+      "isHidden": false
+    },
+    {
+      "input": ["/a/./b/../../c/"],
+      "expected": "/c",
+      "isHidden": false
+    },
+    {
+      "input": ["/../"],
+      "expected": "/",
+      "isHidden": true
+    },
+    {
+      "input": ["/a/../../b/../c//.//"],
+      "expected": "/c",
+      "isHidden": true
+    },
+    {
+      "input": ["/."],
+      "expected": "/",
+      "isHidden": true
+    }
+  ]
+}

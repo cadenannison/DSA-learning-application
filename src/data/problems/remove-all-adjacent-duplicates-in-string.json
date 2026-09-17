@@ -1,0 +1,67 @@
+{
+  "id": "remove-all-adjacent-duplicates-in-string",
+  "title": "Remove All Adjacent Duplicates In String",
+  "pattern": "stacks-queues",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Oracle"
+  ],
+  "prompt": "You are given a string `s` consisting of lowercase English letters. A duplicate removal consists of choosing two adjacent and equal letters and removing them. Repeatedly perform duplicate removals on `s` until no more can be performed, then return the final string. The result is guaranteed to be unique.",
+  "examples": [
+    {
+      "input": "s = \"abbaca\"",
+      "output": "ca",
+      "explanation": "Remove \"bb\" to get \"aaca\", then remove \"aa\" to get \"ca\", which has no adjacent duplicates left."
+    },
+    {
+      "input": "s = \"azxxzy\"",
+      "output": "ay"
+    }
+  ],
+  "constraints": [
+    "1 <= s.length <= 10^5",
+    "s consists of lowercase English letters"
+  ],
+  "hints": [
+    "Removing a pair can expose a brand-new adjacent duplicate right at the seam \u2014 you want to handle cascading removals without rescanning from scratch.",
+    "A stack processes this in a single left-to-right pass: push each character unless it equals the stack's current top.",
+    "When the current character matches the top of the stack, pop instead of pushing \u2014 this naturally cascades because the new top after a pop is now adjacent to whatever comes next."
+  ],
+  "solution": {
+    "approach": "Process the string left to right with a stack. For each character, if it equals the character on top of the stack, pop the stack (the pair cancels out); otherwise push the character. Because the stack always represents the fully-reduced prefix processed so far, any cascading removal (where popping exposes a new adjacent duplicate) is automatically handled as subsequent characters are compared against the new top.",
+    "code": "def remove_duplicates(s):\n    stack = []\n    for ch in s:\n        if stack and stack[-1] == ch:\n            stack.pop()\n        else:\n            stack.append(ch)\n    return ''.join(stack)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def remove_duplicates(s):\n    # your code here\n    pass\n",
+  "functionName": "remove_duplicates",
+  "paramNames": ["s"],
+  "testCases": [
+    {
+      "input": ["abbaca"],
+      "expected": "ca",
+      "isHidden": false
+    },
+    {
+      "input": ["azxxzy"],
+      "expected": "ay",
+      "isHidden": false
+    },
+    {
+      "input": ["a"],
+      "expected": "a",
+      "isHidden": true
+    },
+    {
+      "input": ["aaaaaaaa"],
+      "expected": "",
+      "isHidden": true
+    },
+    {
+      "input": ["abcd"],
+      "expected": "abcd",
+      "isHidden": true
+    }
+  ]
+}

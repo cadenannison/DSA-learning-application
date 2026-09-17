@@ -1,0 +1,63 @@
+{
+  "id": "range-module",
+  "title": "Range Module",
+  "pattern": "intervals",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "A Range Module tracks ranges of numbers and tells you whether a given range is fully tracked. Design a `RangeModule` class supporting: `add_range(left, right)`, which tracks every real number in the half-open interval `[left, right)`, merging with already-tracked ranges as needed; `query_range(left, right)`, which returns `True` if every real number in `[left, right)` is currently tracked and `False` otherwise; and `remove_range(left, right)`, which stops tracking every real number in `[left, right)`, splitting existing tracked ranges as needed.",
+  "examples": [
+    {
+      "input": "add_range(10,20), remove_range(14,16), query_range(10,14) -> true, query_range(13,15) -> false, query_range(16,17) -> true",
+      "output": "[true, false, true]",
+      "explanation": "After removing [14,16) from the tracked [10,20), the remaining tracked ranges are [10,14) and [16,20). [10,14) is fully tracked; [13,15) straddles the gap so it's not; [16,17) is inside [16,20) so it is tracked."
+    }
+  ],
+  "constraints": [
+    "1 <= left < right <= 10^9",
+    "at most 10^4 calls total will be made to add_range, query_range, and remove_range"
+  ],
+  "hints": [
+    "Maintain the tracked ranges as a sorted list of disjoint, non-touching (left, right) intervals — similar in spirit to the Merge Intervals / Insert Interval problems, but supporting removal as well as insertion.",
+    "For add_range, find all existing intervals that overlap or touch the new range, merge them all together into one (extending min-left/max-right), remove the old ones, and insert the single merged interval back in sorted position.",
+    "For remove_range, find all existing intervals that overlap the range to remove; for each, keep only the portions before `left` and after `right` (if those portions are non-empty), replacing the original interval(s) with these leftover fragments. For query_range, use binary search to find a candidate interval and check if it fully contains [left, right)."
+  ],
+  "solution": {
+    "approach": "Store tracked ranges as a sorted list of disjoint, non-adjacent (start, end) tuples, using the `bisect` module to locate insertion points in O(log n). For add_range, use bisect to find the span of existing intervals that overlap or touch [left, right), merge their bounds with the new range into one interval, and splice it in, replacing everything it absorbed. For remove_range, find all intervals overlapping [left, right), and replace each with 0, 1, or 2 leftover pieces (whatever remains outside [left, right)). For query_range, binary search for the interval whose start is <= left, and check whether its end is >= right; if so the whole query range is tracked.",
+    "code": "import bisect\n\n\nclass RangeModule:\n    def __init__(self):\n        self.ranges = []  # sorted list of disjoint, non-touching (start, end)\n\n    def add_range(self, left, right):\n        new_ranges = []\n        i = 0\n        n = len(self.ranges)\n        merged_left, merged_right = left, right\n\n        while i < n and self.ranges[i][1] < left:\n            new_ranges.append(self.ranges[i])\n            i += 1\n\n        while i < n and self.ranges[i][0] <= right:\n            merged_left = min(merged_left, self.ranges[i][0])\n            merged_right = max(merged_right, self.ranges[i][1])\n            i += 1\n\n        new_ranges.append((merged_left, merged_right))\n\n        while i < n:\n            new_ranges.append(self.ranges[i])\n            i += 1\n\n        self.ranges = new_ranges\n\n    def query_range(self, left, right):\n        idx = bisect.bisect_right(self.ranges, (left, float('inf'))) - 1\n        if idx < 0:\n            return False\n        start, end = self.ranges[idx]\n        return start <= left and right <= end\n\n    def remove_range(self, left, right):\n        new_ranges = []\n        for start, end in self.ranges:\n            if end <= left or start >= right:\n                new_ranges.append((start, end))\n                continue\n            if start < left:\n                new_ranges.append((start, left))\n            if end > right:\n                new_ranges.append((right, end))\n        self.ranges = new_ranges\n\n\ndef range_module(operations, args):\n    module = RangeModule()\n    results = []\n    for op, arg in zip(operations, args):\n        if op == 'add_range':\n            module.add_range(arg[0], arg[1])\n            results.append(None)\n        elif op == 'remove_range':\n            module.remove_range(arg[0], arg[1])\n            results.append(None)\n        elif op == 'query_range':\n            results.append(module.query_range(arg[0], arg[1]))\n    return results\n",
+    "timeComplexity": "O(n) per add_range/remove_range call, O(log n) per query_range, where n is the number of tracked ranges",
+    "spaceComplexity": "O(n) to store the tracked ranges"
+  },
+  "starterCode": "def range_module(operations, args):\n    # operations is a list of method names: 'add_range', 'remove_range', 'query_range'\n    # args is a list of argument lists for each operation, e.g. [[10, 20], [14, 16], [10, 14]]\n    # return a list of results in order: None for add_range/remove_range, boolean for query_range\n    # your code here\n    pass\n",
+  "functionName": "range_module",
+  "paramNames": ["operations", "args"],
+  "testCases": [
+    {
+      "input": [["add_range", "remove_range", "query_range", "query_range", "query_range"], [[10, 20], [14, 16], [10, 14], [13, 15], [16, 17]]],
+      "expected": [null, null, true, false, true],
+      "isHidden": false
+    },
+    {
+      "input": [["add_range", "query_range"], [[1, 5], [2, 4]]],
+      "expected": [null, true],
+      "isHidden": false
+    },
+    {
+      "input": [["query_range"], [[1, 5]]],
+      "expected": [false],
+      "isHidden": true
+    },
+    {
+      "input": [["add_range", "add_range", "query_range"], [[1, 5], [5, 10], [1, 10]]],
+      "expected": [null, null, true],
+      "isHidden": true
+    },
+    {
+      "input": [["add_range", "remove_range", "query_range"], [[1, 10], [1, 10], [1, 10]]],
+      "expected": [null, null, false],
+      "isHidden": true
+    }
+  ]
+}

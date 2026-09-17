@@ -1,0 +1,81 @@
+{
+  "id": "walls-and-gates",
+  "title": "Walls and Gates",
+  "pattern": "bfs-dfs",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Facebook",
+    "Amazon"
+  ],
+  "prompt": "You are given an `m x n` grid `rooms` where each cell is one of three values: `-1` (a wall), `0` (a gate), or `2147483647` (an empty room, representing `INF`). Fill each empty room with the distance to its nearest gate, measured in 4-directional steps. If a room cannot reach any gate, it should remain `INF`. Modify `rooms` in place and return it.",
+  "examples": [
+    {
+      "input": "rooms = [[2147483647,-1,0,2147483647],[2147483647,2147483647,2147483647,-1],[2147483647,-1,2147483647,-1],[0,-1,2147483647,2147483647]]",
+      "output": "[[3,-1,0,1],[2,2,1,-1],[1,-1,2,-1],[0,-1,3,4]]",
+      "explanation": "Each empty room fills in with the shortest number of steps to any gate; walls block movement and stay -1."
+    },
+    {
+      "input": "rooms = [[0]]",
+      "output": "[[0]]",
+      "explanation": "A single gate cell needs no update."
+    }
+  ],
+  "constraints": [
+    "m == rooms.length",
+    "n == rooms[i].length",
+    "1 <= m, n <= 250",
+    "rooms[i][j] is -1, 0, or 2^31 - 1"
+  ],
+  "hints": [
+    "Running a BFS from every empty room to find its nearest gate would be too slow — think about starting the search from the gates instead.",
+    "Use multi-source BFS: enqueue every gate at once, then expand outward level by level, exactly like rotting oranges.",
+    "Since BFS explores in order of increasing distance, the first time you reach an empty room from any gate, that distance is guaranteed to be the shortest — fill it in and never revisit that cell."
+  ],
+  "solution": {
+    "approach": "Instead of searching outward from every room to find its nearest gate, run BFS outward from all gates simultaneously (multi-source BFS). Because BFS visits cells in strictly non-decreasing distance order, the first time an empty room is reached from any gate, that distance must be its shortest possible distance to a gate. Walls are never enqueued and act as natural barriers, and rooms unreachable from any gate are simply never visited, so they correctly remain INF.",
+    "code": "from collections import deque\n\n\ndef walls_and_gates(rooms):\n    if not rooms:\n        return rooms\n    rows, cols = len(rooms), len(rooms[0])\n    INF = 2147483647\n    queue = deque()\n\n    for r in range(rows):\n        for c in range(cols):\n            if rooms[r][c] == 0:\n                queue.append((r, c))\n\n    while queue:\n        r, c = queue.popleft()\n        for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n            nr, nc = r + dr, c + dc\n            if 0 <= nr < rows and 0 <= nc < cols and rooms[nr][nc] == INF:\n                rooms[nr][nc] = rooms[r][c] + 1\n                queue.append((nr, nc))\n\n    return rooms\n",
+    "timeComplexity": "O(m * n)",
+    "spaceComplexity": "O(m * n)"
+  },
+  "starterCode": "def walls_and_gates(rooms):\n    # your code here\n    pass\n",
+  "functionName": "walls_and_gates",
+  "paramNames": ["rooms"],
+  "testCases": [
+    {
+      "input": [
+        [[2147483647, -1, 0, 2147483647], [2147483647, 2147483647, 2147483647, -1], [2147483647, -1, 2147483647, -1], [0, -1, 2147483647, 2147483647]]
+      ],
+      "expected": [[3, -1, 0, 1], [2, 2, 1, -1], [1, -1, 2, -1], [0, -1, 3, 4]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[0]]
+      ],
+      "expected": [[0]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[-1]]
+      ],
+      "expected": [[-1]],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[2147483647, -1], [-1, 0]]
+      ],
+      "expected": [[2147483647, -1], [-1, 0]],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[0, 2147483647, 2147483647]]
+      ],
+      "expected": [[0, 1, 2]],
+      "isHidden": true
+    }
+  ]
+}

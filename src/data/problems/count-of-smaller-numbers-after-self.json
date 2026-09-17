@@ -1,0 +1,89 @@
+{
+  "id": "count-of-smaller-numbers-after-self",
+  "title": "Count of Smaller Numbers After Self",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Amazon",
+    "ByteDance"
+  ],
+  "prompt": "Given an integer array `nums`, return an array `counts` where `counts[i]` is the number of smaller elements to the right of `nums[i]`.",
+  "examples": [
+    {
+      "input": "nums = [5,2,6,1]",
+      "output": "[2,1,1,0]",
+      "explanation": "To the right of 5 there are 2 smaller elements (2 and 1). To the right of 2 there is 1 smaller element (1). To the right of 6 there is 1 smaller element (1). To the right of 1 there is 0 smaller elements."
+    },
+    {
+      "input": "nums = [-1]",
+      "output": "[0]"
+    },
+    {
+      "input": "nums = [-1,-1]",
+      "output": "[0,0]"
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 10^5",
+    "-10^4 <= nums[i] <= 10^4"
+  ],
+  "hints": [
+    "Comparing every pair directly is O(n^2), which is too slow at the upper constraint bound. Processing from the right while merging sorted runs can count inversions efficiently, similar to merge sort.",
+    "During a merge-sort-style merge of the right half and left half (processed right to left), whenever an element from the left half is placed, you can count how many already-placed elements from the right half are smaller than it.",
+    "Sort indices (not values) by a modified merge sort: when merging two sorted index lists by their nums value, every time you take from the right sublist before the left, it means all remaining elements in the left sublist have that many additional smaller elements to their right — accumulate this count per original index as you merge."
+  ],
+  "solution": {
+    "approach": "Use a modified merge sort over indices, sorted by their nums value, that counts inversions while merging. Recursively sort the left and right halves of the index array. During the merge step, whenever an element from the right half is placed before an element from the left half (because it's smaller or equal), it means every remaining element still sitting in the left half has one more element (this one) that is smaller and to its right in the original array; accumulate that count onto each left-half index as it eventually gets placed. Because merge sort processes O(n log n) comparisons total and each comparison can resolve counts for many elements at once via the sorted-run merge, this computes all counts in O(n log n) instead of the O(n^2) brute-force pairwise comparison.",
+    "code": "def count_smaller(nums):\n    n = len(nums)\n    counts = [0] * n\n    indices = list(range(n))\n\n    def merge_sort(lo, hi):\n        if hi - lo <= 1:\n            return\n        mid = (lo + hi) // 2\n        merge_sort(lo, mid)\n        merge_sort(mid, hi)\n\n        merged = []\n        i, j = lo, mid\n        right_count = 0\n        while i < mid and j < hi:\n            if nums[indices[j]] < nums[indices[i]]:\n                right_count += 1\n                merged.append(indices[j])\n                j += 1\n            else:\n                counts[indices[i]] += right_count\n                merged.append(indices[i])\n                i += 1\n        while i < mid:\n            counts[indices[i]] += right_count\n            merged.append(indices[i])\n            i += 1\n        while j < hi:\n            merged.append(indices[j])\n            j += 1\n\n        indices[lo:hi] = merged\n\n    merge_sort(0, n)\n    return counts\n",
+    "timeComplexity": "O(n log n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def count_smaller(nums):\n    # your code here\n    pass\n",
+  "functionName": "count_smaller",
+  "paramNames": ["nums"],
+  "testCases": [
+    {
+      "input": [
+        [5, 2, 6, 1]
+      ],
+      "expected": [2, 1, 1, 0],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [-1]
+      ],
+      "expected": [0],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [-1, -1]
+      ],
+      "expected": [0, 0],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3, 4]
+      ],
+      "expected": [0, 0, 0, 0],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [4, 3, 2, 1]
+      ],
+      "expected": [3, 2, 1, 0],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [2, 0, 1]
+      ],
+      "expected": [2, 0, 0],
+      "isHidden": true
+    }
+  ]
+}

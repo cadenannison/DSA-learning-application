@@ -1,0 +1,84 @@
+{
+  "id": "search-in-rotated-sorted-array-ii",
+  "title": "Search in Rotated Sorted Array II",
+  "pattern": "binary-search",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Facebook"
+  ],
+  "prompt": "There is an integer array `nums` sorted in non-decreasing order (not necessarily distinct values), which is then rotated at some unknown pivot. Given the rotated array `nums` and a `target`, return `true` if `target` is in `nums`, or `false` otherwise. You must minimize the total number of operations.",
+  "examples": [
+    {
+      "input": "nums = [2,5,6,0,0,1,2], target = 0",
+      "output": "true"
+    },
+    {
+      "input": "nums = [2,5,6,0,0,1,2], target = 3",
+      "output": "false"
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 5000",
+    "-10^4 <= nums[i] <= 10^4",
+    "nums is guaranteed to be rotated at some pivot",
+    "-10^4 <= target <= 10^4"
+  ],
+  "hints": [
+    "The distinct-values version determines which half is sorted by comparing nums[lo] to nums[mid], but duplicates create an ambiguous case where nums[lo] == nums[mid] == nums[hi].",
+    "When that ambiguous case happens, you can't tell which side is properly sorted, but you can safely shrink the search space by moving both lo and hi inward by one without losing the target if it exists.",
+    "Otherwise, apply the same logic as the duplicate-free rotated search: figure out which half is sorted, check if target falls in that half's range, and recurse into the appropriate half."
+  ],
+  "solution": {
+    "approach": "Use the same modified binary search as the distinct-values version: determine which half of [lo, mid] or [mid, hi] is properly sorted and check whether target falls within that half's range to decide where to search next. The new wrinkle from duplicates is when nums[lo] == nums[mid] == nums[hi], which makes it impossible to tell which side is sorted; in that case, safely shrink the window by incrementing lo and decrementing hi, since neither endpoint value being equal to itself carries information. This resolves the ambiguity at the cost of potentially O(n) time in the worst case (e.g. all duplicates).",
+    "code": "def search(nums, target):\n    lo, hi = 0, len(nums) - 1\n\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        if nums[mid] == target:\n            return True\n\n        if nums[lo] == nums[mid] == nums[hi]:\n            lo += 1\n            hi -= 1\n        elif nums[lo] <= nums[mid]:\n            if nums[lo] <= target < nums[mid]:\n                hi = mid - 1\n            else:\n                lo = mid + 1\n        else:\n            if nums[mid] < target <= nums[hi]:\n                lo = mid + 1\n            else:\n                hi = mid - 1\n\n    return False\n",
+    "timeComplexity": "O(log n) average, O(n) worst case with many duplicates",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def search(nums, target):\n    # your code here\n    pass\n",
+  "functionName": "search",
+  "paramNames": ["nums", "target"],
+  "testCases": [
+    {
+      "input": [
+        [2, 5, 6, 0, 0, 1, 2],
+        0
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [2, 5, 6, 0, 0, 1, 2],
+        3
+      ],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 1, 1, 1, 1, 1, 1],
+        2
+      ],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1],
+        1
+      ],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [3, 1, 2, 3, 3, 3, 3],
+        2
+      ],
+      "expected": true,
+      "isHidden": true
+    }
+  ]
+}

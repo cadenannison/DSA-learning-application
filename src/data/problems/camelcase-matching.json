@@ -1,0 +1,63 @@
+{
+  "id": "camelcase-matching",
+  "title": "Camelcase Matching",
+  "pattern": "tries",
+  "difficulty": "medium",
+  "companies": [
+    "Google"
+  ],
+  "prompt": "Given an array of strings `queries` and a string `pattern`, return a boolean array `answer` where `answer[i]` is `true` if `queries[i]` matches `pattern`.\n\nA query matches the pattern if you can insert lowercase letters (zero or more, anywhere, including at the start or end) into `pattern` to make it equal to the query. All the original characters of `pattern` must appear in the query in the same order, and `pattern` itself, along with each query, always consists of upper and lower case English letters. Formally, `queries[i]` matches `pattern` if `pattern` is a subsequence of `queries[i]` formed by deleting some (possibly zero) lowercase letters, without touching the relative order or the uppercase letters at all — every uppercase letter in `queries[i]` must be matched by the same uppercase letter at the same relative position in `pattern`.",
+  "examples": [
+    {
+      "input": "queries = [\"FooBar\",\"FooBarTest\",\"FootBall\",\"FrameBuffer\",\"ForceFeedBack\"], pattern = \"FB\"",
+      "output": "[true,false,true,true,false]",
+      "explanation": "\"FooBar\" can be formed from \"FB\" by inserting \"oo\" and \"ar\". \"FooBarTest\" fails because the trailing \"Test\" introduces an uppercase T that has no counterpart in the pattern after matching FB. \"FootBall\" and \"FrameBuffer\" both work by inserting lowercase letters only. \"ForceFeedBack\" fails because it has an extra uppercase F."
+    }
+  ],
+  "constraints": [
+    "1 <= pattern.length, queries.length <= 100",
+    "1 <= queries[i].length <= 100",
+    "queries[i] and pattern consist of English letters"
+  ],
+  "hints": [
+    "This reduces to a subsequence-with-constraints check: walk through the query, and greedily 'consume' pattern characters as they appear in order.",
+    "Build a trie over queries (or just process each with a two-pointer scan) advancing a pattern pointer whenever the query's current character equals the pattern's current character; the trie framing is useful if you imagine grouping queries by shared prefixes for repeated pattern matching.",
+    "The key correctness condition beyond ordering: any UPPERCASE letter encountered in the query that isn't consumed by the pattern at that exact position immediately disqualifies the query, since only lowercase letters may be freely inserted."
+  ],
+  "solution": {
+    "approach": "For each query, use a two-pointer scan: walk through the query's characters, and whenever the current query character matches the pattern character at the current pattern pointer, advance the pattern pointer. If a query character is uppercase and doesn't match the current pattern character, the query fails immediately, since uppercase letters can't be freely inserted. At the end, the query matches only if the pattern pointer reached the end of pattern (every pattern character was consumed in order). This can be framed as pattern matching in a single-branch trie built from pattern, but since there's only one pattern, a direct two-pointer walk is equivalent and simpler.",
+    "code": "def camel_match(queries, pattern):\n    def matches(query):\n        j = 0\n        for ch in query:\n            if j < len(pattern) and ch == pattern[j]:\n                j += 1\n            elif ch.isupper():\n                return False\n        return j == len(pattern)\n\n    return [matches(q) for q in queries]\n",
+    "timeComplexity": "O(sum of query lengths)",
+    "spaceComplexity": "O(1) extra beyond the output"
+  },
+  "starterCode": "def camel_match(queries, pattern):\n    # your code here\n    pass\n",
+  "functionName": "camel_match",
+  "paramNames": ["queries", "pattern"],
+  "testCases": [
+    {
+      "input": [["FooBar", "FooBarTest", "FootBall", "FrameBuffer", "ForceFeedBack"], "FB"],
+      "expected": [true, false, true, true, false],
+      "isHidden": false
+    },
+    {
+      "input": [["FooBar", "FooBarTest", "FootBall", "FrameBuffer", "ForceFeedBack"], "FoBa"],
+      "expected": [true, false, true, false, false],
+      "isHidden": false
+    },
+    {
+      "input": [["FooBar", "FooBarTest", "FootBall", "FrameBuffer", "ForceFeedBack"], "FoBaT"],
+      "expected": [false, true, false, false, false],
+      "isHidden": true
+    },
+    {
+      "input": [["a", "aa"], "a"],
+      "expected": [true, true],
+      "isHidden": true
+    },
+    {
+      "input": [["AB"], "AB"],
+      "expected": [true],
+      "isHidden": true
+    }
+  ]
+}

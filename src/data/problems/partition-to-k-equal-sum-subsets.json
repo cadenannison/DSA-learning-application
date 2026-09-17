@@ -1,0 +1,70 @@
+{
+  "id": "partition-to-k-equal-sum-subsets",
+  "title": "Partition to K Equal Sum Subsets",
+  "pattern": "backtracking",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon",
+    "Facebook"
+  ],
+  "prompt": "Given an integer array `nums` and an integer `k`, return true if it is possible to divide this array into `k` non-empty subsets whose sums are all equal.",
+  "examples": [
+    {
+      "input": "nums = [4,3,2,3,5,2,1], k = 4",
+      "output": "true",
+      "explanation": "It's possible to divide it into 4 subsets each with sum 5: (1,4), (5), (2,3), (2,3)."
+    },
+    {
+      "input": "nums = [1,2,3,4], k = 3",
+      "output": "false",
+      "explanation": "The total is 10, which isn't divisible by 3, so equal-sum subsets are impossible."
+    }
+  ],
+  "constraints": [
+    "1 <= k <= nums.length <= 16",
+    "1 <= nums[i] <= 10^4",
+    "The frequency of each element is in the range [1, 4]"
+  ],
+  "hints": [
+    "First check the total sum is divisible by k; if not, return false immediately without searching.",
+    "Sort nums in descending order and try filling k buckets (each targeting total/k) one number at a time — placing larger numbers first prunes far more aggressively than placing small ones.",
+    "Skip failed duplicate states: if placing a number into an empty bucket fails, don't bother trying it in any other currently-empty bucket (they're equivalent), and skip re-trying an already-used number at the same recursion level."
+  ],
+  "solution": {
+    "approach": "Compute the target subset sum as total/k (returning false immediately if it doesn't divide evenly, or if any single number exceeds it). Sort nums descending so large, highly-constraining values are placed first, causing dead-end branches to be pruned near the top of the search tree rather than deep inside it. Backtrack by choosing, for each not-yet-used number in order, which of k bucket sums to add it to; skip a bucket if adding would exceed the target, and skip trying an empty bucket more than once at a given step (all empty buckets are interchangeable, so a failure in one implies failure in any other empty one). Success is reached when every number has been placed and all k buckets equal the target exactly.",
+    "code": "def can_partition_k_subsets(nums, k):\n    total = sum(nums)\n    if total % k != 0:\n        return False\n    target = total // k\n    nums.sort(reverse=True)\n    if nums[0] > target:\n        return False\n\n    buckets = [0] * k\n\n    def backtrack(index):\n        if index == len(nums):\n            return True\n        for i in range(k):\n            if buckets[i] + nums[index] > target:\n                continue\n            if i > 0 and buckets[i] == buckets[i - 1]:\n                continue\n            buckets[i] += nums[index]\n            if backtrack(index + 1):\n                return True\n            buckets[i] -= nums[index]\n        return False\n\n    return backtrack(0)\n",
+    "timeComplexity": "O(k^n) worst case, heavily pruned in practice",
+    "spaceComplexity": "O(n) recursion depth, O(k) for bucket sums"
+  },
+  "starterCode": "def can_partition_k_subsets(nums, k):\n    # your code here\n    pass\n",
+  "functionName": "can_partition_k_subsets",
+  "paramNames": ["nums", "k"],
+  "testCases": [
+    {
+      "input": [[4, 3, 2, 3, 5, 2, 1], 4],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [[1, 2, 3, 4], 3],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [[2, 2, 2, 2, 3, 4, 5], 4],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": [[1, 1, 1, 1], 4],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [[10, 10, 10, 7, 7, 7, 7, 7, 7, 6, 6, 6], 3],
+      "expected": true,
+      "isHidden": true
+    }
+  ]
+}

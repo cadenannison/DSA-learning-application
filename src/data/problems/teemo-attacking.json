@@ -1,0 +1,76 @@
+{
+  "id": "teemo-attacking",
+  "title": "Teemo Attacking",
+  "pattern": "intervals",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Riot Games",
+    "Bloomberg"
+  ],
+  "prompt": "You are given a non-decreasing array `time_series` where `time_series[i]` is the time at which Teemo attacks Ashe, and an integer `duration` representing how many seconds Ashe stays poisoned after each attack. Each attack refreshes the poison timer to last exactly `duration` seconds starting from that attack (it does not stack additional total time on top of an already-active poison window, it just resets when it ends). Return the total number of seconds Ashe is poisoned.",
+  "examples": [
+    {
+      "input": "time_series = [1,4], duration = 2",
+      "output": "4",
+      "explanation": "At time 1, Ashe is poisoned for [1,2] (inclusive-ish window of length 2). At time 4, poisoned again for [4,5]. Total poisoned seconds = 2 + 2 = 4 since the windows don't overlap."
+    },
+    {
+      "input": "time_series = [1,2], duration = 2",
+      "output": "3",
+      "explanation": "At time 1, poisoned for [1,2]. At time 2, the attack refreshes the timer before the first would have ended, extending poison to [2,3]. Total distinct poisoned seconds = [1,3] = 3."
+    }
+  ],
+  "constraints": [
+    "1 <= time_series.length <= 10^4",
+    "0 <= time_series[i] < 10^7",
+    "time_series is sorted in strictly increasing order",
+    "0 <= duration <= 10^7"
+  ],
+  "hints": [
+    "Think of each attack as opening an interval [time_series[i], time_series[i] + duration] of poisoned seconds — the answer is the total length covered by the union of these intervals.",
+    "Since attacks are already given in sorted order, you don't need to sort anything — just compare each attack to the one before it.",
+    "For each pair of consecutive attacks, add the full duration unless the next attack happens before the current poison window would have ended — in that case only add the gap between the two attack times, since the window gets cut short and restarted."
+  ],
+  "solution": {
+    "approach": "Since attacks are already sorted, walk through consecutive pairs. Normally each attack contributes the full `duration` of poisoned time. But if the next attack occurs before the current poison window would naturally end (i.e. the gap between attacks is smaller than duration), the current window gets cut short and only the gap contributes, because the poison timer resets rather than stacking. Sum these contributions plus the final attack's full duration.",
+    "code": "def find_poisoned_duration(time_series, duration):\n    if not time_series:\n        return 0\n\n    total = 0\n    for i in range(len(time_series) - 1):\n        gap = time_series[i + 1] - time_series[i]\n        total += min(gap, duration)\n\n    return total + duration\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def find_poisoned_duration(time_series, duration):\n    # your code here\n    pass\n",
+  "functionName": "find_poisoned_duration",
+  "paramNames": ["time_series", "duration"],
+  "testCases": [
+    {
+      "input": [[1, 4], 2],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [[1, 2], 2],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [[1], 5],
+      "expected": 5,
+      "isHidden": false
+    },
+    {
+      "input": [[1, 2, 3, 4, 5], 1],
+      "expected": 5,
+      "isHidden": true
+    },
+    {
+      "input": [[1, 10], 2],
+      "expected": 4,
+      "isHidden": true
+    },
+    {
+      "input": [[0], 0],
+      "expected": 0,
+      "isHidden": true
+    }
+  ]
+}

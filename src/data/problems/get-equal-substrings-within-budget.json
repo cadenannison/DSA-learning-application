@@ -1,0 +1,75 @@
+{
+  "id": "get-equal-substrings-within-budget",
+  "title": "Get Equal Substrings Within Budget",
+  "pattern": "sliding-window",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "You are given two strings `s` and `t` of the same length and an integer `maxCost`. You want to change `s` to `t`. Changing the `i`th character of `s` to the `i`th character of `t` costs `|s[i] - t[i]|` (the absolute difference of their ASCII values). Return the maximum length of a substring of `s` that can be changed to the corresponding substring of `t` with a total cost that does not exceed `maxCost`. If there is no such substring, return `0`.",
+  "examples": [
+    {
+      "input": "s = \"abcd\", t = \"bcdf\", maxCost = 3",
+      "output": "3",
+      "explanation": "The substring \"abc\" of s can change to \"bcd\" for a total cost of 3, which is within the budget."
+    },
+    {
+      "input": "s = \"abcd\", t = \"cdef\", maxCost = 3",
+      "output": "1",
+      "explanation": "Each character has cost 2, so with maxCost = 3 only 1 character can be changed."
+    },
+    {
+      "input": "s = \"abcd\", t = \"acde\", maxCost = 0",
+      "output": "1",
+      "explanation": "Since maxCost is 0, you cannot change any character, so the answer is the number of positions already matching, and the longest such run is 1 (the leading 'a')."
+    }
+  ],
+  "constraints": [
+    "1 <= s.length <= 10^5",
+    "t.length == s.length",
+    "0 <= maxCost <= 10^6",
+    "s and t consist of only lowercase English letters"
+  ],
+  "hints": [
+    "Precompute the per-index cost array cost[i] = abs(ord(s[i]) - ord(t[i])); the problem becomes finding the longest subarray of this cost array whose sum is at most maxCost.",
+    "Use a variable-size sliding window with a running sum of costs inside it.",
+    "Expand right, adding to the running sum; whenever the sum exceeds maxCost, shrink from the left (subtracting) until it's back within budget, tracking the max window length seen."
+  ],
+  "solution": {
+    "approach": "Reduce the problem to an array: cost[i] is the cost of changing position i. Now find the longest subarray whose sum doesn't exceed maxCost using a sliding window with a running sum. Expand the window to the right, adding each new cost; whenever the running sum exceeds maxCost, shrink from the left, subtracting costs, until the sum is within budget again. The maximum window length observed is the answer.",
+    "code": "def equal_substring(s, t, max_cost):\n    left = 0\n    total = 0\n    best = 0\n\n    for right in range(len(s)):\n        total += abs(ord(s[right]) - ord(t[right]))\n        while total > max_cost:\n            total -= abs(ord(s[left]) - ord(t[left]))\n            left += 1\n        best = max(best, right - left + 1)\n\n    return best\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def equal_substring(s, t, max_cost):\n    # your code here\n    pass\n",
+  "functionName": "equal_substring",
+  "paramNames": ["s", "t", "max_cost"],
+  "testCases": [
+    {
+      "input": ["abcd", "bcdf", 3],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": ["abcd", "cdef", 3],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": ["abcd", "acde", 0],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": ["a", "z", 25],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": ["a", "z", 24],
+      "expected": 0,
+      "isHidden": true
+    }
+  ]
+}

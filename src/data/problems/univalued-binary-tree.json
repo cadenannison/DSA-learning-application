@@ -1,0 +1,78 @@
+{
+  "id": "univalued-binary-tree",
+  "title": "Univalued Binary Tree",
+  "pattern": "trees",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "A binary tree is univalued if every node in the tree has the same value. Given the `root` of a binary tree, return `true` if the tree is univalued, or `false` otherwise.\n\nThe tree is given as a level-order array where `null` marks a missing child (the standard LeetCode serialization). Your function receives this array directly; the starter code includes a helper that builds the tree from it, so you only need to implement the check.",
+  "examples": [
+    {
+      "input": "root = [1,1,1,1,1,null,1]",
+      "output": "true",
+      "explanation": "Every node in the tree has the value 1."
+    },
+    {
+      "input": "root = [2,2,2,5,2]",
+      "output": "false",
+      "explanation": "One node has the value 5, which differs from the rest."
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [1, 100]",
+    "0 <= Node.val <= 99"
+  ],
+  "hints": [
+    "The root's value is the value every other node must match — compare against it, not against each node's immediate parent.",
+    "Recurse through the tree, and as soon as any node's value differs from the root's value, the whole tree fails and you can stop immediately.",
+    "A tree is univalued exactly when both subtrees are univalued AND the current node's value equals the root's value."
+  ],
+  "solution": {
+    "approach": "Capture the root's value once, then recursively walk the tree checking that every node's value equals that root value. Short-circuit to false the moment a mismatch is found; otherwise the recursion naturally checks both children and combines results with AND.",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef is_unival_tree(root_arr):\n    root = build_tree(root_arr)\n    if root is None:\n        return True\n    target = root.val\n\n    def dfs(node):\n        if node is None:\n            return True\n        if node.val != target:\n            return False\n        return dfs(node.left) and dfs(node.right)\n\n    return dfs(root)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(h), h = tree height"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef is_unival_tree(root_arr):\n    root = build_tree(root_arr)\n    # your code here\n    pass\n",
+  "functionName": "is_unival_tree",
+  "paramNames": ["root_arr"],
+  "testCases": [
+    {
+      "input": [
+        [1, 1, 1, 1, 1, null, 1]
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [2, 2, 2, 5, 2]
+      ],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [5, 5, 5, 5, null, null, 5]
+      ],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [3, 3, null, 3, 4]
+      ],
+      "expected": false,
+      "isHidden": true
+    }
+  ]
+}

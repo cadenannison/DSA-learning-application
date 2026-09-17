@@ -1,0 +1,78 @@
+{
+  "id": "smallest-string-starting-from-leaf",
+  "title": "Smallest String Starting From Leaf",
+  "pattern": "trees",
+  "difficulty": "hard",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "You are given the `root` of a binary tree where every node's value is an integer from 0 to 25, representing letters `'a'` to `'z'` (0 = 'a', 1 = 'b', ..., 25 = 'z'). Each root-to-leaf path represents a string formed by the letters along that path, read from leaf up to root (bottom to top, not top to bottom).\n\nReturn the lexicographically smallest string that can be formed this way, among all root-to-leaf paths. The tree is given as a level-order array where `null` marks a missing child (the standard LeetCode serialization). Your function receives this array directly; the starter code includes a helper that builds the tree from it, so you only need to compute the smallest string.",
+  "examples": [
+    {
+      "input": "root = [0,1,2,3,4,3,4]",
+      "output": "\"dba\"",
+      "explanation": "The root-to-leaf paths spell (bottom-to-top) 'dba', 'eba', 'dca', 'eca'; 'dba' is lexicographically smallest."
+    },
+    {
+      "input": "root = [25,1,3,1,3,0,2]",
+      "output": "\"adz\"",
+      "explanation": "Among all leaf-to-root strings, 'adz' is lexicographically smallest."
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [1, 8500]",
+    "0 <= Node.val <= 25"
+  ],
+  "hints": [
+    "Since the string is read leaf-to-root, it's natural to build the path top-to-bottom during DFS and then reverse it once a leaf is reached, rather than trying to prepend characters.",
+    "DFS from the root, converting each node's value to its letter and appending it to a running path list; when a leaf is reached, reverse the accumulated path and join it into a string.",
+    "Compare each completed leaf string to the best one found so far (initialize best to None or a very large placeholder) and keep the lexicographically smaller one; Python's string comparison operators already do lexicographic comparison directly."
+  ],
+  "solution": {
+    "approach": "DFS from the root, building the path top-to-bottom as a list of letters (converting each node's value via chr(ord('a') + val)). At each leaf, reverse the accumulated list and join it into a string to get the actual leaf-to-root reading order, then compare it against the best string found so far, keeping the lexicographically smaller one. Backtrack (pop the last letter) after exploring both children so sibling paths don't see stale letters.",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef smallest_from_leaf(root_arr):\n    root = build_tree(root_arr)\n    best = [None]\n    path = []\n\n    def dfs(node):\n        if node is None:\n            return\n        path.append(chr(ord('a') + node.val))\n        if node.left is None and node.right is None:\n            candidate = ''.join(reversed(path))\n            if best[0] is None or candidate < best[0]:\n                best[0] = candidate\n        else:\n            dfs(node.left)\n            dfs(node.right)\n        path.pop()\n\n    dfs(root)\n    return best[0]\n",
+    "timeComplexity": "O(n^2) worst case due to string comparisons/building, O(n log n) typical",
+    "spaceComplexity": "O(h), h = tree height, excluding output"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef smallest_from_leaf(root_arr):\n    root = build_tree(root_arr)\n    # your code here\n    pass\n",
+  "functionName": "smallest_from_leaf",
+  "paramNames": ["root_arr"],
+  "testCases": [
+    {
+      "input": [
+        [0, 1, 2, 3, 4, 3, 4]
+      ],
+      "expected": "dba",
+      "isHidden": false
+    },
+    {
+      "input": [
+        [25, 1, 3, 1, 3, 0, 2]
+      ],
+      "expected": "adz",
+      "isHidden": false
+    },
+    {
+      "input": [
+        [2, 2, 1, null, 1, 0, null, 0]
+      ],
+      "expected": "abc",
+      "isHidden": false
+    },
+    {
+      "input": [
+        [0]
+      ],
+      "expected": "a",
+      "isHidden": true
+    },
+    {
+      "input": [
+        [0, 1]
+      ],
+      "expected": "ba",
+      "isHidden": true
+    }
+  ]
+}

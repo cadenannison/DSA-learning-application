@@ -1,0 +1,79 @@
+{
+  "id": "count-negative-numbers-in-a-sorted-matrix",
+  "title": "Count Negative Numbers in a Sorted Matrix",
+  "pattern": "binary-search",
+  "difficulty": "easy",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "Given an `m x n` matrix `grid` sorted in non-increasing order both row-wise and column-wise (each row and each column is sorted from largest to smallest), return the number of negative numbers in `grid`.",
+  "examples": [
+    {
+      "input": "grid = [[4,3,2,-1],[3,2,1,-1],[1,1,-1,-2],[-1,-1,-2,-3]]",
+      "output": "8"
+    },
+    {
+      "input": "grid = [[3,2],[1,0]]",
+      "output": "0"
+    }
+  ],
+  "constraints": [
+    "m == grid.length",
+    "n == grid[i].length",
+    "1 <= m, n <= 100",
+    "-100 <= grid[i][j] <= 100",
+    "grid is sorted in non-increasing order row-wise and column-wise"
+  ],
+  "hints": [
+    "Checking every cell works in O(m*n), but each row being sorted means you can find where negatives start faster than a full scan.",
+    "For a fixed row, binary search for the first index where the value becomes negative — everything from there to the end of the row is negative too.",
+    "Since columns are also sorted, the boundary between non-negative and negative shifts monotonically as you move down the rows, which lets you reuse work between rows for an O(m log n) or O(m + n) solution."
+  ],
+  "solution": {
+    "approach": "Each row is sorted in non-increasing order, so within a row all the negative numbers form a contiguous suffix. For each row, binary search for the leftmost index where the value is negative; the count of negatives in that row is n minus that index. Summing this count across all m rows gives the total in O(m log n) time, far better than checking every one of the m*n cells individually.",
+    "code": "def count_negatives(grid):\n    rows = len(grid)\n    cols = len(grid[0]) if rows else 0\n    total = 0\n\n    for row in grid:\n        lo, hi = 0, cols\n        while lo < hi:\n            mid = (lo + hi) // 2\n            if row[mid] < 0:\n                hi = mid\n            else:\n                lo = mid + 1\n        total += cols - lo\n\n    return total\n",
+    "timeComplexity": "O(m log n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def count_negatives(grid):\n    # your code here\n    pass\n",
+  "functionName": "count_negatives",
+  "paramNames": ["grid"],
+  "testCases": [
+    {
+      "input": [
+        [[4, 3, 2, -1], [3, 2, 1, -1], [1, 1, -1, -2], [-1, -1, -2, -3]]
+      ],
+      "expected": 8,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[3, 2], [1, 0]]
+      ],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[-1]]
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[1]]
+      ],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[5, -1], [-2, -3]]
+      ],
+      "expected": 3,
+      "isHidden": true
+    }
+  ]
+}

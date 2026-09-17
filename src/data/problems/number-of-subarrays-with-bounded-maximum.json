@@ -1,0 +1,68 @@
+{
+  "id": "number-of-subarrays-with-bounded-maximum",
+  "title": "Number of Subarrays with Bounded Maximum",
+  "pattern": "sliding-window",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "Given an integer array `nums` and two integers `left` and `right`, return the number of contiguous subarrays where the maximum element of the subarray is in the inclusive range `[left, right]`.",
+  "examples": [
+    {
+      "input": "nums = [2,1,4,3], left = 2, right = 3",
+      "output": "3",
+      "explanation": "The subarrays with maximum in [2,3] are [2], [2,1], and [3]."
+    },
+    {
+      "input": "nums = [2,9,2,5,6], left = 2, right = 8",
+      "output": "7"
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 10^5",
+    "0 <= nums[i] <= 10^9",
+    "0 <= left <= right <= 10^9"
+  ],
+  "hints": [
+    "Counting subarrays with max in [left, right] directly is awkward; it's easier as (subarrays with all elements <= right) - (subarrays with all elements <= left - 1), since the second is exactly the ones whose max is too small.",
+    "Write a helper that counts subarrays where every element is at most a given bound, using a sliding window: any element exceeding the bound resets the current valid run's start.",
+    "For a run of length L of consecutive elements all <= bound, it contributes L*(L+1)/2 valid subarrays; sum this over all such runs, and subtract the bound=left-1 count from the bound=right count."
+  ],
+  "solution": {
+    "approach": "Count subarrays with max <= right, then subtract subarrays with max <= left - 1; what remains is exactly the subarrays whose max falls in [left, right], since those are the ones counted in the first group but excluded from the second. To count subarrays with all elements <= a bound, scan left to right maintaining the length of the current run of elements all within bound (resetting to 0 whenever an element exceeds it); each time the run extends to length L, it contributes L new valid subarrays ending at the current index (one for each possible starting point within the run), so add L to a running total at each step.",
+    "code": "def num_subarray_bounded_max(nums, left, right):\n    def count_at_most(bound):\n        total = 0\n        run_len = 0\n        for num in nums:\n            if num <= bound:\n                run_len += 1\n            else:\n                run_len = 0\n            total += run_len\n        return total\n\n    return count_at_most(right) - count_at_most(left - 1)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def num_subarray_bounded_max(nums, left, right):\n    # your code here\n    pass\n",
+  "functionName": "num_subarray_bounded_max",
+  "paramNames": ["nums", "left", "right"],
+  "testCases": [
+    {
+      "input": [[2, 1, 4, 3], 2, 3],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [[2, 9, 2, 5, 6], 2, 8],
+      "expected": 7,
+      "isHidden": false
+    },
+    {
+      "input": [[1, 1, 1], 1, 1],
+      "expected": 6,
+      "isHidden": true
+    },
+    {
+      "input": [[5], 1, 4],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [[3, 3, 3], 3, 3],
+      "expected": 6,
+      "isHidden": true
+    }
+  ]
+}

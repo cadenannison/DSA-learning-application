@@ -1,0 +1,74 @@
+{
+  "id": "defuse-the-bomb",
+  "title": "Defuse the Bomb",
+  "pattern": "sliding-window",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon"
+  ],
+  "prompt": "You have a bomb to defuse, represented by a circular array `code` of length `n` and a key `k`. To decrypt the code, replace every number at index `i` with the sum of the `k` numbers either after it (if `k > 0`), before it (if `k < 0`), or, if `k == 0`, replace it with `0`. Because `code` is circular, the next element after the last element is the first element, and the previous element before the first element is the last element. Return the decrypted code.",
+  "examples": [
+    {
+      "input": "code = [5,7,1,4], k = 3",
+      "output": "[12,10,16,13]",
+      "explanation": "Each number is replaced by the sum of the next 3 numbers, wrapping around. The 1st element is the sum of the 2nd, 3rd, and 4th elements: 7 + 1 + 4 = 12."
+    },
+    {
+      "input": "code = [1,2,3,4], k = 0",
+      "output": "[0,0,0,0]",
+      "explanation": "When k is 0, everything becomes 0."
+    },
+    {
+      "input": "code = [2,4,9,3], k = -2",
+      "output": "[12,5,6,13]",
+      "explanation": "Each number is replaced by the sum of the previous 2 numbers, wrapping around. The 1st element is the sum of the 4th and 3rd elements: 3 + 9 = 12."
+    }
+  ],
+  "constraints": [
+    "n == code.length",
+    "1 <= n <= 100",
+    "1 <= code[i] <= 100",
+    "-(n - 1) <= k <= n - 1"
+  ],
+  "hints": [
+    "Recomputing the sum of k neighbors from scratch for each index is O(n*k) — the windows for adjacent indices overlap heavily.",
+    "Think of the k relevant neighbors for each index as a fixed-size sliding window over the circular array; maintain a running sum as the window shifts one index at a time.",
+    "Use modular arithmetic on indices to treat the array as circular, and precompute the initial window sum once before sliding it around the rest of the array."
+  ],
+  "solution": {
+    "approach": "If k is 0 every answer is 0. Otherwise, for each index the required window is either the next k elements or the previous k elements (using modular indices to wrap around). Rather than summing each window from scratch, maintain a running sum over a fixed-size circular window: initialize it for index 0's window, then slide it forward one position at a time, adding the newly included element and removing the one that fell out, reusing that running sum for every index in O(1) per step.",
+    "code": "def decrypt(code, k):\n    n = len(code)\n    result = [0] * n\n    if k == 0:\n        return result\n\n    if k > 0:\n        window_sum = sum(code[1:k + 1])\n        for i in range(n):\n            result[i] = window_sum\n            window_sum -= code[(i + 1) % n]\n            window_sum += code[(i + k + 1) % n]\n    else:\n        k = -k\n        window_sum = sum(code[n - k:n])\n        for i in range(n):\n            result[i] = window_sum\n            window_sum -= code[(i - k) % n]\n            window_sum += code[i % n]\n\n    return result\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n) for the output array"
+  },
+  "starterCode": "def decrypt(code, k):\n    # your code here\n    pass\n",
+  "functionName": "decrypt",
+  "paramNames": ["code", "k"],
+  "testCases": [
+    {
+      "input": [[5, 7, 1, 4], 3],
+      "expected": [12, 10, 16, 13],
+      "isHidden": false
+    },
+    {
+      "input": [[1, 2, 3, 4], 0],
+      "expected": [0, 0, 0, 0],
+      "isHidden": false
+    },
+    {
+      "input": [[2, 4, 9, 3], -2],
+      "expected": [12, 5, 6, 13],
+      "isHidden": false
+    },
+    {
+      "input": [[1], 0],
+      "expected": [0],
+      "isHidden": true
+    },
+    {
+      "input": [[3, 3, 3, 3, 3], 2],
+      "expected": [6, 6, 6, 6, 6],
+      "isHidden": true
+    }
+  ]
+}

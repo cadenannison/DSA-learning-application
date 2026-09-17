@@ -41,4 +41,13 @@ export class StudyPlanListPresenter {
       this.view.setError(error instanceof Error ? error.message : "Failed to delete study plan")
     }
   }
+
+  async setActivePlan(id: string): Promise<void> {
+    try {
+      await apiClient.setActiveStudyPlan(id)
+      await this.loadPlans()
+    } catch (error) {
+      this.view.setError(error instanceof Error ? error.message : "Failed to set active study plan")
+    }
+  }
 }

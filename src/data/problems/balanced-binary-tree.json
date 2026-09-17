@@ -1,0 +1,80 @@
+{
+  "id": "balanced-binary-tree",
+  "title": "Balanced Binary Tree",
+  "pattern": "trees",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Google",
+    "Bloomberg"
+  ],
+  "prompt": "Given the `root` of a binary tree, determine if it is height-balanced — meaning for every node in the tree, the heights of its left and right subtrees differ by no more than 1.\n\nThe tree is given as a level-order array where `null` marks a missing child (the standard LeetCode serialization). Your function receives this array directly; the starter code includes a helper that builds the tree from it, so you only need to implement the balance check.",
+  "examples": [
+    {
+      "input": "root = [3,9,20,null,null,15,7]",
+      "output": "true",
+      "explanation": "Every node's subtrees differ in height by at most 1."
+    },
+    {
+      "input": "root = [1,2,2,3,3,null,null,4,4]",
+      "output": "false",
+      "explanation": "The subtree rooted at the second node with value 2 has a left height of 2 and right height of 0, differing by more than 1."
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [0, 5000]",
+    "-10^4 <= Node.val <= 10^4"
+  ],
+  "hints": [
+    "A naive approach recomputes height for every node from scratch, giving O(n^2) — think about how to avoid redundant recomputation.",
+    "Compute height and check balance in a single bottom-up (post-order) pass so each subtree's height is calculated only once.",
+    "Have the height helper return -1 as a sentinel the moment it detects an imbalance anywhere below, and propagate that -1 up immediately so the whole check short-circuits to false."
+  ],
+  "solution": {
+    "approach": "Do a single post-order DFS that returns the height of each subtree, but overload the return value: if a subtree is already found to be unbalanced, return -1 immediately as a sentinel instead of continuing to compute heights above it. At each node, if either child returns -1, or the two child heights differ by more than 1, propagate -1 upward. This computes the answer in one O(n) pass instead of recomputing heights repeatedly.",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef is_balanced(root_arr):\n    root = build_tree(root_arr)\n\n    def height(node):\n        if node is None:\n            return 0\n        left_h = height(node.left)\n        if left_h == -1:\n            return -1\n        right_h = height(node.right)\n        if right_h == -1:\n            return -1\n        if abs(left_h - right_h) > 1:\n            return -1\n        return 1 + max(left_h, right_h)\n\n    return height(root) != -1\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(h), h = tree height"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\ndef is_balanced(root_arr):\n    root = build_tree(root_arr)\n    # your code here\n    pass\n",
+  "functionName": "is_balanced",
+  "paramNames": ["root_arr"],
+  "testCases": [
+    {
+      "input": [
+        [3, 9, 20, null, null, 15, 7]
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 2, 3, 3, null, null, 4, 4]
+      ],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [
+        []
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, null, 3, null, 4, null, 5]
+      ],
+      "expected": false,
+      "isHidden": true
+    }
+  ]
+}

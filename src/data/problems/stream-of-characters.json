@@ -1,0 +1,67 @@
+{
+  "id": "stream-of-characters",
+  "title": "Stream of Characters",
+  "pattern": "tries",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "Design a structure that, given an array of strings `words`, processes a stream of characters one at a time and after each new character reports whether any non-empty suffix of the characters seen so far (i.e. ending at the just-added character) forms a complete word from `words`.\n\nYou'll implement this as a single function `run_stream_checker(words, stream)`, where `words` initializes the structure and `stream` is a string whose characters are fed in one at a time, in order. Return a list of booleans, one per character of `stream`, indicating the query result after that character is added.",
+  "examples": [
+    {
+      "input": "words = [\"cd\",\"f\",\"kl\"], stream = \"abcdefghijkl\"",
+      "output": "[false,false,false,true,false,true,false,false,false,false,false,true]",
+      "explanation": "After 'a','b': no match. After 'c': no match yet. After 'd': the suffix \"cd\" matches, so true. After 'e': no match. After 'f': suffix \"f\" matches, so true. The remaining characters produce no new matches until 'l', where suffix \"kl\" matches."
+    }
+  ],
+  "constraints": [
+    "1 <= words.length <= 2000",
+    "1 <= words[i].length <= 200",
+    "words[i] consists of lowercase English letters",
+    "words[i] != words[j] for all i != j",
+    "1 <= stream.length <= 4 * 10^4",
+    "stream consists of lowercase English letters"
+  ],
+  "hints": [
+    "Checking every suffix of everything seen so far against a hash set of words directly is too slow when the stream is long and words can be up to 200 characters.",
+    "Insert the REVERSE of every word into a trie. Since we only ever care about suffixes ending at the current character, walking backward through recently-seen characters against this reversed trie checks all relevant suffixes efficiently.",
+    "Maintain a buffer of the most recent characters (up to the max word length). For each new character, walk the reversed trie starting from the root using the buffer read backward from the newest character, and report true as soon as you hit a node marked as a word ending — bound the walk length by the longest word to keep it fast."
+  ],
+  "solution": {
+    "approach": "Build a trie from the REVERSED version of every word, marking word-ending nodes. Maintain a growing buffer of stream characters seen so far (or just cap it at the maximum word length for efficiency). After appending each new character, walk the reversed trie starting at the root, consuming the buffer from the newest character backward (which corresponds to reading a suffix ending at the current position forward): if at any point a node is marked as a word end, that suffix is a complete word, so report true immediately. If the trie path runs out before finding a word end, report false. Capping the walk at the longest word length bounds each query's cost.",
+    "code": "def run_stream_checker(words, stream):\n    root = {}\n    max_len = 0\n\n    for word in words:\n        max_len = max(max_len, len(word))\n        node = root\n        for ch in reversed(word):\n            node = node.setdefault(ch, {})\n        node['$'] = True\n\n    buffer = []\n    results = []\n\n    for ch in stream:\n        buffer.append(ch)\n        if len(buffer) > max_len:\n            buffer.pop(0)\n\n        node = root\n        found = False\n        for c in reversed(buffer):\n            if c not in node:\n                break\n            node = node[c]\n            if node.get('$'):\n                found = True\n                break\n        results.append(found)\n\n    return results\n",
+    "timeComplexity": "O(sum of word lengths) to build, O(max word length) per stream character",
+    "spaceComplexity": "O(sum of word lengths) for the trie"
+  },
+  "starterCode": "def run_stream_checker(words, stream):\n    # your code here\n    pass\n",
+  "functionName": "run_stream_checker",
+  "paramNames": ["words", "stream"],
+  "testCases": [
+    {
+      "input": [["cd", "f", "kl"], "abcdefghijkl"],
+      "expected": [false, false, false, true, false, true, false, false, false, false, false, true],
+      "isHidden": false
+    },
+    {
+      "input": [["a"], "a"],
+      "expected": [true],
+      "isHidden": false
+    },
+    {
+      "input": [["ab", "ba"], "aba"],
+      "expected": [false, true, true],
+      "isHidden": true
+    },
+    {
+      "input": [["abc"], "xyzabc"],
+      "expected": [false, false, false, false, false, true],
+      "isHidden": true
+    },
+    {
+      "input": [["he", "she", "hers", "his"], "ahishers"],
+      "expected": [false, false, false, true, false, true, false, true],
+      "isHidden": true
+    }
+  ]
+}

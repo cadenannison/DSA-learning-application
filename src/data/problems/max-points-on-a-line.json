@@ -1,0 +1,80 @@
+{
+  "id": "max-points-on-a-line",
+  "title": "Max Points on a Line",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "hard",
+  "companies": [
+    "Amazon",
+    "LinkedIn",
+    "Google"
+  ],
+  "prompt": "Given an array of `points` where `points[i] = [xi, yi]` represents a point on the X-Y plane, return the maximum number of points that lie on the same straight line.",
+  "examples": [
+    {
+      "input": "points = [[1,1],[2,2],[3,3]]",
+      "output": "3",
+      "explanation": "All three points lie on the line y = x."
+    },
+    {
+      "input": "points = [[1,1],[3,2],[5,3],[4,1],[2,3],[1,4]]",
+      "output": "4"
+    }
+  ],
+  "constraints": [
+    "1 <= points.length <= 300",
+    "points[i].length == 2",
+    "-10^4 <= xi, yi <= 10^4",
+    "All the points are unique"
+  ],
+  "hints": [
+    "Checking every triple of points for collinearity is O(n^3). Fixing just one point at a time and comparing slopes to it is enough.",
+    "For a fixed anchor point, group every other point by the slope of the line it forms with the anchor \u2014 points sharing a slope relative to the same anchor are collinear with it.",
+    "Represent slope as a reduced fraction (dy/gcd, dx/gcd) with a consistent sign convention instead of a floating-point division, to avoid precision errors, and handle vertical lines (dx == 0) as a special slope key."
+  ],
+  "solution": {
+    "approach": "For each point used as an anchor, compute the slope from that anchor to every other point, and count how many points share each slope using a hash map \u2014 all points sharing a slope relative to the same anchor lie on the same line through it. To avoid floating-point precision issues, represent a slope as a reduced (dy, dx) pair using their GCD, with a fixed sign convention so that opposite-direction pairs normalize to the same key (and a dedicated key for vertical lines where dx = 0). The best count found across all anchors, plus the anchor point itself, is the answer. This reduces the search to O(n^2) instead of checking all O(n^3) triples.",
+    "code": "from math import gcd\n\ndef max_points(points):\n    n = len(points)\n    if n <= 2:\n        return n\n\n    best = 1\n    for i in range(n):\n        slopes = {}\n        x1, y1 = points[i]\n        for j in range(n):\n            if i == j:\n                continue\n            x2, y2 = points[j]\n            dx, dy = x2 - x1, y2 - y1\n            if dx == 0:\n                key = ('inf',)\n            else:\n                g = gcd(dx, dy)\n                dx //= g\n                dy //= g\n                if dx < 0:\n                    dx, dy = -dx, -dy\n                key = (dx, dy)\n            slopes[key] = slopes.get(key, 0) + 1\n            best = max(best, slopes[key] + 1)\n\n    return best\n",
+    "timeComplexity": "O(n^2)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def max_points(points):\n    # your code here\n    pass\n",
+  "functionName": "max_points",
+  "paramNames": ["points"],
+  "testCases": [
+    {
+      "input": [
+        [[1, 1], [2, 2], [3, 3]]
+      ],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[1, 1], [3, 2], [5, 3], [4, 1], [2, 3], [1, 4]]
+      ],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[0, 0]]
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[0, 0], [1, 1]]
+      ],
+      "expected": 2,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[0, 0], [0, 1], [0, -1], [1, 1]]
+      ],
+      "expected": 3,
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "id": "surrounded-regions",
+  "title": "Surrounded Regions",
+  "pattern": "bfs-dfs",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Facebook",
+    "Google",
+    "Microsoft"
+  ],
+  "prompt": "You are given an `m x n` matrix `board` containing letters `'X'` and `'O'`. Capture all regions of `'O'`s that are 4-directionally surrounded by `'X'`s, by flipping every captured `'O'` into an `'X'`. A region is not captured if it is connected (directly or through other `'O'`s) to an `'O'` on the border of the board. Return the resulting board.",
+  "examples": [
+    {
+      "input": "board = [[\"X\",\"X\",\"X\",\"X\"],[\"X\",\"O\",\"O\",\"X\"],[\"X\",\"X\",\"O\",\"X\"],[\"X\",\"O\",\"X\",\"X\"]]",
+      "output": "[[\"X\",\"X\",\"X\",\"X\"],[\"X\",\"X\",\"X\",\"X\"],[\"X\",\"X\",\"X\",\"X\"],[\"X\",\"O\",\"X\",\"X\"]]",
+      "explanation": "The connected group of Os in the middle is fully enclosed and gets captured; the O at the bottom touches the border, so it survives."
+    },
+    {
+      "input": "board = [[\"X\"]]",
+      "output": "[[\"X\"]]",
+      "explanation": "No Os exist, so nothing changes."
+    }
+  ],
+  "constraints": [
+    "m == board.length",
+    "n == board[i].length",
+    "1 <= m, n <= 200",
+    "board[i][j] is 'X' or 'O'"
+  ],
+  "hints": [
+    "It's easier to identify the Os that survive (those connected to the border) than to directly detect which are fully surrounded.",
+    "Flood-fill (DFS/BFS) from every 'O' on the border, marking every 'O' reachable from the border with a temporary marker so it's protected from capture.",
+    "After marking all border-connected Os, do a final pass: any remaining plain 'O' was never reachable from the border, so flip it to 'X'; then flip the temporary markers back to 'O'."
+  ],
+  "solution": {
+    "approach": "An 'O' survives if and only if it is connected to some 'O' on the border. So flood-fill from every border 'O', temporarily marking each visited cell (e.g. with '#') to protect it from capture. After this pass, any cell still marked 'O' was never reachable from the border and must be surrounded, so flip it to 'X'; finally, restore every '#' back to 'O' since those were the safe cells.",
+    "code": "def solve(board):\n    if not board:\n        return board\n    rows, cols = len(board), len(board[0])\n\n    def dfs(r, c):\n        if r < 0 or r >= rows or c < 0 or c >= cols or board[r][c] != 'O':\n            return\n        board[r][c] = '#'\n        dfs(r + 1, c)\n        dfs(r - 1, c)\n        dfs(r, c + 1)\n        dfs(r, c - 1)\n\n    for r in range(rows):\n        dfs(r, 0)\n        dfs(r, cols - 1)\n    for c in range(cols):\n        dfs(0, c)\n        dfs(rows - 1, c)\n\n    for r in range(rows):\n        for c in range(cols):\n            if board[r][c] == 'O':\n                board[r][c] = 'X'\n            elif board[r][c] == '#':\n                board[r][c] = 'O'\n\n    return board\n",
+    "timeComplexity": "O(m * n)",
+    "spaceComplexity": "O(m * n) worst-case recursion depth"
+  },
+  "starterCode": "def solve(board):\n    # your code here\n    pass\n",
+  "functionName": "solve",
+  "paramNames": ["board"],
+  "testCases": [
+    {
+      "input": [
+        [["X", "X", "X", "X"], ["X", "O", "O", "X"], ["X", "X", "O", "X"], ["X", "O", "X", "X"]]
+      ],
+      "expected": [["X", "X", "X", "X"], ["X", "X", "X", "X"], ["X", "X", "X", "X"], ["X", "O", "X", "X"]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [["X"]]
+      ],
+      "expected": [["X"]],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [["O", "O"], ["O", "O"]]
+      ],
+      "expected": [["O", "O"], ["O", "O"]],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [["O"]]
+      ],
+      "expected": [["O"]],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [["X", "X", "X"], ["X", "O", "X"], ["X", "X", "X"]]
+      ],
+      "expected": [["X", "X", "X"], ["X", "X", "X"], ["X", "X", "X"]],
+      "isHidden": true
+    }
+  ]
+}

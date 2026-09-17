@@ -1,0 +1,75 @@
+{
+  "id": "best-time-to-buy-and-sell-stock-ii",
+  "title": "Best Time to Buy and Sell Stock II",
+  "pattern": "sliding-window",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Bloomberg",
+    "Adobe"
+  ],
+  "prompt": "You are given an integer array `prices` where `prices[i]` is the price of a stock on day `i`. On each day you may buy and/or sell the stock, but you can only hold at most one share at a time — you must sell before buying again. Return the maximum total profit achievable across as many transactions as you like.",
+  "examples": [
+    {
+      "input": "prices = [7,1,5,3,6,4]",
+      "output": "7",
+      "explanation": "Buy on day 1 (price 1), sell on day 2 (price 5), profit = 4. Buy on day 3 (price 3), sell on day 4 (price 6), profit = 3. Total = 7."
+    },
+    {
+      "input": "prices = [1,2,3,4,5]",
+      "output": "4",
+      "explanation": "Buy on day 0, sell on day 4, profit = 4. Buying and selling every day gives the same total."
+    },
+    {
+      "input": "prices = [7,6,4,3,1]",
+      "output": "0",
+      "explanation": "Prices only fall, so no transaction is profitable."
+    }
+  ],
+  "constraints": [
+    "1 <= prices.length <= 3 * 10^4",
+    "0 <= prices[i] <= 10^4"
+  ],
+  "hints": [
+    "With unlimited transactions allowed, you don't need to track specific buy/sell days at all.",
+    "Think of the price array as a sequence of rising and falling 'windows' — you only profit from the upward runs.",
+    "Every time the price increases from one day to the next, that increase can be captured as profit; summing all positive day-to-day increases gives the same total as the best possible transaction sequence."
+  ],
+  "solution": {
+    "approach": "Since any number of transactions is allowed and you must sell before buying again, the maximum total profit equals the sum of every positive day-to-day price increase. This works because any profitable multi-day hold can be decomposed into the sum of its daily deltas, and skipping the negative deltas (by selling and rebuying) never costs anything since transactions are free and unlimited. A single pass comparing each day to the previous one suffices.",
+    "code": "def max_profit(prices):\n    profit = 0\n    for i in range(1, len(prices)):\n        if prices[i] > prices[i - 1]:\n            profit += prices[i] - prices[i - 1]\n    return profit\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def max_profit(prices):\n    # your code here\n    pass\n",
+  "functionName": "max_profit",
+  "paramNames": ["prices"],
+  "testCases": [
+    {
+      "input": [[7, 1, 5, 3, 6, 4]],
+      "expected": 7,
+      "isHidden": false
+    },
+    {
+      "input": [[1, 2, 3, 4, 5]],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [[7, 6, 4, 3, 1]],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [[1]],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [[2, 1, 2, 0, 1]],
+      "expected": 2,
+      "isHidden": true
+    }
+  ]
+}

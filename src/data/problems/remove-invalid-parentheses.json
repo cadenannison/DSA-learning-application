@@ -1,0 +1,74 @@
+{
+  "id": "remove-invalid-parentheses",
+  "title": "Remove Invalid Parentheses",
+  "pattern": "backtracking",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Facebook",
+    "Airbnb"
+  ],
+  "prompt": "Given a string `s` that contains parentheses and letters, remove the minimum number of invalid parentheses to make the input string valid. Return all the possible results, in any order (there may be more than one way to achieve a valid string with the minimum number of removals).\n\nFor deterministic comparison, sort the resulting list of strings.",
+  "examples": [
+    {
+      "input": "s = \"()())()\"",
+      "output": "[\"(())()\",\"()()()\"]",
+      "explanation": "Removing exactly one parenthesis produces a valid string in these two distinct ways; no removal count smaller than 1 works."
+    },
+    {
+      "input": "s = \"(a)())()\"",
+      "output": "[\"(a())()\",\"(a)()()\"]"
+    },
+    {
+      "input": "s = \")(\"",
+      "output": "[\"\"]",
+      "explanation": "Both characters must be removed to reach a valid (empty) string."
+    }
+  ],
+  "constraints": [
+    "1 <= s.length <= 25",
+    "s consists of lowercase English letters and parentheses '(' and ')'",
+    "There will be at most 20 parentheses in s"
+  ],
+  "hints": [
+    "First figure out the MINIMUM number of '(' and ')' that must be removed, by scanning the string: an unmatched ')' must be removed, and any leftover unmatched '(' at the end must be removed too. This tells you exactly how many of each to remove before searching.",
+    "Backtrack over which characters to remove: at each position, either keep the character or, if it's a parenthesis and you still have removals of that type left to use, skip it \u2014 try both choices for parentheses characters (letters must always be kept).",
+    "Validate as you go: track a running balance of open parens in the KEPT string so far, and abandon a branch immediately once the balance goes negative (too many ')' kept relative to '(' so far), rather than waiting until the end to check validity. Only accept a final string once both removal budgets hit exactly zero and the balance ends at exactly zero."
+  ],
+  "solution": {
+    "approach": "First compute the minimum number of '(' and ')' removals needed via a single linear scan: increment a pending '(' removal count when the running balance would go negative on a ')' (track ')' removals this way), and whatever '(' balance remains unmatched at the end must also be removed. This gives exact removal budgets for each parenthesis type, letting backtracking target exactly the minimum-removal solutions instead of searching all possible removal counts. Then backtrack character by character: always keep letters; for '(' or ')', either keep it, or spend one unit of that character's removal budget to skip it. Prune eagerly by tracking the running open-paren balance of the kept string — abandon the moment it would go negative — and only record a final string when the entire input has been processed with both budgets fully spent and the balance back at zero. Deduplicate identical results (multiple removal choices can yield the same string) using a set before sorting.",
+    "code": "def remove_invalid_parentheses(s):\n    remove_left = remove_right = 0\n    for ch in s:\n        if ch == '(':\n            remove_left += 1\n        elif ch == ')':\n            if remove_left > 0:\n                remove_left -= 1\n            else:\n                remove_right += 1\n\n    n = len(s)\n    results = set()\n\n    def backtrack(index, path, open_count, remove_left, remove_right):\n        if index == n:\n            if remove_left == 0 and remove_right == 0 and open_count == 0:\n                results.add(''.join(path))\n            return\n        ch = s[index]\n        if ch == '(' and remove_left > 0:\n            backtrack(index + 1, path, open_count, remove_left - 1, remove_right)\n        if ch == ')' and remove_right > 0:\n            backtrack(index + 1, path, open_count, remove_left, remove_right - 1)\n\n        path.append(ch)\n        if ch != '(' and ch != ')':\n            backtrack(index + 1, path, open_count, remove_left, remove_right)\n        elif ch == '(':\n            backtrack(index + 1, path, open_count + 1, remove_left, remove_right)\n        elif open_count > 0:\n            backtrack(index + 1, path, open_count - 1, remove_left, remove_right)\n        path.pop()\n\n    backtrack(0, [], 0, remove_left, remove_right)\n    return sorted(results)\n",
+    "timeComplexity": "O(2^n) worst case",
+    "spaceComplexity": "O(n) recursion depth, plus output size"
+  },
+  "starterCode": "def remove_invalid_parentheses(s):\n    # your code here\n    pass\n",
+  "functionName": "remove_invalid_parentheses",
+  "paramNames": ["s"],
+  "testCases": [
+    {
+      "input": ["()())()"],
+      "expected": ["(())()", "()()()"],
+      "isHidden": false
+    },
+    {
+      "input": ["(a)())()"],
+      "expected": ["(a())()", "(a)()()"],
+      "isHidden": false
+    },
+    {
+      "input": [")("],
+      "expected": [""],
+      "isHidden": false
+    },
+    {
+      "input": ["()"],
+      "expected": ["()"],
+      "isHidden": true
+    },
+    {
+      "input": ["(a(b(c"],
+      "expected": ["abc"],
+      "isHidden": true
+    }
+  ]
+}

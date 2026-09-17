@@ -69,6 +69,10 @@ export interface StudyPlanStore {
   getPlan(planId: string): Promise<StudyPlan | null>
   deletePlan(planId: string): Promise<void>
 
+  /** Marks the given plan as this user's active plan and clears the flag on every other plan
+   * they own, atomically. `planId: null` clears the active plan entirely (e.g. it was deleted). */
+  setActivePlan(userId: string, planId: string | null): Promise<void>
+
   listTracks(): Promise<StudyTrack[]>
   listPatterns(planId: string): Promise<StudyPattern[]>
   getPattern(planId: string, id: string): Promise<StudyPattern | null>
@@ -81,6 +85,15 @@ export interface StudyPlanStore {
     planId: string,
     id: string,
     update: { stage?: StudyPatternStage; confidence?: number | null; notes?: string }
+  ): Promise<StudyPattern | null>
+
+  /** Sets this plan's personalized priority/likelihood override for a pattern (see
+   * StudyPattern.personalizedPriorityRank) — set by the AI builder from company/role/background
+   * context. `null` clears an override, falling back to the pattern's global seed values. */
+  setPatternPriorityOverride(
+    planId: string,
+    id: string,
+    override: { personalizedPriorityRank?: number | null; personalizedLikelihoodWeight?: number | null }
   ): Promise<StudyPattern | null>
 
   /** SM-2-lite reschedule for this plan's pattern, given a 0-5 review quality score. */

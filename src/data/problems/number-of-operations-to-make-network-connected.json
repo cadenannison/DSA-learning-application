@@ -1,0 +1,67 @@
+{
+  "id": "number-of-operations-to-make-network-connected",
+  "title": "Number of Operations to Make Network Connected",
+  "pattern": "graphs",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "There are `n` computers numbered `0` to `n - 1` connected by ethernet cables `connections`, where `connections[i] = [ai, bi]` represents a direct connection between computers `ai` and `bi`. Any computer can reach any other computer directly or indirectly through the network.\n\nYou are given the initial computer network as `connections`. You can remove a cable between two directly connected computers and place it between any pair of computers that lack a direct connection, to form a new network. Return the minimum number of times you need to do this to make all computers connected. If it is not possible, return `-1`.",
+  "examples": [
+    {
+      "input": "n = 4, connections = [[0,1],[0,2],[1,2]]",
+      "output": "1",
+      "explanation": "Remove the redundant cable between 1 and 2 (a cycle edge) and connect it to computer 3 instead."
+    },
+    {
+      "input": "n = 6, connections = [[0,1],[0,2],[0,3],[1,2],[1,3]]",
+      "output": "2",
+      "explanation": "Two extra cables (from the cycles among 0, 1, 2, 3) are available to connect the two isolated computers 4 and 5."
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 10^5",
+    "1 <= connections.length <= min(n * (n - 1) / 2, 10^5)",
+    "connections[i].length == 2",
+    "0 <= ai, bi < n",
+    "ai != bi",
+    "There are no repeated connections and no two computers are connected by more than one cable"
+  ],
+  "hints": [
+    "First check feasibility: you need at least n - 1 cables total to possibly connect n computers, since a spanning tree requires exactly that many edges.",
+    "Count the number of connected components in the current network (Union-Find works well) and count how many cables are 'extra' (they connect two computers already in the same component, i.e. redundant/cycle edges).",
+    "Each extra cable can be repurposed to join two separate components. If there are enough extra cables to join every component into one, the answer is (number of components - 1); otherwise, it's impossible."
+  ],
+  "solution": {
+    "approach": "If there are fewer than n - 1 cables, connecting all computers is impossible outright (a spanning tree needs at least n - 1 edges), so return -1. Otherwise, use Union-Find to process every connection: unions that join two different components count toward reducing the component count, while unions between already-connected computers are redundant (extra, movable) cables. To fully connect the network you need exactly (number of final components - 1) more edges, and since we already confirmed at least that many cables exist overall, there will always be enough redundant cables available once the edge count check passes. Return components - 1.",
+    "code": "def make_connected(n, connections):\n    if len(connections) < n - 1:\n        return -1\n\n    parent = list(range(n))\n\n    def find(x):\n        while parent[x] != x:\n            parent[x] = parent[parent[x]]\n            x = parent[x]\n        return x\n\n    components = n\n    for a, b in connections:\n        root_a, root_b = find(a), find(b)\n        if root_a != root_b:\n            parent[root_a] = root_b\n            components -= 1\n\n    return components - 1\n",
+    "timeComplexity": "O(n * alpha(n)), alpha = inverse Ackermann (effectively O(n))",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def make_connected(n, connections):\n    # your code here\n    pass\n",
+  "functionName": "make_connected",
+  "paramNames": ["n", "connections"],
+  "testCases": [
+    {
+      "input": [4, [[0, 1], [0, 2], [1, 2]]],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [6, [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3]]],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [4, [[0, 1], [0, 2]]],
+      "expected": -1,
+      "isHidden": true
+    },
+    {
+      "input": [1, []],
+      "expected": 0,
+      "isHidden": true
+    }
+  ]
+}

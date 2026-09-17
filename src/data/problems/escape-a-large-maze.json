@@ -1,0 +1,82 @@
+{
+  "id": "escape-a-large-maze",
+  "title": "Escape a Large Maze",
+  "pattern": "bfs-dfs",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "You are in a `10^6 x 10^6` grid, starting at `source = [sx, sy]` and want to reach `target = [tx, ty]`. Some cells are blocked, given as a list `blocked` of `[bx, by]` coordinates. You can move 4-directionally to adjacent unblocked cells within the grid's bounds. Return `true` if you can reach the target from the source, or `false` otherwise. The number of blocked cells is small relative to the grid size, so a full BFS/DFS over the entire grid is too slow.",
+  "examples": [
+    {
+      "input": "blocked = [[0,1],[1,0]], source = [0,0], target = [0,2]",
+      "output": "false",
+      "explanation": "The two blocked cells wall off the source into a fully enclosed 1x1 pocket at the corner, so the target can never be reached."
+    },
+    {
+      "input": "blocked = [], source = [0,0], target = [999999,999999]",
+      "output": "true",
+      "explanation": "With no obstacles, the target is always reachable."
+    }
+  ],
+  "constraints": [
+    "0 <= blocked.length <= 200",
+    "blocked[i].length == 2",
+    "0 <= sx, sy, tx, ty < 10^6",
+    "source != target",
+    "It is guaranteed that source and target are not blocked"
+  ],
+  "hints": [
+    "With up to only 200 blocked cells, the maximum area that can ever be fully enclosed by them is bounded (roughly on the order of blocked^2 / 2) — you don't need to explore the whole 10^6 x 10^6 grid.",
+    "Run a BFS/DFS from the source, but cap the number of cells you expand to that bound; if you manage to visit more cells than that bound without finding a wall, you must have escaped any possible enclosure and can conclude you're free (though you still need to separately check you can reach target, not just that you escaped).",
+    "A clean approach: run this capped BFS from BOTH source and target. If either capped search reaches the other point directly, return true; if both get capped out (meaning both proved they aren't trapped in a small pocket), return true; if a search terminates naturally (exhausts everything reachable) without escaping and without reaching the other point, that point is trapped and the answer is false."
+  ],
+  "solution": {
+    "approach": "Since at most 200 cells are blocked, the largest area they could possibly wall off into an enclosed pocket is bounded (with k blocked cells forming a boundary, the maximum enclosed area is on the order of k*(k-1)/2, comfortably under ~40000 for k=200). So run a BFS from the source capped at that many visited cells: if the BFS reaches the target before hitting the cap, we're done (true). If it exhausts all reachable cells (queue empties) before hitting the cap without reaching target, the source is trapped in a small pocket that excludes target, so return false. If the cap is hit without reaching target, the source has 'escaped' any possible small pocket, so run the same capped BFS from the target; if that also escapes its own pocket, both points are in the unbounded region and can reach each other, so return true.",
+    "code": "from collections import deque\n\n\ndef is_escape_possible(blocked, source, target):\n    BOUND = 20000\n    blocked_set = {tuple(b) for b in blocked}\n\n    def bfs(start, end):\n        visited = {tuple(start)}\n        queue = deque([tuple(start)])\n        while queue:\n            r, c = queue.popleft()\n            if [r, c] == end or (r, c) == tuple(end):\n                return True\n            for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                nr, nc = r + dr, c + dc\n                if 0 <= nr < 10**6 and 0 <= nc < 10**6 and (nr, nc) not in visited and (nr, nc) not in blocked_set:\n                    if (nr, nc) == tuple(end):\n                        return True\n                    visited.add((nr, nc))\n                    queue.append((nr, nc))\n                    if len(visited) > BOUND:\n                        return True\n        return False\n\n    if not bfs(source, target):\n        return False\n    if not bfs(target, source):\n        return False\n    return True\n",
+    "timeComplexity": "O(k^2) where k is the number of blocked cells",
+    "spaceComplexity": "O(k^2)"
+  },
+  "starterCode": "def is_escape_possible(blocked, source, target):\n    # your code here\n    pass\n",
+  "functionName": "is_escape_possible",
+  "paramNames": ["blocked", "source", "target"],
+  "testCases": [
+    {
+      "input": [
+        [[0, 1], [1, 0]],
+        [0, 0],
+        [0, 2]
+      ],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [],
+        [0, 0],
+        [999999, 999999]
+      ],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [],
+        [0, 0],
+        [0, 1]
+      ],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[0, 1], [1, 1], [1, 0]],
+        [0, 0],
+        [5, 5]
+      ],
+      "expected": false,
+      "isHidden": true
+    }
+  ]
+}

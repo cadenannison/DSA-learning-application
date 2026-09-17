@@ -1,0 +1,67 @@
+{
+  "id": "parallel-courses",
+  "title": "Parallel Courses",
+  "pattern": "graphs",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Amazon"
+  ],
+  "prompt": "You are given an integer `n` representing the number of courses labeled `1` to `n`, and an array `relations` where `relations[i] = [prevCourse, nextCourse]` means course `prevCourse` must be completed before course `nextCourse`. In one semester, you can take any number of courses as long as all of their prerequisites have already been completed in a previous semester.\n\nReturn the minimum number of semesters needed to complete all `n` courses. If it is impossible to complete all courses (because of a cycle in the prerequisites), return `-1`.",
+  "examples": [
+    {
+      "input": "n = 3, relations = [[1,3],[2,3]]",
+      "output": "2",
+      "explanation": "In the first semester, take courses 1 and 2; in the second semester, take course 3 (its prerequisites are now met)."
+    },
+    {
+      "input": "n = 3, relations = [[1,2],[2,3],[3,1]]",
+      "output": "-1",
+      "explanation": "1 -> 2 -> 3 -> 1 forms a cycle, so no valid completion order exists."
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 5000",
+    "1 <= relations.length <= 5000",
+    "relations[i].length == 2",
+    "1 <= prevCourse, nextCourse <= n",
+    "prevCourse != nextCourse",
+    "All the pairs [prevCourse, nextCourse] are unique"
+  ],
+  "hints": [
+    "This is a topological ordering problem, but instead of just any valid order, you need the minimum number of 'levels' (semesters) needed if you always take as many available courses as possible at once.",
+    "Use Kahn's algorithm (BFS with in-degrees), but process courses in full layers/waves rather than one at a time: each wave is exactly the set of courses whose prerequisites are all satisfied at that point.",
+    "Each full wave you process corresponds to exactly one semester. If, once the queue empties, you haven't processed every course, a cycle exists among the remaining ones — return -1."
+  ],
+  "solution": {
+    "approach": "Build a directed graph and compute in-degrees (number of unmet prerequisites) for every course. Seed a queue with every course that currently has in-degree 0 (no prerequisites) -- this whole batch can be taken in semester 1. Process the queue in layers/waves: for each wave, remove every course currently in the queue, decrement the in-degree of everything it unlocks, and enqueue any course that just reached in-degree 0 for the next wave. Each wave processed corresponds to exactly one semester, since a course only becomes available once every course in an earlier wave (its prerequisites) has been completed. If the total number of processed courses doesn't reach n once the queue empties, the remaining courses are stuck in a cycle, so return -1.",
+    "code": "from collections import deque\n\n\ndef minimum_semesters(n, relations):\n    graph = [[] for _ in range(n + 1)]\n    in_degree = [0] * (n + 1)\n    for prev_course, next_course in relations:\n        graph[prev_course].append(next_course)\n        in_degree[next_course] += 1\n\n    queue = deque(course for course in range(1, n + 1) if in_degree[course] == 0)\n    completed = 0\n    semesters = 0\n\n    while queue:\n        semesters += 1\n        for _ in range(len(queue)):\n            course = queue.popleft()\n            completed += 1\n            for nxt in graph[course]:\n                in_degree[nxt] -= 1\n                if in_degree[nxt] == 0:\n                    queue.append(nxt)\n\n    return semesters if completed == n else -1\n",
+    "timeComplexity": "O(V + E)",
+    "spaceComplexity": "O(V + E)"
+  },
+  "starterCode": "def minimum_semesters(n, relations):\n    # your code here\n    pass\n",
+  "functionName": "minimum_semesters",
+  "paramNames": ["n", "relations"],
+  "testCases": [
+    {
+      "input": [3, [[1, 3], [2, 3]]],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [3, [[1, 2], [2, 3], [3, 1]]],
+      "expected": -1,
+      "isHidden": false
+    },
+    {
+      "input": [1, []],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [4, [[1, 2], [2, 3], [3, 4]]],
+      "expected": 4,
+      "isHidden": true
+    }
+  ]
+}

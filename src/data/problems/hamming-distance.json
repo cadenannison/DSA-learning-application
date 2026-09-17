@@ -1,0 +1,66 @@
+{
+  "id": "hamming-distance",
+  "title": "Hamming Distance",
+  "pattern": "greedy",
+  "difficulty": "easy",
+  "companies": [
+    "Facebook",
+    "Amazon"
+  ],
+  "prompt": "The Hamming distance between two integers is the number of positions at which the corresponding bits are different. Given two integers `x` and `y`, return the Hamming distance between them.",
+  "examples": [
+    {
+      "input": "x = 1, y = 4",
+      "output": "2",
+      "explanation": "1 (0 0 1) and 4 (1 0 0) differ in the first and third bits, so the Hamming distance is 2."
+    },
+    {
+      "input": "x = 3, y = 1",
+      "output": "1"
+    }
+  ],
+  "constraints": [
+    "0 <= x, y <= 2^31 - 1"
+  ],
+  "hints": [
+    "The positions where two numbers' bits differ are exactly the positions where their XOR has a 1 bit.",
+    "Compute x XOR y, then count the 1 bits of the result.",
+    "You can count set bits with the n & (n - 1) trick, which clears the lowest set bit each iteration."
+  ],
+  "solution": {
+    "approach": "XOR x and y: the result has a 1 bit exactly where x and y differ. Counting the set bits of that XOR result therefore gives the Hamming distance directly, using the same n & (n - 1) trick to clear the lowest set bit each iteration until the value reaches zero.",
+    "code": "def hamming_distance(x, y):\n    diff = x ^ y\n    count = 0\n    while diff:\n        diff &= diff - 1\n        count += 1\n    return count\n",
+    "timeComplexity": "O(k) where k is the number of differing bits (O(1) bounded by 32)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def hamming_distance(x, y):\n    # your code here\n    pass\n",
+  "functionName": "hamming_distance",
+  "paramNames": ["x", "y"],
+  "testCases": [
+    {
+      "input": [1, 4],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [3, 1],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [0, 0],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [0, 2147483647],
+      "expected": 31,
+      "isHidden": true
+    },
+    {
+      "input": [15, 0],
+      "expected": 4,
+      "isHidden": true
+    }
+  ]
+}

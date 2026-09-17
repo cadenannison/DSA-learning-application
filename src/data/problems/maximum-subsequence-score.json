@@ -1,0 +1,70 @@
+{
+  "id": "maximum-subsequence-score",
+  "title": "Maximum Subsequence Score",
+  "pattern": "heaps",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "You are given two 0-indexed integer arrays `nums1` and `nums2` of equal length `n`, and an integer `k`. Choose a subsequence of indices from `0` to `n - 1` of length exactly `k`. For the chosen indices, the score is defined as the sum of the corresponding values in `nums1`, multiplied by the minimum of the corresponding values in `nums2`.\n\nReturn the maximum possible score of a chosen subsequence of length `k`.",
+  "examples": [
+    {
+      "input": "nums1 = [1,3,3,2], nums2 = [2,1,3,4], k = 3",
+      "output": "12",
+      "explanation": "Choose indices 0,2,3: sum of nums1 = 1+3+2=6, min of nums2 = min(2,3,4)=2, score=12."
+    },
+    {
+      "input": "nums1 = [4,2,3,1,1], nums2 = [7,5,10,9,6], k = 1",
+      "output": "30",
+      "explanation": "Choose index 2: sum=3, min=10, score=30."
+    }
+  ],
+  "constraints": [
+    "n == nums1.length == nums2.length",
+    "1 <= n <= 10^5",
+    "0 <= nums1[i], nums2[j] <= 10^5",
+    "1 <= k <= n"
+  ],
+  "hints": [
+    "Trying every possible subsequence is exponential \u2014 instead fix which element provides the 'minimum of nums2' factor and optimize the rest.",
+    "Sort pairs by nums2 value descending. Then, processing pairs in that order, every element considered so far has a nums2 value >= the current one, so the current element's nums2 value is a valid candidate for the multiplier if it's included in the chosen set.",
+    "Maintain a min-heap of the k largest nums1 values seen so far (among processed pairs) and their running sum; whenever the heap has exactly k elements, the current pair's nums2 value times the running sum of the top-k nums1 values is a valid candidate score."
+  ],
+  "solution": {
+    "approach": "Sort the (nums1, nums2) pairs by nums2 value in descending order. Processing pairs in this order guarantees that when we consider the pair at position i, every pair processed so far has a nums2 value >= the current one, so the current pair's nums2 value is a safe candidate to serve as the 'minimum' factor for any subset of the pairs processed so far (including itself) that includes it. Maintain a min-heap of the k largest nums1 values encountered so far along with their running sum; whenever exactly k values have been collected, the candidate score is current_nums2 * running_sum, and we track the best. When a new nums1 value would grow the heap past size k, evict the smallest nums1 value (since it contributes least to the sum) and adjust the running sum, ensuring we always keep the best possible k values for the current nums2 threshold.",
+    "code": "import heapq\n\ndef maximum_subsequence_score(nums1, nums2, k):\n    pairs = sorted(zip(nums1, nums2), key=lambda p: -p[1])\n\n    heap = []\n    total = 0\n    best = 0\n\n    for val1, val2 in pairs:\n        heapq.heappush(heap, val1)\n        total += val1\n\n        if len(heap) > k:\n            total -= heapq.heappop(heap)\n\n        if len(heap) == k:\n            best = max(best, total * val2)\n\n    return best\n",
+    "timeComplexity": "O(n log n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def maximum_subsequence_score(nums1, nums2, k):\n    # your code here\n    pass\n",
+  "functionName": "maximum_subsequence_score",
+  "paramNames": ["nums1", "nums2", "k"],
+  "testCases": [
+    {
+      "input": [[1, 3, 3, 2], [2, 1, 3, 4], 3],
+      "expected": 12,
+      "isHidden": false
+    },
+    {
+      "input": [[4, 2, 3, 1, 1], [7, 5, 10, 9, 6], 1],
+      "expected": 30,
+      "isHidden": false
+    },
+    {
+      "input": [[1], [1], 1],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [[5, 5], [5, 5], 2],
+      "expected": 50,
+      "isHidden": true
+    },
+    {
+      "input": [[2, 1, 4, 3, 6], [1, 2, 3, 4, 5], 2],
+      "expected": 36,
+      "isHidden": true
+    }
+  ]
+}

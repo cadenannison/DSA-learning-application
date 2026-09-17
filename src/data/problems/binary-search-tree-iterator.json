@@ -1,0 +1,86 @@
+{
+  "id": "binary-search-tree-iterator",
+  "title": "Binary Search Tree Iterator",
+  "pattern": "trees",
+  "difficulty": "hard",
+  "companies": [
+    "Amazon",
+    "Facebook",
+    "Google",
+    "Microsoft"
+  ],
+  "prompt": "Design an iterator over the in-order traversal of a binary search tree, supporting `next()` (returns the next smallest number) and `hasNext()` (returns whether there is a next smallest number), both expected to run in average O(1) time with O(h) extra memory, where h is the tree's height.\n\nSince this is a coding exercise rather than an interactive class-based design, the function is adapted to be self-contained and testable: it receives the tree as a level-order array (`null` for missing children, the standard LeetCode serialization) and a number of `next()` calls to simulate, builds the tree with the provided helper, then returns the list of values produced by calling `next()` that many times in sequence.",
+  "examples": [
+    {
+      "input": "root = [7,3,15,null,null,9,20], num_calls = 4",
+      "output": "[3,7,9,15]",
+      "explanation": "Calling next() four times in a row on this BST's iterator yields the four smallest values in order: 3, 7, 9, 15."
+    },
+    {
+      "input": "root = [1,null,2], num_calls = 2",
+      "output": "[1,2]"
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [1, 10^5]",
+    "0 <= Node.val <= 10^6",
+    "num_calls is at most the number of nodes in the tree",
+    "next() is called at most once per node total, so num_calls never exceeds the total node count"
+  ],
+  "hints": [
+    "Simulate an in-order traversal lazily, using an explicit stack instead of precomputing the entire sorted list upfront (which would use O(n) memory instead of O(h)).",
+    "Initialize the stack by pushing every node along the leftmost spine starting from the root; the smallest value is always at the top of that stack.",
+    "For next(): pop the top of the stack (that's the current smallest remaining value); if that node has a right child, push every node along the right child's leftmost spine, so the next-smallest value ends up on top for the following call."
+  ],
+  "solution": {
+    "approach": "Maintain an explicit stack that always has the next-smallest unvisited node on top, achieving amortized O(1) per next() call using only O(h) memory (one stack entry per level on the current leftmost spine) rather than materializing the full sorted sequence. Initialize by pushing every node down the leftmost spine from the root. For next(): pop the top node (the current smallest), then if it has a right child, push that child and then its own leftmost spine onto the stack, ensuring the following smallest value is ready at the top for the next call. hasNext() is simply a check for whether the stack is non-empty.",
+    "code": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\nclass BSTIterator:\n    def __init__(self, root):\n        self.stack = []\n        self._push_left_spine(root)\n\n    def _push_left_spine(self, node):\n        while node:\n            self.stack.append(node)\n            node = node.left\n\n    def has_next(self):\n        return len(self.stack) > 0\n\n    def next(self):\n        node = self.stack.pop()\n        if node.right:\n            self._push_left_spine(node.right)\n        return node.val\n\n\ndef bst_iterator_sequence(root_arr, num_calls):\n    root = build_tree(root_arr)\n    iterator = BSTIterator(root)\n    result = []\n    for _ in range(num_calls):\n        if iterator.has_next():\n            result.append(iterator.next())\n    return result\n",
+    "timeComplexity": "O(1) amortized per next() call, O(n) total across all calls",
+    "spaceComplexity": "O(h), h = tree height"
+  },
+  "starterCode": "class TreeNode:\n    def __init__(self, val, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n\ndef build_tree(arr):\n    if not arr or arr[0] is None:\n        return None\n    root = TreeNode(arr[0])\n    queue = [root]\n    i = 1\n    while i < len(arr) and queue:\n        node = queue.pop(0)\n        if i < len(arr):\n            left_val = arr[i]\n            i += 1\n            if left_val is not None:\n                node.left = TreeNode(left_val)\n                queue.append(node.left)\n        if i < len(arr):\n            right_val = arr[i]\n            i += 1\n            if right_val is not None:\n                node.right = TreeNode(right_val)\n                queue.append(node.right)\n    return root\n\n\nclass BSTIterator:\n    def __init__(self, root):\n        # your code here\n        pass\n\n    def has_next(self):\n        # your code here\n        pass\n\n    def next(self):\n        # your code here\n        pass\n\n\ndef bst_iterator_sequence(root_arr, num_calls):\n    root = build_tree(root_arr)\n    iterator = BSTIterator(root)\n    result = []\n    for _ in range(num_calls):\n        if iterator.has_next():\n            result.append(iterator.next())\n    return result\n",
+  "functionName": "bst_iterator_sequence",
+  "paramNames": ["root_arr", "num_calls"],
+  "testCases": [
+    {
+      "input": [
+        [7, 3, 15, null, null, 9, 20],
+        4
+      ],
+      "expected": [3, 7, 9, 15],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, null, 2],
+        2
+      ],
+      "expected": [1, 2],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [7, 3, 15, null, null, 9, 20],
+        1
+      ],
+      "expected": [3],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1],
+        1
+      ],
+      "expected": [1],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [5, 3, 8, 1, 4, 7, 9],
+        7
+      ],
+      "expected": [1, 3, 4, 5, 7, 8, 9],
+      "isHidden": true
+    }
+  ]
+}

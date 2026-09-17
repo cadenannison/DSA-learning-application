@@ -1,0 +1,67 @@
+{
+  "id": "remove-duplicate-letters",
+  "title": "Remove Duplicate Letters",
+  "pattern": "greedy",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon",
+    "Facebook"
+  ],
+  "prompt": "Given a string `s`, remove duplicate letters so that every letter appears exactly once, and return the result in a way that produces the smallest possible string in lexicographic order among all valid results, given that you must keep the relative order of the remaining occurrences of each letter.",
+  "examples": [
+    {
+      "input": "s = \"bcabc\"",
+      "output": "\"abc\""
+    },
+    {
+      "input": "s = \"cbacdcbc\"",
+      "output": "\"acdb\""
+    }
+  ],
+  "constraints": [
+    "1 <= s.length <= 10^4",
+    "s consists of lowercase English letters"
+  ],
+  "hints": [
+    "This resembles building a result with a monotonic stack, similar to \"remove k digits\" problems.",
+    "Precompute the last occurrence index of every character. Build the answer using a stack: for each character, pop worse (lexicographically larger) characters off the top of the stack if they still appear later in the string and aren't already used.",
+    "Only pop a stack character if it is greater than the current character AND it reoccurs later (using the last-occurrence map) AND it hasn't already been placed in the result \u2014 track membership with a seen set to avoid duplicates."
+  ],
+  "solution": {
+    "approach": "Precompute the last index at which each character appears. Build the result greedily with a stack: for each character in s, if it's already in the stack, skip it. Otherwise, while the top of the stack is lexicographically greater than the current character AND that top character still appears later in the string (so removing it now doesn't lose it forever), pop it off and mark it unseen. Then push the current character and mark it seen. This greedily prefers smaller characters earlier whenever it's safe to remove a larger one that will still be available later, guaranteeing both the smallest lexicographic result and exactly one occurrence of each letter in its earliest safely-achievable relative position.",
+    "code": "def remove_duplicate_letters(s):\n    last_occurrence = {char: i for i, char in enumerate(s)}\n    stack = []\n    seen = set()\n\n    for i, char in enumerate(s):\n        if char in seen:\n            continue\n        while stack and stack[-1] > char and last_occurrence[stack[-1]] > i:\n            seen.remove(stack.pop())\n        stack.append(char)\n        seen.add(char)\n\n    return ''.join(stack)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1) (bounded by 26 letters)"
+  },
+  "starterCode": "def remove_duplicate_letters(s):\n    # your code here\n    pass\n",
+  "functionName": "remove_duplicate_letters",
+  "paramNames": ["s"],
+  "testCases": [
+    {
+      "input": ["bcabc"],
+      "expected": "abc",
+      "isHidden": false
+    },
+    {
+      "input": ["cbacdcbc"],
+      "expected": "acdb",
+      "isHidden": false
+    },
+    {
+      "input": ["a"],
+      "expected": "a",
+      "isHidden": true
+    },
+    {
+      "input": ["abacb"],
+      "expected": "abc",
+      "isHidden": true
+    },
+    {
+      "input": ["ecbacba"],
+      "expected": "eacb",
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "id": "find-center-of-star-graph",
+  "title": "Find Center of Star Graph",
+  "pattern": "graphs",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "A star graph is an undirected graph with `n` nodes, where exactly one center node is connected to every other node by an edge, and there are no other edges. You are given the edges of a star graph as `edges` where `edges[i] = [ui, vi]` indicates an edge between nodes `ui` and `vi`. Return the label of the center node.",
+  "examples": [
+    {
+      "input": "edges = [[1,2],[2,3],[4,2]]",
+      "output": "2",
+      "explanation": "Node 2 appears in every edge, so it must be the center."
+    },
+    {
+      "input": "edges = [[1,2],[5,1],[1,3],[1,4]]",
+      "output": "1",
+      "explanation": "Node 1 appears in every edge, so it must be the center."
+    }
+  ],
+  "constraints": [
+    "3 <= n <= 10^5",
+    "edges.length == n - 1",
+    "edges[i].length == 2",
+    "1 <= ui, vi <= n",
+    "ui != vi",
+    "The given edges form a valid star graph"
+  ],
+  "hints": [
+    "You could count how many times each node label appears across all edges and return the one appearing n - 1 times, but that's more work than necessary.",
+    "In a star graph, the center node is the only node shared between any two distinct edges.",
+    "Just look at the first two edges: whichever node appears in both of them must be the center, since the center is the only node common to every edge."
+  ],
+  "solution": {
+    "approach": "In a star graph every edge includes the center, so the center is exactly the node shared by any two edges. Compare the two endpoints of the first edge against the two endpoints of the second edge; whichever endpoint of the first edge also appears in the second edge is the center. This avoids scanning the entire edge list.",
+    "code": "def find_center(edges):\n    a, b = edges[0]\n    c, d = edges[1]\n    return a if a in (c, d) else b\n",
+    "timeComplexity": "O(1)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def find_center(edges):\n    # your code here\n    pass\n",
+  "functionName": "find_center",
+  "paramNames": ["edges"],
+  "testCases": [
+    {
+      "input": [[[1, 2], [2, 3], [4, 2]]],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [[[1, 2], [5, 1], [1, 3], [1, 4]]],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [[[2, 3], [4, 3], [5, 3], [1, 3]]],
+      "expected": 3,
+      "isHidden": true
+    },
+    {
+      "input": [[[1, 3], [1, 2]]],
+      "expected": 1,
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "id": "expression-add-operators",
+  "title": "Expression Add Operators",
+  "pattern": "backtracking",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Facebook",
+    "Amazon"
+  ],
+  "prompt": "Given a string `num` that contains only digits and an integer `target`, return all possibilities to insert the binary operators `'+'`, `'-'`, or `'*'` between the digits of `num` so that the resultant expression evaluates to `target`.\n\nNote that operands in the returned expressions should not contain leading zeros (a single `\"0\"` is fine, but `\"05\"` is not a valid operand). Standard operator precedence applies (`*` binds tighter than `+`/`-`).\n\nFor deterministic comparison, sort the resulting list of expression strings.",
+  "examples": [
+    {
+      "input": "num = \"123\", target = 6",
+      "output": "[\"1*2*3\",\"1+2+3\"]",
+      "explanation": "Both expressions evaluate to 6, sorted lexicographically."
+    },
+    {
+      "input": "num = \"232\", target = 8",
+      "output": "[\"2*3+2\",\"2+3*2\"]"
+    },
+    {
+      "input": "num = \"105\", target = 5",
+      "output": "[\"1*0+5\",\"10-5\"]",
+      "explanation": "\"1+0+5\" doesn't equal target's alternate paths shown; leading-zero operands like \"05\" are rejected."
+    }
+  ],
+  "constraints": [
+    "1 <= num.length <= 10",
+    "num consists of only digits",
+    "-2^31 <= target <= 2^31 - 1"
+  ],
+  "hints": [
+    "You're choosing where to split num into operands and which operator to place between each pair \u2014 backtrack over both the split points and the operator choices.",
+    "Because '*' has higher precedence than '+'/'-', you can't just track a running total naively; also track the value of the LAST operand/term added so that if the next operator is '*', you can undo the last addition/subtraction and instead multiply it into the running total.",
+    "Reject any candidate operand that has a leading zero and length > 1 (e.g. \"05\") before ever considering it \u2014 this pruning avoids wasted recursive branches and invalid expressions."
+  ],
+  "solution": {
+    "approach": "Backtrack over positions in num, at each step trying every possible next operand (a substring starting at the current position, rejecting any with a leading zero unless it's exactly \"0\"). For the first operand there's no preceding operator; for subsequent operands, try appending it with '+', '-', or '*'. The key trick for handling '*' precedence correctly while keeping a running total: maintain both the running total and the value of the last term applied to it. For '+' or '-', add or subtract the new operand as a new 'last term' (positive or negated). For '*', undo the previous term from the total (subtract it back out) and instead add (last_term * new_operand) as the new last term, since multiplication binds to the immediately preceding operand. When the whole string has been consumed, check if the running total equals target and record the built expression if so.",
+    "code": "def add_operators(num, target):\n    n = len(num)\n    result = []\n\n    def backtrack(index, expr, total, last_term):\n        if index == n:\n            if total == target:\n                result.append(expr)\n            return\n        for end in range(index + 1, n + 1):\n            piece = num[index:end]\n            if len(piece) > 1 and piece[0] == '0':\n                break\n            value = int(piece)\n            if index == 0:\n                backtrack(end, piece, value, value)\n            else:\n                backtrack(end, expr + '+' + piece, total + value, value)\n                backtrack(end, expr + '-' + piece, total - value, -value)\n                backtrack(end, expr + '*' + piece, total - last_term + last_term * value, last_term * value)\n\n    backtrack(0, '', 0, 0)\n    result.sort()\n    return result\n",
+    "timeComplexity": "O(4^n) worst case (n-1 gaps, each with up to ~4 choices when accounting for split lengths)",
+    "spaceComplexity": "O(n) recursion depth, plus output size"
+  },
+  "starterCode": "def add_operators(num, target):\n    # your code here\n    pass\n",
+  "functionName": "add_operators",
+  "paramNames": ["num", "target"],
+  "testCases": [
+    {
+      "input": ["123", 6],
+      "expected": ["1*2*3", "1+2+3"],
+      "isHidden": false
+    },
+    {
+      "input": ["232", 8],
+      "expected": ["2*3+2", "2+3*2"],
+      "isHidden": false
+    },
+    {
+      "input": ["105", 5],
+      "expected": ["1*0+5", "10-5"],
+      "isHidden": false
+    },
+    {
+      "input": ["00", 0],
+      "expected": ["0*0", "0+0", "0-0"],
+      "isHidden": true
+    },
+    {
+      "input": ["3456237490", 9191],
+      "expected": [],
+      "isHidden": true
+    }
+  ]
+}

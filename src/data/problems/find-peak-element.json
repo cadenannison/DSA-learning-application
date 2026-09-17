@@ -1,0 +1,81 @@
+{
+  "id": "find-peak-element",
+  "title": "Find Peak Element",
+  "pattern": "binary-search",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Meta",
+    "Microsoft"
+  ],
+  "prompt": "A peak element is an element that is strictly greater than its neighbors. Given a 0-indexed integer array `nums`, find any peak element and return its index. If the array contains multiple peaks, returning the index to any of them is fine. You may imagine that `nums[-1] = nums[n] = -infinity`. Your algorithm must run in `O(log n)` time.",
+  "examples": [
+    {
+      "input": "nums = [1,2,3,1]",
+      "output": "2",
+      "explanation": "3 is a peak element, and your function should return the index 2."
+    },
+    {
+      "input": "nums = [1,2,1,3,5,6,4]",
+      "output": "5",
+      "explanation": "Your function can return either index 1 (peak 2) or index 5 (peak 6)."
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 1000",
+    "-2^31 <= nums[i] <= 2^31 - 1",
+    "nums[i] != nums[i + 1] for all valid i"
+  ],
+  "hints": [
+    "Scanning to find any index where both neighbors are smaller works in O(n), but there's no requirement to check every element.",
+    "Look at the slope at the midpoint: if nums[mid] < nums[mid + 1], the array is still rising there, which guarantees a peak exists somewhere to the right (since the boundary is -infinity).",
+    "Symmetrically if nums[mid] > nums[mid + 1] a peak is guaranteed to exist at mid or to its left. Binary search using this guarantee."
+  ],
+  "solution": {
+    "approach": "Binary search using local slope as the guide. If nums[mid] < nums[mid + 1], the sequence is increasing at mid, so climbing further right must eventually hit a peak (since it's bounded by -infinity beyond the array), so search the right half. Otherwise nums[mid] > nums[mid + 1], meaning mid is on a descending slope or is itself a peak, so a peak is guaranteed at mid or to its left. This comparison always keeps a peak in the search space, converging in O(log n) time without ever needing to scan the whole array.",
+    "code": "def find_peak_element(nums):\n    lo, hi = 0, len(nums) - 1\n\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if nums[mid] < nums[mid + 1]:\n            lo = mid + 1\n        else:\n            hi = mid\n\n    return lo\n",
+    "timeComplexity": "O(log n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def find_peak_element(nums):\n    # your code here\n    pass\n",
+  "functionName": "find_peak_element",
+  "paramNames": ["nums"],
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 3, 1]
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 1, 3, 5, 6, 4]
+      ],
+      "expected": 5,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2]
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [5, 4, 3, 2, 1]
+      ],
+      "expected": 0,
+      "isHidden": true
+    }
+  ]
+}

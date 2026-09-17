@@ -1,0 +1,66 @@
+{
+  "id": "the-skyline-problem",
+  "title": "The Skyline Problem",
+  "pattern": "heaps",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Amazon",
+    "Microsoft",
+    "Bloomberg"
+  ],
+  "prompt": "A city's skyline is the outer contour formed by a set of buildings viewed from a distance. You are given `buildings` where `buildings[i] = [lefti, righti, heighti]` describes a rectangular building with a footprint from `lefti` to `righti` (exclusive on the right) and height `heighti`.\n\nReturn the skyline as a list of `[x, y]` key points, sorted by x-coordinate, that fully defines the contour. Each key point is where the skyline's height changes. The final key point (after the last building) should have height 0. Consecutive key points must not have the same height (no two adjacent points share a y-value), and the skyline should not contain redundant points where the height doesn't actually change.",
+  "examples": [
+    {
+      "input": "buildings = [[2,9,10],[3,7,15],[5,12,12],[15,20,10],[19,24,8]]",
+      "output": "[[2,10],[3,15],[7,12],[12,0],[15,10],[20,8],[24,0]]",
+      "explanation": "At x=2 height jumps to 10 (building 1 starts). At x=3, building 2 (height 15, taller) starts, so height jumps to 15. At x=7, building 2 ends, but building 3 (height 12) still covers this x, so height drops to 12. At x=12, all buildings end there, height drops to 0. Then buildings 4 and 5 follow similarly."
+    },
+    {
+      "input": "buildings = [[0,2,3],[2,5,3]]",
+      "output": "[[0,3],[5,0]]",
+      "explanation": "Both buildings have the same height 3 and are adjacent (one ends exactly where the other starts), so the skyline is flat at height 3 from x=0 to x=5, with no key point at x=2 since the height doesn't change there."
+    }
+  ],
+  "constraints": [
+    "1 <= buildings.length <= 10^4",
+    "0 <= lefti < righti <= 2^31 - 1",
+    "1 <= heighti <= 2^31 - 1"
+  ],
+  "hints": [
+    "Think of each building as two events: a 'start' at its left edge (height becomes available) and an 'end' at its right edge (height becomes unavailable) \u2014 sweep through these events left to right.",
+    "At any x position, the skyline's height is the maximum height among all buildings currently 'active' (started but not yet ended) \u2014 a max-heap of active heights gives fast access to this.",
+    "When processing events at the same x-coordinate, handle all 'start' events before 'end' events (or carefully order them) so overlapping edges are resolved correctly; use lazy deletion in the heap (only remove a height when it's no longer the max and is confirmed inactive) since heaps don't support arbitrary removal directly."
+  ],
+  "solution": {
+    "approach": "Create sweep events: for each building, a start event at (left, -height) and an end event at (right, height) \u2014 negative marks a start so that at equal x-coordinates, starts (more negative height = taller) sort before ends, and taller starts are processed before shorter ones, correctly resolving simultaneous edges. Sort all events by x, then by the encoded height. Sweep through events maintaining a max-heap of active building heights plus a count of how many times each height currently appears (to support removal, since heights can repeat across buildings). For a start event, add the height to the heap and increment its count; for an end event, decrement its count. After processing all events at a given x, pop stale (count-zero) heights off the max-heap's top and compare the new max height to the last recorded skyline height; if different, emit a new key point.",
+    "code": "import heapq\nfrom collections import defaultdict\n\ndef the_skyline_problem(buildings):\n    events = []\n    for left, right, height in buildings:\n        events.append((left, -height, right))\n        events.append((right, 0, 0))\n\n    events.sort()\n\n    heap = [(0, float('inf'))]  # (-height, end)\n    result = []\n    live_counts = defaultdict(int)\n    live_counts[0] = 1\n\n    i = 0\n    n = len(events)\n    while i < n:\n        x = events[i][0]\n        while i < n and events[i][0] == x:\n            _, neg_h, end = events[i]\n            if neg_h != 0:\n                height = -neg_h\n                heapq.heappush(heap, (-height, end))\n                live_counts[height] += 1\n            i += 1\n\n        for left, right, height in buildings:\n            if right == x:\n                live_counts[height] -= 1\n\n        while heap and live_counts[-heap[0][0]] <= 0:\n            heapq.heappop(heap)\n\n        current_max = -heap[0][0] if heap else 0\n        if not result or result[-1][1] != current_max:\n            result.append([x, current_max])\n\n    return result\n",
+    "timeComplexity": "O(n^2) in this straightforward implementation due to the linear rescan for ending buildings at each x (can be optimized to O(n log n) with indexed event bookkeeping)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def the_skyline_problem(buildings):\n    # your code here\n    pass\n",
+  "functionName": "the_skyline_problem",
+  "paramNames": ["buildings"],
+  "testCases": [
+    {
+      "input": [[[2, 9, 10], [3, 7, 15], [5, 12, 12], [15, 20, 10], [19, 24, 8]]],
+      "expected": [[2, 10], [3, 15], [7, 12], [12, 0], [15, 10], [20, 8], [24, 0]],
+      "isHidden": false
+    },
+    {
+      "input": [[[0, 2, 3], [2, 5, 3]]],
+      "expected": [[0, 3], [5, 0]],
+      "isHidden": false
+    },
+    {
+      "input": [[[0, 1, 1]]],
+      "expected": [[0, 1], [1, 0]],
+      "isHidden": true
+    },
+    {
+      "input": [[[0, 5, 3], [1, 4, 4]]],
+      "expected": [[0, 3], [1, 4], [4, 3], [5, 0]],
+      "isHidden": true
+    }
+  ]
+}

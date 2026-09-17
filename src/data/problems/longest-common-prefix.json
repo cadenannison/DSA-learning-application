@@ -1,0 +1,76 @@
+{
+  "id": "longest-common-prefix",
+  "title": "Longest Common Prefix",
+  "pattern": "tries",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Microsoft",
+    "Adobe"
+  ],
+  "prompt": "Given an array of strings `strs`, return the longest common prefix string shared by all of them. If there is no common prefix, return an empty string `\"\"`.\n\nA common prefix must match from the very first character of every string, so as soon as any string lacks a given character at a given position (or ends), the prefix stops there.",
+  "examples": [
+    {
+      "input": "strs = [\"flower\",\"flow\",\"flight\"]",
+      "output": "\"fl\"",
+      "explanation": "All three strings share \"fl\" as a prefix; the fourth character diverges ('o' vs 'i') or the string ends."
+    },
+    {
+      "input": "strs = [\"dog\",\"racecar\",\"car\"]",
+      "output": "\"\"",
+      "explanation": "The strings share no common prefix at all."
+    }
+  ],
+  "constraints": [
+    "1 <= strs.length <= 200",
+    "0 <= strs[i].length <= 200",
+    "strs[i] consists of only lowercase English letters"
+  ],
+  "hints": [
+    "Comparing every pair of strings is wasteful; you only need to track how far the prefix has survived across all strings so far.",
+    "Inserting every string into a trie and walking down from the root while each node has exactly one child (and isn't itself a word end) traces out the common prefix directly.",
+    "You can also just take the first string as a candidate prefix and shrink it character by character whenever it stops matching the next string in the list — this avoids building a trie at all but the trie framing generalizes to prefix-heavy problems."
+  ],
+  "solution": {
+    "approach": "Insert every string into a trie. Then walk from the root: at each step, if the current node has exactly one child and is not itself marked as the end of an inserted word, extend the prefix with that child's character and descend; otherwise stop. This works because a branch point (more than one child) or a word boundary (some string ended exactly here) is precisely where the common prefix must end. Using the shortest string as the traversal bound also gives a natural early exit.",
+    "code": "def longest_common_prefix(strs):\n    if not strs:\n        return ''\n\n    root = {}\n    END = '$'\n    for s in strs:\n        node = root\n        for ch in s:\n            node = node.setdefault(ch, {})\n        node[END] = True\n\n    prefix = []\n    node = root\n    while True:\n        keys = [k for k in node if k != END]\n        if len(keys) != 1 or END in node:\n            break\n        ch = keys[0]\n        prefix.append(ch)\n        node = node[ch]\n\n    return ''.join(prefix)\n",
+    "timeComplexity": "O(S) where S is the total number of characters across all strings",
+    "spaceComplexity": "O(S) for the trie"
+  },
+  "starterCode": "def longest_common_prefix(strs):\n    # your code here\n    pass\n",
+  "functionName": "longest_common_prefix",
+  "paramNames": ["strs"],
+  "testCases": [
+    {
+      "input": [["flower", "flow", "flight"]],
+      "expected": "fl",
+      "isHidden": false
+    },
+    {
+      "input": [["dog", "racecar", "car"]],
+      "expected": "",
+      "isHidden": false
+    },
+    {
+      "input": [["single"]],
+      "expected": "single",
+      "isHidden": false
+    },
+    {
+      "input": [["", "abc"]],
+      "expected": "",
+      "isHidden": true
+    },
+    {
+      "input": [["abc", "abc", "abc"]],
+      "expected": "abc",
+      "isHidden": true
+    },
+    {
+      "input": [["ab", "a"]],
+      "expected": "a",
+      "isHidden": true
+    }
+  ]
+}

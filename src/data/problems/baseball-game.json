@@ -1,0 +1,68 @@
+{
+  "id": "baseball-game",
+  "title": "Baseball Game",
+  "pattern": "stacks-queues",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon"
+  ],
+  "prompt": "You're keeping score for a baseball game with a peculiar scoring rule. You're given an array of strings `ops`, where each `ops[i]` is one of the following:\n\nAn integer `x`, meaning a new score of `x` is recorded. `\"+\"`, meaning a new score equal to the sum of the previous two scores is recorded. `\"D\"`, meaning a new score equal to double the previous score is recorded. `\"C\"`, meaning the previous recorded score is invalidated and removed, as if it never happened.\n\nReturn the sum of all scores remaining after applying all operations.",
+  "examples": [
+    {
+      "input": "ops = [\"5\",\"2\",\"C\",\"D\",\"+\"]",
+      "output": "30",
+      "explanation": "5, then 2, then \"C\" invalidates 2 leaving [5], then \"D\" doubles 5 to get 10 -> [5,10], then \"+\" adds 5+10=15 -> [5,10,15]. Sum = 30."
+    },
+    {
+      "input": "ops = [\"1\",\"C\"]",
+      "output": "0"
+    }
+  ],
+  "constraints": [
+    "1 <= ops.length <= 1000",
+    "ops[i] is \"C\", \"D\", \"+\", or a string representing an integer in the range [-3 * 10^4, 3 * 10^4]",
+    "For \"+\", there will always be at least two previous scores on the record",
+    "For \"C\" and \"D\", there will always be at least one previous score on the record"
+  ],
+  "hints": [
+    "Each operation only ever needs to look at the most recent one or two scores — you don't need the full history at once.",
+    "A stack naturally gives you fast access to 'the last score' and 'the last two scores', and 'C' undoing the previous score is exactly a pop.",
+    "Process operations left to right, pushing new scores and popping on 'C', then sum whatever remains on the stack at the end."
+  ],
+  "solution": {
+    "approach": "Use a stack to represent the current valid record. For a number, push it. For '+', push the sum of the top two elements. For 'D', push double the top element. For 'C', pop the top element (invalidating it). Since every rule only references the most recent one or two entries, a stack captures exactly the state needed, and the answer is simply the sum of whatever remains after processing all ops.",
+    "code": "def calc_points(ops):\n    stack = []\n    for op in ops:\n        if op == 'C':\n            stack.pop()\n        elif op == 'D':\n            stack.append(stack[-1] * 2)\n        elif op == '+':\n            stack.append(stack[-1] + stack[-2])\n        else:\n            stack.append(int(op))\n    return sum(stack)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def calc_points(ops):\n    # your code here\n    pass\n",
+  "functionName": "calc_points",
+  "paramNames": ["ops"],
+  "testCases": [
+    {
+      "input": [["5", "2", "C", "D", "+"]],
+      "expected": 30,
+      "isHidden": false
+    },
+    {
+      "input": [["1", "C"]],
+      "expected": 0,
+      "isHidden": false
+    },
+    {
+      "input": [["1", "D", "C", "5"]],
+      "expected": 6,
+      "isHidden": true
+    },
+    {
+      "input": [["5", "-2", "4", "C", "D", "9", "+", "+"]],
+      "expected": 27,
+      "isHidden": true
+    },
+    {
+      "input": [["-3"]],
+      "expected": -3,
+      "isHidden": true
+    }
+  ]
+}

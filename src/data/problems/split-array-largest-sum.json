@@ -1,0 +1,89 @@
+{
+  "id": "split-array-largest-sum",
+  "title": "Split Array Largest Sum",
+  "pattern": "binary-search",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Amazon",
+    "Facebook",
+    "Bloomberg"
+  ],
+  "prompt": "Given an integer array `nums` and an integer `k`, split `nums` into `k` non-empty contiguous subarrays. Return the minimized largest sum of the split, i.e. minimize the maximum sum among the `k` subarrays over all possible ways to split.",
+  "examples": [
+    {
+      "input": "nums = [7,2,5,10,8], k = 2",
+      "output": "18",
+      "explanation": "Splitting into [7,2,5] and [10,8] gives sums 14 and 18. This is the split that minimizes the largest sum."
+    },
+    {
+      "input": "nums = [1,2,3,4,5], k = 2",
+      "output": "9"
+    },
+    {
+      "input": "nums = [1,4,4], k = 3",
+      "output": "4"
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 1000",
+    "0 <= nums[i] <= 10^6",
+    "1 <= k <= min(50, nums.length)"
+  ],
+  "hints": [
+    "Trying every possible way to split the array into k contiguous parts is exponential — instead think about the answer itself, the maximum subarray sum, as the thing to search over.",
+    "The minimum possible answer is the largest single element (a subarray can't have a smaller max than its biggest element), and the maximum possible answer is the sum of the whole array (using k=1).",
+    "For a candidate maximum sum limit, greedily count how many subarrays are needed by adding elements to the current group until adding one more would exceed the limit, then starting a new group. That count is monotonically non-increasing as the limit grows, so binary search for the smallest limit that needs at most k groups."
+  ],
+  "solution": {
+    "approach": "Binary search on the answer: the minimized largest subarray sum. The search range is [max(nums), sum(nums)], since no valid split can have a max below the largest single element, and one group holding everything is always valid. For a candidate limit, greedily walk through nums, accumulating into the current subarray until adding the next element would exceed the limit, at which point start a new subarray; count how many subarrays this requires. This count is monotonically non-increasing as the limit increases, so binary search for the smallest limit requiring at most k subarrays, which is exactly the minimized largest sum.",
+    "code": "def split_array(nums, k):\n    def subarrays_needed(limit):\n        count, current = 1, 0\n        for num in nums:\n            if current + num > limit:\n                count += 1\n                current = 0\n            current += num\n        return count\n\n    lo, hi = max(nums), sum(nums)\n\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if subarrays_needed(mid) <= k:\n            hi = mid\n        else:\n            lo = mid + 1\n\n    return lo\n",
+    "timeComplexity": "O(n log(sum(nums)))",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def split_array(nums, k):\n    # your code here\n    pass\n",
+  "functionName": "split_array",
+  "paramNames": ["nums", "k"],
+  "testCases": [
+    {
+      "input": [
+        [7, 2, 5, 10, 8],
+        2
+      ],
+      "expected": 18,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3, 4, 5],
+        2
+      ],
+      "expected": 9,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 4, 4],
+        3
+      ],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1],
+        1
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [2, 3, 1, 1, 1, 1],
+        4
+      ],
+      "expected": 3,
+      "isHidden": true
+    }
+  ]
+}

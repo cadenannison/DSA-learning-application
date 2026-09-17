@@ -1,0 +1,66 @@
+{
+  "id": "word-squares",
+  "title": "Word Squares",
+  "pattern": "tries",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Facebook"
+  ],
+  "prompt": "Given an array of unique strings `words`, all of the same length, return all the word squares that can be formed using words from `words`. You may reuse a word from `words` as many times as needed when forming a square.\n\nA sequence of strings forms a *word square* if the k-th row and k-th column read the same string, for every valid `k` from `0` to the square's size minus one. For example, `[\"ball\",\"area\",\"lead\",\"lady\"]` forms a word square because reading column 0 top-to-bottom gives \"ball\" (matches row 0), column 1 gives \"area\" (matches row 1), and so on.\n\nReturn the found squares as a list of lists of strings, in any consistent order produced by trying words in the given input order at each step (matching the standard backtracking traversal order).",
+  "examples": [
+    {
+      "input": "words = [\"area\",\"lead\",\"wall\",\"lady\",\"ball\"]",
+      "output": "[[\"wall\",\"area\",\"lead\",\"lady\"],[\"ball\",\"area\",\"lead\",\"lady\"]]",
+      "explanation": "Both squares satisfy the row/column equality property; each uses 4 four-letter words from the list."
+    },
+    {
+      "input": "words = [\"abat\",\"baba\",\"atan\",\"atal\"]",
+      "output": "[[\"baba\",\"abat\",\"baba\",\"atan\"],[\"baba\",\"abat\",\"baba\",\"atal\"]]",
+      "explanation": "Both are valid 4x4 word squares built from the given words, with \"baba\" reused as both row 0 and row 2."
+    }
+  ],
+  "constraints": [
+    "1 <= words.length <= 1000",
+    "1 <= words[i].length <= 4",
+    "All words[i] have the same length",
+    "words[i] consists of only lowercase English letters",
+    "All words[i] are unique"
+  ],
+  "hints": [
+    "Build the square row by row via backtracking. After placing rows 0..k-1, the required PREFIX of row k is fully determined: it must equal the string formed by taking character k from each of rows 0..k-1.",
+    "To quickly find all candidate words matching a required prefix (rather than scanning the whole word list at every step), insert all words into a trie and look up the prefix's node, then collect every word stored at or below it.",
+    "At each node of the trie, store the list of words that pass through it (built during insertion) so a prefix lookup is O(prefix length) plus the number of matches, instead of scanning all words linearly at every backtracking step."
+  ],
+  "solution": {
+    "approach": "Build a trie where each node stores the list of words passing through it (appended during insertion, so a node reached via some prefix P holds exactly the words starting with P). Backtrack row by row: having chosen rows 0..k-1, the next row must start with the prefix formed by taking the k-th character of each already-chosen row (this follows directly from the row/column equality requirement). Look up that prefix in the trie to get all valid candidate words in O(prefix length) time, then try each one recursively. A square is complete once n rows are chosen, where n is the word length. This prunes the search dramatically compared to trying every word at every row and checking validity afterward.",
+    "code": "def word_squares(words):\n    if not words:\n        return []\n\n    n = len(words[0])\n    root = {'words': []}\n\n    for word in words:\n        node = root\n        for ch in word:\n            node = node.setdefault(ch, {'words': []})\n            node['words'].append(word)\n\n    def get_words_with_prefix(prefix):\n        node = root\n        for ch in prefix:\n            if ch not in node:\n                return []\n            node = node[ch]\n        return node['words']\n\n    results = []\n    squares = []\n\n    def backtrack(row):\n        if row == n:\n            results.append(list(squares))\n            return\n        prefix = ''.join(squares[i][row] for i in range(row))\n        for candidate in get_words_with_prefix(prefix):\n            squares.append(candidate)\n            backtrack(row + 1)\n            squares.pop()\n\n    for word in words:\n        squares.append(word)\n        backtrack(1)\n        squares.pop()\n\n    return results\n",
+    "timeComplexity": "O(n * 26^n) worst case for building squares, bounded heavily in practice by trie pruning",
+    "spaceComplexity": "O(sum of word lengths) for the trie plus recursion depth"
+  },
+  "starterCode": "def word_squares(words):\n    # your code here\n    pass\n",
+  "functionName": "word_squares",
+  "paramNames": ["words"],
+  "testCases": [
+    {
+      "input": [["area", "lead", "wall", "lady", "ball"]],
+      "expected": [["wall", "area", "lead", "lady"], ["ball", "area", "lead", "lady"]],
+      "isHidden": false
+    },
+    {
+      "input": [["abat", "baba", "atan", "atal"]],
+      "expected": [["baba", "abat", "baba", "atan"], ["baba", "abat", "baba", "atal"]],
+      "isHidden": false
+    },
+    {
+      "input": [["a"]],
+      "expected": [["a"]],
+      "isHidden": true
+    },
+    {
+      "input": [["ab", "ba"]],
+      "expected": [["ab", "ba"], ["ba", "ab"]],
+      "isHidden": true
+    }
+  ]
+}

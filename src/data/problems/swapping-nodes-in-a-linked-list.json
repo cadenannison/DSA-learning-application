@@ -1,0 +1,86 @@
+{
+  "id": "swapping-nodes-in-a-linked-list",
+  "title": "Swapping Nodes in a Linked List",
+  "pattern": "linked-list",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "Given the `head` of a singly linked list and an integer `k`, swap the values of the `k`th node from the beginning and the `k`th node from the end (both 1-indexed), then return the head of the list.\n\nThe list is given as an array (e.g. `[1,2,3,4,5]` represents `1 -> 2 -> 3 -> 4 -> 5 -> null`). The starter code includes helpers to convert between the array and a linked-list node — build the actual list, swap the two nodes' values, then convert back to an array to return.",
+  "examples": [
+    {
+      "input": "head = [1,2,3,4,5], k = 2",
+      "output": "[1,4,3,2,5]"
+    },
+    {
+      "input": "head = [7,9,6,6,7,8,3,0,9,5], k = 5",
+      "output": "[7,9,6,6,8,7,3,0,9,5]"
+    },
+    {
+      "input": "head = [1], k = 1",
+      "output": "[1]"
+    }
+  ],
+  "constraints": [
+    "The number of nodes is n",
+    "1 <= k <= n <= 10^5",
+    "0 <= Node.val <= 100"
+  ],
+  "hints": [
+    "You don't know n in advance without a pass through the list — but you can find both target nodes in a single additional pass using two pointers.",
+    "First pass: walk k steps from head to locate the kth node from the beginning; keep a reference to it.",
+    "Second pass idea without recomputing length: once you're at the kth node from the start, start a second pointer at head and advance both it and a pointer from the kth node together until the leading one reaches the end — the trailing pointer lands on the kth node from the end."
+  ],
+  "solution": {
+    "approach": "Walk a pointer k steps from head to find the kth node from the beginning; call it `first`. Then, to find the kth node from the end without knowing the list's length ahead of time, start a second pointer `second` at head and advance both `first` (continuing from where it left off) and `second` together, one step at a time, until `first` reaches the last node. At that point `second` is exactly k nodes from the end, since the gap between the two pointers has stayed fixed at (original position of first) the whole time. Swap the two nodes' `.val` fields (an O(1) fix once both are located) rather than rewiring pointers.",
+    "code": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for v in arr:\n        node = ListNode(v)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef swap_nodes(head_arr, k):\n    head = arr_to_list(head_arr)\n\n    first = head\n    for _ in range(k - 1):\n        first = first.next\n    kth_from_start = first\n\n    second = head\n    while first.next:\n        first = first.next\n        second = second.next\n    kth_from_end = second\n\n    kth_from_start.val, kth_from_end.val = kth_from_end.val, kth_from_start.val\n\n    return list_to_arr(head)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1) auxiliary (excluding the returned list)"
+  },
+  "starterCode": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for v in arr:\n        node = ListNode(v)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef swap_nodes(head_arr, k):\n    head = arr_to_list(head_arr)\n    # your code here\n    pass\n",
+  "functionName": "swap_nodes",
+  "paramNames": ["head_arr", "k"],
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 3, 4, 5],
+        2
+      ],
+      "expected": [1, 4, 3, 2, 5],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [7, 9, 6, 6, 7, 8, 3, 0, 9, 5],
+        5
+      ],
+      "expected": [7, 9, 6, 6, 8, 7, 3, 0, 9, 5],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1],
+        1
+      ],
+      "expected": [1],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2],
+        1
+      ],
+      "expected": [2, 1],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3],
+        2
+      ],
+      "expected": [1, 2, 3],
+      "isHidden": true
+    }
+  ]
+}

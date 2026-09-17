@@ -1,0 +1,83 @@
+{
+  "id": "find-the-smallest-divisor-given-a-threshold",
+  "title": "Find the Smallest Divisor Given a Threshold",
+  "pattern": "binary-search",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "Given an array of integers `nums` and an integer `threshold`, choose a positive integer divisor, divide all the array elements by it, and sum the division's result rounded up to the nearest integer (e.g. `7/3 = 3`). Find the smallest divisor such that the resulting sum is less than or equal to `threshold`. It is guaranteed that a valid divisor exists.",
+  "examples": [
+    {
+      "input": "nums = [1,2,5,9], threshold = 6",
+      "output": "5",
+      "explanation": "Using divisor 5: ceil(1/5)+ceil(2/5)+ceil(5/5)+ceil(9/5) = 1+1+1+2 = 5, which is <= 6. Divisor 4 gives a sum of 7, which is too big."
+    },
+    {
+      "input": "nums = [44,22,33,11,1], threshold = 5",
+      "output": "44"
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 5 * 10^4",
+    "1 <= nums[i] <= 10^6",
+    "nums.length <= threshold <= 10^6"
+  ],
+  "hints": [
+    "Trying every divisor from 1 upward and computing the sum each time works, but the range of possible divisors can be as large as max(nums), making that slow.",
+    "For a fixed divisor, the resulting sum is completely determined and shrinks monotonically as the divisor grows larger.",
+    "Binary search on the divisor itself over the range [1, max(nums)], using the computed sum versus threshold as the feasibility check."
+  ],
+  "solution": {
+    "approach": "Binary search over the space of possible divisors, from 1 to max(nums). For a candidate divisor, compute the sum of ceil(num / divisor) across the array; this sum is monotonically non-increasing as the divisor increases, which is exactly the structure binary search needs. If the sum is within the threshold, the divisor is feasible, so try a smaller one by moving high down; otherwise it's too small, so move low up. This finds the minimum feasible divisor in O(n log(max(nums))) time instead of scanning every candidate.",
+    "code": "import math\n\ndef smallest_divisor(nums, threshold):\n    def compute_sum(divisor):\n        return sum(math.ceil(num / divisor) for num in nums)\n\n    lo, hi = 1, max(nums)\n\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if compute_sum(mid) <= threshold:\n            hi = mid\n        else:\n            lo = mid + 1\n\n    return lo\n",
+    "timeComplexity": "O(n log(max(nums)))",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "def smallest_divisor(nums, threshold):\n    # your code here\n    pass\n",
+  "functionName": "smallest_divisor",
+  "paramNames": ["nums", "threshold"],
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 5, 9],
+        6
+      ],
+      "expected": 5,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [44, 22, 33, 11, 1],
+        5
+      ],
+      "expected": 44,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 1, 1, 1],
+        4
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [2, 3, 5, 7, 11],
+        11
+      ],
+      "expected": 3,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1000000],
+        1
+      ],
+      "expected": 1000000,
+      "isHidden": true
+    }
+  ]
+}

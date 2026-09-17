@@ -1,0 +1,76 @@
+{
+  "id": "kth-largest-element-in-an-array",
+  "title": "Kth Largest Element in an Array",
+  "pattern": "heaps",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Facebook",
+    "Microsoft",
+    "Google",
+    "Bloomberg"
+  ],
+  "prompt": "Given an integer array `nums` and an integer `k`, return the k-th largest element in the array. Note that it is the k-th largest element in sorted order, not the k-th distinct element.\n\nYou must solve this without sorting the entire array, i.e. in better than O(n log n) average time.",
+  "examples": [
+    {
+      "input": "nums = [3,2,1,5,6,4], k = 2",
+      "output": "5",
+      "explanation": "Sorted descending: [6,5,4,3,2,1]. The 2nd largest is 5."
+    },
+    {
+      "input": "nums = [3,2,3,1,2,4,5,5,6], k = 4",
+      "output": "4",
+      "explanation": "Sorted descending: [6,5,5,4,3,3,2,2,1]. The 4th largest is 4."
+    }
+  ],
+  "constraints": [
+    "1 <= k <= nums.length <= 10^5",
+    "-10^4 <= nums[i] <= 10^4"
+  ],
+  "hints": [
+    "A full sort works but costs O(n log n) — the problem asks for something better on average.",
+    "Maintain a min-heap of size k over the elements seen so far; the heap top is always the k-th largest of everything processed.",
+    "Alternatively, Quickselect (partition-based selection, like a truncated quicksort) finds the k-th largest in O(n) average time by only recursing into the partition that must contain the answer."
+  ],
+  "solution": {
+    "approach": "Use Quickselect: pick a pivot, partition the array so elements greater than the pivot come before it and elements less come after (partitioning for descending order), then check which side the k-th largest position falls into and recurse only into that side, discarding the other half entirely. Because only one partition is ever explored, the expected work is O(n) + O(n/2) + O(n/4) + ... = O(n), versus O(n log n) for sorting the whole array.",
+    "code": "import random\n\ndef kth_largest_element_in_an_array(nums, k):\n    def partition(left, right, pivot_index):\n        pivot = nums[pivot_index]\n        nums[pivot_index], nums[right] = nums[right], nums[pivot_index]\n        store_index = left\n        for i in range(left, right):\n            if nums[i] > pivot:\n                nums[store_index], nums[i] = nums[i], nums[store_index]\n                store_index += 1\n        nums[right], nums[store_index] = nums[store_index], nums[right]\n        return store_index\n\n    def quickselect(left, right, k_index):\n        if left == right:\n            return nums[left]\n        pivot_index = random.randint(left, right)\n        pivot_index = partition(left, right, pivot_index)\n        if k_index == pivot_index:\n            return nums[k_index]\n        elif k_index < pivot_index:\n            return quickselect(left, pivot_index - 1, k_index)\n        else:\n            return quickselect(pivot_index + 1, right, k_index)\n\n    return quickselect(0, len(nums) - 1, k - 1)\n",
+    "timeComplexity": "O(n) average, O(n^2) worst case",
+    "spaceComplexity": "O(1) extra (in-place partitioning, aside from recursion stack)"
+  },
+  "starterCode": "def kth_largest_element_in_an_array(nums, k):\n    # your code here\n    pass\n",
+  "functionName": "kth_largest_element_in_an_array",
+  "paramNames": ["nums", "k"],
+  "testCases": [
+    {
+      "input": [[3, 2, 1, 5, 6, 4], 2],
+      "expected": 5,
+      "isHidden": false
+    },
+    {
+      "input": [[3, 2, 3, 1, 2, 4, 5, 5, 6], 4],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [[1], 1],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [[2, 1], 2],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [[-1, -2, -3, -4], 1],
+      "expected": -1,
+      "isHidden": true
+    },
+    {
+      "input": [[7, 7, 7, 7], 3],
+      "expected": 7,
+      "isHidden": true
+    }
+  ]
+}

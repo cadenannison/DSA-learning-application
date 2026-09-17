@@ -1,0 +1,86 @@
+{
+  "id": "subarray-sum-equals-k",
+  "title": "Subarray Sum Equals K",
+  "pattern": "arrays-two-pointers",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Meta",
+    "Google",
+    "Microsoft"
+  ],
+  "prompt": "Given an array of integers `nums` and an integer `k`, return the total number of contiguous subarrays whose sum equals `k`. Elements can be negative, which rules out a simple sliding window.",
+  "examples": [
+    {
+      "input": "nums = [1,1,1], k = 2",
+      "output": "2",
+      "explanation": "The subarrays [1,1] (indices 0-1) and [1,1] (indices 1-2) both sum to 2."
+    },
+    {
+      "input": "nums = [1,2,3], k = 3",
+      "output": "2",
+      "explanation": "[1,2] and [3] both sum to 3."
+    }
+  ],
+  "constraints": [
+    "1 <= nums.length <= 2 * 10^4",
+    "-1000 <= nums[i] <= 1000",
+    "-10^7 <= k <= 10^7"
+  ],
+  "hints": [
+    "Checking every subarray sum directly is O(n^2). Negative numbers break the sliding-window monotonicity trick used in the all-positive version of this problem.",
+    "The sum of any subarray (i, j] can be written as prefix[j] - prefix[i], where prefix[x] is the sum of the first x elements.",
+    "You want prefix[j] - prefix[i] == k, i.e. prefix[i] == prefix[j] - k. Keep a running prefix sum and a hash map counting how many times each prefix sum value has occurred so far, so each new prefix sum can look up how many earlier prefixes it pairs with in O(1)."
+  ],
+  "solution": {
+    "approach": "Maintain a running prefix sum while scanning left to right, and a hash map counting how many times each prefix sum value has occurred so far (initialized with {0: 1} to account for subarrays starting at index 0). For each new prefix sum, the number of valid subarrays ending at the current index equals the count of an earlier prefix sum equal to (current prefix sum - k), because the difference between two prefix sums is exactly the sum of the subarray between them. Summing this lookup across the scan counts every qualifying subarray in a single O(n) pass, avoiding the O(n^2) brute force over all subarray start/end pairs.",
+    "code": "def subarray_sum(nums, k):\n    prefix_counts = {0: 1}\n    prefix_sum = 0\n    total = 0\n\n    for num in nums:\n        prefix_sum += num\n        total += prefix_counts.get(prefix_sum - k, 0)\n        prefix_counts[prefix_sum] = prefix_counts.get(prefix_sum, 0) + 1\n\n    return total\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def subarray_sum(nums, k):\n    # your code here\n    pass\n",
+  "functionName": "subarray_sum",
+  "paramNames": ["nums", "k"],
+  "testCases": [
+    {
+      "input": [
+        [1, 1, 1],
+        2
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3],
+        3
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1],
+        0
+      ],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [-1, -1, 1],
+        0
+      ],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, -1, 0],
+        0
+      ],
+      "expected": 3,
+      "isHidden": true
+    }
+  ]
+}

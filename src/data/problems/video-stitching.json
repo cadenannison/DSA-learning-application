@@ -1,0 +1,79 @@
+{
+  "id": "video-stitching",
+  "title": "Video Stitching",
+  "pattern": "intervals",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "ByteDance"
+  ],
+  "prompt": "You are given a video of length `target` seconds, along with a collection `clips` of video clips, where `clips[i] = [start_i, end_i]` indicates a clip covering the time range from `start_i` to `end_i` (measured in seconds since the start of the video). You may cut any clip into pieces of your choosing, but you want to use as few clips as possible to build a continuous video covering the entire range `[0, target]`. Return the minimum number of clips needed, or `-1` if it's impossible.",
+  "examples": [
+    {
+      "input": "clips = [[0,2],[4,6],[8,10],[1,9],[1,5],[5,9]], target = 10",
+      "output": "3",
+      "explanation": "Use clips [0,2], [1,9], and [8,10]. Together they cover [0,10]."
+    },
+    {
+      "input": "clips = [[0,1],[1,2]], target = 5",
+      "output": "-1",
+      "explanation": "There's no clip covering time 2 through 5, so it's impossible."
+    },
+    {
+      "input": "clips = [[0,4],[2,8]], target = 5",
+      "output": "2",
+      "explanation": "[0,4] then [2,8] together cover [0,5]."
+    }
+  ],
+  "constraints": [
+    "1 <= clips.length <= 100",
+    "0 <= start_i <= end_i <= 100",
+    "1 <= target <= 100"
+  ],
+  "hints": [
+    "This is a greedy interval-covering problem, similar to the classic 'minimum jumps to reach the end' problem — think in terms of the farthest reachable endpoint so far.",
+    "For every possible starting second from 0 to target-1, precompute the farthest end any clip starting at or before that second can reach.",
+    "Greedily extend your covered range: at each step, look among all clips whose start is <= your current covered boundary, and jump to the farthest end among them. If you can't extend past where you currently are, it's impossible."
+  ],
+  "solution": {
+    "approach": "Build an array `farthest` of length target, where farthest[i] is the maximum end reachable by any clip with start <= i. Then use a greedy jump-game style sweep: maintain `covered` (the rightmes point guaranteed covered so far) and `last_end` (the farthest reachable using clips considered so far). Walk i from 0 to target-1; at each i, update last_end with farthest[i]. Whenever i reaches covered (meaning we've considered all clips that could extend the current covered range), we must make a jump: if last_end hasn't improved past covered, it's impossible: return -1. Otherwise increment the clip count and advance covered to last_end.",
+    "code": "def video_stitching(clips, target):\n    farthest = [0] * target\n    for start, end in clips:\n        if start < target:\n            farthest[start] = max(farthest[start], end)\n\n    clips_used = 0\n    covered = 0\n    last_end = 0\n\n    i = 0\n    while covered < target:\n        if i > covered:\n            return -1\n        while i <= covered and i < target:\n            last_end = max(last_end, farthest[i])\n            i += 1\n        if last_end <= covered:\n            return -1\n        clips_used += 1\n        covered = last_end\n\n    return clips_used\n",
+    "timeComplexity": "O(n + target)",
+    "spaceComplexity": "O(target)"
+  },
+  "starterCode": "def video_stitching(clips, target):\n    # your code here\n    pass\n",
+  "functionName": "video_stitching",
+  "paramNames": ["clips", "target"],
+  "testCases": [
+    {
+      "input": [[[0, 2], [4, 6], [8, 10], [1, 9], [1, 5], [5, 9]], 10],
+      "expected": 3,
+      "isHidden": false
+    },
+    {
+      "input": [[[0, 1], [1, 2]], 5],
+      "expected": -1,
+      "isHidden": false
+    },
+    {
+      "input": [[[0, 4], [2, 8]], 5],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [[[0, 4]], 4],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [[[1, 2]], 5],
+      "expected": -1,
+      "isHidden": true
+    },
+    {
+      "input": [[[0, 1], [6, 8], [0, 2], [5, 6], [0, 4], [0, 3], [6, 7], [1, 3], [4, 7], [1, 4], [2, 5], [2, 6], [3, 4], [4, 5], [5, 7], [6, 9]], 9],
+      "expected": 3,
+      "isHidden": true
+    }
+  ]
+}

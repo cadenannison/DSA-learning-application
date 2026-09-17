@@ -1,0 +1,97 @@
+{
+  "id": "linked-list-cycle-ii",
+  "title": "Linked List Cycle II",
+  "pattern": "linked-list",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Bloomberg",
+    "Facebook"
+  ],
+  "prompt": "Given a linked list, return the value of the node where the cycle begins, or `-1` if there is no cycle.\n\nSince a JSON test case can't represent an actual cyclic pointer structure, the list is encoded as `[values, pos]`: `values` is the array of node values in order, and `pos` is the zero-based index of the node that the last node's `next` pointer connects back to, or `-1` if there is no cycle. Your function should build the real linked structure (with the cycle, if any) internally from this encoding, then find and return the value of the node where the cycle begins (or `-1` if none).",
+  "examples": [
+    {
+      "input": "values = [3,2,0,-4], pos = 1",
+      "output": "2",
+      "explanation": "The cycle begins at the node with value 2 (index 1)."
+    },
+    {
+      "input": "values = [1,2], pos = 0",
+      "output": "1"
+    },
+    {
+      "input": "values = [1], pos = -1",
+      "output": "-1"
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [0, 10^4]",
+    "-10^5 <= Node.val <= 10^5",
+    "pos is -1 or a valid index into values"
+  ],
+  "hints": [
+    "Detecting THAT a cycle exists is Floyd's tortoise and hare — but finding WHERE it starts needs one more step.",
+    "Run slow/fast pointers until they meet inside the cycle (if they ever meet at all).",
+    "From the meeting point, the distance to the cycle start equals the distance from head to the cycle start — so reset one pointer to head and advance both one step at a time; they'll meet exactly at the cycle's start node."
+  ],
+  "solution": {
+    "approach": "Build the list with its cycle from the encoding. Run Floyd's tortoise and hare: slow moves one step, fast moves two, until they meet inside the cycle (or fast hits null, meaning no cycle). At the meeting point, a well-known distance argument shows that the distance from head to the cycle's start equals the distance from the meeting point to the cycle's start (both measured along the list). So reset a pointer to head, keep the other at the meeting point, and advance both one step at a time — they converge exactly at the cycle's first node.",
+    "code": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef build_cyclic_list(values, pos):\n    if not values:\n        return None\n    nodes = [ListNode(v) for v in values]\n    for i in range(len(nodes) - 1):\n        nodes[i].next = nodes[i + 1]\n    if pos != -1:\n        nodes[-1].next = nodes[pos]\n    return nodes[0]\n\n\ndef detect_cycle(values, pos):\n    head = build_cyclic_list(values, pos)\n    slow, fast = head, head\n    while fast and fast.next:\n        slow = slow.next\n        fast = fast.next.next\n        if slow is fast:\n            ptr = head\n            while ptr is not slow:\n                ptr = ptr.next\n                slow = slow.next\n            return ptr.val\n    return -1\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1)"
+  },
+  "starterCode": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef build_cyclic_list(values, pos):\n    if not values:\n        return None\n    nodes = [ListNode(v) for v in values]\n    for i in range(len(nodes) - 1):\n        nodes[i].next = nodes[i + 1]\n    if pos != -1:\n        nodes[-1].next = nodes[pos]\n    return nodes[0]\n\n\ndef detect_cycle(values, pos):\n    head = build_cyclic_list(values, pos)\n    # your code here\n    pass\n",
+  "functionName": "detect_cycle",
+  "paramNames": ["values", "pos"],
+  "testCases": [
+    {
+      "input": [
+        [3, 2, 0, -4],
+        1
+      ],
+      "expected": 2,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2],
+        0
+      ],
+      "expected": 1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1],
+        -1
+      ],
+      "expected": -1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [],
+        -1
+      ],
+      "expected": -1,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3, 4, 5],
+        4
+      ],
+      "expected": 5,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3, 4, 5],
+        -1
+      ],
+      "expected": -1,
+      "isHidden": true
+    }
+  ]
+}

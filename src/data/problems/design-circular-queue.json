@@ -1,0 +1,100 @@
+{
+  "id": "design-circular-queue",
+  "title": "Design Circular Queue",
+  "pattern": "stacks-queues",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Amazon",
+    "Facebook"
+  ],
+  "prompt": "Design your implementation of a circular queue with a fixed capacity `k`, where `enQueue(value)` inserts an element if the queue isn't full, `deQueue()` removes the front element if the queue isn't empty, `Front()` gets the front item (or -1 if empty), `Rear()` gets the last item (or -1 if empty), `isEmpty()` checks if the queue is empty, and `isFull()` checks if the queue is full.\n\nYou'll implement this as a single function `run_circular_queue_ops(k, ops)`, where `k` is the queue's capacity and `ops` is an array of `[operationName, argument]` pairs (argument is `null` except for `enQueue`), applied in order to one queue instance. `enQueue` and `deQueue` push their boolean success result onto the output array; `Front`, `Rear`, `isEmpty`, and `isFull` push their respective results. Return the output array (booleans and/or integers, one per operation, in call order).",
+  "examples": [
+    {
+      "input": "k = 3, ops = [[\"enQueue\",1],[\"enQueue\",2],[\"enQueue\",3],[\"enQueue\",4],[\"Rear\",null],[\"isFull\",null],[\"deQueue\",null],[\"enQueue\",4],[\"Rear\",null]]",
+      "output": "[true,true,true,false,3,true,true,true,4]",
+      "explanation": "The queue fills to capacity 3 (values 1,2,3); the 4th enQueue fails. After dequeuing (removing 1), there's room for the new 4."
+    }
+  ],
+  "constraints": [
+    "1 <= k <= 1000",
+    "0 <= value <= 1000",
+    "At most 3000 calls total to enQueue, deQueue, Front, Rear, isEmpty, and isFull"
+  ],
+  "hints": [
+    "A plain Python list with pop(0) for dequeue works but is O(n) per dequeue \u2014 you want true O(1) operations bounded by a fixed capacity.",
+    "Use a fixed-size array (or collections.deque with maxlen) and track the count of elements currently stored, or track head/tail indices that wrap around using modulo arithmetic.",
+    "isFull is count == k, isEmpty is count == 0; enQueue/deQueue should each check the relevant condition first and return False without modifying state if it fails."
+  ],
+  "solution": {
+    "approach": "Model the circular queue with a fixed-size list of length k, a head index, and a count of currently stored elements. enQueue computes the next free slot as (head + count) % k, writes the value there, and increments count (or fails if count == k). deQueue reads the value at head, advances head to (head + 1) % k, and decrements count (or fails if count == 0). Front reads the head slot, Rear reads the slot at (head + count - 1) % k. isEmpty/isFull just compare count to 0/k. The modulo arithmetic lets the underlying array 'wrap around' without shifting elements.",
+    "code": "def run_circular_queue_ops(k, ops):\n    data = [0] * k\n    head = 0\n    count = 0\n    output = []\n\n    for op, arg in ops:\n        if op == 'enQueue':\n            if count == k:\n                output.append(False)\n            else:\n                data[(head + count) % k] = arg\n                count += 1\n                output.append(True)\n        elif op == 'deQueue':\n            if count == 0:\n                output.append(False)\n            else:\n                head = (head + 1) % k\n                count -= 1\n                output.append(True)\n        elif op == 'Front':\n            output.append(data[head] if count > 0 else -1)\n        elif op == 'Rear':\n            output.append(data[(head + count - 1) % k] if count > 0 else -1)\n        elif op == 'isEmpty':\n            output.append(count == 0)\n        elif op == 'isFull':\n            output.append(count == k)\n\n    return output\n",
+    "timeComplexity": "O(1) per operation",
+    "spaceComplexity": "O(k)"
+  },
+  "starterCode": "def run_circular_queue_ops(k, ops):\n    # your code here\n    pass\n",
+  "functionName": "run_circular_queue_ops",
+  "paramNames": ["k", "ops"],
+  "testCases": [
+    {
+      "input": [
+        3,
+        [
+          ["enQueue", 1],
+          ["enQueue", 2],
+          ["enQueue", 3],
+          ["enQueue", 4],
+          ["Rear", null],
+          ["isFull", null],
+          ["deQueue", null],
+          ["enQueue", 4],
+          ["Rear", null]
+        ]
+      ],
+      "expected": [true, true, true, false, 3, true, true, true, 4],
+      "isHidden": false
+    },
+    {
+      "input": [
+        1,
+        [
+          ["enQueue", 5],
+          ["isFull", null],
+          ["Front", null],
+          ["Rear", null],
+          ["deQueue", null],
+          ["isEmpty", null]
+        ]
+      ],
+      "expected": [true, true, 5, 5, true, true],
+      "isHidden": false
+    },
+    {
+      "input": [
+        2,
+        [
+          ["isEmpty", null],
+          ["deQueue", null],
+          ["Front", null]
+        ]
+      ],
+      "expected": [true, false, -1],
+      "isHidden": true
+    },
+    {
+      "input": [
+        2,
+        [
+          ["enQueue", 1],
+          ["enQueue", 2],
+          ["deQueue", null],
+          ["deQueue", null],
+          ["enQueue", 3],
+          ["Front", null]
+        ]
+      ],
+      "expected": [true, true, true, true, true, 3],
+      "isHidden": true
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "id": "middle-of-the-linked-list",
+  "title": "Middle of the Linked List",
+  "pattern": "linked-list",
+  "difficulty": "easy",
+  "companies": [
+    "Amazon",
+    "Microsoft",
+    "Apple"
+  ],
+  "prompt": "Given the `head` of a singly linked list, return the middle node of the list. If there are two middle nodes (i.e. the list has an even length), return the second middle node.\n\nThe list is given as an array (e.g. `[1,2,3,4,5]` represents `1 -> 2 -> 3 -> 4 -> 5 -> null`). The starter code includes helpers to convert between the array and a linked-list node — build the actual list, find the middle node, then return the list starting from that node converted back to an array.",
+  "examples": [
+    {
+      "input": "head = [1,2,3,4,5]",
+      "output": "[3,4,5]",
+      "explanation": "The middle node is the node with value 3, and its remaining list is returned."
+    },
+    {
+      "input": "head = [1,2,3,4,5,6]",
+      "output": "[4,5,6]",
+      "explanation": "There are two middle nodes with values 3 and 4; since the list has even length, the second one is returned."
+    }
+  ],
+  "constraints": [
+    "The number of nodes is in the range [1, 100]",
+    "1 <= Node.val <= 100"
+  ],
+  "hints": [
+    "Counting the length first and then walking to the middle works but takes two passes — can you find it in one?",
+    "Use two pointers, slow and fast, both starting at head. Advance slow by one node and fast by two nodes each step.",
+    "When fast reaches the end of the list (or has no next), slow is exactly at the required middle node."
+  ],
+  "solution": {
+    "approach": "Use the slow/fast pointer technique: slow advances one node per step, fast advances two. When fast reaches the last node or null, slow has covered half the distance and sits at the middle. Because fast moves twice as fast, this naturally lands slow on the second middle node when the list has even length, matching the required tie-breaking rule.",
+    "code": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for val in arr:\n        node = ListNode(val)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef middle_node(head_arr):\n    head = arr_to_list(head_arr)\n    slow, fast = head, head\n    while fast and fast.next:\n        slow = slow.next\n        fast = fast.next.next\n    return list_to_arr(slow)\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(1) auxiliary (excluding the returned list)"
+  },
+  "starterCode": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for val in arr:\n        node = ListNode(val)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef middle_node(head_arr):\n    head = arr_to_list(head_arr)\n    # your code here\n    pass\n",
+  "functionName": "middle_node",
+  "paramNames": ["head_arr"],
+  "testCases": [
+    {
+      "input": [
+        [1, 2, 3, 4, 5]
+      ],
+      "expected": [3, 4, 5],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1, 2, 3, 4, 5, 6]
+      ],
+      "expected": [4, 5, 6],
+      "isHidden": false
+    },
+    {
+      "input": [
+        [1]
+      ],
+      "expected": [1],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2]
+      ],
+      "expected": [2],
+      "isHidden": true
+    },
+    {
+      "input": [
+        [1, 2, 3]
+      ],
+      "expected": [2, 3],
+      "isHidden": true
+    }
+  ]
+}

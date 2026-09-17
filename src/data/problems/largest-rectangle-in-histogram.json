@@ -1,0 +1,74 @@
+{
+  "id": "largest-rectangle-in-histogram",
+  "title": "Largest Rectangle in Histogram",
+  "pattern": "stacks-queues",
+  "difficulty": "hard",
+  "companies": [
+    "Amazon",
+    "Google",
+    "Microsoft",
+    "Facebook"
+  ],
+  "prompt": "Given an array of integers `heights` representing the histogram's bar heights where the width of each bar is 1, return the area of the largest rectangle that can be formed within the histogram (the rectangle's sides must be vertical and its top must lie flat within the bars it covers).",
+  "examples": [
+    {
+      "input": "heights = [2,1,5,6,2,3]",
+      "output": "10",
+      "explanation": "The largest rectangle has height 5 and spans indices 2-3 (widths of bars 5 and 6, but limited to height 5 across width 2), giving area 5*2=10."
+    },
+    {
+      "input": "heights = [2,4]",
+      "output": "4"
+    }
+  ],
+  "constraints": [
+    "1 <= heights.length <= 10^5",
+    "0 <= heights[i] <= 10^4"
+  ],
+  "hints": [
+    "For each bar, the largest rectangle using that bar's height as the limiting height extends as far left and right as neighboring bars stay >= its height \u2014 checking this per bar directly is O(n^2).",
+    "Use a monotonic increasing stack of bar indices. When you encounter a bar shorter than the stack's top, the bar at the top has just found its right boundary (the current index), and can finally be resolved.",
+    "When popping a bar from the stack to resolve it, its left boundary is the new stack top (or -1 if the stack becomes empty) and its right boundary is the current index; width = right - left - 1, area = height * width. Push a sentinel height of 0 at the end to flush any bars still on the stack."
+  ],
+  "solution": {
+    "approach": "Maintain a monotonic increasing stack of bar indices, where a bar stays on the stack as long as we haven't yet found a shorter bar to its right (its right boundary is undetermined). Scan left to right (appending a final sentinel height of 0 to flush everything): whenever the current bar is shorter than the bar at the top of the stack, pop it — its right boundary is the current index, and its left boundary is whatever index is now on top of the stack (or -1 if empty), since that's the nearest bar shorter than it on the left. Compute width = right - left - 1 and track the maximum height * width. Each bar is pushed and popped exactly once, giving O(n) total work.",
+    "code": "def largest_rectangle_area(heights):\n    stack = []\n    max_area = 0\n    extended = heights + [0]\n\n    for i, h in enumerate(extended):\n        while stack and extended[stack[-1]] > h:\n            height = extended[stack.pop()]\n            left = stack[-1] if stack else -1\n            width = i - left - 1\n            max_area = max(max_area, height * width)\n        stack.append(i)\n\n    return max_area\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def largest_rectangle_area(heights):\n    # your code here\n    pass\n",
+  "functionName": "largest_rectangle_area",
+  "paramNames": ["heights"],
+  "testCases": [
+    {
+      "input": [[2, 1, 5, 6, 2, 3]],
+      "expected": 10,
+      "isHidden": false
+    },
+    {
+      "input": [[2, 4]],
+      "expected": 4,
+      "isHidden": false
+    },
+    {
+      "input": [[1]],
+      "expected": 1,
+      "isHidden": true
+    },
+    {
+      "input": [[0, 0, 0]],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [[5, 5, 5, 5]],
+      "expected": 20,
+      "isHidden": true
+    },
+    {
+      "input": [[6, 2, 5, 4, 5, 1, 6]],
+      "expected": 12,
+      "isHidden": true
+    }
+  ]
+}

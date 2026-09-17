@@ -1,0 +1,87 @@
+{
+  "id": "shortest-path-with-obstacle-elimination",
+  "title": "Shortest Path in a Grid with Obstacles Elimination",
+  "pattern": "bfs-dfs",
+  "difficulty": "hard",
+  "companies": [
+    "Google",
+    "Amazon",
+    "Facebook"
+  ],
+  "prompt": "You are given an `m x n` binary matrix `grid` where `0` represents an empty cell and `1` represents an obstacle. You can move 4-directionally between empty cells. You are also given an integer `k` representing the maximum number of obstacles you can eliminate (walk through) during the path. Return the minimum number of steps to walk from the top-left corner `(0, 0)` to the bottom-right corner `(m-1, n-1)`, given that you can eliminate at most `k` obstacles. If it is not possible, return `-1`.",
+  "examples": [
+    {
+      "input": "grid = [[0,0,0],[1,1,0],[0,0,0],[0,1,1],[0,0,0]], k = 1",
+      "output": "6",
+      "explanation": "Eliminating one obstacle lets you cut through a wall and reach the destination in 6 steps; without elimination the path would be longer or impossible."
+    },
+    {
+      "input": "grid = [[0,1,1],[1,1,1],[1,0,0]], k = 1",
+      "output": "-1",
+      "explanation": "Even eliminating one obstacle isn't enough to break through and reach the bottom-right corner."
+    }
+  ],
+  "constraints": [
+    "m == grid.length",
+    "n == grid[i].length",
+    "1 <= m, n <= 40",
+    "1 <= k <= m * n",
+    "grid[i][j] is 0 or 1"
+  ],
+  "hints": [
+    "This is BFS on an expanded state space: a state isn't just a cell, it's (row, col, obstacles eliminated so far), since the same cell might be worth revisiting if you arrive with more elimination budget remaining.",
+    "From state (r, c, remaining), moving into a neighbor that's an obstacle costs one unit of `remaining`; moving into an empty cell costs none. Only enqueue a state if remaining stays >= 0.",
+    "Track visited as (r, c, remaining) triples — or optimize by tracking the best (maximum) remaining budget seen so far at each cell, and skip a state if you've already visited that cell with an equal or better remaining budget, since arriving with less budget can never be better."
+  ],
+  "solution": {
+    "approach": "Treat each BFS state as (row, col, obstacles eliminated so far) rather than just a cell, since reaching the same cell with a different elimination budget can lead to different future possibilities. Run BFS layer by layer (each layer is one step); when moving into an obstacle cell, increment the elimination count only if it doesn't exceed k. To keep the state space bounded, skip revisiting a cell if it's already been reached with an equal-or-fewer eliminations used (a strictly worse or equal state can't do better later). Because k can be at least m+n-2 (the minimum possible path length) - 1, if k >= m+n-2 the direct Manhattan-distance path always works as a shortcut.",
+    "code": "from collections import deque\n\n\ndef shortest_path(grid, k):\n    rows, cols = len(grid), len(grid[0])\n    if rows == 1 and cols == 1:\n        return 0\n\n    k = min(k, rows + cols - 2)\n    visited = [[-1] * cols for _ in range(rows)]\n    visited[0][0] = k\n    queue = deque([(0, 0, k, 0)])\n\n    while queue:\n        r, c, remaining, steps = queue.popleft()\n        for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n            nr, nc = r + dr, c + dc\n            if 0 <= nr < rows and 0 <= nc < cols:\n                new_remaining = remaining - grid[nr][nc]\n                if new_remaining < 0:\n                    continue\n                if nr == rows - 1 and nc == cols - 1:\n                    return steps + 1\n                if new_remaining > visited[nr][nc]:\n                    visited[nr][nc] = new_remaining\n                    queue.append((nr, nc, new_remaining, steps + 1))\n\n    return -1\n",
+    "timeComplexity": "O(m * n * k)",
+    "spaceComplexity": "O(m * n)"
+  },
+  "starterCode": "def shortest_path(grid, k):\n    # your code here\n    pass\n",
+  "functionName": "shortest_path",
+  "paramNames": ["grid", "k"],
+  "testCases": [
+    {
+      "input": [
+        [[0, 0, 0], [1, 1, 0], [0, 0, 0], [0, 1, 1], [0, 0, 0]],
+        1
+      ],
+      "expected": 6,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[0, 1, 1], [1, 1, 1], [1, 0, 0]],
+        1
+      ],
+      "expected": -1,
+      "isHidden": false
+    },
+    {
+      "input": [
+        [[0]],
+        0
+      ],
+      "expected": 0,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[0, 0], [1, 0]],
+        0
+      ],
+      "expected": 2,
+      "isHidden": true
+    },
+    {
+      "input": [
+        [[0, 1], [1, 0]],
+        0
+      ],
+      "expected": -1,
+      "isHidden": true
+    }
+  ]
+}

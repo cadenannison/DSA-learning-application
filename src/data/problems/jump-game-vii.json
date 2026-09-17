@@ -1,0 +1,69 @@
+{
+  "id": "jump-game-vii",
+  "title": "Jump Game VII",
+  "pattern": "greedy",
+  "difficulty": "hard",
+  "companies": [
+    "Amazon",
+    "Google"
+  ],
+  "prompt": "You are given a binary string `s` and two integers `minJump` and `maxJump`. You start at index 0, which is guaranteed to be `'0'`. You can move from index `i` to index `j` if all of the following conditions hold: `i + minJump <= j <= min(i + maxJump, s.length - 1)`, and `s[j] == '0'`. Return `true` if you can reach index `s.length - 1` following these rules, or `false` otherwise.",
+  "examples": [
+    {
+      "input": "s = \"011010\", minJump = 2, maxJump = 3",
+      "output": "true",
+      "explanation": "Jump from index 0 to 3 (a valid jump of length 3, landing on '0'), then from index 3 to 5 (a valid jump of length 2, landing on '0'), reaching the last index."
+    },
+    {
+      "input": "s = \"01101110\", minJump = 2, maxJump = 3",
+      "output": "false"
+    }
+  ],
+  "constraints": [
+    "2 <= s.length <= 10^5",
+    "s[i] is '0' or '1'",
+    "s[0] == '0'",
+    "1 <= minJump <= maxJump < s.length"
+  ],
+  "hints": [
+    "A naive BFS/DFS trying every reachable jump from every index can degrade to O(n * maxJump), which is too slow for large inputs — you need to answer 'is any index in this window reachable' quickly.",
+    "Process indices left to right, maintaining a boolean 'can reach index i' array, and use a sliding window sum (or prefix sum) of reachable flags over the last maxJump - minJump + 1 positions to answer that window query in O(1).",
+    "For each index j with s[j] == '0', j is reachable if any index i in [j - maxJump, j - minJump] was itself reachable. Maintain a running count of reachable indices within that sliding window as you scan forward, adding a newly in-range index and removing one that falls out of range."
+  ],
+  "solution": {
+    "approach": "Use dynamic programming with a sliding window count to avoid rechecking the full window at every index. Let dp[i] be true if index i is reachable. Maintain window_count, the number of reachable indices within the valid jump-source window [i - maxJump, i - minJump] for the current i. For each index i (skipping '1' positions, which are never reachable), dp[i] is true exactly when window_count > 0. As i advances, add dp[i - minJump] into the window (it just became a valid jump source for future indices) and remove dp[i - maxJump - 1] if it slides out of range. This keeps each step O(1) amortized instead of rescanning up to maxJump previous positions, giving overall linear time.",
+    "code": "def can_reach(s, min_jump, max_jump):\n    n = len(s)\n    dp = [False] * n\n    dp[0] = True\n    window_count = 0\n\n    for i in range(1, n):\n        if i >= min_jump:\n            window_count += 1 if dp[i - min_jump] else 0\n        if i > max_jump:\n            window_count -= 1 if dp[i - max_jump - 1] else 0\n        dp[i] = s[i] == '0' and window_count > 0\n\n    return dp[n - 1]\n",
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)"
+  },
+  "starterCode": "def can_reach(s, min_jump, max_jump):\n    # your code here\n    pass\n",
+  "functionName": "can_reach",
+  "paramNames": ["s", "min_jump", "max_jump"],
+  "testCases": [
+    {
+      "input": ["011010", 2, 3],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": ["01101110", 2, 3],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": ["00", 1, 1],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": ["0100", 1, 1],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": ["0101010", 1, 2],
+      "expected": true,
+      "isHidden": true
+    }
+  ]
+}

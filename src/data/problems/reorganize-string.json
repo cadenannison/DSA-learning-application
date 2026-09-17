@@ -1,0 +1,70 @@
+{
+  "id": "reorganize-string",
+  "title": "Reorganize String",
+  "pattern": "heaps",
+  "difficulty": "medium",
+  "companies": [
+    "Amazon",
+    "Facebook",
+    "Google",
+    "Uber"
+  ],
+  "prompt": "Given a string `s`, rearrange the characters of `s` so that no two adjacent characters are the same. Return any valid rearrangement, or an empty string `\"\"` if no valid rearrangement exists.",
+  "examples": [
+    {
+      "input": "s = \"aab\"",
+      "output": "\"aba\"",
+      "explanation": "\"aba\" has no two adjacent characters equal, and uses the same letters as \"aab\"."
+    },
+    {
+      "input": "s = \"aaab\"",
+      "output": "\"\"",
+      "explanation": "There is no way to rearrange \"aaab\" so that no two 'a's are adjacent, since 'a' appears 3 times among only 4 characters."
+    }
+  ],
+  "constraints": [
+    "1 <= s.length <= 500",
+    "s consists of lowercase English letters"
+  ],
+  "hints": [
+    "If any character's frequency exceeds ceil(length / 2), no valid arrangement can exist — check this early as a feasibility condition.",
+    "Greedily placing the currently most frequent remaining character next tends to spread out high-frequency letters, avoiding forced adjacency.",
+    "Use a max-heap of (count, character); pop the most frequent character to place, then hold it back for one round (don't push it back immediately) so it can't be placed immediately adjacent to itself again."
+  ],
+  "solution": {
+    "approach": "Count character frequencies and push them onto a max-heap (negated counts for Python's heapq). Repeatedly pop the most frequent character and append it to the result, but withhold it from re-entering the heap until after the next character has been placed — this guarantees it never sits directly next to another copy of itself. If the heap empties while a withheld character still has remaining count greater than zero and there's nothing else to place beside it, no valid arrangement exists. This greedy strategy works because always using the currently-most-frequent character maximally delays when that character must repeat.",
+    "code": "import heapq\nfrom collections import Counter\n\ndef reorganize_string(s):\n    counts = Counter(s)\n    heap = [(-c, ch) for ch, c in counts.items()]\n    heapq.heapify(heap)\n\n    result = []\n    prev = None\n\n    while heap or prev:\n        if prev and not heap:\n            return \"\"\n        count, ch = heapq.heappop(heap)\n        result.append(ch)\n        count += 1\n\n        if prev:\n            heapq.heappush(heap, prev)\n            prev = None\n        if count < 0:\n            prev = (count, ch)\n\n    return \"\".join(result)\n",
+    "timeComplexity": "O(n log k) where n is the length of s and k is the number of distinct characters",
+    "spaceComplexity": "O(k)"
+  },
+  "starterCode": "def reorganize_string(s):\n    # your code here\n    pass\n",
+  "functionName": "reorganize_string",
+  "paramNames": ["s"],
+  "testCases": [
+    {
+      "input": ["aab"],
+      "expected": "aba",
+      "isHidden": false
+    },
+    {
+      "input": ["aaab"],
+      "expected": "",
+      "isHidden": false
+    },
+    {
+      "input": ["a"],
+      "expected": "a",
+      "isHidden": true
+    },
+    {
+      "input": ["aa"],
+      "expected": "",
+      "isHidden": true
+    },
+    {
+      "input": ["vvvlo"],
+      "expected": "vlvov",
+      "isHidden": true
+    }
+  ]
+}

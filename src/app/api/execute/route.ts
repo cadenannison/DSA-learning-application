@@ -15,7 +15,8 @@ export async function POST(request: NextRequest) {
     const result = await container.executionService.execute(
       parsed.data.problemId,
       parsed.data.submission,
-      parsed.data.mode
+      parsed.data.mode,
+      parsed.data.testCaseIndices
     )
 
     // Hidden-test-case stripping below is mode-independent: ExecutionResult/TestCaseResult

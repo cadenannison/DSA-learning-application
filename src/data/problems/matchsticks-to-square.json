@@ -1,0 +1,68 @@
+{
+  "id": "matchsticks-to-square",
+  "title": "Matchsticks to Square",
+  "pattern": "backtracking",
+  "difficulty": "medium",
+  "companies": [
+    "Google",
+    "Facebook"
+  ],
+  "prompt": "You are given an integer array `matchsticks` where `matchsticks[i]` is the length of the ith matchstick. You want to use all the matchsticks to make one square. You should not break any stick, but you can link them up, and each matchstick must be used exactly one time.\n\nReturn true if you can make this square and false otherwise.",
+  "examples": [
+    {
+      "input": "matchsticks = [1,1,2,2,2]",
+      "output": "true",
+      "explanation": "You can form a square with side length 2, using [1,1] for one side and each remaining 2 for a side."
+    },
+    {
+      "input": "matchsticks = [3,3,3,3,4]",
+      "output": "false",
+      "explanation": "The total length 16 would require side length 4, but the matchsticks can't be grouped into four sides of length 4 each."
+    }
+  ],
+  "constraints": [
+    "1 <= matchsticks.length <= 15",
+    "1 <= matchsticks[i] <= 10^8"
+  ],
+  "hints": [
+    "The total length must be divisible by 4 first — if it isn't, there's no need to search at all.",
+    "Think of it as filling 4 buckets (the sides) each up to length total/4, deciding which bucket each matchstick goes into via backtracking.",
+    "Sort the matchsticks in descending order before backtracking so the largest, most-constrained sticks get placed first, causing failing branches to be pruned much earlier. Also skip trying a bucket if the previous bucket you tried had the same remaining capacity and failed (avoids redundant identical attempts)."
+  ],
+  "solution": {
+    "approach": "First check the total length is divisible by 4; if not, no square is possible. Otherwise, the target side length is total/4, and the problem becomes: can matchsticks be partitioned into 4 groups each summing to exactly that side length? Sort matchsticks in descending order (placing larger, more constrained sticks first prunes the search tree much sooner) and backtrack by assigning each matchstick to one of 4 side buckets, tracking each bucket's remaining capacity. Skip a bucket if it doesn't have room, and skip trying a bucket whose remaining capacity duplicates a sibling bucket that was already tried and failed (since trying it again is guaranteed to fail identically). Success is reaching the end of the matchstick list with all 4 buckets exactly filled.",
+    "code": "def makesquare(matchsticks):\n    total = sum(matchsticks)\n    if total % 4 != 0:\n        return False\n    side = total // 4\n    matchsticks.sort(reverse=True)\n    if matchsticks[0] > side:\n        return False\n\n    sides = [0] * 4\n\n    def backtrack(index):\n        if index == len(matchsticks):\n            return True\n        for i in range(4):\n            if sides[i] + matchsticks[index] > side:\n                continue\n            if i > 0 and sides[i] == sides[i - 1]:\n                continue\n            sides[i] += matchsticks[index]\n            if backtrack(index + 1):\n                return True\n            sides[i] -= matchsticks[index]\n        return False\n\n    return backtrack(0)\n",
+    "timeComplexity": "O(4^n) worst case, heavily pruned in practice",
+    "spaceComplexity": "O(n) recursion depth"
+  },
+  "starterCode": "def makesquare(matchsticks):\n    # your code here\n    pass\n",
+  "functionName": "makesquare",
+  "paramNames": ["matchsticks"],
+  "testCases": [
+    {
+      "input": [[1, 1, 2, 2, 2]],
+      "expected": true,
+      "isHidden": false
+    },
+    {
+      "input": [[3, 3, 3, 3, 4]],
+      "expected": false,
+      "isHidden": false
+    },
+    {
+      "input": [[1]],
+      "expected": false,
+      "isHidden": true
+    },
+    {
+      "input": [[1, 1, 1, 1]],
+      "expected": true,
+      "isHidden": true
+    },
+    {
+      "input": [[5, 5, 5, 5, 4, 4, 4, 4, 3, 3, 3, 3]],
+      "expected": true,
+      "isHidden": true
+    }
+  ]
+}
