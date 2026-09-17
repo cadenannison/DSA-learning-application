@@ -35,7 +35,7 @@ abstract class BaseAttemptPresenter<TProblem extends { id: string; functionName:
 
     const result = await apiClient.execute(
       this.problem.id,
-      { code, functionName: this.problem.functionName, language: "javascript" },
+      { code, functionName: this.problem.functionName, language: "python" },
       this.mode
     )
 
@@ -55,6 +55,7 @@ abstract class BaseAttemptPresenter<TProblem extends { id: string; functionName:
       hintsUsed: this.hintsUsedCount,
       durationMs: Math.round(performance.now() - this.startedAt),
       mode: this.mode,
+      code,
     })
 
     return result

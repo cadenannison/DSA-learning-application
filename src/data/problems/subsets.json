@@ -32,11 +32,11 @@
   ],
   "solution": {
     "approach": "Backtrack through indices 0..n-1. At each call, first record a copy of the current partial subset (every intermediate state is a valid subset). Then for each remaining index, include nums[i] in the subset, recurse to build subsets starting from i+1, then remove nums[i] (backtrack) before trying the next index. This generates every combination without duplicates because indices are only ever chosen in increasing order.",
-    "code": "function subsets(nums) {\n  const result = [];\n  const current = [];\n\n  function backtrack(start) {\n    result.push([...current]);\n    for (let i = start; i < nums.length; i++) {\n      current.push(nums[i]);\n      backtrack(i + 1);\n      current.pop();\n    }\n  }\n\n  backtrack(0);\n  return result;\n}",
+    "code": "def subsets(nums):\n    result = []\n    current = []\n\n    def backtrack(start):\n        result.append(current[:])\n        for i in range(start, len(nums)):\n            current.append(nums[i])\n            backtrack(i + 1)\n            current.pop()\n\n    backtrack(0)\n    return result\n",
     "timeComplexity": "O(n * 2^n)",
     "spaceComplexity": "O(n * 2^n)"
   },
-  "starterCode": "function subsets(nums) {\n  // your code here\n}",
+  "starterCode": "def subsets(nums):\n    # your code here\n    pass\n",
   "functionName": "subsets",
   "testCases": [
     {

@@ -103,7 +103,7 @@ export interface ExecutionResult {
 export interface CodeSubmission {
   code: string
   functionName: string
-  language: "javascript"
+  language: "python"
 }
 
 export type ThemePreference = "light" | "dark"
@@ -206,7 +206,78 @@ export interface User {
   createdAt: string
 }
 
+// --- Profile / Stats ---
+
+/** Kept broad and open-ended on purpose — new event types can be appended here (and to the
+ * `statEventTypeSchema` enum) as new features want to contribute to the profile stats without
+ * needing a new table or store method each time. */
+export type StatEventType = "attempt" | "oa_session_completed"
+
+/** Append-only, per-user activity log — one row per meaningful action (a code submission, an
+ * OA session ending). `ProfileStatsOverview` is always a fold over these rows, never a
+ * separately-maintained counter, so it can never drift from the underlying events. Only
+ * recorded while a user is logged in (see StatsService) — Practice/Blind/OA stay usable
+ * logged-out, but that activity isn't attributable to a profile. */
+export interface StatEvent {
+  id: string
+  userId: string
+  type: StatEventType
+  occurredAt: string
+  problemId: string | null
+  mode: PracticeMode | null
+  passed: boolean | null
+  durationMs: number
+  linesOfCode: number
+}
+
+export interface ProfileStatsOverview {
+  problemsCompleted: number
+  totalAttempts: number
+  totalLinesOfCode: number
+  totalTimeSpentMs: number
+  oaSessionsCompleted: number
+  currentStreakDays: number
+  longestStreakDays: number
+  activeDays: number
+  lastActiveAt: string | null
+  byMode: Record<PracticeMode, { attempts: number; passed: number }>
+}
+
+export interface DailyActivityDay {
+  /** YYYY-MM-DD, local-to-UTC date key — same convention as toDateKey in stats-service. */
+  date: string
+  solvedCount: number
+}
+
+export interface DailyActivityOverview {
+  /** Oldest first, one entry per day in the requested window (zero-filled, not just active days) — a chart/heatmap can index straight into this without re-deriving the calendar. */
+  days: DailyActivityDay[]
+  longestStreakDays: number
+}
+
 // --- Study Plan ---
+
+/** A user-created, independently-tracked study plan. Multiple plans can exist per user, each
+ * tracking its own settings/progress against the same shared curriculum (tracks/patterns/
+ * problems below are global; everything keyed by plan id is this plan's own state). */
+export interface StudyPlan {
+  id: string
+  userId: string
+  name: string
+  createdAt: string
+}
+
+/** Cheap, pre-aggregated stats for the plan list page — avoids the list view needing to
+ * compute a full StudyPlanOverview (recommendation/drill-queue/readiness) per plan. */
+export interface StudyPlanSummary {
+  id: string
+  name: string
+  createdAt: string
+  interviewDate: string | null
+  dailyTimeBudgetMinutes: number
+  totalPatterns: number
+  readyOrBetterPatterns: number
+}
 
 export type StudyTrackId = "oa-prep" | "technical-interview-prep"
 

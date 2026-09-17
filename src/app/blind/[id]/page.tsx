@@ -36,45 +36,48 @@ export default function BlindTestPage({ params }: { params: Promise<{ id: string
     presenter.loadProblem(id)
   }, [presenter, id])
 
-  if (loading) return <main className="p-8 text-sm text-muted">Loading problem...</main>
-  if (error) return <main className="p-8 text-sm text-red-600 dark:text-red-400">{error}</main>
+  if (loading) return <div className="flex-1 p-8 text-sm text-text-2">Loading problem...</div>
+  if (error) return <div className="flex-1 p-8 text-sm text-danger">{error}</div>
   if (!problem) return null
 
   return (
-    <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
-      <div className="mb-4 flex items-center justify-between">
-        <Link href="/blind" className="text-sm text-muted hover:text-foreground">
+    <div className="flex h-full flex-1 flex-col overflow-hidden">
+      <div className="flex h-12 shrink-0 items-center justify-between border-b border-border bg-surface px-6">
+        <Link href="/blind" className="text-sm text-text-2 hover:text-text-1">
           &larr; Back to blind test list
         </Link>
         <ThemeToggle />
       </div>
 
-      <div className="mb-4 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
+      <div className="border-b border-border bg-warning/10 px-6 py-2 text-xs text-warning">
         Blind Test Mode — no pattern tag, no difficulty, no hints. Solve cold.
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="space-y-4">
-          <h1 className="text-xl font-semibold">{problem.title}</h1>
+      <div className="grid flex-1 grid-cols-1 overflow-hidden lg:grid-cols-2">
+        <div className="space-y-4 overflow-y-auto border-b border-border p-6 lg:border-b-0 lg:border-r">
+          <h1 className="font-display text-xl font-semibold text-text-1">{problem.title}</h1>
 
-          <p className="whitespace-pre-wrap text-sm">{problem.prompt}</p>
+          <p className="whitespace-pre-wrap text-sm text-text-1">{problem.prompt}</p>
 
           <div>
-            <h2 className="mb-2 text-sm font-medium">Examples</h2>
+            <h2 className="mb-2 text-sm font-medium text-text-1">Examples</h2>
             <ul className="space-y-2">
               {problem.examples.map((example, index) => (
-                <li key={index} className="rounded-md border border-border p-3 text-xs font-mono">
+                <li
+                  key={index}
+                  className="rounded-card border border-border bg-surface p-3 font-mono text-xs text-text-1"
+                >
                   <div>Input: {example.input}</div>
                   <div>Output: {example.output}</div>
-                  {example.explanation && <div className="text-muted">{example.explanation}</div>}
+                  {example.explanation && <div className="text-text-2">{example.explanation}</div>}
                 </li>
               ))}
             </ul>
           </div>
 
           <div>
-            <h2 className="mb-2 text-sm font-medium">Constraints</h2>
-            <ul className="list-inside list-disc text-xs text-muted">
+            <h2 className="mb-2 text-sm font-medium text-text-1">Constraints</h2>
+            <ul className="list-inside list-disc text-xs text-text-2">
               {problem.constraints.map((constraint, index) => (
                 <li key={index}>{constraint}</li>
               ))}
@@ -82,21 +85,21 @@ export default function BlindTestPage({ params }: { params: Promise<{ id: string
           </div>
         </div>
 
-        <div className="space-y-4">
-          <CodeEditor value={code} onChange={setCode} />
+        <div className="flex flex-col space-y-4 overflow-y-auto p-6">
+          <CodeEditor value={code} onChange={setCode} height="420px" />
 
           <div className="flex gap-2">
             <button
               onClick={() => presenter.run(code)}
               disabled={running}
-              className="rounded-md border border-border px-4 py-2 text-sm hover:bg-surface disabled:opacity-50"
+              className="min-h-[44px] rounded-control border border-border px-4 text-sm text-text-2 hover:bg-surface-2 hover:text-text-1 disabled:opacity-50"
             >
               Run tests
             </button>
             <button
               onClick={() => presenter.submitCode(code)}
               disabled={running}
-              className="rounded-md bg-accent px-4 py-2 text-sm text-white disabled:opacity-50"
+              className="min-h-[44px] rounded-control bg-accent px-4 text-sm font-semibold text-bg disabled:opacity-50"
             >
               Submit
             </button>
@@ -105,6 +108,6 @@ export default function BlindTestPage({ params }: { params: Promise<{ id: string
           {result && <TestResults result={result} />}
         </div>
       </div>
-    </main>
+    </div>
   )
 }

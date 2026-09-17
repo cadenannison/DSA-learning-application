@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { apiClient } from "@/lib/api-client"
+import { PageShell } from "@/components/ui/page-shell"
+import { PageHeader } from "@/components/ui/page-header"
 import type { Difficulty } from "@/types"
 
 const DIFFICULTY_OPTIONS: Difficulty[] = ["easy", "medium", "hard"]
@@ -39,20 +41,23 @@ export default function OASetupPage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-8">
-      <h1 className="text-2xl font-semibold">Mock OA Mode</h1>
-      <p className="mt-2 text-sm text-muted">
-        A timed, multi-problem session that simulates a Google-style online assessment.
-        Pattern tags and difficulty labels stay hidden during the session, same as Blind Test
-        Mode — solve cold, against the clock.
+    <PageShell>
+      <PageHeader
+        title="Mock Interviews"
+        context="A timed, multi-problem session that simulates a Google-style online assessment"
+      />
+
+      <p className="mb-6 max-w-2xl text-sm text-text-2">
+        Pattern tags and difficulty labels stay hidden during the session, same as Workbook blind
+        mode — solve cold, against the clock.
       </p>
 
-      <div className="mt-6 space-y-2">
+      <div className="mb-6 max-w-2xl space-y-2">
         {PRESETS.map((preset, index) => (
           <label
             key={preset.label}
-            className={`flex cursor-pointer items-center gap-3 rounded-md border px-4 py-3 text-sm ${
-              presetIndex === index ? "border-accent bg-accent/10" : "border-border"
+            className={`flex min-h-[44px] cursor-pointer items-center gap-3 rounded-card border px-4 py-3 text-sm ${
+              presetIndex === index ? "border-accent bg-accent-soft text-text-1" : "border-border text-text-1"
             }`}
           >
             <input
@@ -66,20 +71,20 @@ export default function OASetupPage() {
         ))}
       </div>
 
-      {error && <p className="mt-4 text-sm text-red-600 dark:text-red-400">{error}</p>}
+      {error && <p className="mb-4 text-sm text-danger">{error}</p>}
 
       <button
         onClick={startSession}
         disabled={starting}
-        className="mt-6 rounded-md bg-accent px-4 py-2 text-sm text-white disabled:opacity-50"
+        className="min-h-[44px] rounded-control bg-accent px-4 text-sm font-semibold text-bg disabled:opacity-50"
       >
         {starting ? "Starting..." : "Start session"}
       </button>
 
-      <p className="mt-4 text-xs text-muted">
+      <p className="mt-4 max-w-2xl text-xs text-text-2">
         Difficulty labels above ({DIFFICULTY_OPTIONS.join(", ")}) select which problems are
         eligible for the session — they are not shown once the session starts.
       </p>
-    </main>
+    </PageShell>
   )
 }

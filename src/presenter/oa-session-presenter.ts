@@ -71,7 +71,7 @@ export class OASessionPresenter {
       const session = await apiClient.submitOAProblem(this.session.id, problemId, {
         code,
         functionName,
-        language: "javascript",
+        language: "python",
       })
       this.session = session
       this.view.setSession(session)

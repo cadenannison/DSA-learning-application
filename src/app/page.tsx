@@ -3,9 +3,14 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { LibraryPresenter } from "@/presenter/library-presenter"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { apiClient } from "@/lib/api-client"
+import { PageShell } from "@/components/ui/page-shell"
+import { PageHeader } from "@/components/ui/page-header"
+import { StatusPill, type StatusTone } from "@/components/ui/status-pill"
+import { EmptyState } from "@/components/ui/empty-state"
 import type { Difficulty, DsaPattern, ProblemSummary } from "@/types"
+
+type StatusFilter = "not_started" | "attempted" | "completed"
 
 const PATTERN_LABELS: Record<DsaPattern, string> = {
   "arrays-two-pointers": "Arrays / Two Pointers",
@@ -31,18 +36,20 @@ const STATUS_LABELS: Record<ProblemSummary["progressStatus"], string> = {
   mastered: "Mastered",
 }
 
-const STATUS_COLORS: Record<ProblemSummary["progressStatus"], string> = {
-  not_started: "text-muted",
-  attempted: "text-amber-600 dark:text-amber-400",
-  solved: "text-blue-600 dark:text-blue-400",
-  mastered: "text-green-600 dark:text-green-400",
+const STATUS_TONES: Record<ProblemSummary["progressStatus"], StatusTone> = {
+  not_started: "neutral",
+  attempted: "accent",
+  solved: "success",
+  mastered: "success",
 }
 
 const DIFFICULTY_COLORS: Record<Difficulty, string> = {
-  easy: "text-green-600 dark:text-green-400",
-  medium: "text-amber-600 dark:text-amber-400",
-  hard: "text-red-600 dark:text-red-400",
+  easy: "text-success",
+  medium: "text-warning",
+  hard: "text-danger",
 }
+
+const PAGE_SIZE = 20
 
 export default function LibraryPage() {
   const [problems, setProblems] = useState<ProblemSummary[]>([])
@@ -54,6 +61,8 @@ export default function LibraryPage() {
   const [query, setQuery] = useState("")
   const [companies, setCompanies] = useState<string[]>([])
   const [favoritesOnly, setFavoritesOnly] = useState(false)
+  const [statusFilter, setStatusFilter] = useState<StatusFilter | "">("")
+  const [page, setPage] = useState(1)
 
   const [presenter] = useState(
     () =>
@@ -82,14 +91,28 @@ export default function LibraryPage() {
       .catch(() => setCompanies([]))
   }, [])
 
+  useEffect(() => {
+    setPage(1)
+  }, [pattern, difficulty, company, query, favoritesOnly, statusFilter])
+
   const patterns = Object.keys(PATTERN_LABELS) as DsaPattern[]
 
+  const filteredProblems = statusFilter
+    ? problems.filter((problem) =>
+        statusFilter === "completed"
+          ? problem.progressStatus === "solved" || problem.progressStatus === "mastered"
+          : problem.progressStatus === statusFilter
+      )
+    : problems
+
+  const totalPages = Math.max(1, Math.ceil(filteredProblems.length / PAGE_SIZE))
+  const currentPage = Math.min(page, totalPages)
+  const pageStart = (currentPage - 1) * PAGE_SIZE
+  const visibleProblems = filteredProblems.slice(pageStart, pageStart + PAGE_SIZE)
+
   return (
-    <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">DSA Practice</h1>
-        <ThemeToggle />
-      </div>
+    <PageShell>
+      <PageHeader title="Library" context="Browse and filter the full problem set" />
 
       <div className="mb-4 flex flex-wrap gap-2">
         <input
@@ -97,12 +120,12 @@ export default function LibraryPage() {
           placeholder="Search by title..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="rounded-md border border-border bg-transparent px-3 py-1.5 text-sm"
+          className="min-h-[44px] rounded-control border border-border bg-surface px-3 text-sm text-text-1 placeholder:text-text-3 focus:border-accent focus:outline-none"
         />
         <select
           value={pattern}
           onChange={(e) => setPattern(e.target.value as DsaPattern | "")}
-          className="rounded-md border border-border bg-transparent px-3 py-1.5 text-sm"
+          className="min-h-[44px] rounded-control border border-border bg-surface px-3 text-sm text-text-1 focus:border-accent focus:outline-none"
         >
           <option value="">All patterns</option>
           {patterns.map((p) => (
@@ -114,7 +137,7 @@ export default function LibraryPage() {
         <select
           value={difficulty}
           onChange={(e) => setDifficulty(e.target.value as Difficulty | "")}
-          className="rounded-md border border-border bg-transparent px-3 py-1.5 text-sm"
+          className="min-h-[44px] rounded-control border border-border bg-surface px-3 text-sm text-text-1 focus:border-accent focus:outline-none"
         >
           <option value="">All difficulties</option>
           <option value="easy">Easy</option>
@@ -124,7 +147,7 @@ export default function LibraryPage() {
         <select
           value={company}
           onChange={(e) => setCompany(e.target.value)}
-          className="rounded-md border border-border bg-transparent px-3 py-1.5 text-sm"
+          className="min-h-[44px] rounded-control border border-border bg-surface px-3 text-sm text-text-1 focus:border-accent focus:outline-none"
         >
           <option value="">All companies</option>
           {companies.map((c) => (
@@ -133,65 +156,119 @@ export default function LibraryPage() {
             </option>
           ))}
         </select>
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value as StatusFilter | "")}
+          className="min-h-[44px] rounded-control border border-border bg-surface px-3 text-sm text-text-1 focus:border-accent focus:outline-none"
+        >
+          <option value="">All statuses</option>
+          <option value="not_started">Not started</option>
+          <option value="attempted">Attempted</option>
+          <option value="completed">Completed</option>
+        </select>
         <button
           type="button"
           onClick={() => setFavoritesOnly((prev) => !prev)}
           aria-pressed={favoritesOnly}
-          className={`rounded-md border px-3 py-1.5 text-sm ${
+          aria-label="Show favorites only"
+          className={`min-h-[44px] rounded-control border px-3 text-sm transition-colors ${
             favoritesOnly
-              ? "border-accent bg-accent text-white"
-              : "border-border text-foreground hover:bg-surface"
+              ? "border-accent bg-accent-soft text-accent"
+              : "border-border text-text-2 hover:bg-surface-2 hover:text-text-1"
           }`}
         >
           ★ Favorites
         </button>
       </div>
 
-      {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
-      {loading && <p className="text-sm text-muted">Loading problems...</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
+      {loading && <p className="text-sm text-text-2">Loading problems...</p>}
 
-      {!loading && !error && (
-        <ul className="divide-y divide-border rounded-md border border-border">
-          {problems.map((problem) => (
+      {!loading && !error && filteredProblems.length === 0 && (
+        <EmptyState
+          message={favoritesOnly ? "No favorited problems yet." : "No problems match these filters."}
+        />
+      )}
+
+      {!loading && !error && filteredProblems.length > 0 && (
+        <ul className="divide-y divide-border-soft rounded-card border border-border bg-surface">
+          {visibleProblems.map((problem) => (
             <li key={problem.id} className="flex items-center">
               <button
                 type="button"
                 onClick={() => presenter.toggleFavorite(problem.id, !problem.favorited)}
                 aria-label={problem.favorited ? "Remove from favorites" : "Add to favorites"}
                 aria-pressed={problem.favorited}
-                className={`px-3 py-3 text-lg transition-colors ${
-                  problem.favorited ? "text-amber-500" : "text-muted hover:text-amber-500"
+                className={`flex min-h-[44px] min-w-[44px] items-center justify-center text-lg transition-colors ${
+                  problem.favorited ? "text-warning" : "text-text-3 hover:text-warning"
                 }`}
               >
                 {problem.favorited ? "★" : "☆"}
               </button>
               <Link
                 href={`/problems/${problem.id}`}
-                className="flex flex-1 items-center justify-between py-3 pr-4 hover:bg-surface"
+                className="flex min-h-[44px] flex-1 items-center justify-between py-3 pr-4 hover:bg-surface-2"
               >
                 <div>
-                  <div className="font-medium">{problem.title}</div>
-                  <div className="text-xs text-muted">
+                  <div className="text-sm font-medium text-text-1">{problem.title}</div>
+                  <div className="text-xs text-text-2">
                     {PATTERN_LABELS[problem.pattern]}
                     {problem.companies.length > 0 && ` · ${problem.companies.join(", ")}`}
                   </div>
                 </div>
-                <div className="flex items-center gap-4 text-sm">
-                  <span className={DIFFICULTY_COLORS[problem.difficulty]}>{problem.difficulty}</span>
-                  <span className={STATUS_COLORS[problem.progressStatus]}>
-                    {STATUS_LABELS[problem.progressStatus]}
+                <div className="flex items-center gap-4">
+                  <span className={`font-mono text-xs ${DIFFICULTY_COLORS[problem.difficulty]}`}>
+                    {problem.difficulty}
                   </span>
+                  <StatusPill
+                    label={STATUS_LABELS[problem.progressStatus]}
+                    tone={STATUS_TONES[problem.progressStatus]}
+                  />
                 </div>
               </Link>
             </li>
           ))}
-          {problems.length === 0 && (
-            <li className="px-4 py-6 text-center text-sm text-muted">
-              {favoritesOnly ? "No favorited problems yet." : "No problems match these filters."}
-            </li>
-          )}
         </ul>
       )}
-    </main>
+
+      {!loading && !error && totalPages > 1 && (
+        <div className="mt-4 flex items-center justify-between text-sm">
+          <span className="text-text-2">
+            Showing {pageStart + 1}–{Math.min(pageStart + PAGE_SIZE, filteredProblems.length)} of{" "}
+            {filteredProblems.length} problems
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="min-h-[44px] rounded-control border border-border px-3 text-sm text-text-2 hover:bg-surface-2 hover:text-text-1 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Previous
+            </button>
+            <select
+              value={currentPage}
+              onChange={(e) => setPage(Number(e.target.value))}
+              className="min-h-[44px] rounded-control border border-border bg-surface px-3 text-sm text-text-1"
+              aria-label="Select page"
+            >
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                <option key={p} value={p}>
+                  Page {p} of {totalPages}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="min-h-[44px] rounded-control border border-border px-3 text-sm text-text-2 hover:bg-surface-2 hover:text-text-1 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
+    </PageShell>
   )
 }

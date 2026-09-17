@@ -34,12 +34,12 @@
   ],
   "solution": {
     "approach": "Build an adjacency list mapping each course to the courses that depend on it. Run DFS from every course, tracking each node's state as unvisited, visiting (on the current DFS stack), or visited (fully explored). If DFS reaches a node marked 'visiting', a cycle exists and the schedule is impossible. If DFS completes for all nodes without hitting a 'visiting' node, all courses can be finished.",
-    "code": "function canFinish(numCourses, prerequisites) {\n  const graph = Array.from({ length: numCourses }, () => []);\n  for (const [course, prereq] of prerequisites) {\n    graph[prereq].push(course);\n  }\n\n  const UNVISITED = 0, VISITING = 1, VISITED = 2;\n  const state = new Array(numCourses).fill(UNVISITED);\n\n  function hasCycle(node) {\n    if (state[node] === VISITING) return true;\n    if (state[node] === VISITED) return false;\n\n    state[node] = VISITING;\n    for (const next of graph[node]) {\n      if (hasCycle(next)) return true;\n    }\n    state[node] = VISITED;\n    return false;\n  }\n\n  for (let course = 0; course < numCourses; course++) {\n    if (hasCycle(course)) return false;\n  }\n  return true;\n}",
+    "code": "def can_finish(num_courses, prerequisites):\n    graph = [[] for _ in range(num_courses)]\n    for course, prereq in prerequisites:\n        graph[prereq].append(course)\n\n    UNVISITED, VISITING, VISITED = 0, 1, 2\n    state = [UNVISITED] * num_courses\n\n    def has_cycle(node):\n        if state[node] == VISITING:\n            return True\n        if state[node] == VISITED:\n            return False\n\n        state[node] = VISITING\n        for nxt in graph[node]:\n            if has_cycle(nxt):\n                return True\n        state[node] = VISITED\n        return False\n\n    for course in range(num_courses):\n        if has_cycle(course):\n            return False\n    return True\n",
     "timeComplexity": "O(V + E)",
     "spaceComplexity": "O(V + E)"
   },
-  "starterCode": "function canFinish(numCourses, prerequisites) {\n  // your code here\n}",
-  "functionName": "canFinish",
+  "starterCode": "def can_finish(num_courses, prerequisites):\n    # your code here\n    pass\n",
+  "functionName": "can_finish",
   "testCases": [
     {
       "input": [

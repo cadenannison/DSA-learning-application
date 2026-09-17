@@ -31,12 +31,12 @@
   ],
   "solution": {
     "approach": "Use a stack. Push each opening bracket. On a closing bracket, pop the stack and check it matches the expected opener \u2014 if the stack is empty or it doesn't match, the string is invalid immediately. At the end, the string is valid only if the stack is empty (no unclosed openers remain).",
-    "code": "function isValid(s) {\n  const pairs = { ')': '(', ']': '[', '}': '{' };\n  const stack = [];\n  for (const ch of s) {\n    if (ch === '(' || ch === '[' || ch === '{') {\n      stack.push(ch);\n    } else {\n      if (stack.pop() !== pairs[ch]) return false;\n    }\n  }\n  return stack.length === 0;\n}",
+    "code": "def is_valid(s):\n    pairs = {')': '(', ']': '[', '}': '{'}\n    stack = []\n    for ch in s:\n        if ch in '([{':\n            stack.append(ch)\n        else:\n            if not stack or stack.pop() != pairs[ch]:\n                return False\n    return len(stack) == 0\n",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(n)"
   },
-  "starterCode": "function isValid(s) {\n  // your code here\n}",
-  "functionName": "isValid",
+  "starterCode": "def is_valid(s):\n    # your code here\n    pass\n",
+  "functionName": "is_valid",
   "testCases": [
     {
       "input": [

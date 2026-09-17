@@ -21,10 +21,6 @@ export async function POST(request: NextRequest) {
       parsed.data.password
     )
 
-    // Every new account starts from the same shared curriculum template — this is what makes
-    // "specific to me" and "others can create their own account" both true at once.
-    await container.studyPlanService.ensureUserStateSeeded(user.id)
-
     const response = NextResponse.json(userSchema.parse(user), { status: 201 })
     response.cookies.set(SESSION_COOKIE_NAME, sessionId, {
       httpOnly: true,

@@ -20,8 +20,6 @@ export async function POST(request: NextRequest) {
       parsed.data.password
     )
 
-    await container.studyPlanService.ensureUserStateSeeded(user.id)
-
     const response = NextResponse.json(userSchema.parse(user))
     response.cookies.set(SESSION_COOKIE_NAME, sessionId, {
       httpOnly: true,

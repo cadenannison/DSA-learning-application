@@ -16,10 +16,10 @@ const STATUS_LABELS: Record<OAProblemStatus, string> = {
 }
 
 const STATUS_COLORS: Record<OAProblemStatus, string> = {
-  unanswered: "text-muted",
-  in_progress: "text-amber-600 dark:text-amber-400",
-  passed: "text-green-600 dark:text-green-400",
-  failed: "text-red-600 dark:text-red-400",
+  unanswered: "text-text-2",
+  in_progress: "text-warning",
+  passed: "text-success",
+  failed: "text-danger",
 }
 
 function formatRemaining(ms: number): string {
@@ -98,8 +98,8 @@ export default function OASessionPage({ params }: { params: Promise<{ id: string
     }
   }, [session, now, endSession])
 
-  if (loading) return <main className="p-8 text-sm text-muted">Loading session...</main>
-  if (error) return <main className="p-8 text-sm text-red-600 dark:text-red-400">{error}</main>
+  if (loading) return <div className="flex-1 p-8 text-sm text-text-2">Loading session...</div>
+  if (error) return <div className="flex-1 p-8 text-sm text-danger">{error}</div>
   if (!session) return null
 
   const deadlineMs = new Date(session.deadline).getTime()
@@ -107,15 +107,13 @@ export default function OASessionPage({ params }: { params: Promise<{ id: string
   const lowTime = remainingMs < 5 * 60 * 1000
 
   return (
-    <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
-      <div className="mb-4 flex items-center justify-between">
+    <div className="flex h-full flex-1 flex-col overflow-hidden">
+      <div className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-surface px-6">
         <div className="flex items-center gap-4">
-          <h1 className="text-xl font-semibold">Mock OA Session</h1>
+          <h1 className="font-display text-base font-semibold text-text-1">Mock OA Session</h1>
           <span
-            className={`rounded-md border px-3 py-1 text-sm font-mono ${
-              lowTime
-                ? "border-red-500/40 bg-red-500/10 text-red-600 dark:text-red-400"
-                : "border-border text-foreground"
+            className={`rounded-control border px-3 py-1 font-mono text-sm ${
+              lowTime ? "border-danger/40 bg-danger/10 text-danger" : "border-border text-text-1"
             }`}
           >
             {formatRemaining(remainingMs)}
@@ -123,49 +121,54 @@ export default function OASessionPage({ params }: { params: Promise<{ id: string
         </div>
         <button
           onClick={endSession}
-          className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-surface"
+          className="min-h-[44px] rounded-control border border-border px-3 text-sm text-text-2 hover:bg-surface-2 hover:text-text-1"
         >
           End session
         </button>
       </div>
 
-      <div className="mb-4 flex flex-wrap gap-2">
+      <div className="flex shrink-0 flex-wrap gap-2 border-b border-border px-6 py-3">
         {session.problems.map((p, index) => (
           <button
             key={p.problemId}
             onClick={() => setActiveProblemId(p.problemId)}
-            className={`rounded-md border px-3 py-1.5 text-xs ${
-              p.problemId === activeProblemId ? "border-accent bg-accent/10" : "border-border"
+            className={`min-h-[36px] rounded-control border px-3 text-xs ${
+              p.problemId === activeProblemId
+                ? "border-accent bg-accent-soft"
+                : "border-border hover:bg-surface-2"
             }`}
           >
-            <span className="mr-1.5">Problem {index + 1}</span>
+            <span className="mr-1.5 text-text-1">Problem {index + 1}</span>
             <span className={STATUS_COLORS[p.status]}>{STATUS_LABELS[p.status]}</span>
           </button>
         ))}
       </div>
 
       {problemContent ? (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <div className="space-y-4">
-            <h2 className="text-lg font-semibold">{problemContent.title}</h2>
-            <p className="whitespace-pre-wrap text-sm">{problemContent.prompt}</p>
+        <div className="grid flex-1 grid-cols-1 overflow-hidden lg:grid-cols-2">
+          <div className="space-y-4 overflow-y-auto border-b border-border p-6 lg:border-b-0 lg:border-r">
+            <h2 className="font-display text-lg font-semibold text-text-1">{problemContent.title}</h2>
+            <p className="whitespace-pre-wrap text-sm text-text-1">{problemContent.prompt}</p>
 
             <div>
-              <h3 className="mb-2 text-sm font-medium">Examples</h3>
+              <h3 className="mb-2 text-sm font-medium text-text-1">Examples</h3>
               <ul className="space-y-2">
                 {problemContent.examples.map((example, index) => (
-                  <li key={index} className="rounded-md border border-border p-3 text-xs font-mono">
+                  <li
+                    key={index}
+                    className="rounded-card border border-border bg-surface p-3 font-mono text-xs text-text-1"
+                  >
                     <div>Input: {example.input}</div>
                     <div>Output: {example.output}</div>
-                    {example.explanation && <div className="text-muted">{example.explanation}</div>}
+                    {example.explanation && <div className="text-text-2">{example.explanation}</div>}
                   </li>
                 ))}
               </ul>
             </div>
 
             <div>
-              <h3 className="mb-2 text-sm font-medium">Constraints</h3>
-              <ul className="list-inside list-disc text-xs text-muted">
+              <h3 className="mb-2 text-sm font-medium text-text-1">Constraints</h3>
+              <ul className="list-inside list-disc text-xs text-text-2">
                 {problemContent.constraints.map((constraint, index) => (
                   <li key={index}>{constraint}</li>
                 ))}
@@ -173,14 +176,14 @@ export default function OASessionPage({ params }: { params: Promise<{ id: string
             </div>
           </div>
 
-          <div className="space-y-4">
-            <CodeEditor value={code} onChange={setCode} />
+          <div className="flex flex-col space-y-4 overflow-y-auto p-6">
+            <CodeEditor value={code} onChange={setCode} height="420px" />
 
             <div className="flex gap-2">
               <button
                 onClick={() => activeProblemId && presenter.saveProgress(activeProblemId, code)}
                 disabled={running}
-                className="rounded-md border border-border px-4 py-2 text-sm hover:bg-surface disabled:opacity-50"
+                className="min-h-[44px] rounded-control border border-border px-4 text-sm text-text-2 hover:bg-surface-2 hover:text-text-1 disabled:opacity-50"
               >
                 Save
               </button>
@@ -190,7 +193,7 @@ export default function OASessionPage({ params }: { params: Promise<{ id: string
                   presenter.submitProblem(activeProblemId, code, problemContent.functionName)
                 }
                 disabled={running}
-                className="rounded-md bg-accent px-4 py-2 text-sm text-white disabled:opacity-50"
+                className="min-h-[44px] rounded-control bg-accent px-4 text-sm font-semibold text-bg disabled:opacity-50"
               >
                 Submit
               </button>
@@ -205,8 +208,8 @@ export default function OASessionPage({ params }: { params: Promise<{ id: string
           </div>
         </div>
       ) : (
-        <p className="text-sm text-muted">Loading problem...</p>
+        <p className="p-6 text-sm text-text-2">Loading problem...</p>
       )}
-    </main>
+    </div>
   )
 }

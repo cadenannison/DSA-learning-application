@@ -75,7 +75,7 @@ export function EmbeddedProblemWorkbench({
       const execution = await presenter.runEmbeddedProblem(problem.id, {
         code,
         functionName: problem.functionName,
-        language: "javascript",
+        language: "python",
       })
       setResult(execution)
     } catch (err) {
@@ -93,7 +93,7 @@ export function EmbeddedProblemWorkbench({
       const elapsedMinutes = Math.round((performance.now() - startedAt) / 60_000)
       const execution = await presenter.submitEmbeddedProblem(
         studyProblem.id,
-        { code, functionName: problem.functionName, language: "javascript" },
+        { code, functionName: problem.functionName, language: "python" },
         Math.max(0, elapsedMinutes)
       )
       submittedRef.current = true
@@ -105,30 +105,30 @@ export function EmbeddedProblemWorkbench({
     }
   }
 
-  if (loading) return <p className="text-sm text-muted">Loading problem...</p>
-  if (error) return <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+  if (loading) return <p className="text-sm text-text-2">Loading problem...</p>
+  if (error) return <p className="text-sm text-danger">{error}</p>
   if (!problem) return null
 
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="space-y-3">
-          <p className="whitespace-pre-wrap text-sm">{problem.prompt}</p>
+          <p className="whitespace-pre-wrap text-sm text-text-1">{problem.prompt}</p>
 
           <div>
-            <h4 className="mb-1 text-xs font-medium uppercase tracking-wide text-muted">
+            <h4 className="mb-1 text-xs font-medium uppercase tracking-wide text-text-2">
               Examples
             </h4>
             <ul className="space-y-1.5">
               {problem.examples.map((example, index) => (
                 <li
                   key={index}
-                  className="rounded-md border border-border p-2 text-xs font-mono"
+                  className="rounded-control border border-border bg-surface p-2 font-mono text-xs text-text-1"
                 >
                   <div>Input: {example.input}</div>
                   <div>Output: {example.output}</div>
                   {example.explanation && (
-                    <div className="text-muted">{example.explanation}</div>
+                    <div className="text-text-2">{example.explanation}</div>
                   )}
                 </li>
               ))}
@@ -136,10 +136,10 @@ export function EmbeddedProblemWorkbench({
           </div>
 
           <div>
-            <h4 className="mb-1 text-xs font-medium uppercase tracking-wide text-muted">
+            <h4 className="mb-1 text-xs font-medium uppercase tracking-wide text-text-2">
               Constraints
             </h4>
-            <ul className="list-inside list-disc text-xs text-muted">
+            <ul className="list-inside list-disc text-xs text-text-2">
               {problem.constraints.map((constraint, index) => (
                 <li key={index}>{constraint}</li>
               ))}
@@ -148,27 +148,27 @@ export function EmbeddedProblemWorkbench({
         </div>
 
         <div className="space-y-3">
-          <CodeEditor value={code} onChange={setCode} />
+          <CodeEditor value={code} onChange={setCode} height="320px" />
 
           <div className="flex gap-2">
             <button
               onClick={handleRun}
               disabled={running}
-              className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-surface disabled:opacity-50"
+              className="min-h-[44px] rounded-control border border-border px-3 text-sm text-text-2 hover:bg-surface-2 hover:text-text-1 disabled:opacity-50"
             >
               Run tests
             </button>
             <button
               onClick={handleSubmit}
               disabled={running}
-              className="rounded-md bg-accent px-3 py-1.5 text-sm text-white disabled:opacity-50"
+              className="min-h-[44px] rounded-control bg-accent px-3 text-sm font-semibold text-bg disabled:opacity-50"
             >
               Submit
             </button>
           </div>
 
           {result?.allPassed && (
-            <div className="rounded-md border border-green-500/40 bg-green-500/10 px-3 py-2 text-xs font-medium text-green-600 dark:text-green-400">
+            <div className="rounded-control border border-success/40 bg-success/10 px-3 py-2 text-xs font-medium text-success">
               All tests passed — marked complete.
             </div>
           )}

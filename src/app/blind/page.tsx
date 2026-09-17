@@ -2,8 +2,10 @@
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { apiClient } from "@/lib/api-client"
+import { PageShell } from "@/components/ui/page-shell"
+import { PageHeader } from "@/components/ui/page-header"
+import { EmptyState } from "@/components/ui/empty-state"
 import type { ProblemSummary } from "@/types"
 
 export default function BlindTestListPage() {
@@ -20,47 +22,45 @@ export default function BlindTestListPage() {
   }, [])
 
   return (
-    <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Blind Test Mode</h1>
-        <ThemeToggle />
-      </div>
-
-      <p className="mb-4 text-sm text-muted">
-        Pick a problem by name only. No pattern, no difficulty, no hints — identify the approach
-        yourself, as in a real interview.
-      </p>
+    <PageShell>
+      <PageHeader
+        title="Workbook"
+        context="Pick a problem by name only — identify the approach yourself, as in a real interview"
+      />
 
       <Link
         href="/blind/sets"
-        className="mb-6 flex items-center justify-between rounded-md border border-accent/40 bg-accent/10 px-4 py-3 text-sm hover:bg-accent/20"
+        className="mb-8 flex min-h-[44px] items-center justify-between rounded-card border border-accent/40 bg-accent-soft px-4 py-3 text-sm hover:bg-accent/20"
       >
         <div>
-          <div className="font-medium">Test Sets</div>
-          <div className="text-xs text-muted">
+          <div className="font-medium text-text-1">Test Sets</div>
+          <div className="text-xs text-text-2">
             Build named sets of problems for random blind testing
           </div>
         </div>
-        <span aria-hidden>&rarr;</span>
+        <span aria-hidden className="text-accent">&rarr;</span>
       </Link>
 
-      <h2 className="mb-2 text-sm font-medium text-muted">All problems</h2>
+      <h2 className="mb-2 text-sm font-medium text-text-2">All problems</h2>
 
-      {loading && <p className="text-sm text-muted">Loading...</p>}
+      {loading && <p className="text-sm text-text-2">Loading...</p>}
 
-      <ul className="divide-y divide-border rounded-md border border-border">
-        {titles.map((problem) => (
-          <li key={problem.id}>
-            <Link href={`/blind/${problem.id}`} className="block px-4 py-3 hover:bg-surface">
-              {problem.title}
-            </Link>
-          </li>
-        ))}
-      </ul>
+      {!loading && titles.length === 0 && <EmptyState message="No problems available yet." />}
 
-      <Link href="/" className="mt-4 inline-block text-sm text-muted hover:text-foreground">
-        &larr; Back to library
-      </Link>
-    </main>
+      {!loading && titles.length > 0 && (
+        <ul className="overflow-hidden rounded-card border border-border bg-surface">
+          {titles.map((problem) => (
+            <li key={problem.id} className="border-b border-border-soft last:border-b-0">
+              <Link
+                href={`/blind/${problem.id}`}
+                className="flex min-h-[44px] items-center px-4 py-3 text-sm text-text-1 hover:bg-surface-2"
+              >
+                {problem.title}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </PageShell>
   )
 }

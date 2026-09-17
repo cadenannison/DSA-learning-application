@@ -20,23 +20,23 @@ export function BugTracingPanel({
   if (!visible) return null
 
   return (
-    <div className="mt-4 rounded-md border border-amber-500/40 bg-amber-500/5 p-4">
-      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-400">
+    <div className="mt-4 rounded-card border border-warning/40 bg-warning/5 p-4">
+      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-warning">
         Bug-tracing exercise
       </h3>
-      <div className="text-sm leading-relaxed [&_code]:rounded [&_code]:bg-surface [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-xs [&_p]:mb-2 [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:bg-surface [&_pre]:p-3">
+      <div className="text-sm leading-relaxed text-text-1 [&_code]:rounded [&_code]:bg-surface-2 [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-xs [&_p]:mb-2 [&_pre]:overflow-x-auto [&_pre]:rounded-control [&_pre]:bg-surface-2 [&_pre]:p-3">
         <ReactMarkdown>{exercise.prompt}</ReactMarkdown>
       </div>
 
       {!showSolution ? (
         <button
           onClick={() => setShowSolution(true)}
-          className="mt-2 rounded-md border border-border px-3 py-1.5 text-xs hover:bg-surface"
+          className="mt-2 min-h-[44px] rounded-control border border-border px-3 text-xs text-text-2 hover:bg-surface-2 hover:text-text-1"
         >
           Show solution walkthrough
         </button>
       ) : (
-        <div className="mt-3 border-t border-border pt-3 text-sm leading-relaxed [&_code]:rounded [&_code]:bg-surface [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-xs [&_p]:mb-2 [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:bg-surface [&_pre]:p-3 [&_strong]:font-semibold">
+        <div className="mt-3 border-t border-border pt-3 text-sm leading-relaxed text-text-1 [&_code]:rounded [&_code]:bg-surface-2 [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-xs [&_p]:mb-2 [&_pre]:overflow-x-auto [&_pre]:rounded-control [&_pre]:bg-surface-2 [&_pre]:p-3 [&_strong]:font-semibold">
           <ReactMarkdown>{exercise.solutionWalkthroughMarkdown}</ReactMarkdown>
         </div>
       )}

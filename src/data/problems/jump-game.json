@@ -32,12 +32,12 @@
   ],
   "solution": {
     "approach": "Greedily track the furthest index reachable so far while scanning left to right. If the current index ever exceeds that furthest reach, the last index is unreachable, so return false. Otherwise extend the furthest reach using the current index's jump length. If the furthest reach ever covers the last index, return true.",
-    "code": "function canJump(nums) {\n  let furthest = 0;\n  for (let i = 0; i < nums.length; i++) {\n    if (i > furthest) return false;\n    furthest = Math.max(furthest, i + nums[i]);\n    if (furthest >= nums.length - 1) return true;\n  }\n  return true;\n}",
+    "code": "def can_jump(nums):\n    furthest = 0\n    for i, num in enumerate(nums):\n        if i > furthest:\n            return False\n        furthest = max(furthest, i + num)\n        if furthest >= len(nums) - 1:\n            return True\n    return True\n",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)"
   },
-  "starterCode": "function canJump(nums) {\n  // your code here\n}",
-  "functionName": "canJump",
+  "starterCode": "def can_jump(nums):\n    # your code here\n    pass\n",
+  "functionName": "can_jump",
   "testCases": [
     {
       "input": [

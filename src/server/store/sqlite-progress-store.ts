@@ -6,6 +6,7 @@ import type { AuthStore, SessionRecord, StoredUser } from "@/server/interfaces/a
 import type { BlindTestSetStore } from "@/server/interfaces/blind-test-set-store"
 import type { OASessionRecord, OASessionStore } from "@/server/interfaces/oa-session-store"
 import type { ProgressStore } from "@/server/interfaces/progress-store"
+import type { StatsStore } from "@/server/interfaces/stats-store"
 import type { StudyCurriculumSeed, StudyPlanStore } from "@/server/interfaces/study-plan-store"
 import type {
   AttemptRecord,
@@ -14,10 +15,14 @@ import type {
   MockInterviewResult,
   OASessionConfig,
   OASessionStatus,
+  PracticeMode,
   ProblemProgress,
   ProgressStatus,
+  StatEvent,
+  StatEventType,
   StudyPattern,
   StudyPatternStage,
+  StudyPlan,
   StudyPlanSettings,
   StudyProblem,
   StudySession,
@@ -69,9 +74,16 @@ interface StudyPatternRow {
   complexity_tier: string
 }
 
-// Per-user mutable state layered on top of the shared StudyPatternRow template.
-interface UserStudyPatternStateRow {
+interface StudyPlanRow {
+  id: string
   user_id: string
+  name: string
+  created_at: string
+}
+
+// Per-plan mutable state layered on top of the shared StudyPatternRow template.
+interface UserStudyPatternStateRow {
+  plan_id: string
   study_pattern_id: string
   stage: string
   confidence: number | null
@@ -92,9 +104,9 @@ interface StudyProblemRow {
   external_url: string | null
 }
 
-// Per-user completion state for a shared StudyProblemRow template row.
+// Per-plan completion state for a shared StudyProblemRow template row.
 interface UserStudyProblemStateRow {
-  user_id: string
+  plan_id: string
   study_problem_id: string
   completed: number
   time_taken_minutes: number | null
@@ -103,7 +115,7 @@ interface UserStudyProblemStateRow {
 
 interface StudySessionRow {
   id: string
-  user_id: string
+  plan_id: string
   date: string
   minutes_spent: number
   study_pattern_ids: string
@@ -113,7 +125,7 @@ interface StudySessionRow {
 
 interface MockInterviewResultRow {
   id: string
-  user_id: string
+  plan_id: string
   date: string
   study_problem_id: string | null
   study_pattern_id: string | null
@@ -150,6 +162,18 @@ interface SessionRow {
   expires_at: string
 }
 
+interface StatEventRow {
+  id: string
+  user_id: string
+  type: string
+  occurred_at: string
+  problem_id: string | null
+  mode: string | null
+  passed: number | null
+  duration_ms: number
+  lines_of_code: number
+}
+
 function computeStatus(rows: AttemptRow[]): ProgressStatus {
   if (rows.length === 0) return "not_started"
 
@@ -175,7 +199,7 @@ function toProgress(problemId: string, rows: AttemptRow[]): ProblemProgress {
 }
 
 export class SqliteProgressStore
-  implements ProgressStore, OASessionStore, BlindTestSetStore, StudyPlanStore, AuthStore
+  implements ProgressStore, OASessionStore, BlindTestSetStore, StudyPlanStore, AuthStore, StatsStore
 {
   private readonly db: Database.Database
 
@@ -185,6 +209,7 @@ export class SqliteProgressStore
     this.db.pragma("journal_mode = WAL")
     this.db.pragma("foreign_keys = ON")
     this.migrate()
+    this.migrateStudyPlansToPerPlanState()
   }
 
   private migrate(): void {
@@ -202,9 +227,9 @@ export class SqliteProgressStore
 
       CREATE TABLE IF NOT EXISTS preferences (
         id INTEGER PRIMARY KEY CHECK (id = 1),
-        theme TEXT NOT NULL DEFAULT 'light'
+        theme TEXT NOT NULL DEFAULT 'dark'
       );
-      INSERT OR IGNORE INTO preferences (id, theme) VALUES (1, 'light');
+      INSERT OR IGNORE INTO preferences (id, theme) VALUES (1, 'dark');
 
       CREATE TABLE IF NOT EXISTS oa_sessions (
         id TEXT PRIMARY KEY,
@@ -251,10 +276,10 @@ export class SqliteProgressStore
       CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
 
       -- Study Plan: study_tracks/study_patterns/study_problems are a shared curriculum
-      -- template (same for every account, seeded once from curriculum.json). Per-user
-      -- progress lives in user_study_pattern_state / user_study_problem_state, keyed by
-      -- (user_id, *_id) — this is what lets "specific to me" and "others can create their
-      -- own account" coexist without duplicating the curriculum per user.
+      -- template (same for every account, seeded once from curriculum.json). A user can own
+      -- multiple named study_plans; per-plan progress lives in user_study_pattern_state /
+      -- user_study_problem_state, keyed by (plan_id, *_id) — this is what lets two plans
+      -- track independent progress against the same shared curriculum.
       CREATE TABLE IF NOT EXISTS study_tracks (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
@@ -283,66 +308,13 @@ export class SqliteProgressStore
       );
       CREATE INDEX IF NOT EXISTS idx_study_problems_pattern_id ON study_problems(study_pattern_id);
 
-      CREATE TABLE IF NOT EXISTS user_study_pattern_state (
-        user_id TEXT NOT NULL REFERENCES users(id),
-        study_pattern_id TEXT NOT NULL REFERENCES study_patterns(id),
-        stage TEXT NOT NULL DEFAULT 'not_started',
-        confidence INTEGER,
-        notes TEXT NOT NULL DEFAULT '',
-        ease_factor REAL NOT NULL DEFAULT 2.5,
-        interval_days REAL NOT NULL DEFAULT 0,
-        due_at TEXT,
-        last_reviewed_at TEXT,
-        review_count INTEGER NOT NULL DEFAULT 0,
-        PRIMARY KEY (user_id, study_pattern_id)
-      );
-      CREATE INDEX IF NOT EXISTS idx_user_study_pattern_state_user_id
-        ON user_study_pattern_state(user_id);
-
-      CREATE TABLE IF NOT EXISTS user_study_problem_state (
-        user_id TEXT NOT NULL REFERENCES users(id),
-        study_problem_id TEXT NOT NULL REFERENCES study_problems(id),
-        completed INTEGER NOT NULL DEFAULT 0,
-        time_taken_minutes INTEGER,
-        constraint_added_mid_solve INTEGER,
-        PRIMARY KEY (user_id, study_problem_id)
-      );
-      CREATE INDEX IF NOT EXISTS idx_user_study_problem_state_user_id
-        ON user_study_problem_state(user_id);
-
-      CREATE TABLE IF NOT EXISTS study_plan_settings (
-        user_id TEXT PRIMARY KEY REFERENCES users(id),
-        interview_date TEXT,
-        daily_time_budget_minutes INTEGER NOT NULL DEFAULT 120
-      );
-
-      CREATE TABLE IF NOT EXISTS study_sessions (
+      CREATE TABLE IF NOT EXISTS study_plans (
         id TEXT PRIMARY KEY,
         user_id TEXT NOT NULL REFERENCES users(id),
-        date TEXT NOT NULL,
-        minutes_spent INTEGER NOT NULL,
-        study_pattern_ids TEXT NOT NULL,
-        sticking_point TEXT NOT NULL DEFAULT '',
-        plan_for_next_session TEXT NOT NULL DEFAULT ''
+        name TEXT NOT NULL,
+        created_at TEXT NOT NULL
       );
-      CREATE INDEX IF NOT EXISTS idx_study_sessions_user_id ON study_sessions(user_id);
-      CREATE INDEX IF NOT EXISTS idx_study_sessions_date ON study_sessions(date);
-
-      CREATE TABLE IF NOT EXISTS mock_interview_results (
-        id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL REFERENCES users(id),
-        date TEXT NOT NULL,
-        study_problem_id TEXT,
-        study_pattern_id TEXT,
-        problem_name TEXT NOT NULL,
-        time_taken_minutes INTEGER NOT NULL,
-        solved_cleanly INTEGER NOT NULL,
-        constraint_added_mid_solve INTEGER NOT NULL DEFAULT 0,
-        notes TEXT NOT NULL DEFAULT ''
-      );
-      CREATE INDEX IF NOT EXISTS idx_mock_interview_results_user_id
-        ON mock_interview_results(user_id);
-      CREATE INDEX IF NOT EXISTS idx_mock_interview_results_date ON mock_interview_results(date);
+      CREATE INDEX IF NOT EXISTS idx_study_plans_user_id ON study_plans(user_id);
 
       -- Extends the shared study_problems template with the (rare) linked main-library
       -- Problem id. Kept as a separate table rather than a column on study_problems so the
@@ -361,11 +333,119 @@ export class SqliteProgressStore
         bug_tracing_solution_markdown TEXT
       );
 
-      -- Append-only log of embedded-problem study time: one row per submit (pass or fail) or
-      -- per collapse-without-submitting (passed = NULL). Never updated or deleted.
-      CREATE TABLE IF NOT EXISTS study_problem_sessions (
+      -- Append-only per-user activity log backing the Profile stats page — one row per
+      -- meaningful event (a code submission, an OA session ending). Keyed by user_id (not
+      -- plan_id): stats are account-wide across every feature, not scoped to one study plan.
+      -- Never updated or deleted, same convention as study_problem_sessions.
+      -- ProfileStatsOverview is always folded from these rows rather than a separately
+      -- maintained counter, so it can't drift.
+      CREATE TABLE IF NOT EXISTS user_stat_events (
         id TEXT PRIMARY KEY,
         user_id TEXT NOT NULL REFERENCES users(id),
+        type TEXT NOT NULL,
+        occurred_at TEXT NOT NULL,
+        problem_id TEXT,
+        mode TEXT,
+        passed INTEGER,
+        duration_ms INTEGER NOT NULL DEFAULT 0,
+        lines_of_code INTEGER NOT NULL DEFAULT 0
+      );
+      CREATE INDEX IF NOT EXISTS idx_user_stat_events_user_id ON user_stat_events(user_id);
+      CREATE INDEX IF NOT EXISTS idx_user_stat_events_occurred_at ON user_stat_events(occurred_at);
+
+      CREATE TABLE IF NOT EXISTS schema_meta (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        version INTEGER NOT NULL DEFAULT 0
+      );
+      INSERT OR IGNORE INTO schema_meta (id, version) VALUES (1, 0);
+    `)
+  }
+
+  /** One-time, guarded migration from the old user_id-keyed single-plan tables to the
+   * plan_id-keyed multi-plan tables. `migrate()` above runs on every store construction
+   * (including dev-server hot reloads), so the drop-and-recreate this needs can't live there
+   * — it would wipe every plan's state on each reload. Gated by schema_meta.version so it
+   * runs exactly once per database file. Pre-production dev data, so no data is preserved
+   * across the migration; a future real migration would need to carry rows forward instead. */
+  private migrateStudyPlansToPerPlanState(): void {
+    const STUDY_PLAN_SCHEMA_VERSION = 1
+    const row = this.db.prepare(`SELECT version FROM schema_meta WHERE id = 1`).get() as
+      | { version: number }
+      | undefined
+
+    if ((row?.version ?? 0) >= STUDY_PLAN_SCHEMA_VERSION) return
+
+    this.db.exec(`
+      DROP TABLE IF EXISTS user_study_pattern_state;
+      CREATE TABLE user_study_pattern_state (
+        plan_id TEXT NOT NULL REFERENCES study_plans(id) ON DELETE CASCADE,
+        study_pattern_id TEXT NOT NULL REFERENCES study_patterns(id),
+        stage TEXT NOT NULL DEFAULT 'not_started',
+        confidence INTEGER,
+        notes TEXT NOT NULL DEFAULT '',
+        ease_factor REAL NOT NULL DEFAULT 2.5,
+        interval_days REAL NOT NULL DEFAULT 0,
+        due_at TEXT,
+        last_reviewed_at TEXT,
+        review_count INTEGER NOT NULL DEFAULT 0,
+        PRIMARY KEY (plan_id, study_pattern_id)
+      );
+      CREATE INDEX idx_user_study_pattern_state_plan_id
+        ON user_study_pattern_state(plan_id);
+
+      DROP TABLE IF EXISTS user_study_problem_state;
+      CREATE TABLE user_study_problem_state (
+        plan_id TEXT NOT NULL REFERENCES study_plans(id) ON DELETE CASCADE,
+        study_problem_id TEXT NOT NULL REFERENCES study_problems(id),
+        completed INTEGER NOT NULL DEFAULT 0,
+        time_taken_minutes INTEGER,
+        constraint_added_mid_solve INTEGER,
+        PRIMARY KEY (plan_id, study_problem_id)
+      );
+      CREATE INDEX idx_user_study_problem_state_plan_id
+        ON user_study_problem_state(plan_id);
+
+      DROP TABLE IF EXISTS study_plan_settings;
+      CREATE TABLE study_plan_settings (
+        plan_id TEXT PRIMARY KEY REFERENCES study_plans(id) ON DELETE CASCADE,
+        interview_date TEXT,
+        daily_time_budget_minutes INTEGER NOT NULL DEFAULT 120
+      );
+
+      DROP TABLE IF EXISTS study_sessions;
+      CREATE TABLE study_sessions (
+        id TEXT PRIMARY KEY,
+        plan_id TEXT NOT NULL REFERENCES study_plans(id) ON DELETE CASCADE,
+        date TEXT NOT NULL,
+        minutes_spent INTEGER NOT NULL,
+        study_pattern_ids TEXT NOT NULL,
+        sticking_point TEXT NOT NULL DEFAULT '',
+        plan_for_next_session TEXT NOT NULL DEFAULT ''
+      );
+      CREATE INDEX idx_study_sessions_plan_id ON study_sessions(plan_id);
+      CREATE INDEX idx_study_sessions_date ON study_sessions(date);
+
+      DROP TABLE IF EXISTS mock_interview_results;
+      CREATE TABLE mock_interview_results (
+        id TEXT PRIMARY KEY,
+        plan_id TEXT NOT NULL REFERENCES study_plans(id) ON DELETE CASCADE,
+        date TEXT NOT NULL,
+        study_problem_id TEXT,
+        study_pattern_id TEXT,
+        problem_name TEXT NOT NULL,
+        time_taken_minutes INTEGER NOT NULL,
+        solved_cleanly INTEGER NOT NULL,
+        constraint_added_mid_solve INTEGER NOT NULL DEFAULT 0,
+        notes TEXT NOT NULL DEFAULT ''
+      );
+      CREATE INDEX idx_mock_interview_results_plan_id
+        ON mock_interview_results(plan_id);
+      CREATE INDEX idx_mock_interview_results_date ON mock_interview_results(date);
+
+      DROP TABLE IF EXISTS study_problem_sessions;
+      CREATE TABLE study_problem_sessions (
+        id TEXT PRIMARY KEY,
+        plan_id TEXT NOT NULL REFERENCES study_plans(id) ON DELETE CASCADE,
         study_problem_id TEXT NOT NULL REFERENCES study_problems(id),
         started_at TEXT NOT NULL,
         ended_at TEXT NOT NULL,
@@ -373,11 +453,13 @@ export class SqliteProgressStore
         passed INTEGER,
         source TEXT NOT NULL DEFAULT 'embedded_editor'
       );
-      CREATE INDEX IF NOT EXISTS idx_study_problem_sessions_user_id
-        ON study_problem_sessions(user_id);
-      CREATE INDEX IF NOT EXISTS idx_study_problem_sessions_problem_id
+      CREATE INDEX idx_study_problem_sessions_plan_id
+        ON study_problem_sessions(plan_id);
+      CREATE INDEX idx_study_problem_sessions_problem_id
         ON study_problem_sessions(study_problem_id);
     `)
+
+    this.db.prepare(`UPDATE schema_meta SET version = ? WHERE id = 1`).run(STUDY_PLAN_SCHEMA_VERSION)
   }
 
   async recordAttempt(attempt: Omit<AttemptRecord, "id">): Promise<AttemptRecord> {
@@ -600,9 +682,9 @@ export class SqliteProgressStore
   // --- Study Plan ---
 
   /** Inserts the shared curriculum template (tracks/patterns/problems) that doesn't already
-   * exist by id. Safe to call on every boot — this table holds no per-user progress, so
-   * there's nothing here that re-running could clobber. Per-user state is seeded separately
-   * by `ensureUserStateSeeded`, called once a user is known (on login/register). */
+   * exist by id. Safe to call on every boot — this table holds no per-plan progress, so
+   * there's nothing here that re-running could clobber. Per-plan state is seeded separately
+   * by `createPlan`, called whenever a user creates a new study plan. */
   async ensureSeeded(seed: StudyCurriculumSeed): Promise<void> {
     const insertTrack = this.db.prepare(
       `INSERT OR IGNORE INTO study_tracks (id, name, description, coaching_note)
@@ -683,11 +765,15 @@ export class SqliteProgressStore
     transaction()
   }
 
-  /** Creates default per-user state rows (not_started, unrated, never-reviewed) for every
-   * curriculum pattern/problem the given user doesn't already have a row for. Idempotent —
-   * called on every login so a newly-added curriculum pattern picks up default state for
-   * existing users too. */
-  async ensureUserStateSeeded(userId: string): Promise<void> {
+  /** Creates a new study plan for the given user and seeds default state rows (not_started,
+   * unrated, never-reviewed) for every curriculum pattern/problem, plus a default settings
+   * row. This is the only place plan state gets seeded — unlike the old single-plan model,
+   * there's no per-login backfill, since a freshly created plan_id is guaranteed to have no
+   * rows yet. */
+  async createPlan(userId: string, name: string): Promise<StudyPlan> {
+    const id = randomUUID()
+    const createdAt = new Date().toISOString()
+
     const patternIds = (
       this.db.prepare(`SELECT id FROM study_patterns`).all() as { id: string }[]
     ).map((r) => r.id)
@@ -695,30 +781,56 @@ export class SqliteProgressStore
       this.db.prepare(`SELECT id FROM study_problems`).all() as { id: string }[]
     ).map((r) => r.id)
 
+    const insertPlan = this.db.prepare(
+      `INSERT INTO study_plans (id, user_id, name, created_at) VALUES (@id, @userId, @name, @createdAt)`
+    )
     const insertPatternState = this.db.prepare(
-      `INSERT OR IGNORE INTO user_study_pattern_state (user_id, study_pattern_id)
-       VALUES (@userId, @studyPatternId)`
+      `INSERT OR IGNORE INTO user_study_pattern_state (plan_id, study_pattern_id)
+       VALUES (@planId, @studyPatternId)`
     )
     const insertProblemState = this.db.prepare(
-      `INSERT OR IGNORE INTO user_study_problem_state (user_id, study_problem_id)
-       VALUES (@userId, @studyProblemId)`
+      `INSERT OR IGNORE INTO user_study_problem_state (plan_id, study_problem_id)
+       VALUES (@planId, @studyProblemId)`
     )
     const insertSettings = this.db.prepare(
-      `INSERT OR IGNORE INTO study_plan_settings (user_id, interview_date, daily_time_budget_minutes)
-       VALUES (@userId, NULL, 120)`
+      `INSERT OR IGNORE INTO study_plan_settings (plan_id, interview_date, daily_time_budget_minutes)
+       VALUES (@planId, NULL, 120)`
     )
 
     const transaction = this.db.transaction(() => {
+      insertPlan.run({ id, userId, name, createdAt })
       for (const studyPatternId of patternIds) {
-        insertPatternState.run({ userId, studyPatternId })
+        insertPatternState.run({ planId: id, studyPatternId })
       }
       for (const studyProblemId of problemIds) {
-        insertProblemState.run({ userId, studyProblemId })
+        insertProblemState.run({ planId: id, studyProblemId })
       }
-      insertSettings.run({ userId })
+      insertSettings.run({ planId: id })
     })
 
     transaction()
+
+    return { id, userId, name, createdAt }
+  }
+
+  async listPlans(userId: string): Promise<StudyPlan[]> {
+    const rows = this.db
+      .prepare(`SELECT * FROM study_plans WHERE user_id = ? ORDER BY created_at DESC`)
+      .all(userId) as StudyPlanRow[]
+
+    return rows.map((row) => this.toStudyPlan(row))
+  }
+
+  async getPlan(planId: string): Promise<StudyPlan | null> {
+    const row = this.db.prepare(`SELECT * FROM study_plans WHERE id = ?`).get(planId) as
+      | StudyPlanRow
+      | undefined
+
+    return row ? this.toStudyPlan(row) : null
+  }
+
+  async deletePlan(planId: string): Promise<void> {
+    this.db.prepare(`DELETE FROM study_plans WHERE id = ?`).run(planId)
   }
 
   async listTracks(): Promise<StudyTrack[]> {
@@ -726,24 +838,24 @@ export class SqliteProgressStore
     return rows.map((row) => this.toTrack(row))
   }
 
-  async listPatterns(userId: string): Promise<StudyPattern[]> {
+  async listPatterns(planId: string): Promise<StudyPattern[]> {
     const rows = this.db
       .prepare(`SELECT * FROM study_patterns ORDER BY priority_rank ASC`)
       .all() as StudyPatternRow[]
 
-    return rows.map((row) => this.toPattern(row, userId))
+    return rows.map((row) => this.toPattern(row, planId))
   }
 
-  async getPattern(userId: string, id: string): Promise<StudyPattern | null> {
+  async getPattern(planId: string, id: string): Promise<StudyPattern | null> {
     const row = this.db.prepare(`SELECT * FROM study_patterns WHERE id = ?`).get(id) as
       | StudyPatternRow
       | undefined
 
     if (!row) return null
-    return this.toPattern(row, userId)
+    return this.toPattern(row, planId)
   }
 
-  async getProblem(userId: string, id: string): Promise<StudyProblem | null> {
+  async getProblem(planId: string, id: string): Promise<StudyProblem | null> {
     const row = this.db.prepare(`SELECT * FROM study_problems WHERE id = ?`).get(id) as
       | StudyProblemRow
       | undefined
@@ -751,8 +863,8 @@ export class SqliteProgressStore
     if (!row) return null
 
     const state = this.db
-      .prepare(`SELECT * FROM user_study_problem_state WHERE user_id = ? AND study_problem_id = ?`)
-      .get(userId, id) as UserStudyProblemStateRow | undefined
+      .prepare(`SELECT * FROM user_study_problem_state WHERE plan_id = ? AND study_problem_id = ?`)
+      .get(planId, id) as UserStudyProblemStateRow | undefined
 
     const extension = this.db
       .prepare(`SELECT * FROM study_problem_extensions WHERE study_problem_id = ?`)
@@ -776,7 +888,7 @@ export class SqliteProgressStore
   }
 
   async updatePattern(
-    userId: string,
+    planId: string,
     id: string,
     update: { stage?: StudyPatternStage; confidence?: number | null; notes?: string }
   ): Promise<StudyPattern | null> {
@@ -784,7 +896,7 @@ export class SqliteProgressStore
     if (!existing) return null
 
     const sets: string[] = []
-    const params: Record<string, unknown> = { userId, id }
+    const params: Record<string, unknown> = { planId, id }
 
     if (update.stage !== undefined) {
       sets.push("stage = @stage")
@@ -803,28 +915,28 @@ export class SqliteProgressStore
       this.db
         .prepare(
           `UPDATE user_study_pattern_state SET ${sets.join(", ")}
-           WHERE user_id = @userId AND study_pattern_id = @id`
+           WHERE plan_id = @planId AND study_pattern_id = @id`
         )
         .run(params)
     }
 
-    return this.getPattern(userId, id)
+    return this.getPattern(planId, id)
   }
 
-  /** Applies an SM-2-lite reschedule for this user's pattern — called on every "review
+  /** Applies an SM-2-lite reschedule for this plan's pattern — called on every "review
    * event" (stage change, confidence rating, or a mock interview touching the pattern), never
    * on a bare page view. `qualityScore` is 0-5, mapped the usual SM-2 way: >=3 grows the
    * interval, <3 resets it (the pattern needs to resurface soon). */
   async recordPatternReview(
-    userId: string,
+    planId: string,
     id: string,
     qualityScore: number
   ): Promise<StudyPattern | null> {
     const row = this.db
       .prepare(
-        `SELECT * FROM user_study_pattern_state WHERE user_id = ? AND study_pattern_id = ?`
+        `SELECT * FROM user_study_pattern_state WHERE plan_id = ? AND study_pattern_id = ?`
       )
-      .get(userId, id) as UserStudyPatternStateRow | undefined
+      .get(planId, id) as UserStudyPatternStateRow | undefined
 
     if (!row) return null
 
@@ -850,10 +962,10 @@ export class SqliteProgressStore
         `UPDATE user_study_pattern_state
          SET ease_factor = @easeFactor, interval_days = @intervalDays, due_at = @dueAt,
              last_reviewed_at = @lastReviewedAt, review_count = review_count + 1
-         WHERE user_id = @userId AND study_pattern_id = @id`
+         WHERE plan_id = @planId AND study_pattern_id = @id`
       )
       .run({
-        userId,
+        planId,
         id,
         easeFactor,
         intervalDays,
@@ -861,11 +973,11 @@ export class SqliteProgressStore
         lastReviewedAt: now.toISOString(),
       })
 
-    return this.getPattern(userId, id)
+    return this.getPattern(planId, id)
   }
 
   async updateProblem(
-    userId: string,
+    planId: string,
     id: string,
     update: {
       completed?: boolean
@@ -880,7 +992,7 @@ export class SqliteProgressStore
     if (!row) return null
 
     const sets: string[] = []
-    const params: Record<string, unknown> = { userId, id }
+    const params: Record<string, unknown> = { planId, id }
 
     if (update.completed !== undefined) {
       sets.push("completed = @completed")
@@ -900,18 +1012,18 @@ export class SqliteProgressStore
       this.db
         .prepare(
           `UPDATE user_study_problem_state SET ${sets.join(", ")}
-           WHERE user_id = @userId AND study_problem_id = @id`
+           WHERE plan_id = @planId AND study_problem_id = @id`
         )
         .run(params)
     }
 
-    return this.getPattern(userId, row.study_pattern_id)
+    return this.getPattern(planId, row.study_pattern_id)
   }
 
-  async getSettings(userId: string): Promise<StudyPlanSettings> {
+  async getSettings(planId: string): Promise<StudyPlanSettings> {
     const row = this.db
-      .prepare(`SELECT * FROM study_plan_settings WHERE user_id = ?`)
-      .get(userId) as { interview_date: string | null; daily_time_budget_minutes: number }
+      .prepare(`SELECT * FROM study_plan_settings WHERE plan_id = ?`)
+      .get(planId) as { interview_date: string | null; daily_time_budget_minutes: number }
 
     return {
       interviewDate: row.interview_date,
@@ -920,11 +1032,11 @@ export class SqliteProgressStore
   }
 
   async updateSettings(
-    userId: string,
+    planId: string,
     update: Partial<StudyPlanSettings>
   ): Promise<StudyPlanSettings> {
     const sets: string[] = []
-    const params: Record<string, unknown> = { userId }
+    const params: Record<string, unknown> = { planId }
 
     if (update.interviewDate !== undefined) {
       sets.push("interview_date = @interviewDate")
@@ -937,27 +1049,27 @@ export class SqliteProgressStore
 
     if (sets.length > 0) {
       this.db
-        .prepare(`UPDATE study_plan_settings SET ${sets.join(", ")} WHERE user_id = @userId`)
+        .prepare(`UPDATE study_plan_settings SET ${sets.join(", ")} WHERE plan_id = @planId`)
         .run(params)
     }
 
-    return this.getSettings(userId)
+    return this.getSettings(planId)
   }
 
   async createStudySession(
-    userId: string,
+    planId: string,
     session: Omit<StudySession, "id">
   ): Promise<StudySession> {
     const id = randomUUID()
 
     this.db
       .prepare(
-        `INSERT INTO study_sessions (id, user_id, date, minutes_spent, study_pattern_ids, sticking_point, plan_for_next_session)
-         VALUES (@id, @userId, @date, @minutesSpent, @studyPatternIds, @stickingPoint, @planForNextSession)`
+        `INSERT INTO study_sessions (id, plan_id, date, minutes_spent, study_pattern_ids, sticking_point, plan_for_next_session)
+         VALUES (@id, @planId, @date, @minutesSpent, @studyPatternIds, @stickingPoint, @planForNextSession)`
       )
       .run({
         id,
-        userId,
+        planId,
         date: session.date,
         minutesSpent: session.minutesSpent,
         studyPatternIds: JSON.stringify(session.studyPatternIds),
@@ -968,10 +1080,10 @@ export class SqliteProgressStore
     return { id, ...session }
   }
 
-  async listSessions(userId: string): Promise<StudySession[]> {
+  async listSessions(planId: string): Promise<StudySession[]> {
     const rows = this.db
-      .prepare(`SELECT * FROM study_sessions WHERE user_id = ? ORDER BY date DESC`)
-      .all(userId) as StudySessionRow[]
+      .prepare(`SELECT * FROM study_sessions WHERE plan_id = ? ORDER BY date DESC`)
+      .all(planId) as StudySessionRow[]
 
     return rows.map((row) => ({
       id: row.id,
@@ -984,7 +1096,7 @@ export class SqliteProgressStore
   }
 
   async createMockInterviewResult(
-    userId: string,
+    planId: string,
     result: Omit<MockInterviewResult, "id">
   ): Promise<MockInterviewResult> {
     const id = randomUUID()
@@ -992,12 +1104,12 @@ export class SqliteProgressStore
     this.db
       .prepare(
         `INSERT INTO mock_interview_results
-           (id, user_id, date, study_problem_id, study_pattern_id, problem_name, time_taken_minutes, solved_cleanly, constraint_added_mid_solve, notes)
-         VALUES (@id, @userId, @date, @studyProblemId, @studyPatternId, @problemName, @timeTakenMinutes, @solvedCleanly, @constraintAddedMidSolve, @notes)`
+           (id, plan_id, date, study_problem_id, study_pattern_id, problem_name, time_taken_minutes, solved_cleanly, constraint_added_mid_solve, notes)
+         VALUES (@id, @planId, @date, @studyProblemId, @studyPatternId, @problemName, @timeTakenMinutes, @solvedCleanly, @constraintAddedMidSolve, @notes)`
       )
       .run({
         id,
-        userId,
+        planId,
         date: result.date,
         studyProblemId: result.studyProblemId,
         studyPatternId: result.studyPatternId,
@@ -1011,10 +1123,10 @@ export class SqliteProgressStore
     return { id, ...result }
   }
 
-  async listMockInterviewResults(userId: string): Promise<MockInterviewResult[]> {
+  async listMockInterviewResults(planId: string): Promise<MockInterviewResult[]> {
     const rows = this.db
-      .prepare(`SELECT * FROM mock_interview_results WHERE user_id = ? ORDER BY date DESC`)
-      .all(userId) as MockInterviewResultRow[]
+      .prepare(`SELECT * FROM mock_interview_results WHERE plan_id = ? ORDER BY date DESC`)
+      .all(planId) as MockInterviewResultRow[]
 
     return rows.map((row) => ({
       id: row.id,
@@ -1030,7 +1142,7 @@ export class SqliteProgressStore
   }
 
   async recordProblemSession(
-    userId: string,
+    planId: string,
     session: {
       studyProblemId: string
       startedAt: string
@@ -1043,12 +1155,12 @@ export class SqliteProgressStore
     this.db
       .prepare(
         `INSERT INTO study_problem_sessions
-           (id, user_id, study_problem_id, started_at, ended_at, minutes_spent, passed, source)
-         VALUES (@id, @userId, @studyProblemId, @startedAt, @endedAt, @minutesSpent, @passed, @source)`
+           (id, plan_id, study_problem_id, started_at, ended_at, minutes_spent, passed, source)
+         VALUES (@id, @planId, @studyProblemId, @startedAt, @endedAt, @minutesSpent, @passed, @source)`
       )
       .run({
         id: randomUUID(),
-        userId,
+        planId,
         studyProblemId: session.studyProblemId,
         startedAt: session.startedAt,
         endedAt: session.endedAt,
@@ -1056,6 +1168,59 @@ export class SqliteProgressStore
         passed: session.passed === null ? null : session.passed ? 1 : 0,
         source: session.source,
       })
+  }
+
+  // --- Profile / Stats ---
+
+  async recordStatEvent(event: Omit<StatEvent, "id">): Promise<StatEvent> {
+    const id = randomUUID()
+
+    this.db
+      .prepare(
+        `INSERT INTO user_stat_events
+           (id, user_id, type, occurred_at, problem_id, mode, passed, duration_ms, lines_of_code)
+         VALUES (@id, @userId, @type, @occurredAt, @problemId, @mode, @passed, @durationMs, @linesOfCode)`
+      )
+      .run({
+        id,
+        userId: event.userId,
+        type: event.type,
+        occurredAt: event.occurredAt,
+        problemId: event.problemId,
+        mode: event.mode,
+        passed: event.passed === null ? null : event.passed ? 1 : 0,
+        durationMs: event.durationMs,
+        linesOfCode: event.linesOfCode,
+      })
+
+    return { id, ...event }
+  }
+
+  async listStatEvents(userId: string): Promise<StatEvent[]> {
+    const rows = this.db
+      .prepare(`SELECT * FROM user_stat_events WHERE user_id = ? ORDER BY occurred_at ASC`)
+      .all(userId) as StatEventRow[]
+
+    return rows.map((row) => ({
+      id: row.id,
+      userId: row.user_id,
+      type: row.type as StatEventType,
+      occurredAt: row.occurred_at,
+      problemId: row.problem_id,
+      mode: row.mode as PracticeMode | null,
+      passed: row.passed === null ? null : row.passed === 1,
+      durationMs: row.duration_ms,
+      linesOfCode: row.lines_of_code,
+    }))
+  }
+
+  private toStudyPlan(row: StudyPlanRow): StudyPlan {
+    return {
+      id: row.id,
+      userId: row.user_id,
+      name: row.name,
+      createdAt: row.created_at,
+    }
   }
 
   private toTrack(row: StudyTrackRow): StudyTrack {
@@ -1067,14 +1232,14 @@ export class SqliteProgressStore
     }
   }
 
-  private toPattern(row: StudyPatternRow, userId: string): StudyPattern {
+  private toPattern(row: StudyPatternRow, planId: string): StudyPattern {
     const problemRows = this.db
       .prepare(`SELECT * FROM study_problems WHERE study_pattern_id = ? ORDER BY rowid ASC`)
       .all(row.id) as StudyProblemRow[]
 
     const problemStateRows = this.db
-      .prepare(`SELECT * FROM user_study_problem_state WHERE user_id = ? AND study_problem_id IN (${problemRows.map(() => "?").join(",") || "NULL"})`)
-      .all(userId, ...problemRows.map((p) => p.id)) as UserStudyProblemStateRow[]
+      .prepare(`SELECT * FROM user_study_problem_state WHERE plan_id = ? AND study_problem_id IN (${problemRows.map(() => "?").join(",") || "NULL"})`)
+      .all(planId, ...problemRows.map((p) => p.id)) as UserStudyProblemStateRow[]
     const problemStateById = new Map(problemStateRows.map((s) => [s.study_problem_id, s]))
 
     const problemExtensionRows = this.db
@@ -1086,9 +1251,9 @@ export class SqliteProgressStore
 
     const patternState = this.db
       .prepare(
-        `SELECT * FROM user_study_pattern_state WHERE user_id = ? AND study_pattern_id = ?`
+        `SELECT * FROM user_study_pattern_state WHERE plan_id = ? AND study_pattern_id = ?`
       )
-      .get(userId, row.id) as UserStudyPatternStateRow | undefined
+      .get(planId, row.id) as UserStudyPatternStateRow | undefined
 
     const patternExtension = this.db
       .prepare(`SELECT * FROM study_pattern_extensions WHERE study_pattern_id = ?`)

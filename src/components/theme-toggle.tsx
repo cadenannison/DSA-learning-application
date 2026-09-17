@@ -14,10 +14,13 @@ function readStoredTheme(): ThemePreference | null {
 }
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<ThemePreference | null>(readStoredTheme)
+  // Start null on every render pass (server and initial client) so hydration always matches;
+  // the real stored value is picked up via readStoredTheme() below, after mount.
+  const [mounted, setMounted] = useState(false)
+  const [theme, setTheme] = useState<ThemePreference | null>(null)
 
   useEffect(() => {
-    if (theme) applyTheme(theme)
+    setMounted(true)
 
     apiClient
       .getTheme()
@@ -27,11 +30,12 @@ export function ThemeToggle() {
         localStorage.setItem("dsa-theme", serverTheme)
       })
       .catch(() => {})
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const displayedTheme = mounted ? (theme ?? readStoredTheme()) : null
+
   async function toggle() {
-    const next: ThemePreference = theme === "dark" ? "light" : "dark"
+    const next: ThemePreference = displayedTheme === "dark" ? "light" : "dark"
     setTheme(next)
     applyTheme(next)
     localStorage.setItem("dsa-theme", next)
@@ -45,10 +49,10 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggle}
-      className="rounded-md border border-border px-3 py-1.5 text-sm text-foreground hover:bg-surface"
+      className="flex min-h-[44px] w-full items-center rounded-control border border-border px-3 text-sm text-text-2 hover:bg-surface-2 hover:text-text-1"
       aria-label="Toggle theme"
     >
-      {theme === "dark" ? "Light mode" : "Dark mode"}
+      {displayedTheme === "dark" ? "Light mode" : "Dark mode"}
     </button>
   )
 }

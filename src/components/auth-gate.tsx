@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { AuthPresenter } from "@/presenter/auth-presenter"
+import { PageShell } from "@/components/ui/page-shell"
 import type { User } from "@/types"
 
 interface AuthGateProps {
@@ -50,64 +51,66 @@ export function AuthGate({ children }: AuthGateProps) {
 
   if (loading) {
     return (
-      <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-8">
-        <p className="text-sm text-muted">Loading...</p>
-      </main>
+      <PageShell>
+        <p className="text-sm text-text-2">Loading...</p>
+      </PageShell>
     )
   }
 
   if (!user) {
     return (
-      <main className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center px-4 py-8">
-        <h1 className="mb-1 text-xl font-semibold">
-          {mode === "login" ? "Log in" : "Create your account"}
-        </h1>
-        <p className="mb-6 text-sm text-muted">
-          Your Study Plan is personal to your account — progress, stage, confidence, and
-          spaced-repetition scheduling are all tracked per user.
-        </p>
+      <div className="flex flex-1 flex-col justify-center px-12 py-10">
+        <div className="mx-auto w-full max-w-sm">
+          <h1 className="mb-1 font-display text-xl font-semibold text-text-1">
+            {mode === "login" ? "Log in" : "Create your account"}
+          </h1>
+          <p className="mb-6 text-sm text-text-2">
+            Your Study Plan is personal to your account — progress, stage, confidence, and
+            spaced-repetition scheduling are all tracked per user.
+          </p>
 
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <label className="flex flex-col gap-1 text-xs text-muted">
-            Username
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              className="rounded-md border border-border bg-transparent px-3 py-2 text-sm text-foreground"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-xs text-muted">
-            Password
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={8}
-              className="rounded-md border border-border bg-transparent px-3 py-2 text-sm text-foreground"
-            />
-          </label>
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <label className="flex flex-col gap-1 text-xs text-text-2">
+              Username
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                className="min-h-[44px] rounded-control border border-border bg-surface px-3 text-sm text-text-1 focus:border-accent focus:outline-none"
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-xs text-text-2">
+              Password
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={8}
+                className="min-h-[44px] rounded-control border border-border bg-surface px-3 text-sm text-text-1 focus:border-accent focus:outline-none"
+              />
+            </label>
 
-          {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+            {error && <p className="text-sm text-danger">{error}</p>}
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="min-h-[44px] w-full rounded-control bg-accent px-3 text-sm font-semibold text-bg disabled:opacity-50"
+            >
+              {mode === "login" ? "Log in" : "Create account"}
+            </button>
+          </form>
 
           <button
-            type="submit"
-            disabled={submitting}
-            className="w-full rounded-md bg-accent px-3 py-2 text-sm text-white disabled:opacity-50"
+            onClick={() => setMode((m) => (m === "login" ? "register" : "login"))}
+            className="mt-4 text-xs text-accent hover:underline"
           >
-            {mode === "login" ? "Log in" : "Create account"}
+            {mode === "login" ? "Need an account? Create one" : "Already have an account? Log in"}
           </button>
-        </form>
-
-        <button
-          onClick={() => setMode((m) => (m === "login" ? "register" : "login"))}
-          className="mt-4 text-xs text-accent hover:underline"
-        >
-          {mode === "login" ? "Need an account? Create one" : "Already have an account? Log in"}
-        </button>
-      </main>
+        </div>
+      </div>
     )
   }
 

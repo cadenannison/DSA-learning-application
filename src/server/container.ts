@@ -2,7 +2,7 @@ import path from "node:path"
 import { FilePatternLessonRepository } from "@/server/repositories/file-pattern-lesson-repository"
 import { FileProblemRepository } from "@/server/repositories/file-problem-repository"
 import { FileStudyCurriculumRepository } from "@/server/repositories/file-study-curriculum-repository"
-import { NodeVmSandbox } from "@/server/sandbox/node-vm-sandbox"
+import { PythonSubprocessSandbox } from "@/server/sandbox/python-subprocess-sandbox"
 import { SqliteProgressStore } from "@/server/store/sqlite-progress-store"
 import { AuthService } from "@/server/services/auth-service"
 import { BlindTestSetService } from "@/server/services/blind-test-set-service"
@@ -12,6 +12,7 @@ import { OASessionService } from "@/server/services/oa-session-service"
 import { PatternLessonService } from "@/server/services/pattern-lesson-service"
 import { ProblemService } from "@/server/services/problem-service"
 import { ProgressService } from "@/server/services/progress-service"
+import { StatsService } from "@/server/services/stats-service"
 import { StudyPlanService } from "@/server/services/study-plan-service"
 
 interface Container {
@@ -23,6 +24,7 @@ interface Container {
   patternLessonService: PatternLessonService
   studyPlanService: StudyPlanService
   authService: AuthService
+  statsService: StatsService
 }
 
 function buildContainer(): Container {
@@ -36,7 +38,7 @@ function buildContainer(): Container {
   const problemRepository = new FileProblemRepository(problemsDir)
   const patternLessonRepository = new FilePatternLessonRepository(lessonsDir)
   const studyCurriculumRepository = new FileStudyCurriculumRepository(studyCurriculumPath)
-  const sandbox = new NodeVmSandbox()
+  const sandbox = new PythonSubprocessSandbox()
   const progressStore = new SqliteProgressStore(dbPath)
 
   const executionService = new ExecutionService(sandbox, problemRepository)
@@ -61,6 +63,7 @@ function buildContainer(): Container {
       executionService
     ),
     authService: new AuthService(progressStore),
+    statsService: new StatsService(progressStore),
   }
 }
 

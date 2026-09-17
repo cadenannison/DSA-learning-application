@@ -30,18 +30,19 @@ export const problemFilterSchema = z.object({
     .transform((value) => (value === undefined ? undefined : value === "true")),
 })
 
-// functionName is interpolated directly into vm script source (`${functionName}(...__input)`)
-// rather than passed as data, so it must be constrained to a single valid identifier —
-// otherwise it's a script-injection vector into the sandbox's invocation script.
+// functionName is passed as data (JSON over stdin) to the Python worker and looked up via a
+// dict lookup after exec, never interpolated into exec'd source — so it isn't a script-injection
+// vector. This regex is still enforced as defense in depth (a non-identifier name can only ever
+// fail the lookup, never do anything else) and to give a clear validation error early.
 const identifierSchema = z
   .string()
   .min(1)
-  .regex(/^[A-Za-z_$][\w$]*$/, "functionName must be a single valid JavaScript identifier")
+  .regex(/^[A-Za-z_]\w*$/, "functionName must be a single valid Python identifier")
 
 export const codeSubmissionSchema = z.object({
   code: z.string().min(1),
   functionName: identifierSchema,
-  language: z.literal("javascript"),
+  language: z.literal("python"),
 })
 
 export const practiceModeSchema = z.enum(["practice", "blind", "oa"])
@@ -58,6 +59,9 @@ export const recordAttemptRequestSchema = z.object({
   hintsUsed: z.number().int().min(0),
   durationMs: z.number().int().min(0),
   mode: practiceModeSchema,
+  // Optional, submitted-code text — used only to derive a lines-of-code count for the
+  // logged-in submitter's profile stats. Never persisted verbatim or echoed back.
+  code: z.string().optional(),
 })
 
 export const preferencesSchema = z.object({
@@ -337,6 +341,33 @@ export const loginRequestSchema = z.object({
   password: z.string().min(1),
 })
 
+// --- Profile / Stats ---
+
+export const statEventTypeSchema = z.enum(["attempt", "oa_session_completed"])
+
+export const profileStatsOverviewSchema = z.object({
+  problemsCompleted: z.number().int().min(0),
+  totalAttempts: z.number().int().min(0),
+  totalLinesOfCode: z.number().int().min(0),
+  totalTimeSpentMs: z.number().int().min(0),
+  oaSessionsCompleted: z.number().int().min(0),
+  currentStreakDays: z.number().int().min(0),
+  longestStreakDays: z.number().int().min(0),
+  activeDays: z.number().int().min(0),
+  lastActiveAt: z.string().nullable(),
+  byMode: z.record(practiceModeSchema, z.object({ attempts: z.number().int().min(0), passed: z.number().int().min(0) })),
+})
+
+export const dailyActivityDaySchema = z.object({
+  date: z.string(),
+  solvedCount: z.number().int().min(0),
+})
+
+export const dailyActivityOverviewSchema = z.object({
+  days: z.array(dailyActivityDaySchema),
+  longestStreakDays: z.number().int().min(0),
+})
+
 // --- Study Plan ---
 
 export const studyTrackIdSchema = z.enum(["oa-prep", "technical-interview-prep"])
@@ -448,6 +479,27 @@ export const mockInterviewResultSchema = z.object({
 export const studyPlanSettingsSchema = z.object({
   interviewDate: z.string().nullable(),
   dailyTimeBudgetMinutes: z.number().int().min(1),
+})
+
+export const studyPlanSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  name: z.string(),
+  createdAt: z.string(),
+})
+
+export const studyPlanSummarySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  createdAt: z.string(),
+  interviewDate: z.string().nullable(),
+  dailyTimeBudgetMinutes: z.number().int().min(1),
+  totalPatterns: z.number().int().min(0),
+  readyOrBetterPatterns: z.number().int().min(0),
+})
+
+export const createStudyPlanRequestSchema = z.object({
+  name: z.string().min(1),
 })
 
 export const studyRecommendationSchema = z.object({

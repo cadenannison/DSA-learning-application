@@ -3,7 +3,9 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { PatternListPresenter } from "@/presenter/pattern-lesson-presenter"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { PageShell } from "@/components/ui/page-shell"
+import { PageHeader } from "@/components/ui/page-header"
+import { StatusPill } from "@/components/ui/status-pill"
 import type { PatternLessonSummary } from "@/types"
 
 export default function PatternsPage() {
@@ -25,19 +27,14 @@ export default function PatternsPage() {
   }, [presenter])
 
   return (
-    <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold">Learning Patterns</h1>
-          <p className="mt-1 text-sm text-muted">
-            Structured walkthroughs of each DSA pattern, with small interactive visualizations.
-          </p>
-        </div>
-        <ThemeToggle />
-      </div>
+    <PageShell>
+      <PageHeader
+        title="Patterns"
+        context="Structured walkthroughs of each DSA pattern, with small interactive visualizations"
+      />
 
-      {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
-      {loading && <p className="text-sm text-muted">Loading patterns...</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
+      {loading && <p className="text-sm text-text-2">Loading patterns...</p>}
 
       {!loading && !error && (
         <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -46,32 +43,30 @@ export default function PatternsPage() {
               {lesson.hasInteractiveDemo ? (
                 <Link
                   href={`/patterns/${lesson.pattern}`}
-                  className="block h-full rounded-md border border-border p-4 hover:bg-surface"
+                  className="block h-full rounded-card border border-border bg-surface p-4 hover:bg-surface-2"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="font-medium">{lesson.title}</div>
-                    <span className="rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent">
-                      Interactive
-                    </span>
+                    <div className="text-sm font-medium text-text-1">{lesson.title}</div>
+                    <StatusPill label="Interactive" tone="accent" />
                   </div>
-                  <p className="mt-1 text-xs text-muted">{lesson.summary}</p>
+                  <p className="mt-1 text-xs text-text-2">{lesson.summary}</p>
                   {lesson.relatedProblemCount > 0 && (
-                    <p className="mt-2 text-[11px] text-muted">
+                    <p className="mt-2 font-mono text-[11px] text-text-2">
                       {lesson.relatedProblemCount} related problem
                       {lesson.relatedProblemCount === 1 ? "" : "s"}
                     </p>
                   )}
                 </Link>
               ) : (
-                <div className="h-full rounded-md border border-dashed border-border p-4 opacity-60">
-                  <div className="font-medium">{lesson.title}</div>
-                  <p className="mt-1 text-xs text-muted">Coming soon</p>
+                <div className="h-full rounded-card border border-dashed border-border p-4 opacity-60">
+                  <div className="text-sm font-medium text-text-1">{lesson.title}</div>
+                  <p className="mt-1 text-xs text-text-2">Coming soon</p>
                 </div>
               )}
             </li>
           ))}
         </ul>
       )}
-    </main>
+    </PageShell>
   )
 }

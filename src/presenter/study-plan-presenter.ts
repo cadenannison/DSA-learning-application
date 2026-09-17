@@ -15,14 +15,17 @@ export interface StudyPlanView {
 }
 
 export class StudyPlanPresenter {
-  constructor(private readonly view: StudyPlanView) {}
+  constructor(
+    private readonly planId: string,
+    private readonly view: StudyPlanView
+  ) {}
 
   async load(): Promise<void> {
     this.view.setLoading(true)
     this.view.setError(null)
 
     try {
-      const overview = await apiClient.getStudyPlanOverview()
+      const overview = await apiClient.getStudyPlanOverview(this.planId)
       this.view.setOverview(overview)
     } catch (error) {
       this.view.setError(error instanceof Error ? error.message : "Failed to load study plan")
@@ -32,27 +35,27 @@ export class StudyPlanPresenter {
   }
 
   async setPatternStage(id: string, stage: StudyPatternStage): Promise<void> {
-    await apiClient.updateStudyPattern(id, { stage })
+    await apiClient.updateStudyPattern(this.planId, id, { stage })
     await this.load()
   }
 
   async setPatternConfidence(id: string, confidence: number | null): Promise<void> {
-    await apiClient.updateStudyPattern(id, { confidence })
+    await apiClient.updateStudyPattern(this.planId, id, { confidence })
     await this.load()
   }
 
   async setPatternNotes(id: string, notes: string): Promise<void> {
-    await apiClient.updateStudyPattern(id, { notes })
+    await apiClient.updateStudyPattern(this.planId, id, { notes })
     await this.load()
   }
 
   async setProblemCompleted(id: string, completed: boolean): Promise<void> {
-    await apiClient.updateStudyProblem(id, { completed })
+    await apiClient.updateStudyProblem(this.planId, id, { completed })
     await this.load()
   }
 
   async setSettings(update: { interviewDate?: string | null; dailyTimeBudgetMinutes?: number }): Promise<void> {
-    await apiClient.updateStudyPlanSettings(update)
+    await apiClient.updateStudyPlanSettings(this.planId, update)
     await this.load()
   }
 
@@ -63,7 +66,7 @@ export class StudyPlanPresenter {
     stickingPoint?: string
     planForNextSession?: string
   }): Promise<StudySession> {
-    const session = await apiClient.logStudySession(input)
+    const session = await apiClient.logStudySession(this.planId, input)
     await this.load()
     return session
   }
@@ -78,7 +81,7 @@ export class StudyPlanPresenter {
     constraintAddedMidSolve?: boolean
     notes?: string
   }): Promise<MockInterviewResult> {
-    const result = await apiClient.logMockInterviewResult(input)
+    const result = await apiClient.logMockInterviewResult(this.planId, input)
     await this.load()
     return result
   }
@@ -101,7 +104,7 @@ export class StudyPlanPresenter {
     submission: CodeSubmission,
     timeTakenMinutes: number
   ): Promise<ExecutionResult> {
-    const result = await apiClient.submitStudyProblem(id, submission, timeTakenMinutes)
+    const result = await apiClient.submitStudyProblem(this.planId, id, submission, timeTakenMinutes)
     await this.load()
     return result.execution
   }
@@ -110,6 +113,6 @@ export class StudyPlanPresenter {
    * changes from this call, so skip the full-overview refetch every other mutating method
    * here does. */
   async logProblemTimeOnCollapse(id: string, minutes: number): Promise<void> {
-    await apiClient.logProblemSession(id, minutes)
+    await apiClient.logProblemSession(this.planId, id, minutes)
   }
 }

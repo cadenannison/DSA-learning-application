@@ -10,8 +10,10 @@ import {
   type StudyPattern,
   type StudyPatternStage,
   type StudyPatternWithReadiness,
+  type StudyPlan,
   type StudyPlanOverview,
   type StudyPlanSettings,
+  type StudyPlanSummary,
   type StudyReadiness,
   type StudyRecommendation,
   type StudySession,
@@ -23,7 +25,17 @@ const STAGE_INDEX: Record<StudyPatternStage, number> = Object.fromEntries(
 ) as Record<StudyPatternStage, number>
 
 const FINAL_STAGE_INDEX = STUDY_PATTERN_STAGE_ORDER.length - 1
-const DRILL_QUEUE_SIZE = 8
+const DRILL_QUEUE_MIN = 2
+const DRILL_QUEUE_MAX = 8
+const DRILL_QUEUE_MINUTES_PER_ITEM = 15
+
+/** ~15 minutes is roughly one focused pass at a single pattern (skim a due review + do a
+ * rep), so queue length scales directly with how many pattern-sized chunks fit in today's
+ * budget, clamped so it's never a useless single item nor unboundedly long. */
+function computeDrillQueueSize(dailyTimeBudgetMinutes: number): number {
+  const raw = Math.round(dailyTimeBudgetMinutes / DRILL_QUEUE_MINUTES_PER_ITEM)
+  return Math.min(DRILL_QUEUE_MAX, Math.max(DRILL_QUEUE_MIN, raw))
+}
 
 /** Combines stage progress with self-rated confidence into one readiness signal, rather than
  * treating "stage complete" as a bare checkbox — a pattern finished through bug_tracing_done
@@ -83,23 +95,65 @@ export class StudyPlanService {
     await this.store.ensureSeeded(seed)
   }
 
-  /** Call once a user is known (login/register) — backfills default per-user state for any
-   * curriculum pattern/problem they don't have rows for yet. Idempotent. */
-  async ensureUserStateSeeded(userId: string): Promise<void> {
+  /** Creates a new, independently-tracked study plan for this user and seeds its default
+   * state. Ensures the shared curriculum exists first (idempotent) so a brand-new deployment
+   * can create a plan without a separate boot-time seed step. */
+  async createPlan(userId: string, name: string): Promise<StudyPlan> {
     await this.ensureSeeded()
-    await this.store.ensureUserStateSeeded(userId)
+    return this.store.createPlan(userId, name)
   }
 
-  async getOverview(userId: string): Promise<StudyPlanOverview> {
+  async listPlans(userId: string): Promise<StudyPlanSummary[]> {
+    const plans = await this.store.listPlans(userId)
+
+    return Promise.all(
+      plans.map(async (plan) => {
+        const [patterns, settings] = await Promise.all([
+          this.store.listPatterns(plan.id),
+          this.store.getSettings(plan.id),
+        ])
+        const patternsWithReadiness = patterns.map(withReadiness)
+        const readyOrBetterPatterns = patternsWithReadiness.filter(
+          (p) => p.readiness === "ready"
+        ).length
+
+        return {
+          id: plan.id,
+          name: plan.name,
+          createdAt: plan.createdAt,
+          interviewDate: settings.interviewDate,
+          dailyTimeBudgetMinutes: settings.dailyTimeBudgetMinutes,
+          totalPatterns: patternsWithReadiness.length,
+          readyOrBetterPatterns,
+        } satisfies StudyPlanSummary
+      })
+    )
+  }
+
+  /** Returns the plan only if it exists and belongs to this user — the single ownership
+   * check every plan-scoped API route performs before touching plan-scoped data. */
+  async getPlanForUser(userId: string, planId: string): Promise<StudyPlan | null> {
+    const plan = await this.store.getPlan(planId)
+    return plan && plan.userId === userId ? plan : null
+  }
+
+  async deletePlan(userId: string, planId: string): Promise<void> {
+    const plan = await this.getPlanForUser(userId, planId)
+    if (!plan) return
+    await this.store.deletePlan(planId)
+  }
+
+  async getOverview(planId: string): Promise<StudyPlanOverview> {
     const [tracks, patterns, settings] = await Promise.all([
       this.store.listTracks(),
-      this.store.listPatterns(userId),
-      this.store.getSettings(userId),
+      this.store.listPatterns(planId),
+      this.store.getSettings(planId),
     ])
 
     const patternsWithReadiness = patterns.map(withReadiness)
     const recommendation = this.computeRecommendation(patternsWithReadiness, settings)
-    const drillQueue = this.computeDrillQueue(patternsWithReadiness)
+    const drillQueueSize = computeDrillQueueSize(settings.dailyTimeBudgetMinutes)
+    const drillQueue = this.computeDrillQueue(patternsWithReadiness, drillQueueSize)
     const overallProgress = this.computeOverallProgress(tracks, patternsWithReadiness)
 
     return {
@@ -113,25 +167,25 @@ export class StudyPlanService {
   }
 
   async updatePattern(
-    userId: string,
+    planId: string,
     id: string,
     update: { stage?: StudyPatternStage; confidence?: number | null; notes?: string }
   ): Promise<StudyPattern | null> {
-    const updated = await this.store.updatePattern(userId, id, update)
+    const updated = await this.store.updatePattern(planId, id, update)
     if (!updated) return null
 
     // A stage change or confidence rating is a "review event" — reschedule this pattern's
     // spaced-repetition due date. A bare notes-only edit is not a review signal, so skip it.
     if (update.stage !== undefined || update.confidence !== undefined) {
       const quality = stageAndConfidenceToQuality(updated.stage, updated.confidence)
-      return this.store.recordPatternReview(userId, id, quality)
+      return this.store.recordPatternReview(planId, id, quality)
     }
 
     return updated
   }
 
   async updateProblem(
-    userId: string,
+    planId: string,
     id: string,
     update: {
       completed?: boolean
@@ -139,54 +193,54 @@ export class StudyPlanService {
       constraintAddedMidSolve?: boolean | null
     }
   ): Promise<StudyPattern | null> {
-    const updated = await this.store.updateProblem(userId, id, update)
+    const updated = await this.store.updateProblem(planId, id, update)
     if (!updated) return null
 
     // Stage auto-advance is a recompute over problems[].completed regardless of how
     // completion was set — manual checkbox (here) or an embedded passing submit — so a
     // manually-completed problem must trigger the same recompute submitEmbeddedProblem does.
     if (update.completed === true) {
-      await this.maybeAutoAdvanceStage(userId, updated.id)
-      return this.store.getPattern(userId, updated.id)
+      await this.maybeAutoAdvanceStage(planId, updated.id)
+      return this.store.getPattern(planId, updated.id)
     }
 
     return updated
   }
 
   async updateSettings(
-    userId: string,
+    planId: string,
     update: Partial<StudyPlanSettings>
   ): Promise<StudyPlanSettings> {
-    return this.store.updateSettings(userId, update)
+    return this.store.updateSettings(planId, update)
   }
 
-  async logSession(userId: string, session: Omit<StudySession, "id">): Promise<StudySession> {
-    return this.store.createStudySession(userId, session)
+  async logSession(planId: string, session: Omit<StudySession, "id">): Promise<StudySession> {
+    return this.store.createStudySession(planId, session)
   }
 
-  async listSessions(userId: string): Promise<StudySession[]> {
-    return this.store.listSessions(userId)
+  async listSessions(planId: string): Promise<StudySession[]> {
+    return this.store.listSessions(planId)
   }
 
   /** Logging a mock interview result is also a review event for the pattern it targets —
    * a clean, fast solve pushes the next review further out; a messy or failed one brings it
    * back to tomorrow, same as a low self-rating would via updatePattern. */
   async logMockInterviewResult(
-    userId: string,
+    planId: string,
     result: Omit<MockInterviewResult, "id">
   ): Promise<MockInterviewResult> {
-    const created = await this.store.createMockInterviewResult(userId, result)
+    const created = await this.store.createMockInterviewResult(planId, result)
 
     if (result.studyPatternId) {
       const quality = mockResultToQuality(result.solvedCleanly, result.constraintAddedMidSolve)
-      await this.store.recordPatternReview(userId, result.studyPatternId, quality)
+      await this.store.recordPatternReview(planId, result.studyPatternId, quality)
     }
 
     return created
   }
 
-  async listMockInterviewResults(userId: string): Promise<MockInterviewResult[]> {
-    return this.store.listMockInterviewResults(userId)
+  async listMockInterviewResults(planId: string): Promise<MockInterviewResult[]> {
+    return this.store.listMockInterviewResults(planId)
   }
 
   /** Runs a submission against the embedded editor's linked main-library Problem, always logs
@@ -196,12 +250,12 @@ export class StudyPlanService {
    * doesn't exist or isn't embeddable (no linkedProblemId) — those shouldn't reach this method
    * since the UI only offers Run/Submit for embedded problems, but the route validates anyway. */
   async submitEmbeddedProblem(
-    userId: string,
+    planId: string,
     studyProblemId: string,
     submission: CodeSubmission,
     timeTakenMinutes: number
   ): Promise<{ execution: ExecutionResult; pattern: StudyPattern } | null> {
-    const studyProblem = await this.store.getProblem(userId, studyProblemId)
+    const studyProblem = await this.store.getProblem(planId, studyProblemId)
     if (!studyProblem || !studyProblem.linkedProblemId) return null
 
     const execution = await this.executionService.execute(
@@ -211,7 +265,7 @@ export class StudyPlanService {
     )
 
     const now = new Date()
-    await this.store.recordProblemSession(userId, {
+    await this.store.recordProblemSession(planId, {
       studyProblemId,
       startedAt: new Date(now.getTime() - timeTakenMinutes * 60_000).toISOString(),
       endedAt: now.toISOString(),
@@ -221,14 +275,14 @@ export class StudyPlanService {
     })
 
     if (execution.allPassed) {
-      await this.store.updateProblem(userId, studyProblemId, {
+      await this.store.updateProblem(planId, studyProblemId, {
         completed: true,
         timeTakenMinutes,
       })
-      await this.maybeAutoAdvanceStage(userId, studyProblem.studyPatternId)
+      await this.maybeAutoAdvanceStage(planId, studyProblem.studyPatternId)
     }
 
-    const pattern = await this.store.getPattern(userId, studyProblem.studyPatternId)
+    const pattern = await this.store.getPattern(planId, studyProblem.studyPatternId)
     return pattern ? { execution, pattern } : null
   }
 
@@ -236,12 +290,12 @@ export class StudyPlanService {
    * collapsed with no run/submit). No completion or stage-advance side effects — an abandoned
    * attempt isn't a completion signal, only a time-spent one. */
   async recordUnsubmittedSession(
-    userId: string,
+    planId: string,
     studyProblemId: string,
     minutesSpent: number
   ): Promise<void> {
     const now = new Date()
-    await this.store.recordProblemSession(userId, {
+    await this.store.recordProblemSession(planId, {
       studyProblemId,
       startedAt: new Date(now.getTime() - minutesSpent * 60_000).toISOString(),
       endedAt: now.toISOString(),
@@ -257,8 +311,8 @@ export class StudyPlanService {
    * existing higher/manually-set stage). Reuses the public updatePattern method so an auto
    * advance gets the same spaced-repetition review-event side effect a manual stage change
    * would. */
-  private async maybeAutoAdvanceStage(userId: string, studyPatternId: string): Promise<void> {
-    const pattern = await this.store.getPattern(userId, studyPatternId)
+  private async maybeAutoAdvanceStage(planId: string, studyPatternId: string): Promise<void> {
+    const pattern = await this.store.getPattern(planId, studyPatternId)
     if (!pattern) return
 
     const canonicalEasyProblems = pattern.problems.filter((p) => p.role === "canonical_easy")
@@ -272,11 +326,11 @@ export class StudyPlanService {
     const currentIndex = STAGE_INDEX[pattern.stage]
 
     if (canonicalEasyDone && allMediumsDone && currentIndex < STAGE_INDEX["mediums_done"]) {
-      await this.updatePattern(userId, studyPatternId, { stage: "mediums_done" })
+      await this.updatePattern(planId, studyPatternId, { stage: "mediums_done" })
       return
     }
     if (canonicalEasyDone && currentIndex < STAGE_INDEX["easy_done"]) {
-      await this.updatePattern(userId, studyPatternId, { stage: "easy_done" })
+      await this.updatePattern(planId, studyPatternId, { stage: "easy_done" })
     }
   }
 
@@ -341,7 +395,10 @@ export class StudyPlanService {
    * dates — so a high-likelihood weak pattern with an overdue review always outranks a
    * low-likelihood pattern you already feel good about, and reviews get pulled forward as the
    * interview date approaches rather than drifting on a fixed schedule. */
-  private computeDrillQueue(patterns: StudyPatternWithReadiness[]): DrillQueueEntry[] {
+  private computeDrillQueue(
+    patterns: StudyPatternWithReadiness[],
+    size: number
+  ): DrillQueueEntry[] {
     const now = Date.now()
 
     const scored = patterns.map((pattern) => {
@@ -358,7 +415,7 @@ export class StudyPlanService {
       } satisfies DrillQueueEntry
     })
 
-    return scored.sort((a, b) => b.priorityScore - a.priorityScore).slice(0, DRILL_QUEUE_SIZE)
+    return scored.sort((a, b) => b.priorityScore - a.priorityScore).slice(0, size)
   }
 
   /** Every pattern is scored on the same base scale — likelihood-to-appear combined with how

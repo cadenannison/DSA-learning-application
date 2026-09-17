@@ -31,12 +31,12 @@
   ],
   "solution": {
     "approach": "Kadane's algorithm. Track the best sum ending exactly at the current index (`current`). At each step, either extend the previous subarray or start a new one at the current element, whichever is larger. Track the maximum `current` seen across the whole array as the answer.",
-    "code": "function maxSubArray(nums) {\n  let current = nums[0];\n  let best = nums[0];\n  for (let i = 1; i < nums.length; i++) {\n    current = Math.max(nums[i], current + nums[i]);\n    best = Math.max(best, current);\n  }\n  return best;\n}",
+    "code": "def max_sub_array(nums):\n    current = nums[0]\n    best = nums[0]\n    for num in nums[1:]:\n        current = max(num, current + num)\n        best = max(best, current)\n    return best\n",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)"
   },
-  "starterCode": "function maxSubArray(nums) {\n  // your code here\n}",
-  "functionName": "maxSubArray",
+  "starterCode": "def max_sub_array(nums):\n    # your code here\n    pass\n",
+  "functionName": "max_sub_array",
   "testCases": [
     {
       "input": [

@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { EmbeddedProblemWorkbench } from "@/components/study-plan/embedded-problem-workbench"
+import { StatusPill } from "@/components/ui/status-pill"
 import { StudyPlanPresenter } from "@/presenter/study-plan-presenter"
 import type { StudyProblem } from "@/types"
 
@@ -19,31 +20,27 @@ export function ExpandableProblemRow({
   const [expanded, setExpanded] = useState(false)
 
   return (
-    <div className="rounded-md border border-border">
+    <div className={`rounded-[12px] border ${expanded ? "border-border" : "border-border-soft"} bg-surface`}>
       <button
         onClick={() => setExpanded((v) => !v)}
-        className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left"
+        className="flex min-h-[44px] w-full items-center justify-between gap-3 px-4 py-3 text-left"
       >
-        <div className="flex items-center gap-2">
-          <span className={`text-sm ${problem.completed ? "text-muted line-through" : ""}`}>
+        <div className="flex items-center gap-2.5">
+          <span className={`text-sm font-medium ${problem.completed ? "text-text-3 line-through" : "text-text-1"}`}>
             {problem.name}
           </span>
-          <span className="text-[10px] uppercase text-muted">
+          <span className="rounded-chip border border-border bg-surface-2 px-1.5 py-0.5 font-mono text-[10px] uppercase text-text-2">
             {problem.role === "canonical_easy" ? "canonical easy" : "medium"}
           </span>
         </div>
         <div className="flex items-center gap-2">
-          {problem.completed && (
-            <span className="rounded-full bg-green-500/10 px-2 py-0.5 text-[10px] font-medium text-green-600 dark:text-green-400">
-              Completed
-            </span>
-          )}
-          <span className="text-xs text-muted">{expanded ? "−" : "+"}</span>
+          {problem.completed && <StatusPill label="Completed" tone="success" />}
+          <span className="text-xs text-text-2">{expanded ? "−" : "+"}</span>
         </div>
       </button>
 
       {expanded && (
-        <div className="border-t border-border px-3 py-3">
+        <div className="border-t border-border-soft px-4 py-4">
           {problem.linkedProblemId ? (
             <EmbeddedProblemWorkbench studyProblem={problem} presenter={presenter} />
           ) : (
@@ -63,8 +60,8 @@ function NotEmbeddedNotice({
   presenter: StudyPlanPresenter
 }) {
   return (
-    <div className="space-y-3 text-sm">
-      <p className="text-xs text-muted">
+    <div className="space-y-3 text-sm text-text-1">
+      <p className="text-xs text-text-2">
         Full embedded editor for this problem isn&apos;t authored yet.
       </p>
       {problem.externalUrl && (

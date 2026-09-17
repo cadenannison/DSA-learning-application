@@ -1,7 +1,7 @@
 import path from "node:path"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { FileProblemRepository } from "@/server/repositories/file-problem-repository"
-import { NodeVmSandbox } from "@/server/sandbox/node-vm-sandbox"
+import { PythonSubprocessSandbox } from "@/server/sandbox/python-subprocess-sandbox"
 import { SqliteProgressStore } from "@/server/store/sqlite-progress-store"
 import { ExecutionService } from "@/server/services/execution-service"
 import { DefaultOAProblemSelector } from "@/server/services/oa-problem-selector"
@@ -14,7 +14,7 @@ const problemsDir = path.join(process.cwd(), "src/data/problems")
 function makeService() {
   const repository = new FileProblemRepository(problemsDir)
   const store = new SqliteProgressStore(":memory:")
-  const executionService = new ExecutionService(new NodeVmSandbox(500), repository)
+  const executionService = new ExecutionService(new PythonSubprocessSandbox(2000), repository)
   const progressService = new ProgressService(store)
   const selector = new DefaultOAProblemSelector(repository, store)
 
@@ -28,7 +28,7 @@ async function correctSubmissionFor(problemId: string) {
   return {
     code: problem.solution.code,
     functionName: problem.functionName,
-    language: "javascript" as const,
+    language: "python" as const,
   }
 }
 

@@ -28,12 +28,12 @@
   ],
   "solution": {
     "approach": "Build a trie node structure where each node has a `children` map (char -> node) and an `isEnd` flag. insert walks the word character by character, creating child nodes as needed, and sets isEnd on the last node. search walks the same way but returns false early if any character is missing, and requires isEnd on the final node. startsWith is identical to search but doesn't require isEnd. Process the ops array in order, collecting search/startsWith results.",
-    "code": "function runTrieOps(ops) {\n  const root = { children: new Map(), isEnd: false };\n\n  function insert(word) {\n    let node = root;\n    for (const ch of word) {\n      if (!node.children.has(ch)) node.children.set(ch, { children: new Map(), isEnd: false });\n      node = node.children.get(ch);\n    }\n    node.isEnd = true;\n  }\n\n  function findNode(str) {\n    let node = root;\n    for (const ch of str) {\n      if (!node.children.has(ch)) return null;\n      node = node.children.get(ch);\n    }\n    return node;\n  }\n\n  const output = [];\n  for (const [op, arg] of ops) {\n    if (op === \"insert\") {\n      insert(arg);\n    } else if (op === \"search\") {\n      const node = findNode(arg);\n      output.push(!!node && node.isEnd);\n    } else if (op === \"startsWith\") {\n      output.push(findNode(arg) !== null);\n    }\n  }\n  return output;\n}",
+    "code": "def run_trie_ops(ops):\n    root = {'children': {}, 'is_end': False}\n\n    def insert(word):\n        node = root\n        for ch in word:\n            if ch not in node['children']:\n                node['children'][ch] = {'children': {}, 'is_end': False}\n            node = node['children'][ch]\n        node['is_end'] = True\n\n    def find_node(s):\n        node = root\n        for ch in s:\n            if ch not in node['children']:\n                return None\n            node = node['children'][ch]\n        return node\n\n    output = []\n    for op, arg in ops:\n        if op == 'insert':\n            insert(arg)\n        elif op == 'search':\n            node = find_node(arg)\n            output.append(node is not None and node['is_end'])\n        elif op == 'startsWith':\n            output.append(find_node(arg) is not None)\n    return output\n",
     "timeComplexity": "O(total characters across all operations)",
     "spaceComplexity": "O(total characters inserted)"
   },
-  "starterCode": "function runTrieOps(ops) {\n  // your code here\n}",
-  "functionName": "runTrieOps",
+  "starterCode": "def run_trie_ops(ops):\n    # your code here\n    pass\n",
+  "functionName": "run_trie_ops",
   "testCases": [
     {
       "input": [

@@ -1,7 +1,7 @@
 import ReactMarkdown from "react-markdown"
 import type { ExtendedLesson } from "@/types"
 
-function MarkdownBlock({ content }: { content: string }) {
+export function MarkdownBlock({ content }: { content: string }) {
   return (
     <div className="text-sm leading-relaxed [&_code]:rounded [&_code]:bg-surface [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-xs [&_h1]:mt-3 [&_h1]:text-base [&_h1]:font-semibold [&_h2]:mt-3 [&_h2]:text-sm [&_h2]:font-semibold [&_li]:ml-4 [&_ol]:list-decimal [&_p]:mb-2 [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:bg-surface [&_pre]:p-3 [&_strong]:font-semibold [&_ul]:list-disc">
       <ReactMarkdown>{content}</ReactMarkdown>
@@ -10,8 +10,10 @@ function MarkdownBlock({ content }: { content: string }) {
 }
 
 /** Renders the "textbook chapter" lesson content for a high-priority pattern: core idea,
- * worked example, variations, signal phrases, common mistakes, and complexity — in that order,
- * ahead of the practice problem list. Only rendered when pattern.hasExtendedLesson. */
+ * variations, signal phrases, common mistakes, and complexity. The worked example is a
+ * separate section/tab (see PatternWorkedExampleSection) rather than part of this scroll — it
+ * gets its own page now that patterns are dedicated pages instead of an inline expansion. Only
+ * rendered when pattern.hasExtendedLesson. */
 export function PatternLessonSection({ lesson }: { lesson: ExtendedLesson }) {
   return (
     <div className="mb-4 space-y-4 rounded-md border border-accent/30 bg-accent/5 p-4">
@@ -20,13 +22,6 @@ export function PatternLessonSection({ lesson }: { lesson: ExtendedLesson }) {
           Core idea
         </h3>
         <MarkdownBlock content={lesson.coreIdeaMarkdown} />
-      </div>
-
-      <div>
-        <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-accent">
-          Worked example
-        </h3>
-        <MarkdownBlock content={lesson.workedExampleMarkdown} />
       </div>
 
       <div>
@@ -65,6 +60,20 @@ export function PatternLessonSection({ lesson }: { lesson: ExtendedLesson }) {
         </h3>
         <MarkdownBlock content={lesson.complexityMarkdown} />
       </div>
+    </div>
+  )
+}
+
+/** The worked example, split out of the lesson scroll into its own section/tab. It cross-
+ * references the canonical-easy embedded problem's content rather than being a standalone
+ * problem record — see domain.ts ExtendedLesson.workedExampleMarkdown. */
+export function PatternWorkedExampleSection({ lesson }: { lesson: ExtendedLesson }) {
+  return (
+    <div className="mb-4 rounded-md border border-accent/30 bg-accent/5 p-4">
+      <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-accent">
+        Worked example
+      </h3>
+      <MarkdownBlock content={lesson.workedExampleMarkdown} />
     </div>
   )
 }

@@ -2,6 +2,7 @@ import type {
   MockInterviewResult,
   StudyPattern,
   StudyPatternStage,
+  StudyPlan,
   StudyPlanSettings,
   StudyProblem,
   StudySession,
@@ -41,36 +42,41 @@ export interface StudyCurriculumSeed {
 
 export interface StudyPlanStore {
   /** Idempotent — inserts shared curriculum rows (tracks/patterns/problems) that don't
-   * already exist by id. Holds no per-user progress, so safe to call on every boot. */
+   * already exist by id. Holds no per-plan progress, so safe to call on every boot. */
   ensureSeeded(seed: StudyCurriculumSeed): Promise<void>
 
-  /** Idempotent — inserts default per-user state rows for any curriculum pattern/problem
-   * the user doesn't already have state for. Call once a user is known (login/register). */
-  ensureUserStateSeeded(userId: string): Promise<void>
+  /** Creates a new study plan owned by the given user and seeds default state rows (one per
+   * curriculum pattern/problem, plus default settings) for it. This is the only seeding
+   * trigger — unlike the old single-plan model, there's no per-login backfill. */
+  createPlan(userId: string, name: string): Promise<StudyPlan>
+  listPlans(userId: string): Promise<StudyPlan[]>
+  /** Used to authorize a request against a plan id — callers check `.userId` themselves. */
+  getPlan(planId: string): Promise<StudyPlan | null>
+  deletePlan(planId: string): Promise<void>
 
   listTracks(): Promise<StudyTrack[]>
-  listPatterns(userId: string): Promise<StudyPattern[]>
-  getPattern(userId: string, id: string): Promise<StudyPattern | null>
+  listPatterns(planId: string): Promise<StudyPattern[]>
+  getPattern(planId: string, id: string): Promise<StudyPattern | null>
 
-  /** Reads a single study problem row (shared template + this user's state) without needing
+  /** Reads a single study problem row (shared template + this plan's state) without needing
    * its parent pattern id up front. Returns null if the id doesn't exist. */
-  getProblem(userId: string, id: string): Promise<StudyProblem | null>
+  getProblem(planId: string, id: string): Promise<StudyProblem | null>
 
   updatePattern(
-    userId: string,
+    planId: string,
     id: string,
     update: { stage?: StudyPatternStage; confidence?: number | null; notes?: string }
   ): Promise<StudyPattern | null>
 
-  /** SM-2-lite reschedule for this user's pattern, given a 0-5 review quality score. */
+  /** SM-2-lite reschedule for this plan's pattern, given a 0-5 review quality score. */
   recordPatternReview(
-    userId: string,
+    planId: string,
     id: string,
     qualityScore: number
   ): Promise<StudyPattern | null>
 
   updateProblem(
-    userId: string,
+    planId: string,
     id: string,
     update: {
       completed?: boolean
@@ -79,23 +85,23 @@ export interface StudyPlanStore {
     }
   ): Promise<StudyPattern | null>
 
-  getSettings(userId: string): Promise<StudyPlanSettings>
-  updateSettings(userId: string, update: Partial<StudyPlanSettings>): Promise<StudyPlanSettings>
+  getSettings(planId: string): Promise<StudyPlanSettings>
+  updateSettings(planId: string, update: Partial<StudyPlanSettings>): Promise<StudyPlanSettings>
 
-  createStudySession(userId: string, session: Omit<StudySession, "id">): Promise<StudySession>
-  listSessions(userId: string): Promise<StudySession[]>
+  createStudySession(planId: string, session: Omit<StudySession, "id">): Promise<StudySession>
+  listSessions(planId: string): Promise<StudySession[]>
 
   createMockInterviewResult(
-    userId: string,
+    planId: string,
     result: Omit<MockInterviewResult, "id">
   ): Promise<MockInterviewResult>
-  listMockInterviewResults(userId: string): Promise<MockInterviewResult[]>
+  listMockInterviewResults(planId: string): Promise<MockInterviewResult[]>
 
   /** Append-only log of embedded-problem study time, one row per submit (pass or fail) or per
    * collapse-without-submitting. Never updated or deleted. `passed` is null for a collapse
    * with no submission. */
   recordProblemSession(
-    userId: string,
+    planId: string,
     session: {
       studyProblemId: string
       startedAt: string

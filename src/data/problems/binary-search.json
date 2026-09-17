@@ -31,11 +31,11 @@
   ],
   "solution": {
     "approach": "Maintain `low` and `high` bounds over the search space. At each step, compare the middle element to the target: if equal, return its index; if the middle is too small, search the right half; if too large, search the left half. Continue until the bounds cross.",
-    "code": "function search(nums, target) {\n  let low = 0;\n  let high = nums.length - 1;\n  while (low <= high) {\n    const mid = low + Math.floor((high - low) / 2);\n    if (nums[mid] === target) return mid;\n    if (nums[mid] < target) low = mid + 1;\n    else high = mid - 1;\n  }\n  return -1;\n}",
+    "code": "def search(nums, target):\n    low, high = 0, len(nums) - 1\n    while low <= high:\n        mid = low + (high - low) // 2\n        if nums[mid] == target:\n            return mid\n        if nums[mid] < target:\n            low = mid + 1\n        else:\n            high = mid - 1\n    return -1\n",
     "timeComplexity": "O(log n)",
     "spaceComplexity": "O(1)"
   },
-  "starterCode": "function search(nums, target) {\n  // your code here\n}",
+  "starterCode": "def search(nums, target):\n    # your code here\n    pass\n",
   "functionName": "search",
   "testCases": [
     {

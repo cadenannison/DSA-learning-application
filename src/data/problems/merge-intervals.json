@@ -34,11 +34,11 @@
   ],
   "solution": {
     "approach": "Sort intervals by start. Keep a running merged interval, initialized to the first. For each subsequent interval, if its start is <= the running interval's end, extend the end to the max of the two ends. Otherwise, the running interval is finalized \u2014 push it and start a new running interval from the current one. Push the final running interval after the loop.",
-    "code": "function merge(intervals) {\n  if (intervals.length === 0) return [];\n  const sorted = [...intervals].sort((a, b) => a[0] - b[0]);\n  const result = [sorted[0].slice()];\n  for (let i = 1; i < sorted.length; i++) {\n    const last = result[result.length - 1];\n    const [start, end] = sorted[i];\n    if (start <= last[1]) {\n      last[1] = Math.max(last[1], end);\n    } else {\n      result.push([start, end]);\n    }\n  }\n  return result;\n}",
+    "code": "def merge(intervals):\n    if not intervals:\n        return []\n    sorted_intervals = sorted(intervals, key=lambda pair: pair[0])\n    result = [list(sorted_intervals[0])]\n    for start, end in sorted_intervals[1:]:\n        last = result[-1]\n        if start <= last[1]:\n            last[1] = max(last[1], end)\n        else:\n            result.append([start, end])\n    return result\n",
     "timeComplexity": "O(n log n)",
     "spaceComplexity": "O(n)"
   },
-  "starterCode": "function merge(intervals) {\n  // your code here\n}",
+  "starterCode": "def merge(intervals):\n    # your code here\n    pass\n",
   "functionName": "merge",
   "testCases": [
     {

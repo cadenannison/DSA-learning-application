@@ -32,12 +32,12 @@
   ],
   "solution": {
     "approach": "Track the lowest price seen so far while scanning left to right. At each day, if selling today beats the best profit found so far, update it. This is a one-pass sliding window where the window's left edge is implicitly 'the cheapest day so far'.",
-    "code": "function maxProfit(prices) {\n  let minPrice = Infinity;\n  let best = 0;\n  for (const price of prices) {\n    if (price < minPrice) minPrice = price;\n    else if (price - minPrice > best) best = price - minPrice;\n  }\n  return best;\n}",
+    "code": "def max_profit(prices):\n    min_price = float('inf')\n    best = 0\n    for price in prices:\n        if price < min_price:\n            min_price = price\n        elif price - min_price > best:\n            best = price - min_price\n    return best\n",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)"
   },
-  "starterCode": "function maxProfit(prices) {\n  // your code here\n}",
-  "functionName": "maxProfit",
+  "starterCode": "def max_profit(prices):\n    # your code here\n    pass\n",
+  "functionName": "max_profit",
   "testCases": [
     {
       "input": [

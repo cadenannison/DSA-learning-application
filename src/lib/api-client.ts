@@ -4,6 +4,7 @@ import type {
   BlindTestSetFilter,
   BlindTestSetSummary,
   CodeSubmission,
+  DailyActivityOverview,
   Difficulty,
   DsaPattern,
   ExecutionResult,
@@ -17,11 +18,14 @@ import type {
   Problem,
   ProblemProgress,
   ProblemSummary,
+  ProfileStatsOverview,
   StrippedProblem,
   StudyPattern,
   StudyPatternStage,
+  StudyPlan,
   StudyPlanOverview,
   StudyPlanSettings,
+  StudyPlanSummary,
   StudySession,
   SubmitStudyProblemResponse,
   ThemePreference,
@@ -80,6 +84,18 @@ export const apiClient = {
     return handle<User>(response)
   },
 
+  async getProfileStats(): Promise<ProfileStatsOverview | null> {
+    const response = await fetch("/api/profile/stats")
+    if (response.status === 401) return null
+    return handle<ProfileStatsOverview>(response)
+  },
+
+  async getDailyActivity(days = 14): Promise<DailyActivityOverview | null> {
+    const response = await fetch(`/api/profile/daily-activity?days=${days}`)
+    if (response.status === 401) return null
+    return handle<DailyActivityOverview>(response)
+  },
+
   async listProblems(filter?: ProblemFilter): Promise<ProblemSummary[]> {
     const params = new URLSearchParams()
     if (filter?.pattern) params.set("pattern", filter.pattern)
@@ -135,6 +151,7 @@ export const apiClient = {
     hintsUsed: number
     durationMs: number
     mode: PracticeMode
+    code?: string
   }): Promise<AttemptRecord> {
     const response = await fetch("/api/progress", {
       method: "POST",
@@ -275,16 +292,36 @@ export const apiClient = {
     return handle<PatternLesson>(response)
   },
 
-  async getStudyPlanOverview(): Promise<StudyPlanOverview> {
-    const response = await fetch("/api/study-plan")
+  async listStudyPlans(): Promise<StudyPlanSummary[]> {
+    const response = await fetch("/api/study-plans")
+    return handle<StudyPlanSummary[]>(response)
+  },
+
+  async createStudyPlan(name: string): Promise<StudyPlan> {
+    const response = await fetch("/api/study-plans", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    })
+    return handle<StudyPlan>(response)
+  },
+
+  async deleteStudyPlan(id: string): Promise<void> {
+    const response = await fetch(`/api/study-plans/${id}`, { method: "DELETE" })
+    await handle<{ ok: boolean }>(response)
+  },
+
+  async getStudyPlanOverview(planId: string): Promise<StudyPlanOverview> {
+    const response = await fetch(`/api/study-plan/${planId}`)
     return handle<StudyPlanOverview>(response)
   },
 
   async updateStudyPattern(
+    planId: string,
     id: string,
     update: { stage?: StudyPatternStage; confidence?: number | null; notes?: string }
   ): Promise<StudyPattern> {
-    const response = await fetch(`/api/study-plan/patterns/${id}`, {
+    const response = await fetch(`/api/study-plan/${planId}/patterns/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(update),
@@ -293,6 +330,7 @@ export const apiClient = {
   },
 
   async updateStudyProblem(
+    planId: string,
     id: string,
     update: {
       completed?: boolean
@@ -300,7 +338,7 @@ export const apiClient = {
       constraintAddedMidSolve?: boolean | null
     }
   ): Promise<StudyPattern> {
-    const response = await fetch(`/api/study-plan/problems/${id}`, {
+    const response = await fetch(`/api/study-plan/${planId}/problems/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(update),
@@ -309,9 +347,10 @@ export const apiClient = {
   },
 
   async updateStudyPlanSettings(
+    planId: string,
     update: Partial<StudyPlanSettings>
   ): Promise<StudyPlanSettings> {
-    const response = await fetch("/api/study-plan/settings", {
+    const response = await fetch(`/api/study-plan/${planId}/settings`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(update),
@@ -319,19 +358,22 @@ export const apiClient = {
     return handle<StudyPlanSettings>(response)
   },
 
-  async listStudySessions(): Promise<StudySession[]> {
-    const response = await fetch("/api/study-plan/sessions")
+  async listStudySessions(planId: string): Promise<StudySession[]> {
+    const response = await fetch(`/api/study-plan/${planId}/sessions`)
     return handle<StudySession[]>(response)
   },
 
-  async logStudySession(input: {
-    date: string
-    minutesSpent: number
-    studyPatternIds: string[]
-    stickingPoint?: string
-    planForNextSession?: string
-  }): Promise<StudySession> {
-    const response = await fetch("/api/study-plan/sessions", {
+  async logStudySession(
+    planId: string,
+    input: {
+      date: string
+      minutesSpent: number
+      studyPatternIds: string[]
+      stickingPoint?: string
+      planForNextSession?: string
+    }
+  ): Promise<StudySession> {
+    const response = await fetch(`/api/study-plan/${planId}/sessions`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(input),
@@ -339,22 +381,25 @@ export const apiClient = {
     return handle<StudySession>(response)
   },
 
-  async listMockInterviewResults(): Promise<MockInterviewResult[]> {
-    const response = await fetch("/api/study-plan/mock-interviews")
+  async listMockInterviewResults(planId: string): Promise<MockInterviewResult[]> {
+    const response = await fetch(`/api/study-plan/${planId}/mock-interviews`)
     return handle<MockInterviewResult[]>(response)
   },
 
-  async logMockInterviewResult(input: {
-    date: string
-    studyProblemId?: string | null
-    studyPatternId?: string | null
-    problemName: string
-    timeTakenMinutes: number
-    solvedCleanly: boolean
-    constraintAddedMidSolve?: boolean
-    notes?: string
-  }): Promise<MockInterviewResult> {
-    const response = await fetch("/api/study-plan/mock-interviews", {
+  async logMockInterviewResult(
+    planId: string,
+    input: {
+      date: string
+      studyProblemId?: string | null
+      studyPatternId?: string | null
+      problemName: string
+      timeTakenMinutes: number
+      solvedCleanly: boolean
+      constraintAddedMidSolve?: boolean
+      notes?: string
+    }
+  ): Promise<MockInterviewResult> {
+    const response = await fetch(`/api/study-plan/${planId}/mock-interviews`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(input),
@@ -363,11 +408,12 @@ export const apiClient = {
   },
 
   async submitStudyProblem(
+    planId: string,
     id: string,
     submission: CodeSubmission,
     timeTakenMinutes: number
   ): Promise<SubmitStudyProblemResponse> {
-    const response = await fetch(`/api/study-plan/problems/${id}/submit`, {
+    const response = await fetch(`/api/study-plan/${planId}/problems/${id}/submit`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ submission, timeTakenMinutes }),
@@ -375,8 +421,8 @@ export const apiClient = {
     return handle<SubmitStudyProblemResponse>(response)
   },
 
-  async logProblemSession(id: string, minutesSpent: number): Promise<void> {
-    const response = await fetch(`/api/study-plan/problems/${id}/session`, {
+  async logProblemSession(planId: string, id: string, minutesSpent: number): Promise<void> {
+    const response = await fetch(`/api/study-plan/${planId}/problems/${id}/session`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ minutesSpent }),

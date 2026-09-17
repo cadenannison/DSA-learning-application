@@ -35,12 +35,12 @@
   ],
   "solution": {
     "approach": "Convert the array to a linked list (helper provided). Walk the list with a 'prev' pointer starting at null and a 'curr' pointer starting at head. At each step, save curr.next, point curr.next backward to prev, then advance prev and curr forward. When curr is null, prev is the new head. Convert back to an array to return.",
-    "code": "function arrToList(arr) {\n  let head = null, tail = null;\n  for (const val of arr) {\n    const node = { val, next: null };\n    if (!head) { head = node; tail = node; }\n    else { tail.next = node; tail = node; }\n  }\n  return head;\n}\n\nfunction listToArr(head) {\n  const result = [];\n  let node = head;\n  while (node) { result.push(node.val); node = node.next; }\n  return result;\n}\n\nfunction reverseList(headArr) {\n  let head = arrToList(headArr);\n  let prev = null;\n  let curr = head;\n  while (curr) {\n    const next = curr.next;\n    curr.next = prev;\n    prev = curr;\n    curr = next;\n  }\n  return listToArr(prev);\n}",
+    "code": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for val in arr:\n        node = ListNode(val)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef reverse_list(head_arr):\n    head = arr_to_list(head_arr)\n    prev = None\n    curr = head\n    while curr:\n        nxt = curr.next\n        curr.next = prev\n        prev = curr\n        curr = nxt\n    return list_to_arr(prev)\n",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1) auxiliary (excluding the returned list)"
   },
-  "starterCode": "function arrToList(arr) {\n  let head = null, tail = null;\n  for (const val of arr) {\n    const node = { val, next: null };\n    if (!head) { head = node; tail = node; }\n    else { tail.next = node; tail = node; }\n  }\n  return head;\n}\n\nfunction listToArr(head) {\n  const result = [];\n  let node = head;\n  while (node) { result.push(node.val); node = node.next; }\n  return result;\n}\n\nfunction reverseList(headArr) {\n  let head = arrToList(headArr);\n  // your code here\n}",
-  "functionName": "reverseList",
+  "starterCode": "class ListNode:\n    def __init__(self, val, next=None):\n        self.val = val\n        self.next = next\n\n\ndef arr_to_list(arr):\n    head = None\n    tail = None\n    for val in arr:\n        node = ListNode(val)\n        if not head:\n            head, tail = node, node\n        else:\n            tail.next = node\n            tail = node\n    return head\n\n\ndef list_to_arr(head):\n    result = []\n    node = head\n    while node:\n        result.append(node.val)\n        node = node.next\n    return result\n\n\ndef reverse_list(head_arr):\n    head = arr_to_list(head_arr)\n    # your code here\n    pass\n",
+  "functionName": "reverse_list",
   "testCases": [
     {
       "input": [

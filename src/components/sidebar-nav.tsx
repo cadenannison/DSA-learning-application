@@ -2,20 +2,81 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import type { ReactNode } from "react"
 import { ThemeToggle } from "@/components/theme-toggle"
 
 interface NavItem {
   href: string
   label: string
-  description: string
+  icon: ReactNode
 }
 
+function iconProps() {
+  return {
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 1.8,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+    className: "h-[18px] w-[18px] shrink-0",
+    "aria-hidden": true,
+  }
+}
+
+const DashboardIcon = () => (
+  <svg {...iconProps()}>
+    <rect x="3" y="3" width="7" height="9" rx="1.5" />
+    <rect x="14" y="3" width="7" height="5" rx="1.5" />
+    <rect x="14" y="12" width="7" height="9" rx="1.5" />
+    <rect x="3" y="16" width="7" height="5" rx="1.5" />
+  </svg>
+)
+
+const LibraryIcon = () => (
+  <svg {...iconProps()}>
+    <path d="M4 4h6v16H4z" />
+    <path d="M14 4h6v16h-6z" />
+  </svg>
+)
+
+const StudyPlanIcon = () => (
+  <svg {...iconProps()}>
+    <path d="M4 6h16" />
+    <path d="M4 12h16" />
+    <path d="M4 18h10" />
+  </svg>
+)
+
+const WorkbookIcon = () => (
+  <svg {...iconProps()}>
+    <path d="m9 18-6-6 6-6" />
+    <path d="m15 6 6 6-6 6" />
+  </svg>
+)
+
+const MockInterviewsIcon = () => (
+  <svg {...iconProps()}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 7v5l3 3" />
+  </svg>
+)
+
+const ProgressIcon = () => (
+  <svg {...iconProps()}>
+    <path d="M4 20V10" />
+    <path d="M11 20V4" />
+    <path d="M18 20v-7" />
+  </svg>
+)
+
 const NAV_ITEMS: NavItem[] = [
-  { href: "/", label: "Library", description: "Practice problems" },
-  { href: "/blind", label: "Blind Test", description: "Sets + random testing" },
-  { href: "/oa", label: "Mock OA", description: "Timed sessions" },
-  { href: "/patterns", label: "Learning Patterns", description: "Interactive walkthroughs" },
-  { href: "/study-plan", label: "Study Plan", description: "Interview prep tracker" },
+  { href: "/dashboard", label: "Dashboard", icon: <DashboardIcon /> },
+  { href: "/", label: "Library", icon: <LibraryIcon /> },
+  { href: "/study-plan", label: "Study Plan", icon: <StudyPlanIcon /> },
+  { href: "/blind", label: "Workbook", icon: <WorkbookIcon /> },
+  { href: "/oa", label: "Mock Interviews", icon: <MockInterviewsIcon /> },
+  { href: "/profile", label: "Progress", icon: <ProgressIcon /> },
 ]
 
 function isActive(pathname: string, href: string): boolean {
@@ -27,35 +88,44 @@ export function SidebarNav() {
   const pathname = usePathname()
 
   return (
-    <nav className="flex h-full w-56 shrink-0 flex-col border-r border-border bg-surface px-3 py-4">
-      <div className="mb-6 px-2 text-sm font-semibold tracking-tight">DSA Practice</div>
+    <nav className="flex h-full w-[232px] shrink-0 flex-col gap-7 border-r border-border bg-surface px-4 py-6">
+      <div className="flex items-center gap-2.5 px-2">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] bg-accent">
+          <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 text-bg" aria-hidden="true">
+            <path
+              d="M4 15 L10 9 L14 13 L20 5"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </span>
+        <span className="font-display text-[16px] font-bold text-text-1">DSA Practice</span>
+      </div>
 
-      <ul className="flex-1 space-y-1">
+      <ul className="flex-1 space-y-0.5">
         {NAV_ITEMS.map((item) => {
           const active = isActive(pathname, item.href)
           return (
             <li key={item.href}>
               <Link
                 href={item.href}
-                className={`block rounded-md px-3 py-2 text-sm transition-colors ${
+                className={`flex min-h-[40px] items-center gap-3 rounded-[8px] px-3.5 text-sm font-medium transition-colors ${
                   active
-                    ? "bg-accent text-white"
-                    : "text-foreground hover:bg-border/50"
+                    ? "bg-accent-soft text-text-1"
+                    : "text-text-2 hover:bg-surface-2 hover:text-text-1"
                 }`}
               >
-                <div className="font-medium">{item.label}</div>
-                <div
-                  className={`text-xs ${active ? "text-white/80" : "text-muted"}`}
-                >
-                  {item.description}
-                </div>
+                {item.icon}
+                {item.label}
               </Link>
             </li>
           )
         })}
       </ul>
 
-      <div className="mt-4 px-2">
+      <div className="border-t border-border-soft px-2 pt-4">
         <ThemeToggle />
       </div>
     </nav>

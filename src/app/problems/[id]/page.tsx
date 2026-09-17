@@ -4,8 +4,9 @@ import Link from "next/link"
 import { use, useEffect, useState } from "react"
 import { PracticePresenter, type PracticeView } from "@/presenter/practice-presenter"
 import { CodeEditor } from "@/components/code-editor"
+import { PythonSyntaxReference } from "@/components/python-syntax-reference"
 import { TestResults } from "@/components/test-results"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { usePersistedCode } from "@/lib/use-persisted-code"
 import type { ExecutionResult, Problem } from "@/types"
 
 export default function PracticePage({ params }: { params: Promise<{ id: string }> }) {
@@ -16,16 +17,13 @@ export default function PracticePage({ params }: { params: Promise<{ id: string 
   const [error, setError] = useState<string | null>(null)
   const [running, setRunning] = useState(false)
   const [result, setResult] = useState<ExecutionResult | null>(null)
-  const [code, setCode] = useState("")
   const [revealedHints, setRevealedHints] = useState(0)
+  const [code, setCode] = usePersistedCode(problem?.id ?? null, problem?.starterCode ?? "")
 
   const [presenter] = useState(() => {
     const view: PracticeView = {
       setLoading,
-      setProblem: (p) => {
-        setProblem(p)
-        setCode(p.starterCode)
-      },
+      setProblem,
       setError,
       setRunning,
       setResult,
@@ -45,46 +43,48 @@ export default function PracticePage({ params }: { params: Promise<{ id: string 
     }
   }
 
-  if (loading) return <main className="p-8 text-sm text-muted">Loading problem...</main>
-  if (error) return <main className="p-8 text-sm text-red-600 dark:text-red-400">{error}</main>
+  if (loading) return <div className="flex-1 p-8 text-sm text-text-2">Loading problem...</div>
+  if (error) return <div className="flex-1 p-8 text-sm text-danger">{error}</div>
   if (!problem) return null
 
   return (
-    <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
-      <div className="mb-4 flex items-center justify-between">
-        <Link href="/" className="text-sm text-muted hover:text-foreground">
+    <div className="flex h-full flex-1 flex-col overflow-hidden">
+      <div className="flex h-12 shrink-0 items-center border-b border-border bg-surface px-6">
+        <Link href="/" className="text-sm text-text-2 hover:text-text-1">
           &larr; Back to library
         </Link>
-        <ThemeToggle />
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="space-y-4">
+      <div className="grid flex-1 grid-cols-1 overflow-hidden lg:grid-cols-2">
+        <div className="space-y-4 overflow-y-auto border-b border-border p-6 lg:border-b-0 lg:border-r">
           <div>
-            <h1 className="text-xl font-semibold">{problem.title}</h1>
-            <div className="mt-1 text-xs text-muted">
+            <h1 className="font-display text-xl font-semibold text-text-1">{problem.title}</h1>
+            <div className="mt-1 font-mono text-xs text-text-2">
               {problem.pattern} · {problem.difficulty}
             </div>
           </div>
 
-          <p className="whitespace-pre-wrap text-sm">{problem.prompt}</p>
+          <p className="whitespace-pre-wrap text-sm text-text-1">{problem.prompt}</p>
 
           <div>
-            <h2 className="mb-2 text-sm font-medium">Examples</h2>
+            <h2 className="mb-2 text-sm font-medium text-text-1">Examples</h2>
             <ul className="space-y-2">
               {problem.examples.map((example, index) => (
-                <li key={index} className="rounded-md border border-border p-3 text-xs font-mono">
+                <li
+                  key={index}
+                  className="rounded-card border border-border bg-surface p-3 font-mono text-xs text-text-1"
+                >
                   <div>Input: {example.input}</div>
                   <div>Output: {example.output}</div>
-                  {example.explanation && <div className="text-muted">{example.explanation}</div>}
+                  {example.explanation && <div className="text-text-2">{example.explanation}</div>}
                 </li>
               ))}
             </ul>
           </div>
 
           <div>
-            <h2 className="mb-2 text-sm font-medium">Constraints</h2>
-            <ul className="list-inside list-disc text-xs text-muted">
+            <h2 className="mb-2 text-sm font-medium text-text-1">Constraints</h2>
+            <ul className="list-inside list-disc text-xs text-text-2">
               {problem.constraints.map((constraint, index) => (
                 <li key={index}>{constraint}</li>
               ))}
@@ -92,10 +92,15 @@ export default function PracticePage({ params }: { params: Promise<{ id: string 
           </div>
 
           <div>
-            <h2 className="mb-2 text-sm font-medium">Hints ({revealedHints}/{problem.hints.length} revealed)</h2>
+            <h2 className="mb-2 text-sm font-medium text-text-1">
+              Hints ({revealedHints}/{problem.hints.length} revealed)
+            </h2>
             <ul className="space-y-2">
               {problem.hints.slice(0, revealedHints).map((hint, index) => (
-                <li key={index} className="rounded-md border border-border bg-surface p-2 text-xs">
+                <li
+                  key={index}
+                  className="rounded-card border border-border bg-surface p-2 text-xs text-text-1"
+                >
                   {hint}
                 </li>
               ))}
@@ -103,29 +108,31 @@ export default function PracticePage({ params }: { params: Promise<{ id: string 
             {revealedHints < problem.hints.length && (
               <button
                 onClick={revealNextHint}
-                className="mt-2 rounded-md border border-border px-3 py-1.5 text-xs hover:bg-surface"
+                className="mt-2 min-h-[44px] rounded-control border border-border px-3 text-xs text-text-2 hover:bg-surface-2 hover:text-text-1"
               >
                 Reveal next hint
               </button>
             )}
           </div>
+
+          <PythonSyntaxReference />
         </div>
 
-        <div className="space-y-4">
-          <CodeEditor value={code} onChange={setCode} />
+        <div className="flex flex-col space-y-4 overflow-y-auto p-6">
+          <CodeEditor value={code} onChange={setCode} height="420px" />
 
           <div className="flex gap-2">
             <button
               onClick={() => presenter.run(code)}
               disabled={running}
-              className="rounded-md border border-border px-4 py-2 text-sm hover:bg-surface disabled:opacity-50"
+              className="min-h-[44px] rounded-control border border-border px-4 text-sm text-text-2 hover:bg-surface-2 hover:text-text-1 disabled:opacity-50"
             >
               Run tests
             </button>
             <button
               onClick={() => presenter.submitCode(code)}
               disabled={running}
-              className="rounded-md bg-accent px-4 py-2 text-sm text-white disabled:opacity-50"
+              className="min-h-[44px] rounded-control bg-accent px-4 text-sm font-semibold text-bg disabled:opacity-50"
             >
               Submit
             </button>
@@ -134,6 +141,6 @@ export default function PracticePage({ params }: { params: Promise<{ id: string 
           {result && <TestResults result={result} />}
         </div>
       </div>
-    </main>
+    </div>
   )
 }

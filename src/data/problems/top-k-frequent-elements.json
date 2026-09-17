@@ -32,12 +32,12 @@
   ],
   "solution": {
     "approach": "Count each element's frequency with a hash map. Build buckets indexed by frequency (index = count, value = list of elements with that count) \u2014 frequency can't exceed nums.length, so this is bounded. Walk buckets from the highest index down, collecting elements into the result until k elements are gathered. This achieves O(n) instead of an O(n log n) sort.",
-    "code": "function topKFrequent(nums, k) {\n  const counts = new Map();\n  for (const n of nums) {\n    counts.set(n, (counts.get(n) ?? 0) + 1);\n  }\n\n  const buckets = Array.from({ length: nums.length + 1 }, () => []);\n  for (const [val, count] of counts) {\n    buckets[count].push(val);\n  }\n\n  const result = [];\n  for (let count = buckets.length - 1; count >= 1 && result.length < k; count--) {\n    for (const val of buckets[count]) {\n      result.push(val);\n      if (result.length === k) break;\n    }\n  }\n  return result;\n}",
+    "code": "def top_k_frequent(nums, k):\n    counts = {}\n    for n in nums:\n        counts[n] = counts.get(n, 0) + 1\n\n    buckets = [[] for _ in range(len(nums) + 1)]\n    for val, count in counts.items():\n        buckets[count].append(val)\n\n    result = []\n    for count in range(len(buckets) - 1, 0, -1):\n        for val in buckets[count]:\n            result.append(val)\n            if len(result) == k:\n                return result\n    return result\n",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(n)"
   },
-  "starterCode": "function topKFrequent(nums, k) {\n  // your code here\n}",
-  "functionName": "topKFrequent",
+  "starterCode": "def top_k_frequent(nums, k):\n    # your code here\n    pass\n",
+  "functionName": "top_k_frequent",
   "testCases": [
     {
       "input": [

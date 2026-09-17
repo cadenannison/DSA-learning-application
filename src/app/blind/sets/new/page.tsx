@@ -2,9 +2,10 @@
 
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import Link from "next/link"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { apiClient } from "@/lib/api-client"
+import { PageShell } from "@/components/ui/page-shell"
+import { PageHeader } from "@/components/ui/page-header"
+import { Tabs } from "@/components/ui/tabs"
 import type { Difficulty, DsaPattern, ProblemSummary } from "@/types"
 
 const PATTERN_LABELS: Record<DsaPattern, string> = {
@@ -109,63 +110,51 @@ export default function NewBlindTestSetPage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">New Test Set</h1>
-        <ThemeToggle />
-      </div>
+    <PageShell>
+      <PageHeader title="New Test Set" />
 
       <input
         type="text"
         placeholder="Set name..."
         value={name}
         onChange={(e) => setName(e.target.value)}
-        className="mb-4 w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm"
+        className="mb-4 min-h-[44px] w-full rounded-control border border-border bg-surface px-3 text-sm text-text-1 placeholder:text-text-3 focus:border-accent focus:outline-none"
       />
 
-      <div className="mb-4 flex gap-2">
-        <button
-          onClick={() => setMode("search")}
-          className={`rounded-md border px-3 py-1.5 text-sm ${
-            mode === "search" ? "border-accent bg-accent/10" : "border-border hover:bg-surface"
-          }`}
-        >
-          Search &amp; add
-        </button>
-        <button
-          onClick={() => setMode("criteria")}
-          className={`rounded-md border px-3 py-1.5 text-sm ${
-            mode === "criteria" ? "border-accent bg-accent/10" : "border-border hover:bg-surface"
-          }`}
-        >
-          By pattern / difficulty
-        </button>
-      </div>
+      <Tabs
+        className="mb-4"
+        tabs={[
+          { value: "search", label: "Search & add" },
+          { value: "criteria", label: "By pattern / difficulty" },
+        ]}
+        active={mode}
+        onChange={setMode}
+      />
 
       {mode === "search" && (
-        <div>
+        <div className="mt-4">
           <input
             type="text"
             placeholder="Search by title..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="mb-3 w-full rounded-md border border-border bg-transparent px-3 py-1.5 text-sm"
+            className="mb-3 min-h-[44px] w-full rounded-control border border-border bg-surface px-3 text-sm text-text-1 placeholder:text-text-3 focus:border-accent focus:outline-none"
           />
 
-          <p className="mb-2 text-xs text-muted">{selectedIds.size} selected</p>
+          <p className="mb-2 text-xs text-text-2">{selectedIds.size} selected</p>
 
-          <ul className="max-h-96 divide-y divide-border overflow-y-auto rounded-md border border-border">
+          <ul className="max-h-96 overflow-y-auto rounded-card border border-border bg-surface">
             {problems.map((problem) => (
-              <li key={problem.id}>
-                <label className="flex cursor-pointer items-center gap-3 px-4 py-2.5 text-sm hover:bg-surface">
+              <li key={problem.id} className="border-b border-border-soft last:border-b-0">
+                <label className="flex min-h-[44px] cursor-pointer items-center gap-3 px-4 py-2.5 text-sm hover:bg-surface-2">
                   <input
                     type="checkbox"
                     checked={selectedIds.has(problem.id)}
                     onChange={() => toggleId(problem.id)}
                   />
                   <div>
-                    <div>{problem.title}</div>
-                    <div className="text-xs text-muted">
+                    <div className="text-text-1">{problem.title}</div>
+                    <div className="text-xs text-text-2">
                       {PATTERN_LABELS[problem.pattern]} · {problem.difficulty}
                     </div>
                   </div>
@@ -173,25 +162,25 @@ export default function NewBlindTestSetPage() {
               </li>
             ))}
             {problems.length === 0 && (
-              <li className="px-4 py-6 text-center text-sm text-muted">No problems match.</li>
+              <li className="px-4 py-6 text-center text-sm text-text-2">No problems match.</li>
             )}
           </ul>
         </div>
       )}
 
       {mode === "criteria" && (
-        <div className="space-y-4">
+        <div className="mt-4 space-y-4">
           <div>
-            <h2 className="mb-2 text-sm font-medium">Patterns</h2>
+            <h2 className="mb-2 text-sm font-medium text-text-1">Patterns</h2>
             <div className="flex flex-wrap gap-2">
               {PATTERNS.map((pattern) => (
                 <button
                   key={pattern}
                   onClick={() => togglePattern(pattern)}
-                  className={`rounded-full border px-3 py-1 text-xs ${
+                  className={`rounded-chip border px-3 py-1.5 text-xs ${
                     selectedPatterns.has(pattern)
-                      ? "border-accent bg-accent/10"
-                      : "border-border hover:bg-surface"
+                      ? "border-accent bg-accent-soft text-accent"
+                      : "border-border text-text-2 hover:bg-surface-2"
                   }`}
                 >
                   {PATTERN_LABELS[pattern]}
@@ -201,16 +190,16 @@ export default function NewBlindTestSetPage() {
           </div>
 
           <div>
-            <h2 className="mb-2 text-sm font-medium">Difficulties</h2>
+            <h2 className="mb-2 text-sm font-medium text-text-1">Difficulties</h2>
             <div className="flex flex-wrap gap-2">
               {DIFFICULTIES.map((difficulty) => (
                 <button
                   key={difficulty}
                   onClick={() => toggleDifficulty(difficulty)}
-                  className={`rounded-full border px-3 py-1 text-xs capitalize ${
+                  className={`rounded-chip border px-3 py-1.5 text-xs capitalize ${
                     selectedDifficulties.has(difficulty)
-                      ? "border-accent bg-accent/10"
-                      : "border-border hover:bg-surface"
+                      ? "border-accent bg-accent-soft text-accent"
+                      : "border-border text-text-2 hover:bg-surface-2"
                   }`}
                 >
                   {difficulty}
@@ -219,29 +208,22 @@ export default function NewBlindTestSetPage() {
             </div>
           </div>
 
-          <p className="text-xs text-muted">
+          <p className="text-xs text-text-2">
             Leave a group empty to match all values for that field. Every problem matching any
             selected pattern <em>and</em> any selected difficulty is added.
           </p>
         </div>
       )}
 
-      {error && <p className="mt-4 text-sm text-red-600 dark:text-red-400">{error}</p>}
+      {error && <p className="mt-4 text-sm text-danger">{error}</p>}
 
       <button
         onClick={handleCreate}
         disabled={creating}
-        className="mt-6 rounded-md bg-accent px-4 py-2 text-sm text-white disabled:opacity-50"
+        className="mt-6 min-h-[44px] rounded-control bg-accent px-4 text-sm font-semibold text-bg disabled:opacity-50"
       >
         {creating ? "Creating..." : "Create set"}
       </button>
-
-      <Link
-        href="/blind/sets"
-        className="mt-4 block text-sm text-muted hover:text-foreground"
-      >
-        &larr; Back to test sets
-      </Link>
-    </main>
+    </PageShell>
   )
 }
