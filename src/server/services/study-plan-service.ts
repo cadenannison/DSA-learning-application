@@ -11,6 +11,7 @@ import {
   STUDY_PATTERN_STAGE_ORDER,
   estimatePatternRemainingMinutes,
   type CodeSubmission,
+  type Difficulty,
   type DrillQueueEntry,
   type ExecutionResult,
   type MockInterviewResult,
@@ -711,13 +712,24 @@ The input must contain exactly one create_plan action once normalized. If the in
    * workbook needs), and only on a pass marks the study problem completed and recomputes
    * whether the parent pattern's stage should auto-advance. Returns null if the study problem
    * doesn't exist or isn't embeddable (no linkedProblemId) — those shouldn't reach this method
-   * since the UI only offers Run/Submit for embedded problems, but the route validates anyway. */
+   * since the UI only offers Run/Submit for embedded problems, but the route validates anyway.
+   *
+   * Returns `studyProblemId`/`linkedProblemId`/`difficulty` alongside the execution/pattern so
+   * the route handler can fold this submission into `statsService.recordEvent` uniformly with
+   * the main practice flow, without this service needing to know anything about profile stats
+   * itself. */
   async submitEmbeddedProblem(
     planId: string,
     studyProblemId: string,
     submission: CodeSubmission,
     timeTakenMinutes: number
-  ): Promise<{ execution: ExecutionResult; pattern: StudyPattern } | null> {
+  ): Promise<{
+    execution: ExecutionResult
+    pattern: StudyPattern
+    studyProblemId: string
+    linkedProblemId: string
+    difficulty: Difficulty
+  } | null> {
     const studyProblem = await this.store.getProblem(planId, studyProblemId)
     if (!studyProblem || !studyProblem.linkedProblemId) return null
 
@@ -746,7 +758,15 @@ The input must contain exactly one create_plan action once normalized. If the in
     }
 
     const pattern = await this.store.getPattern(planId, studyProblem.studyPatternId)
-    return pattern ? { execution, pattern } : null
+    return pattern
+      ? {
+          execution,
+          pattern,
+          studyProblemId: studyProblem.id,
+          linkedProblemId: studyProblem.linkedProblemId,
+          difficulty: studyProblem.difficulty,
+        }
+      : null
   }
 
   /** Logs time spent on an embedded problem that was expanded but never submitted (row

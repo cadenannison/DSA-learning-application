@@ -7,6 +7,7 @@ import { use, useEffect, useRef, useState } from "react"
 import { AuthGate } from "@/components/auth-gate"
 import { ProblemWorkbenchView } from "@/components/problem-workbench-view"
 import { apiClient } from "@/lib/api-client"
+import { useActiveTime } from "@/lib/use-active-time"
 import { usePersistedCode } from "@/lib/use-persisted-code"
 import { StudyPlanPresenter } from "@/presenter/study-plan-presenter"
 import type { ExecutionResult, Problem, StudyPlanOverview, TestCaseResult } from "@/types"
@@ -174,6 +175,8 @@ function WorkbookProblemBody({
   submittedRef: React.MutableRefObject<boolean>
   router: ReturnType<typeof useRouter>
 }) {
+  const { elapsedMs } = useActiveTime(studyProblemId)
+
   useEffect(() => {
     startedAtRef.current = performance.now()
   }, [startedAtRef])
@@ -267,12 +270,13 @@ function WorkbookProblemBody({
     if (!problem) return
     setRunning(true)
     try {
-      const startedAt = startedAtRef.current ?? performance.now()
-      const elapsedMinutes = Math.max(0, Math.round((performance.now() - startedAt) / 60_000))
+      const durationMs = elapsedMs()
+      const elapsedMinutes = Math.max(0, Math.round(durationMs / 60_000))
       const execution = await presenter.submitEmbeddedProblem(
         studyProblemId,
         { code, functionName: problem.functionName, language: "python" },
-        elapsedMinutes
+        elapsedMinutes,
+        { durationMs, linesOfCode: code.split("\n").length }
       )
       submittedRef.current = true
       setResult(execution)

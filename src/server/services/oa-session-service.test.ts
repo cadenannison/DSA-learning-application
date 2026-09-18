@@ -7,6 +7,7 @@ import { ExecutionService } from "@/server/services/execution-service"
 import { DefaultOAProblemSelector } from "@/server/services/oa-problem-selector"
 import { OASessionService } from "@/server/services/oa-session-service"
 import { ProgressService } from "@/server/services/progress-service"
+import { StatsService } from "@/server/services/stats-service"
 import type { OASessionConfig } from "@/server/models/domain"
 
 const problemsDir = path.join(process.cwd(), "src/data/problems")
@@ -17,8 +18,9 @@ function makeService() {
   const executionService = new ExecutionService(new PythonSubprocessSandbox(2000), repository)
   const progressService = new ProgressService(store)
   const selector = new DefaultOAProblemSelector(repository, store)
+  const statsService = new StatsService(store, repository)
 
-  return new OASessionService(selector, store, executionService, progressService)
+  return new OASessionService(selector, store, executionService, progressService, statsService, repository)
 }
 
 async function correctSubmissionFor(problemId: string) {

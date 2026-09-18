@@ -18,6 +18,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
         userId: user.id,
         type: "oa_session_completed",
         durationMs: totalTimeSpentMs,
+        sessionId: summary.sessionId,
       })
     }
 

@@ -11,6 +11,7 @@ import type {
   MockInterviewResult,
   OASession,
   OASessionConfig,
+  OASessionHistoryEntry,
   OASessionSummary,
   PatternLesson,
   PatternLessonSummary,
@@ -23,7 +24,9 @@ import type {
   ReadinessTriState,
   RoadmapOverview,
   Skill,
+  SolvedProblemEntry,
   StrippedProblem,
+  SubmissionStats,
   StudyPattern,
   StudyPatternStage,
   StudyPlan,
@@ -100,6 +103,18 @@ export const apiClient = {
     return handle<DailyActivityOverview>(response)
   },
 
+  async getSolvedProblems(): Promise<SolvedProblemEntry[] | null> {
+    const response = await fetch("/api/profile/solved-problems")
+    if (response.status === 401) return null
+    return handle<SolvedProblemEntry[]>(response)
+  },
+
+  async getOAHistory(): Promise<OASessionHistoryEntry[] | null> {
+    const response = await fetch("/api/profile/oa-history")
+    if (response.status === 401) return null
+    return handle<OASessionHistoryEntry[]>(response)
+  },
+
   async listProblems(filter?: ProblemFilter): Promise<ProblemSummary[]> {
     const params = new URLSearchParams()
     if (filter?.pattern) params.set("pattern", filter.pattern)
@@ -154,9 +169,8 @@ export const apiClient = {
     problemId: string
     passed: boolean
     hintsUsed: number
-    durationMs: number
     mode: PracticeMode
-    code?: string
+    stats: SubmissionStats
   }): Promise<AttemptRecord> {
     const response = await fetch("/api/progress", {
       method: "POST",
@@ -421,12 +435,13 @@ export const apiClient = {
     planId: string,
     id: string,
     submission: CodeSubmission,
-    timeTakenMinutes: number
+    timeTakenMinutes: number,
+    stats: { durationMs: number; linesOfCode: number }
   ): Promise<SubmitStudyProblemResponse> {
     const response = await fetch(`/api/study-plan/${planId}/problems/${id}/submit`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ submission, timeTakenMinutes }),
+      body: JSON.stringify({ submission, timeTakenMinutes, stats }),
     })
     return handle<SubmitStudyProblemResponse>(response)
   },

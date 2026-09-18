@@ -2,7 +2,9 @@ import { apiClient } from "@/lib/api-client"
 import type {
   DailyActivityOverview,
   MockInterviewResult,
+  OASessionHistoryEntry,
   ProfileStatsOverview,
+  SolvedProblemEntry,
   StudyPatternWithReadiness,
 } from "@/types"
 
@@ -11,6 +13,8 @@ export interface ProfileData {
   dailyActivity: DailyActivityOverview | null
   patterns: StudyPatternWithReadiness[]
   mockInterviewResults: MockInterviewResult[]
+  solvedProblems: SolvedProblemEntry[]
+  oaHistory: OASessionHistoryEntry[]
 }
 
 export interface ProfileView {
@@ -30,15 +34,24 @@ export class ProfilePresenter {
     this.view.setError(null)
 
     try {
-      const [stats, dailyActivity, plans] = await Promise.all([
+      const [stats, dailyActivity, solvedProblems, oaHistory, plans] = await Promise.all([
         apiClient.getProfileStats(),
         apiClient.getDailyActivity(14),
+        apiClient.getSolvedProblems(),
+        apiClient.getOAHistory(),
         apiClient.listStudyPlans(),
       ])
 
       const plan = plans[0] ?? null
       if (!plan) {
-        this.view.setData({ stats, dailyActivity, patterns: [], mockInterviewResults: [] })
+        this.view.setData({
+          stats,
+          dailyActivity,
+          patterns: [],
+          mockInterviewResults: [],
+          solvedProblems: solvedProblems ?? [],
+          oaHistory: oaHistory ?? [],
+        })
         return
       }
 
@@ -52,6 +65,8 @@ export class ProfilePresenter {
         dailyActivity,
         patterns: overview.patterns,
         mockInterviewResults,
+        solvedProblems: solvedProblems ?? [],
+        oaHistory: oaHistory ?? [],
       })
     } catch (error) {
       this.view.setError(error instanceof Error ? error.message : "Failed to load stats")

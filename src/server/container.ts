@@ -59,6 +59,7 @@ function buildContainer(): Container {
     geminiClient
   )
   const progressService = new ProgressService(progressStore, progressStore, studyPlanService)
+  const statsService = new StatsService(progressStore, problemRepository)
 
   return {
     problemService: new ProblemService(problemRepository),
@@ -68,13 +69,15 @@ function buildContainer(): Container {
       oaProblemSelector,
       progressStore,
       executionService,
-      progressService
+      progressService,
+      statsService,
+      problemRepository
     ),
     blindTestSetService: new BlindTestSetService(progressStore, problemRepository),
     patternLessonService: new PatternLessonService(patternLessonRepository),
     studyPlanService,
     authService: new AuthService(progressStore),
-    statsService: new StatsService(progressStore),
+    statsService,
   }
 }
 

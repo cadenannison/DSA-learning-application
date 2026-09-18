@@ -142,7 +142,7 @@ describe("PracticePresenter", () => {
         passed: false,
         hintsUsed: 2,
         mode: "practice",
-        code: "def twoSum(): pass",
+        stats: expect.objectContaining({ linesOfCode: 1, testsPassed: 0, testsTotal: 0 }),
       })
     )
     expect(result.current).toEqual(failingResult)

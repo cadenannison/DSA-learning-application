@@ -1,12 +1,14 @@
 "use client"
 
 import Link from "next/link"
-import { use, useEffect, useState } from "react"
+import { use, useEffect, useRef, useState } from "react"
 import { BlindTestPresenter, type BlindTestView } from "@/presenter/practice-presenter"
 import { CodeEditor } from "@/components/code-editor"
 import { ResetCodeButton } from "@/components/reset-code-button"
+import { SubmitToast } from "@/components/ui/submit-toast"
 import { TestResults } from "@/components/test-results"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { useActiveTime } from "@/lib/use-active-time"
 import type { ExecutionResult, StrippedProblem } from "@/types"
 
 export default function BlindTestPage({ params }: { params: Promise<{ id: string }> }) {
@@ -18,6 +20,9 @@ export default function BlindTestPage({ params }: { params: Promise<{ id: string
   const [running, setRunning] = useState(false)
   const [result, setResult] = useState<ExecutionResult | null>(null)
   const [code, setCode] = useState("")
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const [toastKey, setToastKey] = useState(0)
+  const { elapsedMs } = useActiveTime(problem?.id ?? "loading")
 
   const [presenter] = useState(() => {
     const view: BlindTestView = {
@@ -37,12 +42,44 @@ export default function BlindTestPage({ params }: { params: Promise<{ id: string
     presenter.loadProblem(id)
   }, [presenter, id])
 
+  function fireToast(message: string) {
+    setToastMessage(message)
+    setToastKey((key) => key + 1)
+  }
+
+  // Tags the *next* result change with which action caused it (mirrors ProblemWorkbenchView's
+  // toast logic) so a passing "Run tests" and a passing Submit can show distinct wording.
+  const pendingActionRef = useRef<"run" | "submit" | null>(null)
+
+  useEffect(() => {
+    const action = pendingActionRef.current
+    pendingActionRef.current = null
+
+    if (action === "submit" && result?.allPassed) {
+      fireToast("Submitted — solved!")
+    } else if (action === "run" && result?.results.some((r) => r.status === "passed")) {
+      fireToast("Test case passed!")
+    }
+  }, [result])
+
+  async function handleRun() {
+    pendingActionRef.current = "run"
+    await presenter.run(code)
+  }
+
+  async function handleSubmit() {
+    pendingActionRef.current = "submit"
+    await presenter.submitCode(code, elapsedMs())
+  }
+
   if (loading) return <div className="flex-1 p-8 text-sm text-text-2">Loading problem...</div>
   if (error) return <div className="flex-1 p-8 text-sm text-danger">{error}</div>
   if (!problem) return null
 
   return (
     <div className="flex h-full flex-1 flex-col overflow-hidden">
+      <SubmitToast message={toastMessage} toastKey={toastKey} />
+
       <div className="flex h-12 shrink-0 items-center justify-between border-b border-border bg-surface px-6">
         <Link href="/blind" className="text-sm text-text-2 hover:text-text-1">
           &larr; Back to blind test list
@@ -91,14 +128,14 @@ export default function BlindTestPage({ params }: { params: Promise<{ id: string
 
           <div className="flex gap-2">
             <button
-              onClick={() => presenter.run(code)}
+              onClick={handleRun}
               disabled={running}
               className="min-h-[44px] rounded-control border border-border px-4 text-sm text-text-2 hover:bg-surface-2 hover:text-text-1 disabled:opacity-50"
             >
               Run tests
             </button>
             <button
-              onClick={() => presenter.submitCode(code)}
+              onClick={handleSubmit}
               disabled={running}
               className="min-h-[44px] rounded-control bg-accent px-4 text-sm font-semibold text-bg disabled:opacity-50"
             >

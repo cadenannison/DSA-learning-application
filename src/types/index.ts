@@ -24,6 +24,10 @@ import type {
   patternLessonSummarySchema,
   dailyActivityDaySchema,
   dailyActivityOverviewSchema,
+  oaMetricsSchema,
+  oaSessionHistoryEntrySchema,
+  oaSessionHistoryProblemEntrySchema,
+  solvedProblemEntrySchema,
   practiceModeSchema,
   problemProgressSchema,
   problemSchema,
@@ -44,6 +48,7 @@ import type {
   spacedRepetitionStateSchema,
   statEventTypeSchema,
   strippedProblemSchema,
+  submissionStatsSchema,
   studyPatternComplexityTierSchema,
   studyPatternSchema,
   studyPatternStageSchema,
@@ -83,6 +88,7 @@ export type TestOutcomeStatus = TestCaseResult["status"]
 export type ThemePreference = z.infer<typeof themePreferenceSchema>
 
 export type PracticeMode = z.infer<typeof practiceModeSchema>
+export type SubmissionStats = z.infer<typeof submissionStatsSchema>
 
 export interface CodeSubmission {
   code: string
@@ -117,6 +123,10 @@ export type StatEventType = z.infer<typeof statEventTypeSchema>
 export type ProfileStatsOverview = z.infer<typeof profileStatsOverviewSchema>
 export type DailyActivityDay = z.infer<typeof dailyActivityDaySchema>
 export type DailyActivityOverview = z.infer<typeof dailyActivityOverviewSchema>
+export type SolvedProblemEntry = z.infer<typeof solvedProblemEntrySchema>
+export type OAMetrics = z.infer<typeof oaMetricsSchema>
+export type OASessionHistoryProblemEntry = z.infer<typeof oaSessionHistoryProblemEntrySchema>
+export type OASessionHistoryEntry = z.infer<typeof oaSessionHistoryEntrySchema>
 
 export type StudyTrackId = z.infer<typeof studyTrackIdSchema>
 export type StudyTrack = z.infer<typeof studyTrackSchema>

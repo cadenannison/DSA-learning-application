@@ -47,6 +47,16 @@ export const codeSubmissionSchema = z.object({
 
 export const practiceModeSchema = z.enum(["practice", "blind", "oa"])
 
+/** Shared submission-stats shape reported by every problem-solving surface (library practice,
+ * blind test, study-plan workbook) on Run/Submit — keeps the request contract identical across
+ * flows so a new surface doesn't need to invent its own field names. */
+export const submissionStatsSchema = z.object({
+  durationMs: z.number().int().min(0),
+  linesOfCode: z.number().int().min(0),
+  testsPassed: z.number().int().min(0),
+  testsTotal: z.number().int().min(0),
+})
+
 export const executeRequestSchema = z.object({
   problemId: z.string().min(1),
   submission: codeSubmissionSchema,
@@ -61,11 +71,8 @@ export const recordAttemptRequestSchema = z.object({
   problemId: z.string().min(1),
   passed: z.boolean(),
   hintsUsed: z.number().int().min(0),
-  durationMs: z.number().int().min(0),
   mode: practiceModeSchema,
-  // Optional, submitted-code text — used only to derive a lines-of-code count for the
-  // logged-in submitter's profile stats. Never persisted verbatim or echoed back.
-  code: z.string().optional(),
+  stats: submissionStatsSchema,
 })
 
 export const preferencesSchema = z.object({
@@ -356,6 +363,13 @@ export const loginRequestSchema = z.object({
 
 export const statEventTypeSchema = z.enum(["attempt", "oa_session_completed"])
 
+export const oaMetricsSchema = z.object({
+  sessionsCompleted: z.number().int().min(0),
+  problemsSolved: z.number().int().min(0),
+  totalTimeMs: z.number().int().min(0),
+  totalPoints: z.number().int().min(0),
+})
+
 export const profileStatsOverviewSchema = z.object({
   problemsCompleted: z.number().int().min(0),
   totalAttempts: z.number().int().min(0),
@@ -367,6 +381,8 @@ export const profileStatsOverviewSchema = z.object({
   activeDays: z.number().int().min(0),
   lastActiveAt: z.string().nullable(),
   byMode: z.record(practiceModeSchema, z.object({ attempts: z.number().int().min(0), passed: z.number().int().min(0) })),
+  totalPoints: z.number().int().min(0),
+  oaMetrics: oaMetricsSchema,
 })
 
 export const dailyActivityDaySchema = z.object({
@@ -377,6 +393,42 @@ export const dailyActivityDaySchema = z.object({
 export const dailyActivityOverviewSchema = z.object({
   days: z.array(dailyActivityDaySchema),
   longestStreakDays: z.number().int().min(0),
+})
+
+export const solvedProblemEntrySchema = z.object({
+  problemId: z.string(),
+  problemName: z.string(),
+  difficulty: difficultySchema.nullable(),
+  solvedAt: z.string(),
+  durationMs: z.number().int().min(0),
+  linesOfCode: z.number().int().min(0),
+  mode: practiceModeSchema.nullable(),
+  testsPassed: z.number().int().min(0).nullable(),
+  testsTotal: z.number().int().min(0).nullable(),
+  points: z.number().int().min(0),
+  pattern: dsaPatternSchema.nullable(),
+  companies: z.array(z.string()),
+})
+
+export const oaSessionHistoryProblemEntrySchema = z.object({
+  problemId: z.string(),
+  problemName: z.string(),
+  difficulty: difficultySchema.nullable(),
+  passed: z.boolean(),
+  durationMs: z.number().int().min(0),
+  testsPassed: z.number().int().min(0).nullable(),
+  testsTotal: z.number().int().min(0).nullable(),
+  points: z.number().int().min(0),
+})
+
+export const oaSessionHistoryEntrySchema = z.object({
+  sessionId: z.string(),
+  completedAt: z.string(),
+  problemsPassed: z.number().int().min(0),
+  problemsTotal: z.number().int().min(0),
+  totalTimeMs: z.number().int().min(0),
+  totalPoints: z.number().int().min(0),
+  problems: z.array(oaSessionHistoryProblemEntrySchema),
 })
 
 // --- Study Plan ---
@@ -652,6 +704,13 @@ export const createMockInterviewResultRequestSchema = z.object({
 export const submitStudyProblemRequestSchema = z.object({
   submission: codeSubmissionSchema,
   timeTakenMinutes: z.number().int().min(0),
+  // Only duration/lines — test-case pass/fail counts aren't known client-side for this flow
+  // until the server executes the submission, so the route derives those itself from the
+  // execution result rather than trusting a client-reported count.
+  stats: z.object({
+    durationMs: z.number().int().min(0),
+    linesOfCode: z.number().int().min(0),
+  }),
 })
 
 export const submitStudyProblemResponseSchema = z.object({
