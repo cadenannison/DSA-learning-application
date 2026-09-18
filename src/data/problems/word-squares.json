@@ -18,6 +18,11 @@
       "input": "words = [\"abat\",\"baba\",\"atan\",\"atal\"]",
       "output": "[[\"baba\",\"abat\",\"baba\",\"atan\"],[\"baba\",\"abat\",\"baba\",\"atal\"]]",
       "explanation": "Both are valid 4x4 word squares built from the given words, with \"baba\" reused as both row 0 and row 2."
+    },
+    {
+      "input": "words = [\"a\"]",
+      "output": "[[\"a\"]]",
+      "explanation": "A single one-letter word trivially forms its own 1x1 word square, since its only row and only column are the same single character."
     }
   ],
   "constraints": [

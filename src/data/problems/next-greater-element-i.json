@@ -17,6 +17,11 @@
     {
       "input": "nums1 = [2,4], nums2 = [1,2,3,4]",
       "output": "[3,-1]"
+    },
+    {
+      "input": "nums1 = [1], nums2 = [1]",
+      "output": "[-1]",
+      "explanation": "With only one element and nothing to its right, there is no next greater element, so the answer is -1."
     }
   ],
   "constraints": [

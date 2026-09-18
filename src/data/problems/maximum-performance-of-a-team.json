@@ -17,6 +17,11 @@
     {
       "input": "speed = [2,10,3,1,5,8], efficiency = [5,4,3,9,7,2], k = 3",
       "output": "68"
+    },
+    {
+      "input": "speed = [5], efficiency = [10], k = 1",
+      "output": "50",
+      "explanation": "With a single engineer and k=1, the team is forced to be just that engineer: performance = speed * efficiency = 5 * 10 = 50."
     }
   ],
   "constraints": [

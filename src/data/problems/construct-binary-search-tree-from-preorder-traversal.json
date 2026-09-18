@@ -18,6 +18,11 @@
     {
       "input": "preorder = [1,3]",
       "output": "[1,null,3]"
+    },
+    {
+      "input": "preorder = [1]",
+      "output": "[1]",
+      "explanation": "With only one value, the BST is a single node and the minimum-length input allowed by the constraints."
     }
   ],
   "constraints": [

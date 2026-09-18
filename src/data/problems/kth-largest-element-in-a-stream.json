@@ -18,6 +18,11 @@
     {
       "input": "k = 1, nums = [], vals = [-3,-2,-4,0,4]",
       "output": "[-3,-2,-2,0,4]"
+    },
+    {
+      "input": "k = 4, nums = [7,7,7,7], vals = [7,8,9]",
+      "output": "[7,7,7]",
+      "explanation": "With k equal to the number of initial elements, the k-th largest is always the smallest value currently in the top-k window; since all four initial stream values are 7, each new addition still leaves 7 as the 4th largest."
     }
   ],
   "constraints": [

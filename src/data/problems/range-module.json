@@ -13,6 +13,16 @@
       "input": "add_range(10,20), remove_range(14,16), query_range(10,14) -> true, query_range(13,15) -> false, query_range(16,17) -> true",
       "output": "[true, false, true]",
       "explanation": "After removing [14,16) from the tracked [10,20), the remaining tracked ranges are [10,14) and [16,20). [10,14) is fully tracked; [13,15) straddles the gap so it's not; [16,17) is inside [16,20) so it is tracked."
+    },
+    {
+      "input": "query_range(1,5) -> false",
+      "output": "[false]",
+      "explanation": "No range has ever been added, so nothing is tracked and any query_range call returns false."
+    },
+    {
+      "input": "add_range(1,5), add_range(5,10), query_range(1,10) -> true",
+      "output": "[true]",
+      "explanation": "Adding [1,5) and then [5,10), which touch exactly at 5, merges them into one continuous tracked range [1,10), so a query covering the full merged span returns true."
     }
   ],
   "constraints": [

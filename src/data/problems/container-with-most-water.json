@@ -21,6 +21,11 @@
       "input": "height = [1,1]",
       "output": "1",
       "explanation": "min(1,1) * (1-0) = 1"
+    },
+    {
+      "input": "height = [4,3,2,1,4]",
+      "output": "16",
+      "explanation": "The two lines at the ends (both height 4) form a container of area min(4,4) * (4-0) = 16, the widest possible container in this array, which also turns out to be optimal."
     }
   ],
   "constraints": [

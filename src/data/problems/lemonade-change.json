@@ -18,6 +18,11 @@
       "input": "bills = [5,5,10,10,20]",
       "output": "false",
       "explanation": "After the first two $5s and two $10s, you have no $5 bills left to give as change for the $20, since $15 change can't be made from two $10 bills alone."
+    },
+    {
+      "input": "bills = [10]",
+      "output": "false",
+      "explanation": "The very first customer pays with a $10, but you start with no bills on hand, so no $5 change can be given."
     }
   ],
   "constraints": [

@@ -20,6 +20,11 @@
       "input": "root = [1,2,2,null,3,null,3]",
       "output": "false",
       "explanation": "The inner values (3 on the left's right side, 3 on the right's right side) don't mirror correctly."
+    },
+    {
+      "input": "root = [1]",
+      "output": "true",
+      "explanation": "A single-node tree has no children to compare, so it is trivially symmetric."
     }
   ],
   "constraints": [

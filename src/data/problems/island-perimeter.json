@@ -19,6 +19,11 @@
       "input": "grid = [[1]]",
       "output": "4",
       "explanation": "A single land cell has all four sides exposed to water."
+    },
+    {
+      "input": "grid = [[1,1],[1,1]]",
+      "output": "8",
+      "explanation": "A solid 2x2 block of land has 4 shared internal edges (contributing 0 each) and 8 outer edges exposed to water."
     }
   ],
   "constraints": [

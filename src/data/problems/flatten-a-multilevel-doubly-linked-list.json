@@ -19,6 +19,11 @@
       "input": "vals = [1,2,3], children = [null, null, null]",
       "output": "[1,2,3]",
       "explanation": "No nodes have children, so the list is already flat."
+    },
+    {
+      "input": "vals = [], children = []",
+      "output": "[]",
+      "explanation": "An empty list (allowed by the constraints, which permit 0 nodes) has nothing to flatten and simply returns an empty array."
     }
   ],
   "constraints": [

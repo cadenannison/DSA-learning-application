@@ -18,6 +18,11 @@
       "input": "n = 6, connections = [[0,1],[0,2],[0,3],[1,2],[1,3]]",
       "output": "2",
       "explanation": "Two extra cables (from the cycles among 0, 1, 2, 3) are available to connect the two isolated computers 4 and 5."
+    },
+    {
+      "input": "n = 4, connections = [[0,1],[0,2]]",
+      "output": "-1",
+      "explanation": "Only 2 cables exist but connecting 4 computers requires at least 3 (a spanning tree needs n - 1 edges), so it's impossible regardless of how cables are rearranged."
     }
   ],
   "constraints": [

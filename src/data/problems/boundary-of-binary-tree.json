@@ -18,6 +18,11 @@
       "input": "root = [1,2,3,4,5,6,7,null,null,null,null,8,9]",
       "output": "[1,2,4,5,8,9,7,3]",
       "explanation": "Root 1, left boundary node 2, leaves left-to-right (4,5,8,9,7), right boundary node 3 (reversed, but it's a single node here)."
+    },
+    {
+      "input": "root = [1]",
+      "output": "[1]",
+      "explanation": "A tree with only a root node has no left/right boundary and the root itself is the only leaf, so the boundary is just [1]."
     }
   ],
   "constraints": [

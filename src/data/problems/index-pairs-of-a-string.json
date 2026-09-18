@@ -18,6 +18,11 @@
       "input": "text = \"ababa\", words = [\"aba\",\"ab\"]",
       "output": "[[0,1],[0,2],[2,3],[2,4]]",
       "explanation": "\"ab\" occurs starting at index 0 and index 2. \"aba\" occurs starting at index 0 and index 2, both overlapping matches are included."
+    },
+    {
+      "input": "text = \"abc\", words = [\"d\"]",
+      "output": "[]",
+      "explanation": "None of the words appear anywhere in text, so the result is an empty list."
     }
   ],
   "constraints": [

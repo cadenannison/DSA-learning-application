@@ -20,6 +20,11 @@
       "input": "nums = [1,2,3], k = 3",
       "output": "2",
       "explanation": "[1,2] and [3] both sum to 3."
+    },
+    {
+      "input": "nums = [-1,-1,1], k = 0",
+      "output": "1",
+      "explanation": "With negative values present, only the subarray [-1,-1,1] (the whole array) sums to exactly 0, showing the prefix-sum approach handles negatives that would break a sliding window."
     }
   ],
   "constraints": [

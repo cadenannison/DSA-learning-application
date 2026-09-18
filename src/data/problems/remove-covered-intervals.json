@@ -18,6 +18,11 @@
       "input": "intervals = [[1,4],[2,3]]",
       "output": "1",
       "explanation": "[2,3] is covered by [1,4]."
+    },
+    {
+      "input": "intervals = [[1,4]]",
+      "output": "1",
+      "explanation": "A single interval has nothing to cover it or be covered by, so it always survives."
     }
   ],
   "constraints": [

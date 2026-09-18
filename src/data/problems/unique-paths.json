@@ -19,6 +19,11 @@
       "input": "m = 3, n = 2",
       "output": "3",
       "explanation": "From the top-left, there are 3 distinct paths to the bottom-right: Right->Down->Down, Down->Right->Down, Down->Down->Right."
+    },
+    {
+      "input": "m = 1, n = 1",
+      "output": "1",
+      "explanation": "At the minimum grid size, the start and end are the same cell, so there's exactly one trivial 'path' (staying put)."
     }
   ],
   "constraints": [

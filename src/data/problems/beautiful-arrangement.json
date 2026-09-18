@@ -16,7 +16,13 @@
     },
     {
       "input": "n = 1",
-      "output": "1"
+      "output": "1",
+      "explanation": "With only one position, [1] trivially satisfies the rule (1 is divisible by 1), so there's exactly one arrangement."
+    },
+    {
+      "input": "n = 3",
+      "output": "3",
+      "explanation": "The valid arrangements are [1,2,3], [2,1,3], and [3,2,1]."
     }
   ],
   "constraints": [

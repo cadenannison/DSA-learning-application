@@ -18,6 +18,11 @@
     {
       "input": "nums = [1]",
       "output": "1"
+    },
+    {
+      "input": "nums = [-3,-1,-2]",
+      "output": "-1",
+      "explanation": "When every number is negative, the best 'contiguous subarray' is just the single largest element, since a subarray must contain at least one number."
     }
   ],
   "constraints": [

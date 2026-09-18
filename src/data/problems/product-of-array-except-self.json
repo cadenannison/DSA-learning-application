@@ -21,6 +21,11 @@
       "input": "nums = [-1,1,0,-3,3]",
       "output": "[0,0,9,0,0]",
       "explanation": "Because there's a single zero, every position except the zero's own index multiplies to 0."
+    },
+    {
+      "input": "nums = [2,3]",
+      "output": "[3,2]",
+      "explanation": "The smallest allowed array length is 2; each position's answer is simply the other element."
     }
   ],
   "constraints": [

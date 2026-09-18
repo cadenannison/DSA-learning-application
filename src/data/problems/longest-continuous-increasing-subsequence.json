@@ -18,6 +18,11 @@
       "input": "nums = [2,2,2,2,2]",
       "output": "1",
       "explanation": "No two adjacent elements are strictly increasing, so the answer is 1."
+    },
+    {
+      "input": "nums = [1,2,3,4,5]",
+      "output": "5",
+      "explanation": "The entire array is strictly increasing, so the whole array is the answer"
     }
   ],
   "constraints": [

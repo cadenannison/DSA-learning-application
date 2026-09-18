@@ -20,6 +20,11 @@
       "input": "numCourses = 2, prerequisites = [[1,0],[0,1]]",
       "output": "false",
       "explanation": "0 depends on 1 and 1 depends on 0 \u2014 a cycle, so neither can ever be taken first."
+    },
+    {
+      "input": "numCourses = 1, prerequisites = []",
+      "output": "true",
+      "explanation": "A single course with no prerequisites has nothing blocking it, so it can always be finished."
     }
   ],
   "constraints": [

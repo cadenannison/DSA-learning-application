@@ -18,6 +18,11 @@
     {
       "input": "nums = [1], k = 1",
       "output": "[1]"
+    },
+    {
+      "input": "nums = [5,5,5,5], k = 1",
+      "output": "[5]",
+      "explanation": "All elements are identical, so there is only one distinct value and it is trivially the most frequent."
     }
   ],
   "constraints": [

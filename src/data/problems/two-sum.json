@@ -20,6 +20,11 @@
     {
       "input": "nums = [3,2,4], target = 6",
       "output": "[1,2]"
+    },
+    {
+      "input": "nums = [3,3], target = 6",
+      "output": "[0,1]",
+      "explanation": "Both elements are equal, showing that duplicate values at different indices can still form a valid pair as long as they aren't the same element used twice."
     }
   ],
   "constraints": [

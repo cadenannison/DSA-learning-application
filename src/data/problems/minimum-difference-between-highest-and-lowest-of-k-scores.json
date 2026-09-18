@@ -18,6 +18,11 @@
       "input": "nums = [9,4,1,7], k = 2",
       "output": "2",
       "explanation": "Sort to [1,4,7,9] and pick two adjacent scores, 7 and 9. Their difference of 2 is the minimum possible."
+    },
+    {
+      "input": "nums = [1,100,50,20], k = 4",
+      "output": "99",
+      "explanation": "Since k equals the array length, all scores must be picked, so the difference is fixed at max - min = 100 - 1 = 99"
     }
   ],
   "constraints": [

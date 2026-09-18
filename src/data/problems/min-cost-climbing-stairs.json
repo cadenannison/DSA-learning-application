@@ -18,6 +18,11 @@
       "input": "cost = [1,100,1,1,1,100,1,1,100,1]",
       "output": "6",
       "explanation": "Start at index 0, pay 1, then use single or double steps landing only on indices 0,2,3,4,6,7,9 to reach the top for a total of 6."
+    },
+    {
+      "input": "cost = [10,10]",
+      "output": "10",
+      "explanation": "At the minimum array length of 2, the cheapest option is to start at index 1 (free) and pay 10 to jump directly past the top."
     }
   ],
   "constraints": [

@@ -17,6 +17,11 @@
     {
       "input": "nums = [44,22,33,11,1], threshold = 5",
       "output": "44"
+    },
+    {
+      "input": "nums = [1,1,1,1], threshold = 4",
+      "output": "1",
+      "explanation": "When threshold equals the array length, divisor 1 already gives the minimum possible sum, so no larger divisor is needed."
     }
   ],
   "constraints": [

@@ -19,6 +19,11 @@
       "input": "root = [1,3,2,5,null,null,9,6,null,null,7]",
       "output": "8",
       "explanation": "The last level's leftmost and rightmost non-null nodes span indices that give a width of 8 once missing nodes in between are accounted for."
+    },
+    {
+      "input": "root = [1]",
+      "output": "1",
+      "explanation": "A single-node tree has only one level containing one node, so its width is 1."
     }
   ],
   "constraints": [

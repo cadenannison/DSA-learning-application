@@ -20,6 +20,11 @@
     {
       "input": "nums = [1], k = 1",
       "output": "[1]"
+    },
+    {
+      "input": "nums = [1,2,3,4,5], k = 5",
+      "output": "[5]",
+      "explanation": "The window size equals the array length, so there's only one window and its max is 5"
     }
   ],
   "constraints": [

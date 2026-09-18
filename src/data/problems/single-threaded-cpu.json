@@ -18,6 +18,11 @@
       "input": "tasks = [[7,10],[7,12],[7,5],[7,4],[7,2]]",
       "output": "[4,3,2,0,1]",
       "explanation": "All tasks become available at time 7 simultaneously, so they run in order of increasing processing time: 2,4,5,10,12 which are tasks 4,3,2,0,1."
+    },
+    {
+      "input": "tasks = [[1,1]]",
+      "output": "[0]",
+      "explanation": "With a single task, it simply runs alone as soon as it becomes available."
     }
   ],
   "constraints": [

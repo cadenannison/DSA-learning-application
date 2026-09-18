@@ -19,6 +19,11 @@
     {
       "input": "nums = [1,5]",
       "output": "10"
+    },
+    {
+      "input": "nums = [7]",
+      "output": "7",
+      "explanation": "With a single balloon, its neighbors are the implicit boundary 1s on both sides, so bursting it scores 1*7*1 = 7."
     }
   ],
   "constraints": [

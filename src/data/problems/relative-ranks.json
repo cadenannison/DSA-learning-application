@@ -18,6 +18,11 @@
       "input": "score = [10,3,8,9,4]",
       "output": "[\"Gold Medal\",\"5\",\"Bronze Medal\",\"Silver Medal\",\"4\"]",
       "explanation": "Sorted descending: 10,9,8,4,3. So 10->Gold, 9->Silver, 8->Bronze, 4->4th, 3->5th, then mapped back to original positions."
+    },
+    {
+      "input": "score = [1]",
+      "output": "[\"Gold Medal\"]",
+      "explanation": "With a single athlete, that athlete automatically takes first place and receives the Gold Medal even though there is no real competition."
     }
   ],
   "constraints": [

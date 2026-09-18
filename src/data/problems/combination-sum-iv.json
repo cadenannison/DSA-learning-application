@@ -20,6 +20,11 @@
       "input": "nums = [9], target = 3",
       "output": "0",
       "explanation": "9 alone can never sum to 3."
+    },
+    {
+      "input": "nums = [1], target = 1",
+      "output": "1",
+      "explanation": "With only one number equal to the target itself, there's exactly one sequence: (1)."
     }
   ],
   "constraints": [

@@ -18,6 +18,11 @@
       "input": "s = \"(()())(())(()(()))\"",
       "output": "()()()()(())",
       "explanation": "The primitive decomposition is \"(()())\" + \"(())\" + \"(()(()))\", giving \"()()\" + \"()\" + \"()(())\"."
+    },
+    {
+      "input": "s = \"()\"",
+      "output": "\"\"",
+      "explanation": "The smallest possible primitive block is just its own outer pair, so removing them leaves an empty string."
     }
   ],
   "constraints": [

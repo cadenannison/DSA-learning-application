@@ -19,6 +19,11 @@
     {
       "input": "head = [1,2,3,4,5]",
       "output": "[1,5,2,4,3]"
+    },
+    {
+      "input": "head = [1]",
+      "output": "[1]",
+      "explanation": "With a single node (the minimum allowed length), there's nothing to interleave, so the list is unchanged."
     }
   ],
   "constraints": [

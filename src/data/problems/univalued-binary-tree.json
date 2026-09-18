@@ -18,6 +18,11 @@
       "input": "root = [2,2,2,5,2]",
       "output": "false",
       "explanation": "One node has the value 5, which differs from the rest."
+    },
+    {
+      "input": "root = [1]",
+      "output": "true",
+      "explanation": "A single-node tree trivially has only one distinct value, so it is univalued by definition."
     }
   ],
   "constraints": [

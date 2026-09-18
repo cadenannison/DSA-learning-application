@@ -15,6 +15,16 @@
       "input": "ops = [[\"push\",-2],[\"push\",0],[\"push\",-3],[\"getMin\",null],[\"pop\",null],[\"top\",null],[\"getMin\",null]]",
       "output": "[-3,0,-2]",
       "explanation": "After pushing -2, 0, -3, the min is -3. Popping removes -3, top is now 0, and the min is back to -2."
+    },
+    {
+      "input": "ops = [[\"push\",5],[\"push\",5],[\"getMin\",null],[\"pop\",null],[\"getMin\",null]]",
+      "output": "[5,5]",
+      "explanation": "Pushing the same value twice still tracks the minimum correctly even after one copy is popped, since the min-stack keeps one entry per push."
+    },
+    {
+      "input": "ops = [[\"push\",1],[\"top\",null],[\"getMin\",null]]",
+      "output": "[1,1]",
+      "explanation": "With a single element on the stack, both top() and getMin() trivially return that same value."
     }
   ],
   "constraints": [

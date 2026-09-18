@@ -19,6 +19,11 @@
     {
       "input": "nums = [2,3,0,1,4]",
       "output": "2"
+    },
+    {
+      "input": "nums = [0]",
+      "output": "0",
+      "explanation": "With only one element, you start already at the last index, so no jumps are needed."
     }
   ],
   "constraints": [

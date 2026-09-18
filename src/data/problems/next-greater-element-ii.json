@@ -17,6 +17,11 @@
     {
       "input": "nums = [1,2,3,4,3]",
       "output": "[2,3,4,-1,4]"
+    },
+    {
+      "input": "nums = [5]",
+      "output": "[-1]",
+      "explanation": "With a single element, even wrapping around circularly just finds itself, not a strictly greater value, so the answer is -1."
     }
   ],
   "constraints": [

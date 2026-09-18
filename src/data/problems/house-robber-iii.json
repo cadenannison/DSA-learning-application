@@ -19,6 +19,11 @@
       "input": "root = [3,4,5,1,3,null,1]",
       "output": "9",
       "explanation": "Rob the two houses valued 4 and 5 (skipping the root) for 4+5=9, which beats other combinations."
+    },
+    {
+      "input": "root = [1]",
+      "output": "1",
+      "explanation": "With only one house and no neighbors to conflict with, the thief simply robs it for the full amount."
     }
   ],
   "constraints": [

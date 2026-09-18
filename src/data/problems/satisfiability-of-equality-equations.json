@@ -18,6 +18,11 @@
       "input": "equations = [\"b==a\",\"a==b\"]",
       "output": "true",
       "explanation": "Both equations agree that a and b must be equal — assign them the same value."
+    },
+    {
+      "input": "equations = [\"a!=a\"]",
+      "output": "false",
+      "explanation": "A variable is trivially equal to itself, so claiming a != a is an immediate self-contradiction with no equal-sign chain needed to detect it."
     }
   ],
   "constraints": [

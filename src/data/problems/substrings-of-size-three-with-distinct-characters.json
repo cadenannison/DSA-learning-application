@@ -18,6 +18,11 @@
       "input": "s = \"aababcabc\"",
       "output": "4",
       "explanation": "The good substrings are \"abc\", \"bca\", \"cab\", and \"abc\" again."
+    },
+    {
+      "input": "s = \"aa\"",
+      "output": "0",
+      "explanation": "The string is shorter than 3 characters, so there are no length-3 substrings at all"
     }
   ],
   "constraints": [

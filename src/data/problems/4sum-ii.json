@@ -18,6 +18,11 @@
     {
       "input": "nums1 = [0], nums2 = [0], nums3 = [0], nums4 = [0]",
       "output": "1"
+    },
+    {
+      "input": "nums1 = [1], nums2 = [1], nums3 = [1], nums4 = [1]",
+      "output": "0",
+      "explanation": "With only one element per array, the only possible sum is 1+1+1+1=4, which never equals 0, so no valid tuples exist."
     }
   ],
   "constraints": [

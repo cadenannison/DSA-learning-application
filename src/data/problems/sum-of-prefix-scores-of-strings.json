@@ -18,6 +18,11 @@
       "input": "words = [\"abcd\"]",
       "output": "[4]",
       "explanation": "Every prefix of \"abcd\" (\"a\",\"ab\",\"abc\",\"abcd\") has score 1 since only one word exists, summing to 4."
+    },
+    {
+      "input": "words = [\"x\",\"y\",\"z\"]",
+      "output": "[1,1,1]",
+      "explanation": "Each word shares no prefix with any other word, so every word's only prefix (itself) has score 1."
     }
   ],
   "constraints": [

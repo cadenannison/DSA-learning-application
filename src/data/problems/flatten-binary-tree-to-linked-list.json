@@ -18,6 +18,11 @@
     {
       "input": "root = []",
       "output": "[]"
+    },
+    {
+      "input": "root = [0]",
+      "output": "[0]",
+      "explanation": "A single-node tree is already a valid flattened list of length one; left is already null and there's no right child to chain."
     }
   ],
   "constraints": [

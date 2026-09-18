@@ -20,6 +20,11 @@
       "input": "points = [[3,3],[5,-1],[-2,4]], k = 2",
       "output": "[[-2,4],[3,3]]",
       "explanation": "The distances are sqrt(18), sqrt(26), sqrt(20). The two closest are (3,3) and (-2,4), returned here in the order this solution's heap produces them (any order is accepted)."
+    },
+    {
+      "input": "points = [[0,0]], k = 1",
+      "output": "[[0,0]]",
+      "explanation": "A single point at the origin itself has distance 0, and k equals the total number of points, so it is trivially the answer."
     }
   ],
   "constraints": [

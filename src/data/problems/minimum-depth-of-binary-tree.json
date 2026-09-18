@@ -19,6 +19,11 @@
       "input": "root = [2,null,3,null,4,null,5,null,6]",
       "output": "5",
       "explanation": "The tree is a single chain with no branching, so the only leaf is at depth 5."
+    },
+    {
+      "input": "root = []",
+      "output": "0",
+      "explanation": "An empty tree has no nodes, so its minimum depth is 0."
     }
   ],
   "constraints": [

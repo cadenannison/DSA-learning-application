@@ -19,6 +19,11 @@
       "input": "gas = [2,3,4], cost = [3,4,3]",
       "output": "-1",
       "explanation": "No starting station allows completing the circuit."
+    },
+    {
+      "input": "gas = [5], cost = [4]",
+      "output": "0",
+      "explanation": "With a single station, starting there works as long as its own gas covers the cost to loop back to itself."
     }
   ],
   "constraints": [

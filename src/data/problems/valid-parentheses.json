@@ -18,6 +18,11 @@
     {
       "input": "s = \"(]\"",
       "output": "false"
+    },
+    {
+      "input": "s = \"(\"",
+      "output": "false",
+      "explanation": "A single unclosed opening bracket leaves the stack non-empty at the end, so the string is invalid."
     }
   ],
   "constraints": [

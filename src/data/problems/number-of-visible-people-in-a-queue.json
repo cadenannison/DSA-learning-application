@@ -17,6 +17,11 @@
     {
       "input": "heights = [5,1,2,3,10]",
       "output": "[4,1,1,1,0]"
+    },
+    {
+      "input": "heights = [1]",
+      "output": "[0]",
+      "explanation": "A single person has nobody to their right, so they see 0 people."
     }
   ],
   "constraints": [

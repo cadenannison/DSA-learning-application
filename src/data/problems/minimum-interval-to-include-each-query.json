@@ -18,6 +18,11 @@
       "input": "intervals = [[2,3],[2,5],[1,8],[20,25]], queries = [2,19,5,22]",
       "output": "[2,-1,4,6]",
       "explanation": "Query 19 isn't covered by any interval, so its answer is -1."
+    },
+    {
+      "input": "intervals = [[1,2]], queries = [3]",
+      "output": "[-1]",
+      "explanation": "When no interval contains the query at all, the answer is -1 rather than the size of some nearby interval."
     }
   ],
   "constraints": [

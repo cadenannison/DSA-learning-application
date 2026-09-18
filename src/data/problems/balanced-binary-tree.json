@@ -20,6 +20,11 @@
       "input": "root = [1,2,2,3,3,null,null,4,4]",
       "output": "false",
       "explanation": "The subtree rooted at the second node with value 2 has a left height of 2 and right height of 0, differing by more than 1."
+    },
+    {
+      "input": "root = []",
+      "output": "true",
+      "explanation": "An empty tree has no nodes to violate the balance condition, so it is trivially balanced."
     }
   ],
   "constraints": [

@@ -19,6 +19,11 @@
       "input": "nums = [0,1,2,2,3,0,4,2], val = 2",
       "output": "5",
       "explanation": "The first five elements can be [0,1,4,0,3] in some order; k = 5."
+    },
+    {
+      "input": "nums = [], val = 1",
+      "output": "0",
+      "explanation": "An empty array has nothing to remove, so k = 0, the minimum-size input allowed by the constraints."
     }
   ],
   "constraints": [

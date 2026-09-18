@@ -17,6 +17,11 @@
       "input": "n = 1",
       "output": "false",
       "explanation": "Alice has no valid divisor to pick (no 0 < x < 1), so she loses immediately."
+    },
+    {
+      "input": "n = 1000",
+      "output": "true",
+      "explanation": "At the maximum constraint boundary, n is even, so Alice can always subtract 1 to hand Bob an odd number and eventually force him into a losing position."
     }
   ],
   "constraints": [

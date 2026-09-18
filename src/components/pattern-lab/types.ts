@@ -27,6 +27,14 @@ export interface ArrayStep {
   cells: (number | null)[];
   current?: number;
   source?: number;
+  /**
+   * Optional shaded range [left, right] (inclusive, indices into `cells`) —
+   * use for a sliding window or a two-pointer span. Omit for plain DP arrays.
+   */
+  left?: number;
+  right?: number;
+  /** Optional side panel(s) below the array — a stack, deque, or monotonic queue's live contents. */
+  panels?: NodePanel[];
   note: string;
 }
 
@@ -59,6 +67,24 @@ export interface NodeItem {
   /** Short label under the node id, e.g. "indeg 2", "dist 6", "root 3". */
   label: string;
   state: '' | 'current' | 'frontier' | 'done';
+  /**
+   * Optional layout position, 0-100 in each axis, on a shared viewBox.
+   * When every node in a step carries x/y, NodeViz draws an actual
+   * positioned tree/graph with SVG edges instead of a flat chip grid —
+   * use this for trees, tries, linked lists, and DFS/BFS-over-a-graph.
+   */
+  x?: number;
+  y?: number;
+}
+
+export interface NodeEdge {
+  from: number | string;
+  to: number | string;
+  /** Optional edge label, e.g. a weight or a "left"/"right"/"next" tag. */
+  label?: string | number;
+  state?: '' | 'active' | 'done';
+  /** true draws an arrowhead at `to` (directed edges: next-pointers, DAG edges). */
+  directed?: boolean;
 }
 
 export interface NodePanel {
@@ -74,6 +100,13 @@ export interface NodeStep {
   /** Pre-formatted adjacency list, one line per node, joined with <br/>. */
   adjHtml?: string;
   note: string;
+  /**
+   * When present (together with x/y on every node), nodes render as a
+   * positioned graph/tree with drawn SVG edges instead of the flat chip
+   * grid. Omit both for the original flat layout (topological sort,
+   * Dijkstra, Union-Find style panels).
+   */
+  edges?: NodeEdge[];
 }
 
 export type TraceStep = ArrayStep | MatrixStep | GridStep | NodeStep;

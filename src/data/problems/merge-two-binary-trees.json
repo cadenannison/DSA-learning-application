@@ -19,6 +19,11 @@
       "input": "root1 = [1], root2 = []",
       "output": "[1]",
       "explanation": "With nothing to merge into, root1 is used unchanged."
+    },
+    {
+      "input": "root1 = [], root2 = []",
+      "output": "[]",
+      "explanation": "Merging two empty trees produces an empty tree, since there are no nodes on either side."
     }
   ],
   "constraints": [

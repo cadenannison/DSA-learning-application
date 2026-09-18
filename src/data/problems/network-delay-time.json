@@ -19,6 +19,11 @@
       "input": "times = [[1,2,1]], n = 2, k = 1",
       "output": "1",
       "explanation": "Node 2 receives the signal after 1 unit of time."
+    },
+    {
+      "input": "times = [[1,2,1]], n = 2, k = 2",
+      "output": "-1",
+      "explanation": "The only edge goes from 1 to 2, so starting from node 2 there's no way to reach node 1 — the signal never reaches all nodes."
     }
   ],
   "constraints": [

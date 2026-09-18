@@ -21,6 +21,11 @@
       "input": "nums = [3,2,3,1,2,4,5,5,6], k = 4",
       "output": "4",
       "explanation": "Sorted descending: [6,5,5,4,3,3,2,2,1]. The 4th largest is 4."
+    },
+    {
+      "input": "nums = [1], k = 1",
+      "output": "1",
+      "explanation": "With a single-element array and k=1, the only element is trivially both the largest and the answer."
     }
   ],
   "constraints": [

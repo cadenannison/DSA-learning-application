@@ -18,6 +18,11 @@
       "input": "dictionary = [\"a\",\"ab\"], queries = [\"a\",\"b\"]",
       "output": "[false,true]",
       "explanation": "\"a\" matches itself with 0 changes (doesn't count) and can't reach \"ab\" (different length). \"b\" becomes \"a\" with exactly one change."
+    },
+    {
+      "input": "dictionary = [\"a\"], queries = [\"a\",\"b\"]",
+      "output": "[false,true]",
+      "explanation": "With a single-character dictionary word, \"a\" matches itself with zero changes (doesn't count), while \"b\" becomes \"a\" with exactly one change, the smallest possible query length."
     }
   ],
   "constraints": [

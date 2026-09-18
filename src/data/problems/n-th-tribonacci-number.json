@@ -17,6 +17,11 @@
     {
       "input": "n = 25",
       "output": "1389537"
+    },
+    {
+      "input": "n = 0",
+      "output": "0",
+      "explanation": "At the minimum boundary n = 0, the answer is the base case T0 = 0 directly."
     }
   ],
   "constraints": [

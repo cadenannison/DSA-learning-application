@@ -20,6 +20,11 @@
       "input": "root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 4",
       "output": "2",
       "explanation": "Node 4 is a descendant of node 2, so 2 is its own LCA with node 4."
+    },
+    {
+      "input": "root = [2,1], p = 2, q = 1",
+      "output": "2",
+      "explanation": "With the minimum-size tree of two nodes, the root is an ancestor of its only child, so it is the LCA."
     }
   ],
   "constraints": [

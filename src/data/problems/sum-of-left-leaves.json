@@ -19,6 +19,11 @@
       "input": "root = [1]",
       "output": "0",
       "explanation": "The root has no parent, so even though it's a leaf, it can't be a left leaf."
+    },
+    {
+      "input": "root = [1,null,2]",
+      "output": "0",
+      "explanation": "The only leaf (2) is a right child, not a left child, so it doesn't contribute to the sum."
     }
   ],
   "constraints": [

@@ -18,6 +18,11 @@
       "input": "products = [\"havana\"], searchWord = \"havana\"",
       "output": "[[\"havana\"],[\"havana\"],[\"havana\"],[\"havana\"],[\"havana\"],[\"havana\"]]",
       "explanation": "The single product matches every prefix of the search word."
+    },
+    {
+      "input": "products = [\"havana\"], searchWord = \"tatiana\"",
+      "output": "[[],[],[],[],[],[],[]]",
+      "explanation": "No product shares even a one-character prefix with \"tatiana\" ('t' vs 'h'), so every prefix length yields an empty suggestion list."
     }
   ],
   "constraints": [

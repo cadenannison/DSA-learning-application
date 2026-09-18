@@ -19,6 +19,11 @@
       "input": "words = [\"a\",\"\"]",
       "output": "[[0,1],[1,0]]",
       "explanation": "\"a\"+\"\"=\"a\" is a palindrome, and \"\"+\"a\"=\"a\" is also a palindrome."
+    },
+    {
+      "input": "words = [\"bat\",\"tab\",\"cat\"]",
+      "output": "[[0,1],[1,0]]",
+      "explanation": "\"bat\"+\"tab\"=\"battab\" and \"tab\"+\"bat\"=\"tabbat\" are palindromes, but \"cat\" cannot pair with either word since no combination forms a palindrome, so it never appears in the output."
     }
   ],
   "constraints": [

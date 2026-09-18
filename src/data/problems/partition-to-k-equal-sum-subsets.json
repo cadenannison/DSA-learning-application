@@ -19,6 +19,11 @@
       "input": "nums = [1,2,3,4], k = 3",
       "output": "false",
       "explanation": "The total is 10, which isn't divisible by 3, so equal-sum subsets are impossible."
+    },
+    {
+      "input": "nums = [1,1,1,1], k = 4",
+      "output": "true",
+      "explanation": "Each subset is forced to be a single element (target sum = 1), which trivially works since all elements already equal the target."
     }
   ],
   "constraints": [

@@ -20,6 +20,11 @@
       "input": "n = 1",
       "output": "1",
       "explanation": "A single queen on a 1x1 board trivially doesn't attack anything."
+    },
+    {
+      "input": "n = 2",
+      "output": "0",
+      "explanation": "On a 2x2 board, any two queens always share a row, column, or diagonal, so no valid placement exists."
     }
   ],
   "constraints": [

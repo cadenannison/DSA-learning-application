@@ -17,6 +17,11 @@
     {
       "input": "s = \"cbacdcbc\"",
       "output": "\"acdb\""
+    },
+    {
+      "input": "s = \"a\"",
+      "output": "\"a\"",
+      "explanation": "A single-character string has no duplicates to remove, so it is returned unchanged."
     }
   ],
   "constraints": [

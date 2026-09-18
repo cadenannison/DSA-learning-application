@@ -5,20 +5,8 @@ import { use, useEffect, useState } from "react"
 import { PatternLessonPresenter } from "@/presenter/pattern-lesson-presenter"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { PageShell } from "@/components/ui/page-shell"
-import { BinarySearchDemo } from "@/components/lessons/binary-search-demo"
-import { BfsDfsDemo } from "@/components/lessons/bfs-dfs-demo"
-import { SlidingWindowDemo } from "@/components/lessons/sliding-window-demo"
-import { TwoPointersDemo } from "@/components/lessons/two-pointers-demo"
-import { LinkedListDemo } from "@/components/lessons/linked-list-demo"
-import { TreesDemo } from "@/components/lessons/trees-demo"
-import { HeapsDemo } from "@/components/lessons/heaps-demo"
-import { BacktrackingDemo } from "@/components/lessons/backtracking-demo"
-import { IntervalsDemo } from "@/components/lessons/intervals-demo"
-import { GraphsDemo } from "@/components/lessons/graphs-demo"
-import { DynamicProgrammingDemo } from "@/components/lessons/dynamic-programming-demo"
-import { GreedyDemo } from "@/components/lessons/greedy-demo"
-import { TriesDemo } from "@/components/lessons/tries-demo"
-import { StacksQueuesDemo } from "@/components/lessons/stacks-queues-demo"
+import { PatternLab } from "@/components/pattern-lab"
+import { PATTERNS as PATTERN_LAB_PATTERNS } from "@/components/pattern-lab/content"
 import type { DsaPattern, PatternLesson, ProblemSummary } from "@/types"
 
 const DIFFICULTY_COLORS: Record<ProblemSummary["difficulty"], string> = {
@@ -27,39 +15,24 @@ const DIFFICULTY_COLORS: Record<ProblemSummary["difficulty"], string> = {
   hard: "text-danger",
 }
 
-function Demo({ lesson }: { lesson: PatternLesson }) {
-  switch (lesson.demoKind) {
-    case "two-pointers":
-      return <TwoPointersDemo />
-    case "sliding-window":
-      return <SlidingWindowDemo />
-    case "binary-search":
-      return <BinarySearchDemo />
-    case "bfs-dfs":
-      return <BfsDfsDemo />
-    case "linked-list":
-      return <LinkedListDemo />
-    case "trees":
-      return <TreesDemo />
-    case "heaps":
-      return <HeapsDemo />
-    case "backtracking":
-      return <BacktrackingDemo />
-    case "intervals":
-      return <IntervalsDemo />
-    case "graphs":
-      return <GraphsDemo />
-    case "dynamic-programming":
-      return <DynamicProgrammingDemo />
-    case "greedy":
-      return <GreedyDemo />
-    case "tries":
-      return <TriesDemo />
-    case "stacks-queues":
-      return <StacksQueuesDemo />
-    default:
-      return null
-  }
+/** Maps this app's DsaPattern id to Pattern Lab's own internal Pattern id — they differ for dp
+ * ("dynamic-programming" vs "dp") and two pointers ("arrays-two-pointers" vs "two-pointers").
+ * All 14 patterns now have Pattern Lab content (see src/components/pattern-lab/content). */
+const PATTERN_LAB_IDS: Record<DsaPattern, string> = {
+  "arrays-two-pointers": "two-pointers",
+  "sliding-window": "sliding-window",
+  "binary-search": "binary-search",
+  "linked-list": "linked-list",
+  trees: "trees",
+  "bfs-dfs": "bfs-dfs",
+  heaps: "heaps",
+  backtracking: "backtracking",
+  intervals: "intervals",
+  graphs: "graphs",
+  "dynamic-programming": "dp",
+  greedy: "greedy",
+  tries: "tries",
+  "stacks-queues": "stacks-queues",
 }
 
 export default function PatternLessonPage({ params }: { params: Promise<{ pattern: string }> }) {
@@ -105,27 +78,9 @@ export default function PatternLessonPage({ params }: { params: Promise<{ patter
         <span>Space: {lesson.spaceComplexity}</span>
       </div>
 
-      <div className="mt-6 space-y-3 text-sm leading-relaxed text-text-1">
-        {lesson.explanation.map((paragraph, index) => (
-          <p key={index}>{paragraph}</p>
-        ))}
-      </div>
-
       <div className="mt-6">
-        <h2 className="mb-2 text-sm font-medium text-text-1">When to use it</h2>
-        <ul className="list-inside list-disc space-y-1 text-sm text-text-2">
-          {lesson.whenToUse.map((item, index) => (
-            <li key={index}>{item}</li>
-          ))}
-        </ul>
+        <PatternLab patterns={PATTERN_LAB_PATTERNS} initialPatternId={PATTERN_LAB_IDS[lesson.pattern]} />
       </div>
-
-      {lesson.demoKind !== "none" && (
-        <div className="mt-6">
-          <h2 className="mb-2 text-sm font-medium text-text-1">Try it</h2>
-          <Demo lesson={lesson} />
-        </div>
-      )}
 
       {relatedProblems.length > 0 && (
         <div className="mt-6">

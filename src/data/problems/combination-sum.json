@@ -20,6 +20,11 @@
     {
       "input": "candidates = [2,3,5], target = 8",
       "output": "[[2,2,2,2],[2,3,3],[3,5]]"
+    },
+    {
+      "input": "candidates = [2], target = 1",
+      "output": "[]",
+      "explanation": "The only candidate (2) already exceeds the target (1), so no combination can reach it, even with repetition allowed."
     }
   ],
   "constraints": [

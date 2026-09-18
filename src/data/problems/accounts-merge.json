@@ -19,6 +19,11 @@
       "input": "accounts = [[\"Gabe\",\"Gabe0@m.co\",\"Gabe3@m.co\",\"Gabe1@m.co\"],[\"Kevin\",\"Kevin3@m.co\",\"Kevin5@m.co\",\"Kevin0@m.co\"],[\"Ethan\",\"Ethan5@m.co\",\"Ethan4@m.co\",\"Ethan0@m.co\"]]",
       "output": "[[\"Gabe\",\"Gabe0@m.co\",\"Gabe1@m.co\",\"Gabe3@m.co\"],[\"Kevin\",\"Kevin0@m.co\",\"Kevin3@m.co\",\"Kevin5@m.co\"],[\"Ethan\",\"Ethan0@m.co\",\"Ethan4@m.co\",\"Ethan5@m.co\"]]",
       "explanation": "No accounts share any email, so each stays its own group, just with sorted emails."
+    },
+    {
+      "input": "accounts = [[\"A\",\"a1@m.co\",\"a2@m.co\"],[\"B\",\"a2@m.co\",\"a3@m.co\"],[\"C\",\"a3@m.co\",\"a4@m.co\"]]",
+      "output": "[[\"C\",\"a1@m.co\",\"a2@m.co\",\"a3@m.co\",\"a4@m.co\"]]",
+      "explanation": "Chained sharing (A-B via a2, B-C via a3) transitively merges all three accounts into one group, even though A and C share no email directly; the last-seen name (C) is used."
     }
   ],
   "constraints": [

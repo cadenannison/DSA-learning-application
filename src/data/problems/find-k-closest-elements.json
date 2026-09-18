@@ -18,6 +18,11 @@
     {
       "input": "arr = [1,2,3,4,5], k = 4, x = -1",
       "output": "[1,2,3,4]"
+    },
+    {
+      "input": "arr = [1,2,3], k = 3, x = 2",
+      "output": "[1,2,3]",
+      "explanation": "When k equals the length of arr, every element must be included, regardless of x."
     }
   ],
   "constraints": [

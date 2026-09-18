@@ -18,6 +18,11 @@
     {
       "input": "nums = [0]",
       "output": "[[],[0]]"
+    },
+    {
+      "input": "nums = []",
+      "output": "[[]]",
+      "explanation": "An empty input array still has one subset: the empty set itself."
     }
   ],
   "constraints": [

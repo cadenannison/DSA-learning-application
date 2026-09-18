@@ -19,6 +19,11 @@
       "input": "isConnected = [[1,0,0],[0,1,0],[0,0,1]]",
       "output": "3",
       "explanation": "No two cities are connected, so each city is its own province."
+    },
+    {
+      "input": "isConnected = [[1]]",
+      "output": "1",
+      "explanation": "A single city (with only the required self-connection) forms exactly one province by itself."
     }
   ],
   "constraints": [

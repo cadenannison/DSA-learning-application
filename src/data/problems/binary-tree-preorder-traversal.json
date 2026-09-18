@@ -18,6 +18,11 @@
     {
       "input": "root = [1,2,3,4,5,null,8,null,null,6,7,9]",
       "output": "[1,2,4,5,6,7,3,8,9]"
+    },
+    {
+      "input": "root = []",
+      "output": "[]",
+      "explanation": "An empty tree has no nodes to visit, so the traversal result is an empty list."
     }
   ],
   "constraints": [

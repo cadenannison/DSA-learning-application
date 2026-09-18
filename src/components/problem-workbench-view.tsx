@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
 import { CodeEditor } from "@/components/code-editor"
 import { PythonSyntaxReference } from "@/components/python-syntax-reference"
@@ -10,19 +11,23 @@ import type { ExecutionResult, Problem, TestCaseResult } from "@/types"
 
 function HorizontalResizeHandle() {
   return (
-    <PanelResizeHandle className="group relative w-2 shrink-0 cursor-col-resize bg-transparent">
-      <div className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-border transition-colors group-hover:bg-accent group-data-[resize-handle-active]:bg-accent" />
+    <PanelResizeHandle className="group relative w-3 shrink-0 cursor-col-resize bg-transparent">
+      <div className="absolute inset-y-0 left-1/2 w-1.5 -translate-x-1/2 rounded-full bg-border transition-colors group-hover:bg-accent group-data-[resize-handle-active]:bg-accent" />
     </PanelResizeHandle>
   )
 }
 
 function VerticalResizeHandle() {
   return (
-    <PanelResizeHandle className="group relative h-2 shrink-0 cursor-row-resize bg-transparent">
-      <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-border transition-colors group-hover:bg-accent group-data-[resize-handle-active]:bg-accent" />
+    <PanelResizeHandle className="group relative h-3 shrink-0 cursor-row-resize bg-transparent">
+      <div className="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-border transition-colors group-hover:bg-accent group-data-[resize-handle-active]:bg-accent" />
     </PanelResizeHandle>
   )
 }
+
+const FONT_SCALE_MIN = 0.7
+const FONT_SCALE_MAX = 2
+const FONT_SCALE_STEP = 0.1
 
 /** Shared three-pane problem-solving layout: prompt/constraints/hints on the left, the code
  * editor top-right, and an interactive test-case viewer + results bottom-right. Used by both
@@ -39,6 +44,7 @@ export function ProblemWorkbenchView({
   caseResults,
   onRun,
   onRunCase,
+  onResetCase,
   onSubmit,
   onResetCode,
   submitLabel = "Submit",
@@ -56,6 +62,8 @@ export function ProblemWorkbenchView({
   caseResults: Record<number, TestCaseResult>
   onRun: () => void
   onRunCase: (index: number) => void
+  /** Clears a single case's run result, returning it to its initial, un-run state. */
+  onResetCase: (index: number) => void
   onSubmit: () => void
   onResetCode: () => void
   submitLabel?: string
@@ -66,18 +74,48 @@ export function ProblemWorkbenchView({
    * rather than being auto-redirected away from it. */
   afterResult?: React.ReactNode
 }) {
+  const [fontScale, setFontScale] = useState(1)
+
+  function adjustFontScale(delta: number) {
+    setFontScale((prev) => {
+      const next = Math.round((prev + delta) * 100) / 100
+      return Math.min(FONT_SCALE_MAX, Math.max(FONT_SCALE_MIN, next))
+    })
+  }
+
   return (
     <PanelGroup direction="horizontal" className="flex-1 overflow-hidden">
       <Panel defaultSize={35} minSize={20}>
         <div className="h-full space-y-4 overflow-y-auto p-6">
-          <div>
-            <h1 className="font-display text-xl font-semibold text-text-1">{problem.title}</h1>
-            <div className="mt-1 font-mono text-xs text-text-2">
-              {problem.pattern} · {problem.difficulty}
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h1 className="font-display text-xl font-semibold text-text-1">{problem.title}</h1>
+              <div className="mt-1 font-mono text-xs text-text-2">
+                {problem.pattern} · {problem.difficulty}
+              </div>
             </div>
+            <ResetCodeButton onReset={onResetCode} />
           </div>
 
           <p className="whitespace-pre-wrap text-sm text-text-1">{problem.prompt}</p>
+
+          <div>
+            <h2 className="mb-2 text-sm font-medium text-text-1">Examples</h2>
+            <ul className="space-y-2">
+              {problem.examples.map((example, index) => (
+                <li
+                  key={index}
+                  className="rounded-card border border-border bg-surface p-3 font-mono text-xs text-text-1"
+                >
+                  <div>Input: {example.input}</div>
+                  <div>Output: {example.output}</div>
+                  {example.explanation && (
+                    <div className="mt-1 font-sans text-text-2">{example.explanation}</div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
 
           <div>
             <h2 className="mb-2 text-sm font-medium text-text-1">Constraints</h2>
@@ -120,13 +158,19 @@ export function ProblemWorkbenchView({
 
       <Panel defaultSize={65} minSize={30}>
         <PanelGroup direction="vertical">
-          <Panel defaultSize={60} minSize={20}>
-            <div className="flex h-full flex-col gap-3 p-6">
-              <div className="min-h-0 flex-1">
-                <CodeEditor value={code} onChange={onChangeCode} height="100%" />
+          <Panel defaultSize={65} minSize={20} maxSize={85}>
+            <div className="flex h-full min-h-0 flex-col overflow-hidden p-6">
+              <div className="min-h-0 flex-1 overflow-hidden">
+                <CodeEditor value={code} onChange={onChangeCode} height="100%" fontScale={fontScale} />
               </div>
+            </div>
+          </Panel>
 
-              <div className="flex shrink-0 gap-2">
+          <VerticalResizeHandle />
+
+          <Panel defaultSize={35} minSize={15}>
+            <div className="flex h-full flex-col overflow-hidden">
+              <div className="flex shrink-0 items-center gap-2 border-b border-border p-4">
                 <button
                   onClick={onRun}
                   disabled={running}
@@ -141,31 +185,45 @@ export function ProblemWorkbenchView({
                 >
                   {submitLabel}
                 </button>
-                <ResetCodeButton onReset={onResetCode} />
+
+                <div className="ml-auto flex items-center gap-1">
+                  <span className="text-xs text-text-2">Editor size</span>
+                  <button
+                    onClick={() => adjustFontScale(-FONT_SCALE_STEP)}
+                    disabled={fontScale <= FONT_SCALE_MIN}
+                    aria-label="Decrease editor text size"
+                    className="flex min-h-[32px] min-w-[32px] items-center justify-center rounded-control border border-border text-sm text-text-2 hover:bg-surface-2 hover:text-text-1 disabled:opacity-50"
+                  >
+                    −
+                  </button>
+                  <button
+                    onClick={() => adjustFontScale(FONT_SCALE_STEP)}
+                    disabled={fontScale >= FONT_SCALE_MAX}
+                    aria-label="Increase editor text size"
+                    className="flex min-h-[32px] min-w-[32px] items-center justify-center rounded-control border border-border text-sm text-text-2 hover:bg-surface-2 hover:text-text-1 disabled:opacity-50"
+                  >
+                    +
+                  </button>
+                </div>
               </div>
-            </div>
-          </Panel>
 
-          <VerticalResizeHandle />
-
-          <Panel defaultSize={40} minSize={20}>
-            <div className="flex h-full flex-col overflow-hidden">
-              <div className="min-h-0 flex-1 overflow-hidden">
+              <div className="min-h-0 flex-1 overflow-y-auto">
                 <TestCasePanel
                   testCases={problem.testCases}
                   paramNames={problem.paramNames}
                   onRunCase={onRunCase}
+                  onResetCase={onResetCase}
                   running={running}
                   caseResults={caseResults}
                 />
-              </div>
 
-              {result && (
-                <div className="shrink-0 space-y-4 overflow-y-auto border-t border-border p-4">
-                  <TestResults result={result} />
-                  {afterResult}
-                </div>
-              )}
+                {result && (
+                  <div className="space-y-4 border-t border-border p-4">
+                    <TestResults result={result} />
+                    {afterResult}
+                  </div>
+                )}
+              </div>
             </div>
           </Panel>
         </PanelGroup>

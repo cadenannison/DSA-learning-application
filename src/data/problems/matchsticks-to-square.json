@@ -18,6 +18,11 @@
       "input": "matchsticks = [3,3,3,3,4]",
       "output": "false",
       "explanation": "The total length 16 would require side length 4, but the matchsticks can't be grouped into four sides of length 4 each."
+    },
+    {
+      "input": "matchsticks = [1]",
+      "output": "false",
+      "explanation": "A square needs at least 4 sticks (one per side), so a single matchstick can never form one."
     }
   ],
   "constraints": [

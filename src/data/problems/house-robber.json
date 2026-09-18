@@ -21,6 +21,11 @@
       "input": "nums = [2,7,9,3,1]",
       "output": "12",
       "explanation": "Rob house 0 (2), house 2 (9), and house 4 (1): total = 2 + 9 + 1 = 12."
+    },
+    {
+      "input": "nums = [5]",
+      "output": "5",
+      "explanation": "With only one house and no neighbor to worry about, the best strategy is to rob it outright."
     }
   ],
   "constraints": [

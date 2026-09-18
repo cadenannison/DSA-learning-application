@@ -19,6 +19,11 @@
     {
       "input": "preorder = [-1], inorder = [-1]",
       "output": "[-1]"
+    },
+    {
+      "input": "preorder = [1,2], inorder = [2,1]",
+      "output": "[1,2]",
+      "explanation": "With only two nodes, 1 is the root and 2 (appearing before 1 in inorder) is entirely its left subtree."
     }
   ],
   "constraints": [

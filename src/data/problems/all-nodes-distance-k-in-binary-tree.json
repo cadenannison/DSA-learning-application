@@ -18,6 +18,11 @@
     {
       "input": "root = [1], target = 1, k = 3",
       "output": "[]"
+    },
+    {
+      "input": "root = [1], target = 1, k = 0",
+      "output": "[1]",
+      "explanation": "With a single-node tree and k = 0, the only node at distance 0 from itself is the target node."
     }
   ],
   "constraints": [

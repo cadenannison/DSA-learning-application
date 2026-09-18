@@ -17,6 +17,11 @@
     {
       "input": "nums = [0,1,0,1,0,1,99]",
       "output": "99"
+    },
+    {
+      "input": "nums = [1]",
+      "output": "1",
+      "explanation": "With only one element, it is trivially the single number since there are no triples to cancel out."
     }
   ],
   "constraints": [

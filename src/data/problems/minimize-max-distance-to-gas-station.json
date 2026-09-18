@@ -16,6 +16,11 @@
     {
       "input": "stations = [23,24,36,39,46,56,57,65,84,98], k = 1",
       "output": "14.0"
+    },
+    {
+      "input": "stations = [0,10], k = 1",
+      "output": "5.0",
+      "explanation": "With just two stations and one addition, placing it exactly in the middle halves the single gap."
     }
   ],
   "constraints": [

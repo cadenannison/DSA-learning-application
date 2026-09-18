@@ -16,6 +16,16 @@
       "input": "capacity = 2, ops = [[\"put\",1,1],[\"put\",2,2],[\"get\",1],[\"put\",3,3],[\"get\",2],[\"put\",4,4],[\"get\",1],[\"get\",3],[\"get\",4]]",
       "output": "[1,-1,-1,3,4]",
       "explanation": "Capacity 2: after put(1,1) and put(2,2), get(1) returns 1 and marks 1 as most recent. put(3,3) evicts key 2 (least recently used). get(2) returns -1. put(4,4) evicts key 1. get(1)=-1, get(3)=3, get(4)=4."
+    },
+    {
+      "input": "capacity = 1, ops = [[\"put\",1,1],[\"put\",2,2],[\"get\",1],[\"get\",2]]",
+      "output": "[-1,2]",
+      "explanation": "With the smallest allowed capacity (1), put(2,2) immediately evicts key 1 since the cache can only ever hold one entry. get(1) returns -1 and get(2) returns 2."
+    },
+    {
+      "input": "capacity = 2, ops = [[\"put\",1,1],[\"put\",1,10],[\"get\",1]]",
+      "output": "[10]",
+      "explanation": "put on an already-present key updates its value in place (and marks it most recently used) rather than inserting a second entry, so get(1) reflects the latest value."
     }
   ],
   "constraints": [

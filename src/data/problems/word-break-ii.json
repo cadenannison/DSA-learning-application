@@ -20,6 +20,11 @@
       "input": "s = \"catsandog\", wordDict = [\"cats\",\"dog\",\"sand\",\"and\",\"cat\"]",
       "output": "[]",
       "explanation": "No valid segmentation exists for \"catsandog\"."
+    },
+    {
+      "input": "s = \"a\", wordDict = [\"a\"]",
+      "output": "[\"a\"]",
+      "explanation": "The smallest possible input: a single-character string that exactly matches a single-word dictionary entry."
     }
   ],
   "constraints": [

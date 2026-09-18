@@ -17,7 +17,13 @@
     },
     {
       "input": "n = 1, k = 1",
-      "output": "[[1]]"
+      "output": "[[1]]",
+      "explanation": "The smallest possible input: choosing 1 number from a range of size 1 gives a single combination."
+    },
+    {
+      "input": "n = 3, k = 3",
+      "output": "[[1,2,3]]",
+      "explanation": "When k equals n, every element must be chosen, so there is exactly one combination."
     }
   ],
   "constraints": [

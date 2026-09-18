@@ -19,6 +19,11 @@
       "input": "grid = [[0,0,1,1,0],[0,1,1,1,0],[0,1,1,0,0]]",
       "output": "0",
       "explanation": "Every island of land touches the border, so none are closed."
+    },
+    {
+      "input": "grid = [[1,1,1],[1,0,1],[1,1,1]]",
+      "output": "1",
+      "explanation": "A single land cell sits in the exact center, fully surrounded by water on all sides and never touching the border, forming one closed island."
     }
   ],
   "constraints": [

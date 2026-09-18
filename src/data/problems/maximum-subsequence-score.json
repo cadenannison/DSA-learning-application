@@ -18,6 +18,11 @@
       "input": "nums1 = [4,2,3,1,1], nums2 = [7,5,10,9,6], k = 1",
       "output": "30",
       "explanation": "Choose index 2: sum=3, min=10, score=30."
+    },
+    {
+      "input": "nums1 = [1], nums2 = [1], k = 1",
+      "output": "1",
+      "explanation": "With n=1 and k=1, the only subsequence is the single element itself: sum=1, min=1, score=1."
     }
   ],
   "constraints": [

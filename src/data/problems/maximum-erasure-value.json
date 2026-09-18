@@ -18,6 +18,11 @@
       "input": "nums = [5,2,1,2,5,2,1,2,5]",
       "output": "8",
       "explanation": "The subarray [5,2,1] or [1,2,5] has the maximum score, which is 8."
+    },
+    {
+      "input": "nums = [1,1,1,1]",
+      "output": "1",
+      "explanation": "Every element is a duplicate of the others, so the largest unique-element window is a single element"
     }
   ],
   "constraints": [

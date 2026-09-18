@@ -55,6 +55,15 @@ export default function PracticePage({ params }: { params: Promise<{ id: string 
     }
   }
 
+  function handleResetCase(index: number) {
+    setCaseResults((prev) => {
+      const next = { ...prev }
+      delete next[index]
+      return next
+    })
+    setResult(null)
+  }
+
   // Merge the last full-run result's per-case outcomes with any individually-run cases —
   // an individual "Run this case" click should reflect immediately without waiting on the
   // full ExecutionResult, and a fresh "Run tests" pass should supersede it (handleRun clears
@@ -84,6 +93,7 @@ export default function PracticePage({ params }: { params: Promise<{ id: string 
         caseResults={mergedCaseResults}
         onRun={handleRun}
         onRunCase={handleRunCase}
+        onResetCase={handleResetCase}
         onSubmit={() => presenter.submitCode(code)}
         onResetCode={() => setCode(problem.starterCode)}
         revealedHints={revealedHints}

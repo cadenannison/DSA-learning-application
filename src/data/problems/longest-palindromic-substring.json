@@ -20,6 +20,11 @@
     {
       "input": "s = \"cbbd\"",
       "output": "\"bb\""
+    },
+    {
+      "input": "s = \"a\"",
+      "output": "\"a\"",
+      "explanation": "A single character is trivially a palindrome of itself, the minimum-length input allowed by the constraints."
     }
   ],
   "constraints": [

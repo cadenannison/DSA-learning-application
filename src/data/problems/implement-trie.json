@@ -14,6 +14,16 @@
       "input": "ops = [[\"insert\",\"apple\"],[\"search\",\"apple\"],[\"search\",\"app\"],[\"startsWith\",\"app\"],[\"insert\",\"app\"],[\"search\",\"app\"]]",
       "output": "[true,false,true,true]",
       "explanation": "After inserting 'apple': search('apple')=true, search('app')=false (not inserted as a full word yet), startsWith('app')=true. After inserting 'app': search('app')=true."
+    },
+    {
+      "input": "ops = [[\"insert\",\"cat\"],[\"insert\",\"car\"],[\"startsWith\",\"ca\"],[\"search\",\"ca\"]]",
+      "output": "[true,false]",
+      "explanation": "After inserting 'cat' and 'car', startsWith('ca') is true since both words share that prefix, but search('ca') is false since 'ca' itself was never inserted as a complete word."
+    },
+    {
+      "input": "ops = [[\"search\",\"x\"]]",
+      "output": "[false]",
+      "explanation": "Searching in a completely empty trie (nothing inserted yet) always returns false."
     }
   ],
   "constraints": [

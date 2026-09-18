@@ -19,6 +19,11 @@
       "input": "time_series = [1,2], duration = 2",
       "output": "3",
       "explanation": "At time 1, poisoned for [1,2]. At time 2, the attack refreshes the timer before the first would have ended, extending poison to [2,3]. Total distinct poisoned seconds = [1,3] = 3."
+    },
+    {
+      "input": "time_series = [0], duration = 0",
+      "output": "0",
+      "explanation": "A duration of zero means the single attack poisons Ashe for no time at all, so the total is 0 even though an attack occurred."
     }
   ],
   "constraints": [

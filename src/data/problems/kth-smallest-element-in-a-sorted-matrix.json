@@ -19,6 +19,11 @@
     {
       "input": "matrix = [[-5]], k = 1",
       "output": "-5"
+    },
+    {
+      "input": "matrix = [[1,2],[1,3]], k = 2",
+      "output": "1",
+      "explanation": "Duplicate values are counted separately: the sorted order is [1,1,2,3], so the 2nd smallest is still 1."
     }
   ],
   "constraints": [

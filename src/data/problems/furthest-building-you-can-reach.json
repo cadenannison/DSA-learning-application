@@ -17,6 +17,11 @@
     {
       "input": "heights = [4,12,2,7,3,18,20,3,19], bricks = 10, ladders = 2",
       "output": "7"
+    },
+    {
+      "input": "heights = [1], bricks = 0, ladders = 0",
+      "output": "0",
+      "explanation": "With only one building, there are no climbs to make at all, so you trivially end at the last (and only) index regardless of resources."
     }
   ],
   "constraints": [

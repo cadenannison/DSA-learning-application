@@ -18,6 +18,11 @@
       "input": "ops = [[\"addAtHead\",7],[\"addAtHead\",2],[\"addAtHead\",1],[\"addAtIndex\",3,0],[\"deleteAtIndex\",2],[\"get\",0],[\"get\",1],[\"get\",2]]",
       "output": "[1,2,0]",
       "explanation": "addAtHead(7) -> [7]. addAtHead(2) -> [2,7]. addAtHead(1) -> [1,2,7]. addAtIndex(3,0) appends since index equals the length -> [1,2,7,0]. deleteAtIndex(2) removes the node at index 2 (value 7) -> [1,2,0]. get(0)=1, get(1)=2, get(2)=0."
+    },
+    {
+      "input": "ops = [[\"get\",0],[\"deleteAtIndex\",0],[\"addAtIndex\",5,10]]",
+      "output": "[-1]",
+      "explanation": "On an empty list, get(0) is out of range and returns -1. deleteAtIndex(0) and addAtIndex(5,10) both target indices beyond the (empty) list's bounds, so they're no-ops and produce no output."
     }
   ],
   "constraints": [

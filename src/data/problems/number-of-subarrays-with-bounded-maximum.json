@@ -17,6 +17,11 @@
     {
       "input": "nums = [2,9,2,5,6], left = 2, right = 8",
       "output": "7"
+    },
+    {
+      "input": "nums = [5], left = 1, right = 4",
+      "output": "0",
+      "explanation": "The only element, 5, exceeds right, so no subarray (just [5]) has a max within [left, right]"
     }
   ],
   "constraints": [

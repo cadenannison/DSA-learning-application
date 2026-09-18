@@ -21,6 +21,11 @@
       "input": "s = \"aaa\"",
       "output": "6",
       "explanation": "\"a\", \"a\", \"a\", \"aa\", \"aa\", \"aaa\" — 6 palindromic substrings, counting positions separately."
+    },
+    {
+      "input": "s = \"a\"",
+      "output": "1",
+      "explanation": "At the minimum length of 1, the only substring is the single character itself, which is trivially a palindrome."
     }
   ],
   "constraints": [

@@ -20,6 +20,11 @@
       "input": "words = [\"z\",\"x\",\"z\"]",
       "output": "\"\"",
       "explanation": "The edges imply z before x and x before z — a cycle, so no valid ordering exists."
+    },
+    {
+      "input": "words = [\"abc\",\"ab\"]",
+      "output": "\"\"",
+      "explanation": "\"abc\" appears before its own prefix \"ab\", which can never happen in a valid lexicographic ordering, so the result is empty."
     }
   ],
   "constraints": [

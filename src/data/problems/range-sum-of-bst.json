@@ -18,6 +18,11 @@
       "input": "root = [10,5,15,3,7,13,18,1,null,6], low = 6, high = 10",
       "output": "23",
       "explanation": "Nodes 6, 7, and 10 fall within [6, 10]: 6 + 7 + 10 = 23."
+    },
+    {
+      "input": "root = [1], low = 1, high = 1",
+      "output": "1",
+      "explanation": "A single-node tree whose value equals both bounds still counts, contributing its own value to the sum."
     }
   ],
   "constraints": [

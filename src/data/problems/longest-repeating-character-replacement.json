@@ -21,6 +21,11 @@
       "input": "s = \"AABABBA\", k = 1",
       "output": "4",
       "explanation": "Replace one 'A' in \"AABA\" to get \"AABBA\" -> the substring \"BABB\" or \"ABBB\" has length 4 after one change."
+    },
+    {
+      "input": "s = \"A\", k = 0",
+      "output": "1",
+      "explanation": "With a single character and no replacements allowed, the longest uniform substring is just that one character"
     }
   ],
   "constraints": [

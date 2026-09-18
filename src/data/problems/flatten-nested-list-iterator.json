@@ -18,6 +18,11 @@
     {
       "input": "nestedList = [1,[4,[6]]]",
       "output": "[1,4,6]"
+    },
+    {
+      "input": "nestedList = [[]]",
+      "output": "[]",
+      "explanation": "A single empty nested list contains no integers at all, so the flattened result is empty."
     }
   ],
   "constraints": [

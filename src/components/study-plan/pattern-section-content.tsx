@@ -15,11 +15,24 @@ import type { PatternSection } from "@/components/study-plan/pattern-page-shell"
 import type { PatternResource, Skill, StudyPatternWithReadiness } from "@/types"
 
 /** Patterns with a full Pattern Lab experience (Learn/Recognize It/Practice) in place of the
- * markdown lesson + worked example tabs. Maps this app's StudyPattern id to Pattern Lab's own
- * internal Pattern id (they differ for dp: "dynamic-programming" vs "dp"). */
+ * markdown lesson + worked example tabs. Maps this app's StudyPattern id (the curriculum's own
+ * ids, e.g. "linked-lists", "stacks") to Pattern Lab's own internal Pattern id (e.g.
+ * "linked-list", "stacks-queues") — they differ in naming for several patterns, and for dp
+ * ("dynamic-programming" vs "dp"). "two-pointers-sliding-window-binary-search" bundles three
+ * Pattern Lab patterns into one curriculum entry; it opens on Two Pointers, and Sliding Window /
+ * Binary Search stay reachable via Pattern Lab's own top pattern-switcher tabs. Patterns with no
+ * Pattern Lab equivalent yet (union-find, hash-tables) are intentionally left out, falling back
+ * to their existing markdown lesson / Concept tab. */
 const PATTERN_LAB_IDS: Partial<Record<string, string>> = {
   "dynamic-programming": "dp",
   graphs: "graphs",
+  backtracking: "backtracking",
+  trees: "trees",
+  heaps: "heaps",
+  stacks: "stacks-queues",
+  "linked-lists": "linked-list",
+  intervals: "intervals",
+  "two-pointers-sliding-window-binary-search": "two-pointers",
 }
 
 /** Renders the content for a single active section of a pattern's dedicated page. Embeddable

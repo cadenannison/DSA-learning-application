@@ -20,6 +20,11 @@
       "input": "root = [5,3,6,2,4,null,null,1], k = 3",
       "output": "3",
       "explanation": "In-order traversal gives 1, 2, 3, 4, 5, 6. The 3rd smallest is 3."
+    },
+    {
+      "input": "root = [1], k = 1",
+      "output": "1",
+      "explanation": "With a single-node tree, k must be 1, and the only value present is trivially the 1st smallest."
     }
   ],
   "constraints": [

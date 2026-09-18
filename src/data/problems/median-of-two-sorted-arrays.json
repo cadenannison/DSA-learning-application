@@ -21,6 +21,11 @@
       "input": "nums1 = [1,2], nums2 = [3,4]",
       "output": "2.5",
       "explanation": "The merged array is [1,2,3,4], and its median is (2+3)/2 = 2.5."
+    },
+    {
+      "input": "nums1 = [], nums2 = [1]",
+      "output": "1.0",
+      "explanation": "One array can be empty; the median is then just the median of the other array."
     }
   ],
   "constraints": [

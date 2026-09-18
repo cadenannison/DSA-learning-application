@@ -17,6 +17,11 @@
     {
       "input": "nums = [2,2,2,2,2], target = 8",
       "output": "[[2,2,2,2]]"
+    },
+    {
+      "input": "nums = [1,2,3,4], target = 100",
+      "output": "[]",
+      "explanation": "The largest possible sum of any four elements is 1+2+3+4=10, far below the target, so no quadruplet can reach 100 and the result is empty."
     }
   ],
   "constraints": [

@@ -18,6 +18,11 @@
       "input": "pushed = [1,2,3,4,5], popped = [4,3,5,1,2]",
       "output": "false",
       "explanation": "1 and 2 cannot be popped before 5, since 5 was pushed on top of them and hasn't been popped yet."
+    },
+    {
+      "input": "pushed = [1], popped = [1]",
+      "output": "true",
+      "explanation": "With a single element, pushing then immediately popping it is trivially a valid stack sequence."
     }
   ],
   "constraints": [

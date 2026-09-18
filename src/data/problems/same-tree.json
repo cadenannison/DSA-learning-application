@@ -20,6 +20,11 @@
       "input": "p = [1,2], q = [1,null,2]",
       "output": "false",
       "explanation": "The single child is on the left in p but on the right in q, so the shapes differ."
+    },
+    {
+      "input": "p = [], q = []",
+      "output": "true",
+      "explanation": "Two empty trees have identical (empty) structure, so they are considered the same."
     }
   ],
   "constraints": [

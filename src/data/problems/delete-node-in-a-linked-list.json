@@ -19,6 +19,11 @@
       "input": "values = [4,5,1,9], index = 2",
       "output": "[4,5,9]",
       "explanation": "The node with value 1 is given; after deletion the list reads 4 -> 5 -> 9."
+    },
+    {
+      "input": "values = [1,2], index = 0",
+      "output": "[2]",
+      "explanation": "Smallest possible list (2 nodes) with the head node given: its value is overwritten with 2 and its next is skipped past the (now removed) second node, leaving a single-node list."
     }
   ],
   "constraints": [

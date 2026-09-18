@@ -19,6 +19,11 @@
       "input": "tickets = [[\"JFK\",\"SFO\"],[\"JFK\",\"ATL\"],[\"SFO\",\"ATL\"],[\"ATL\",\"JFK\"],[\"ATL\",\"SFO\"]]",
       "output": "[\"JFK\",\"ATL\",\"JFK\",\"SFO\",\"ATL\",\"SFO\"]",
       "explanation": "Two itineraries use every ticket: this one and [\"JFK\",\"SFO\",\"ATL\",\"JFK\",\"ATL\",\"SFO\"] — the first is lexicographically smaller."
+    },
+    {
+      "input": "tickets = [[\"JFK\",\"A\"],[\"A\",\"JFK\"]]",
+      "output": "[\"JFK\",\"A\",\"JFK\"]",
+      "explanation": "The smallest possible input: a round-trip cycle back to JFK, using both tickets exactly once."
     }
   ],
   "constraints": [

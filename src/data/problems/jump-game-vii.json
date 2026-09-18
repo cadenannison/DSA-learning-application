@@ -17,6 +17,11 @@
     {
       "input": "s = \"01101110\", minJump = 2, maxJump = 3",
       "output": "false"
+    },
+    {
+      "input": "s = \"00\", minJump = 1, maxJump = 1",
+      "output": "true",
+      "explanation": "The smallest possible string: a single valid jump of length 1 from index 0 lands directly on the last index."
     }
   ],
   "constraints": [

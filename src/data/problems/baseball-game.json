@@ -16,6 +16,11 @@
     {
       "input": "ops = [\"1\",\"C\"]",
       "output": "0"
+    },
+    {
+      "input": "ops = [\"7\"]",
+      "output": "7",
+      "explanation": "A single record with no other operations: the score is just recorded and summed, illustrating the minimal one-operation case."
     }
   ],
   "constraints": [

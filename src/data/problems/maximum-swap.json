@@ -18,6 +18,11 @@
       "input": "num = 9973",
       "output": "9973",
       "explanation": "No swap improves the number, so the answer is the number itself."
+    },
+    {
+      "input": "num = 0",
+      "output": "0",
+      "explanation": "A single-digit number has no other digit to swap with, so it stays unchanged."
     }
   ],
   "constraints": [

@@ -18,6 +18,11 @@
       "input": "root1 = [1,2,3], root2 = [1,3,2]",
       "output": "false",
       "explanation": "root1's leaves in order are [2,3]; root2's leaves in order are [3,2] — different sequences."
+    },
+    {
+      "input": "root1 = [1], root2 = [1]",
+      "output": "true",
+      "explanation": "Each tree is a single node, which is itself the only leaf, so both leaf sequences are [1]."
     }
   ],
   "constraints": [

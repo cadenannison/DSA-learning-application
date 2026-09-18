@@ -20,6 +20,11 @@
       "input": "nums = [1,2,3,5]",
       "output": "false",
       "explanation": "The array cannot be partitioned into two equal-sum subsets."
+    },
+    {
+      "input": "nums = [1]",
+      "output": "false",
+      "explanation": "With a single element, there's no way to split it into two non-empty subsets at all, so an equal partition is impossible."
     }
   ],
   "constraints": [

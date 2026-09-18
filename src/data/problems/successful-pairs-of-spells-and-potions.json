@@ -17,6 +17,11 @@
     {
       "input": "spells = [3,1,2], potions = [8,5,8], success = 16",
       "output": "[2,0,2]"
+    },
+    {
+      "input": "spells = [10,10,10], potions = [1,2,3], success = 100",
+      "output": "[0,0,0]",
+      "explanation": "The largest possible product for any spell is 10*3=30, which never reaches success=100, so every spell has zero successful pairs."
     }
   ],
   "constraints": [

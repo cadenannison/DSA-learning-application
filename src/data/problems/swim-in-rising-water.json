@@ -18,6 +18,11 @@
       "input": "grid = [[0,1,2,3,4],[24,23,22,21,5],[12,13,14,15,16],[11,17,18,19,20],[10,9,8,7,6]]",
       "output": "16",
       "explanation": "The optimal path snakes through cells whose maximum elevation along the route is 16, following the spiral of increasing values."
+    },
+    {
+      "input": "grid = [[0]]",
+      "output": "0",
+      "explanation": "A 1x1 grid: the start and destination are the same cell, so no waiting for the water to rise is needed."
     }
   ],
   "constraints": [

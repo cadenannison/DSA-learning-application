@@ -17,6 +17,11 @@
     {
       "input": "head = [5], left = 1, right = 1",
       "output": "[5]"
+    },
+    {
+      "input": "head = [1,2,3], left = 1, right = 3",
+      "output": "[3,2,1]",
+      "explanation": "When left = 1 and right equals the list's length, the entire list is reversed."
     }
   ],
   "constraints": [

@@ -18,6 +18,11 @@
       "input": "nums = [14,70,53,83,49,91,36,80,92,51,66,70]",
       "output": "127",
       "explanation": "Some pair in the array XORs to 127."
+    },
+    {
+      "input": "nums = [0,0]",
+      "output": "0",
+      "explanation": "With only zeros in the array, every possible XOR pairing is 0, the minimum possible result."
     }
   ],
   "constraints": [

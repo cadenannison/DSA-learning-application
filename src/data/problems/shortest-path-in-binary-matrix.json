@@ -19,6 +19,11 @@
       "input": "grid = [[0,0,0],[1,1,0],[1,1,0]]",
       "output": "4",
       "explanation": "The path (0,0) -> (0,1) -> (0,2) -> (1,2) -> (2,2) has length 5, but a shorter one using diagonals exists with length 4."
+    },
+    {
+      "input": "grid = [[1]]",
+      "output": "-1",
+      "explanation": "The only cell, which must serve as both start and end, is blocked, so no path can exist at all."
     }
   ],
   "constraints": [

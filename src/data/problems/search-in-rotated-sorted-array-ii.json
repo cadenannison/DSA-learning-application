@@ -17,6 +17,11 @@
     {
       "input": "nums = [2,5,6,0,0,1,2], target = 3",
       "output": "false"
+    },
+    {
+      "input": "nums = [1,1,1,1,1,1,1], target = 2",
+      "output": "false",
+      "explanation": "When every value is the same, the usual rotated-array trick for picking a sorted half breaks down, forcing the search toward a linear worst case."
     }
   ],
   "constraints": [

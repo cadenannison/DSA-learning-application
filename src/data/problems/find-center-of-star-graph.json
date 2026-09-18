@@ -18,6 +18,11 @@
       "input": "edges = [[1,2],[5,1],[1,3],[1,4]]",
       "output": "1",
       "explanation": "Node 1 appears in every edge, so it must be the center."
+    },
+    {
+      "input": "edges = [[1,3],[1,2]]",
+      "output": "1",
+      "explanation": "The smallest possible star graph (n = 3, so only 2 edges): node 1 is shared between both edges and is therefore the center."
     }
   ],
   "constraints": [

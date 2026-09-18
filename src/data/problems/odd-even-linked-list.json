@@ -17,6 +17,11 @@
     {
       "input": "head = [2,1,3,5,6,4,7]",
       "output": "[2,3,6,7,1,5,4]"
+    },
+    {
+      "input": "head = []",
+      "output": "[]",
+      "explanation": "The empty list is an allowed boundary (constraints permit 0 nodes); with no nodes to group, the result is simply empty."
     }
   ],
   "constraints": [

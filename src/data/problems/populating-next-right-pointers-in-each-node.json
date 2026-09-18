@@ -19,6 +19,11 @@
     {
       "input": "root = []",
       "output": "[]"
+    },
+    {
+      "input": "root = [1]",
+      "output": "[null]",
+      "explanation": "A single-node tree has no other node on its level, so its next pointer stays null."
     }
   ],
   "constraints": [

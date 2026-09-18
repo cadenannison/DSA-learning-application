@@ -43,7 +43,17 @@ export type PatternSection = "lesson" | "worked-example" | "practice" | "bug-tra
 /** Patterns whose "lesson" tab renders Pattern Lab (Learn/Recognize It/Practice all in one)
  * instead of the markdown lesson section — see pattern-section-content.tsx's PATTERN_LAB_IDS.
  * For these, Worked Example is folded into the single Pattern Lab tab rather than split out. */
-const PATTERN_LAB_PATTERN_IDS = new Set(["dynamic-programming", "graphs"])
+const PATTERN_LAB_PATTERN_IDS = new Set([
+  "dynamic-programming",
+  "graphs",
+  "backtracking",
+  "trees",
+  "heaps",
+  "stacks",
+  "linked-lists",
+  "intervals",
+  "two-pointers-sliding-window-binary-search",
+])
 
 export function bugTracingUnlocked(pattern: StudyPatternWithReadiness): boolean {
   return STAGE_ORDER.indexOf(pattern.stage) >= STAGE_ORDER.indexOf("mediums_done")

@@ -18,6 +18,11 @@
       "input": "n = 3, dislikes = [[1,2],[1,3],[2,3]]",
       "output": "false",
       "explanation": "Persons 1, 2, and 3 mutually dislike each other, forming a triangle — impossible to 2-color."
+    },
+    {
+      "input": "n = 1, dislikes = []",
+      "output": "true",
+      "explanation": "A single person with no dislikes can trivially go into either group."
     }
   ],
   "constraints": [

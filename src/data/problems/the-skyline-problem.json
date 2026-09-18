@@ -20,6 +20,11 @@
       "input": "buildings = [[0,2,3],[2,5,3]]",
       "output": "[[0,3],[5,0]]",
       "explanation": "Both buildings have the same height 3 and are adjacent (one ends exactly where the other starts), so the skyline is flat at height 3 from x=0 to x=5, with no key point at x=2 since the height doesn't change there."
+    },
+    {
+      "input": "buildings = [[0,1,1]]",
+      "output": "[[0,1],[1,0]]",
+      "explanation": "With a single building, the skyline simply rises to its height at the left edge and drops back to 0 at the right edge."
     }
   ],
   "constraints": [

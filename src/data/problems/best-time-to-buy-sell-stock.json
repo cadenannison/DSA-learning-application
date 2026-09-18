@@ -19,6 +19,11 @@
       "input": "prices = [7,6,4,3,1]",
       "output": "0",
       "explanation": "Prices only fall, so no profitable transaction exists"
+    },
+    {
+      "input": "prices = [2]",
+      "output": "0",
+      "explanation": "With only one price, there's no later day to sell, so the maximum profit is 0"
     }
   ],
   "constraints": [

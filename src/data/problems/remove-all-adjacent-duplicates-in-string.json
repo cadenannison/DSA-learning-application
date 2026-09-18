@@ -17,6 +17,11 @@
     {
       "input": "s = \"azxxzy\"",
       "output": "ay"
+    },
+    {
+      "input": "s = \"aaaaaaaa\"",
+      "output": "\"\"",
+      "explanation": "An even number of the same character cascades away entirely, leaving the empty string, which is a valid result."
     }
   ],
   "constraints": [

@@ -20,6 +20,11 @@
       "input": "image = [[0,0,0],[0,0,0]], sr = 0, sc = 0, color = 0",
       "output": "[[0,0,0],[0,0,0]]",
       "explanation": "The starting pixel already has the target color, so nothing changes."
+    },
+    {
+      "input": "image = [[1]], sr = 0, sc = 0, color = 3",
+      "output": "[[3]]",
+      "explanation": "A 1x1 grid has only the starting pixel itself to recolor, with no neighbors to spread to."
     }
   ],
   "constraints": [

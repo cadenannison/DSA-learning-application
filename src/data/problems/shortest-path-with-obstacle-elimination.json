@@ -19,6 +19,11 @@
       "input": "grid = [[0,1,1],[1,1,1],[1,0,0]], k = 1",
       "output": "-1",
       "explanation": "Even eliminating one obstacle isn't enough to break through and reach the bottom-right corner."
+    },
+    {
+      "input": "grid = [[0]], k = 0",
+      "output": "0",
+      "explanation": "The start and end are the same single cell, so zero steps are needed regardless of the elimination budget."
     }
   ],
   "constraints": [

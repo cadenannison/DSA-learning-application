@@ -20,6 +20,11 @@
       "input": "numCourses = 2, prerequisites = [[1,0],[0,1]]",
       "output": "[]",
       "explanation": "0 depends on 1 and 1 depends on 0 — a cycle, so no valid ordering exists."
+    },
+    {
+      "input": "numCourses = 1, prerequisites = []",
+      "output": "[0]",
+      "explanation": "A single course with no prerequisites can always be taken; the schedule is just that one course."
     }
   ],
   "constraints": [

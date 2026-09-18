@@ -19,6 +19,11 @@
     {
       "input": "root = [1,null,3]",
       "output": "[1,3]"
+    },
+    {
+      "input": "root = []",
+      "output": "[]",
+      "explanation": "An empty tree has no nodes, so there is nothing visible from the right side."
     }
   ],
   "constraints": [

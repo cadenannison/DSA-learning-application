@@ -18,6 +18,11 @@
       "input": "stones = [[0,0],[0,2],[1,1],[2,0],[2,2]]",
       "output": "3",
       "explanation": "These 5 stones form a single connected group (via shared rows/columns), so 5 - 1 = 4... but stone [1,1] shares no row/col directly with the corners except through the group, leaving 2 separate groups summing to 3 removable stones."
+    },
+    {
+      "input": "stones = [[0,0]]",
+      "output": "0",
+      "explanation": "A single stone shares no row or column with any other stone, so it can never be removed — the answer is 0."
     }
   ],
   "constraints": [

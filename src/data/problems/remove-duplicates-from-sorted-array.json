@@ -20,6 +20,11 @@
       "input": "nums = [0,0,1,1,1,2,2,3,3,4]",
       "output": "5",
       "explanation": "The first five elements become [0,1,2,3,4]; k = 5."
+    },
+    {
+      "input": "nums = [1,1,1,1]",
+      "output": "1",
+      "explanation": "When every element is the same value, only one unique element remains after deduplication, so k = 1."
     }
   ],
   "constraints": [

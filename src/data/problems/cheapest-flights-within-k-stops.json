@@ -19,6 +19,11 @@
       "input": "n = 3, flights = [[0,1,100],[1,2,100],[0,2,500]], src = 0, dst = 2, k = 1",
       "output": "200",
       "explanation": "0 -> 1 -> 2 costs 200 with exactly 1 stop, cheaper than the direct 500 flight."
+    },
+    {
+      "input": "n = 2, flights = [], src = 0, dst = 1, k = 1",
+      "output": "-1",
+      "explanation": "With no flights at all, dst is unreachable no matter how many stops are allowed, so the result is -1."
     }
   ],
   "constraints": [

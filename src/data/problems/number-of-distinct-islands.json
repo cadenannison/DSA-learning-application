@@ -19,6 +19,11 @@
       "input": "grid = [[1,1,0,1,1],[1,0,0,0,0],[0,0,0,0,1],[1,1,0,1,1]]",
       "output": "3",
       "explanation": "There are three islands with distinct shapes even after accounting for translation."
+    },
+    {
+      "input": "grid = [[0,0,0]]",
+      "output": "0",
+      "explanation": "There is no land anywhere, so there are zero distinct island shapes."
     }
   ],
   "constraints": [
