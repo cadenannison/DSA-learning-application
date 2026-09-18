@@ -106,13 +106,20 @@ export class StudyPlanPresenter {
   /** Submits code against an embedded study-plan problem. Always logs a session row
    * server-side (pass or fail); only a pass marks the problem completed and may auto-advance
    * the pattern's stage — both handled atomically server-side. Refetches the full overview
-   * afterward since a pass can change pattern stage/readiness/drill-queue placement. */
+   * afterward since a pass can change pattern stage/readiness/drill-queue placement.
+   *
+   * `stats` (active-time duration + lines of code) feeds the same lifetime profile-stats
+   * event the main practice flow records, not this service's own session/completion logic, so
+   * it never affects pass/fail or stage-advance behavior. Test-case pass/fail counts aren't
+   * included here — the client can't know them until this call executes the code server-side,
+   * so the route derives them itself from the returned execution result. */
   async submitEmbeddedProblem(
     id: string,
     submission: CodeSubmission,
-    timeTakenMinutes: number
+    timeTakenMinutes: number,
+    stats: { durationMs: number; linesOfCode: number }
   ): Promise<ExecutionResult> {
-    const result = await apiClient.submitStudyProblem(this.planId, id, submission, timeTakenMinutes)
+    const result = await apiClient.submitStudyProblem(this.planId, id, submission, timeTakenMinutes, stats)
     await this.load()
     return result.execution
   }

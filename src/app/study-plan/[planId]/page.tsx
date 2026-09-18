@@ -9,9 +9,11 @@ import { StatCard } from "@/components/ui/stat-card"
 import { StatusPill, type StatusTone } from "@/components/ui/status-pill"
 import { PlanNav } from "@/components/study-plan/plan-nav"
 import { StudyPlanPresenter } from "@/presenter/study-plan-presenter"
+import { apiClient } from "@/lib/api-client"
 import type {
   DrillQueueEntry,
   RecommendedProblem,
+  SolvedProblemEntry,
   StudyPatternComplexityTier,
   StudyPlanOverview,
   TodayFocusEntry,
@@ -62,6 +64,7 @@ function TodayContent({
   const [overview, setOverview] = useState<StudyPlanOverview | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [solvedProblems, setSolvedProblems] = useState<SolvedProblemEntry[]>([])
 
   const [presenter] = useState(
     () => new StudyPlanPresenter(planId, { setLoading, setOverview, setError })
@@ -71,6 +74,33 @@ function TodayContent({
   useEffect(() => {
     presenter.load()
   }, [presenter])
+
+  useEffect(() => {
+    let cancelled = false
+    apiClient
+      .getSolvedProblems()
+      .then((entries) => {
+        if (!cancelled) setSolvedProblems(entries ?? [])
+      })
+      .catch(() => {
+        if (!cancelled) setSolvedProblems([])
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const completedToday = useMemo(() => {
+    // Local calendar day, not UTC: this card reads as "today" to the person looking at it,
+    // unlike ConsistencyCard's UTC-keyed streak grid on the profile stats page.
+    const todayLocal = new Date().toDateString()
+    return solvedProblems.filter((entry) => new Date(entry.solvedAt).toDateString() === todayLocal).length
+  }, [solvedProblems])
+
+  const totalRecommendedToday = useMemo(() => {
+    if (!overview) return 0
+    return overview.todayFocus.reduce((sum, entry) => sum + entry.recommendedProblems.length, 0)
+  }, [overview])
 
   const problemMix = useMemo(() => {
     if (!overview) return ""
@@ -119,7 +149,7 @@ function TodayContent({
 
       <PlanNav planId={planId} active="today" />
 
-      <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Interview Date"
           value={
@@ -138,6 +168,18 @@ function TodayContent({
         />
         <StatCard label="Daily Budget" value={`${overview.settings.dailyTimeBudgetMinutes} min`} />
         <StatCard label="Problem Mix" value={problemMix || "—"} />
+        <StatCard
+          label="Completed Today"
+          value={completedToday}
+          pill={
+            totalRecommendedToday > 0 && (
+              <StatusPill
+                label={`${Math.round((completedToday / totalRecommendedToday) * 100)}%`}
+                tone={completedToday >= totalRecommendedToday ? "accent" : "neutral"}
+              />
+            )
+          }
+        />
       </div>
 
       <TodayFocusCard
@@ -231,6 +273,7 @@ function TodayFocusPatternGroup({
 
       {expanded && (
         <div className="border-t border-border-soft">
+          <div className="px-4 pt-2.5 text-xs text-text-2">Pick one of these:</div>
           {entry.recommendedProblems.map((problem) => (
             <RecommendedProblemRow
               key={problem.id}

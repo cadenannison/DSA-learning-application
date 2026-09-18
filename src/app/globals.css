@@ -117,3 +117,33 @@ body {
   transform: translateX(100%);
   transition: transform 0.55s ease;
 }
+
+@keyframes toast-drop-in {
+  from {
+    transform: translate(-50%, 100%);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-drop-out {
+  from {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+  to {
+    transform: translate(-50%, 100%);
+    opacity: 0;
+  }
+}
+
+.toast-enter {
+  animation: toast-drop-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.toast-exit {
+  animation: toast-drop-out 0.22s ease-in forwards;
+}

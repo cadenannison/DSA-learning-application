@@ -4,8 +4,10 @@ import { useRouter } from "next/navigation"
 import { use, useCallback, useEffect, useRef, useState } from "react"
 import { CodeEditor } from "@/components/code-editor"
 import { ResetCodeButton } from "@/components/reset-code-button"
+import { SubmitToast } from "@/components/ui/submit-toast"
 import { TestResults } from "@/components/test-results"
 import { apiClient } from "@/lib/api-client"
+import { useActiveTime } from "@/lib/use-active-time"
 import { OASessionPresenter, type OASessionView } from "@/presenter/oa-session-presenter"
 import type { OASession, OAProblemStatus, StrippedProblem } from "@/types"
 
@@ -44,6 +46,13 @@ export default function OASessionPage({ params }: { params: Promise<{ id: string
   const [code, setCode] = useState("")
   const [now, setNow] = useState(() => Date.now())
   const endedRef = useRef(false)
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const [toastKey, setToastKey] = useState(0)
+  // Resets per problem (matches the study-plan workbook pattern) so switching tabs between
+  // problems in the session starts a fresh active-time clock for each one. Not yet threaded
+  // into submitProblem — that network call's shape is owned by the OA backend work landing in
+  // parallel — but kept here so a future pass can report it without re-deriving timing.
+  useActiveTime(activeProblemId ?? "loading")
 
   const [presenter] = useState(() => {
     const view: OASessionView = {
@@ -82,6 +91,37 @@ export default function OASessionPage({ params }: { params: Promise<{ id: string
     return () => clearInterval(timer)
   }, [])
 
+  // Fires once per passing submit rather than per render — tags the *next* session update as
+  // submit-caused (mirrors the pattern used in ProblemWorkbenchView/Blind Test) so a plain
+  // "Save" or the periodic countdown re-render never re-triggers the toast.
+  const pendingSubmitRef = useRef(false)
+  const prevSessionRef = useRef<OASession | null>(null)
+
+  useEffect(() => {
+    const wasPendingSubmit = pendingSubmitRef.current
+    const previousSession = prevSessionRef.current
+    pendingSubmitRef.current = false
+    prevSessionRef.current = session
+
+    if (wasPendingSubmit && session && session !== previousSession) {
+      const activeState = session.problems.find((p) => p.problemId === activeProblemId)
+      // Deferred a tick rather than called synchronously in the effect body — see the same
+      // pattern in ProblemWorkbenchView.
+      if (activeState?.status === "passed") {
+        queueMicrotask(() => {
+          setToastMessage("Test case passed!")
+          setToastKey((key) => key + 1)
+        })
+      }
+    }
+  }, [session, activeProblemId])
+
+  async function handleSubmitProblem() {
+    if (!activeProblemId || !problemContent) return
+    pendingSubmitRef.current = true
+    await presenter.submitProblem(activeProblemId, code, problemContent.functionName)
+  }
+
   const endSession = useCallback(async () => {
     if (endedRef.current) return
     endedRef.current = true
@@ -109,6 +149,8 @@ export default function OASessionPage({ params }: { params: Promise<{ id: string
 
   return (
     <div className="flex h-full flex-1 flex-col overflow-hidden">
+      <SubmitToast message={toastMessage} toastKey={toastKey} />
+
       <div className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-surface px-6">
         <div className="flex items-center gap-4">
           <h1 className="font-display text-base font-semibold text-text-1">Mock OA Session</h1>
@@ -189,10 +231,7 @@ export default function OASessionPage({ params }: { params: Promise<{ id: string
                 Save
               </button>
               <button
-                onClick={() =>
-                  activeProblemId &&
-                  presenter.submitProblem(activeProblemId, code, problemContent.functionName)
-                }
+                onClick={handleSubmitProblem}
                 disabled={running}
                 className="min-h-[44px] rounded-control bg-accent px-4 text-sm font-semibold text-bg disabled:opacity-50"
               >

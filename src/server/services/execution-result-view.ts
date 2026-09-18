@@ -16,3 +16,13 @@ export function toClientExecutionResult(result: ExecutionResult): ExecutionResul
     ),
   }
 }
+
+/** Test-case pass count derived the same way for every submit flow that records stats
+ * (Practice, Blind Test, Mock OA, study-plan workbook) — shared so "how many cases passed"
+ * is never computed ad hoc per route. */
+export function tallyTestCases(result: ExecutionResult): { testsPassed: number; testsTotal: number } {
+  return {
+    testsPassed: result.results.filter((testResult) => testResult.status === "passed").length,
+    testsTotal: result.results.length,
+  }
+}

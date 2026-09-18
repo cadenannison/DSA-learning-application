@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto"
 import type { OAProblemSelector } from "@/server/interfaces/oa-problem-selector"
 import type { OASessionManager } from "@/server/interfaces/oa-session-manager"
 import type { OASessionStore } from "@/server/interfaces/oa-session-store"
+import type { ProblemRepository } from "@/server/interfaces/problem-repository"
 import type {
   CodeSubmission,
   OASession,
@@ -9,8 +10,9 @@ import type {
   OASessionSummary,
 } from "@/server/models/domain"
 import type { ExecutionService } from "@/server/services/execution-service"
-import { toClientExecutionResult } from "@/server/services/execution-result-view"
+import { tallyTestCases, toClientExecutionResult } from "@/server/services/execution-result-view"
 import type { ProgressService } from "@/server/services/progress-service"
+import type { StatsService } from "@/server/services/stats-service"
 
 const RECENT_SESSIONS_TO_AVOID = 5
 
@@ -44,7 +46,9 @@ export class OASessionService implements OASessionManager {
     private readonly selector: OAProblemSelector,
     private readonly sessionStore: OASessionStore,
     private readonly executionService: ExecutionService,
-    private readonly progressService: ProgressService
+    private readonly progressService: ProgressService,
+    private readonly statsService: StatsService,
+    private readonly problemRepository: ProblemRepository
   ) {}
 
   async startSession(config: OASessionConfig): Promise<OASession> {
@@ -109,7 +113,8 @@ export class OASessionService implements OASessionManager {
   async submitProblem(
     sessionId: string,
     problemId: string,
-    submission: CodeSubmission
+    submission: CodeSubmission,
+    userId?: string | null
   ): Promise<OASession> {
     const session = await this.requireActiveSession(sessionId)
     const problemState = this.requireProblemState(session, problemId)
@@ -134,6 +139,28 @@ export class OASessionService implements OASessionManager {
       durationMs: problemState.timeSpentMs,
       mode: "oa",
     })
+
+    // Mock OA sessions stay usable while logged out, same as Practice/Blind — this is a
+    // best-effort contribution to the logged-in user's profile stats, not an auth requirement.
+    // (See src/app/api/progress/route.ts / oa/session/[id]/end/route.ts for the same pattern —
+    // this service has no access to the request/session itself, so the route gates on
+    // getSessionUser() and passes userId down only when present.)
+    if (userId) {
+      const { testsPassed, testsTotal } = tallyTestCases(result)
+      const problem = await this.problemRepository.getById(problemId)
+      await this.statsService.recordEvent({
+        userId,
+        type: "attempt",
+        problemId,
+        mode: "oa",
+        passed: result.allPassed,
+        durationMs: problemState.timeSpentMs,
+        testsPassed,
+        testsTotal,
+        difficulty: problem?.difficulty ?? null,
+        sessionId,
+      })
+    }
 
     return cloneSession(session)
   }

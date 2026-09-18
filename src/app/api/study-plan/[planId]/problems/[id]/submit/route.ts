@@ -5,6 +5,7 @@ import {
   submitStudyProblemRequestSchema,
   submitStudyProblemResponseSchema,
 } from "@/server/models/schemas"
+import { tallyTestCases } from "@/server/services/execution-result-view"
 
 export async function POST(
   request: NextRequest,
@@ -41,6 +42,26 @@ export async function POST(
       { status: 404 }
     )
   }
+
+  // Same uniform stats contribution as the main practice flow (src/app/api/progress/route.ts)
+  // so study-plan solves show up in lifetime profile stats too — keyed on the underlying
+  // library Problem id since that's what user_stat_events keys on, with studyProblemId kept
+  // alongside so this specific workbook entry stays distinguishable from other entries that
+  // link to the same library problem.
+  const { testsPassed, testsTotal } = tallyTestCases(result.execution)
+  await container.statsService.recordEvent({
+    userId: user.id,
+    type: "attempt",
+    problemId: result.linkedProblemId,
+    studyProblemId: result.studyProblemId,
+    mode: "practice",
+    passed: result.execution.allPassed,
+    durationMs: parsed.data.stats.durationMs,
+    linesOfCode: parsed.data.stats.linesOfCode,
+    testsPassed,
+    testsTotal,
+    difficulty: result.difficulty,
+  })
 
   return NextResponse.json(submitStudyProblemResponseSchema.parse(result))
 }

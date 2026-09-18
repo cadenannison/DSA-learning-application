@@ -4,6 +4,7 @@ import Link from "next/link"
 import { use, useEffect, useState } from "react"
 import { PracticePresenter, type PracticeView } from "@/presenter/practice-presenter"
 import { ProblemWorkbenchView } from "@/components/problem-workbench-view"
+import { useActiveTime } from "@/lib/use-active-time"
 import { usePersistedCode } from "@/lib/use-persisted-code"
 import type { ExecutionResult, Problem, TestCaseResult } from "@/types"
 
@@ -18,6 +19,9 @@ export default function PracticePage({ params }: { params: Promise<{ id: string 
   const [caseResults, setCaseResults] = useState<Record<number, TestCaseResult>>({})
   const [revealedHints, setRevealedHints] = useState(0)
   const [code, setCode] = usePersistedCode(problem?.id ?? null, problem?.starterCode ?? "")
+  // resetKey falls back to "loading" while the problem hasn't arrived yet so the hook always
+  // has a stable key to mount with; it re-keys (and the clock resets) once the real id lands.
+  const { elapsedMs } = useActiveTime(problem?.id ?? "loading")
 
   const [presenter] = useState(() => {
     const view: PracticeView = {
@@ -94,7 +98,7 @@ export default function PracticePage({ params }: { params: Promise<{ id: string 
         onRun={handleRun}
         onRunCase={handleRunCase}
         onResetCase={handleResetCase}
-        onSubmit={() => presenter.submitCode(code)}
+        onSubmit={() => presenter.submitCode(code, elapsedMs())}
         onResetCode={() => setCode(problem.starterCode)}
         revealedHints={revealedHints}
         onRevealNextHint={revealNextHint}

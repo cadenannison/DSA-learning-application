@@ -13,6 +13,36 @@ export function estimateProblemMinutes(difficulty: Difficulty): number {
   return ESTIMATED_MINUTES_BY_DIFFICULTY[difficulty]
 }
 
+/** Points awarded per passing test case, by difficulty — see computeEventPoints. */
+const POINTS_PER_TEST_BY_DIFFICULTY: Record<Difficulty, number> = {
+  easy: 1,
+  medium: 3,
+  hard: 5,
+}
+
+/** Modes that represent higher-pressure, more realistic conditions (timed/no-hints) earn 2x
+ * points versus untimed practice — same set that oa-session-service treats as "the real thing"
+ * elsewhere. */
+const DOUBLE_POINTS_MODES = new Set<PracticeMode>(["blind", "oa"])
+
+/** Points for one StatEvent — only a genuine solve earns points (passed === true), worth
+ * testsPassed × perTestRate(difficulty), doubled for blind/OA mode. Failed attempts, practice
+ * runs that didn't fully pass, and summary events (oa_session_completed, no single
+ * difficulty/testsPassed) are worth 0. */
+export function computeEventPoints(input: {
+  passed: boolean | null
+  mode: PracticeMode | null
+  difficulty: Difficulty | null
+  testsPassed: number | null
+}): number {
+  if (input.passed !== true) return 0
+  if (input.difficulty === null || input.testsPassed === null) return 0
+
+  const base = input.testsPassed * POINTS_PER_TEST_BY_DIFFICULTY[input.difficulty]
+  const multiplier = input.mode !== null && DOUBLE_POINTS_MODES.has(input.mode) ? 2 : 1
+  return base * multiplier
+}
+
 /** Flat estimate for how long working through a pattern's extended lesson takes, added once
  * (only while the lesson hasn't been started yet) on top of its remaining problem time — used
  * by the Roadmap view's time-cost projection, never stored. */
@@ -268,10 +298,30 @@ export interface StatEvent {
   type: StatEventType
   occurredAt: string
   problemId: string | null
+  /** The specific study-plan StudyProblem this submission came through, if any — distinct from
+   * `problemId` (always the underlying library Problem id) so a solve of the same library
+   * problem via two different study-plan entries stays distinguishable. Null for solves via
+   * the plain library/blind/OA flows, which have no StudyProblem. */
+  studyProblemId: string | null
   mode: PracticeMode | null
   passed: boolean | null
   durationMs: number
   linesOfCode: number
+  /** Per-attempt test-case detail, null when not known (e.g. the oa_session_completed event,
+   * which has no single problem/execution attached). */
+  testsPassed: number | null
+  testsTotal: number | null
+  /** Snapshotted at write time rather than joined from the live Problem at read time, so a
+   * later edit/deletion of the Problem never changes historical stats. */
+  difficulty: Difficulty | null
+  /** Computed and stored at write time (see computeEventPoints) rather than derived later, so
+   * historical points never drift if the per-test rates or multiplier change in the future. */
+  points: number
+  /** Links a per-problem "attempt" event (mode "oa") to the Mock OA session it was submitted
+   * within, and links that same session's "oa_session_completed" summary event to its own id —
+   * lets stats-service group events by session for the OA history table. Null for every event
+   * outside Mock OA (practice/blind/study-plan attempts have no session concept). */
+  sessionId: string | null
 }
 
 export interface ProfileStatsOverview {
@@ -285,6 +335,68 @@ export interface ProfileStatsOverview {
   activeDays: number
   lastActiveAt: string | null
   byMode: Record<PracticeMode, { attempts: number; passed: number }>
+  totalPoints: number
+  /** Always-visible aggregate across every Mock OA session/attempt ever recorded for this
+   * user — distinct from the per-session OASessionHistoryEntry rows, which are gated behind a
+   * click on the stats page; this summary never is. */
+  oaMetrics: OAMetrics
+}
+
+export interface OAMetrics {
+  sessionsCompleted: number
+  problemsSolved: number
+  totalTimeMs: number
+  totalPoints: number
+}
+
+/** One row per passing "attempt" StatEvent, most-recent-first — deliberately not deduped by
+ * problemId, since a re-solve is genuine history for a "Solved problems" table. */
+export interface SolvedProblemEntry {
+  problemId: string
+  problemName: string
+  difficulty: Difficulty | null
+  solvedAt: string
+  durationMs: number
+  linesOfCode: number
+  mode: PracticeMode | null
+  testsPassed: number | null
+  testsTotal: number | null
+  points: number
+  /** Snapshotted from the resolved Problem at read time (see StatsService.listSolvedProblems)
+   * for the Stats page's "solved by category" breakdown — null if the Problem was since
+   * deleted, matching the difficulty/problemName fallback behavior above. */
+  pattern: DsaPattern | null
+  /** Same snapshot-at-read rationale as `pattern` — empty array (not null) when the Problem is
+   * missing or simply tags no companies, so callers can always iterate without a null check. */
+  companies: string[]
+}
+
+/** One problem submitted within a single Mock OA session, for the per-session detail view in
+ * OASessionHistoryEntry.problems. */
+export interface OASessionHistoryProblemEntry {
+  problemId: string
+  problemName: string
+  difficulty: Difficulty | null
+  passed: boolean
+  durationMs: number
+  testsPassed: number | null
+  testsTotal: number | null
+  points: number
+}
+
+/** One row per completed/expired Mock OA session, most-recent-first — backs the "Mock OAs
+ * completed" table on the stats page. Folded from this user's "attempt" events (mode "oa")
+ * grouped by sessionId, plus that session's own "oa_session_completed" summary event for
+ * completedAt. Per-problem detail is included but meant to stay collapsed/hidden client-side
+ * until the row is expanded. */
+export interface OASessionHistoryEntry {
+  sessionId: string
+  completedAt: string
+  problemsPassed: number
+  problemsTotal: number
+  totalTimeMs: number
+  totalPoints: number
+  problems: OASessionHistoryProblemEntry[]
 }
 
 export interface DailyActivityDay {

@@ -196,10 +196,14 @@ describe("StudyPlanPresenter", () => {
     const result = await new StudyPlanPresenter(planId, view).submitEmbeddedProblem(
       "sp-1",
       submission,
-      12
+      12,
+      { durationMs: 0, linesOfCode: 0 }
     )
 
-    expect(apiClient.submitStudyProblem).toHaveBeenCalledWith(planId, "sp-1", submission, 12)
+    expect(apiClient.submitStudyProblem).toHaveBeenCalledWith(planId, "sp-1", submission, 12, {
+      durationMs: 0,
+      linesOfCode: 0,
+    })
     expect(apiClient.getStudyPlanOverview).toHaveBeenCalledWith(planId)
     expect(result).toEqual(execResult)
   })

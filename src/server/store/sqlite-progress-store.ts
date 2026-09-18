@@ -13,6 +13,7 @@ import type {
   AttemptRecord,
   BlindTestSet,
   BlindTestSetSummary,
+  Difficulty,
   MockInterviewResult,
   OASessionConfig,
   OASessionStatus,
@@ -220,10 +221,16 @@ interface StatEventRow {
   type: string
   occurred_at: string
   problem_id: string | null
+  study_problem_id: string | null
   mode: string | null
   passed: number | null
   duration_ms: number
   lines_of_code: number
+  tests_passed: number | null
+  tests_total: number | null
+  difficulty: string | null
+  points: number | null
+  session_id: string | null
 }
 
 function computeStatus(rows: AttemptRow[]): ProgressStatus {
@@ -422,10 +429,16 @@ export class SqliteProgressStore
         type TEXT NOT NULL,
         occurred_at TEXT NOT NULL,
         problem_id TEXT,
+        study_problem_id TEXT,
         mode TEXT,
         passed INTEGER,
         duration_ms INTEGER NOT NULL DEFAULT 0,
-        lines_of_code INTEGER NOT NULL DEFAULT 0
+        lines_of_code INTEGER NOT NULL DEFAULT 0,
+        tests_passed INTEGER,
+        tests_total INTEGER,
+        difficulty TEXT,
+        points INTEGER NOT NULL DEFAULT 0,
+        session_id TEXT
       );
       CREATE INDEX IF NOT EXISTS idx_user_stat_events_user_id ON user_stat_events(user_id);
       CREATE INDEX IF NOT EXISTS idx_user_stat_events_occurred_at ON user_stat_events(occurred_at);
@@ -445,7 +458,7 @@ export class SqliteProgressStore
    * runs exactly once per database file. Pre-production dev data, so no data is preserved
    * across the migration; a future real migration would need to carry rows forward instead. */
   private migrateStudyPlansToPerPlanState(): void {
-    const STUDY_PLAN_SCHEMA_VERSION = 3
+    const STUDY_PLAN_SCHEMA_VERSION = 6
     const row = this.db.prepare(`SELECT version FROM schema_meta WHERE id = 1`).get() as
       | { version: number }
       | undefined
@@ -463,6 +476,54 @@ export class SqliteProgressStore
       ).some((col) => col.name === "is_active")
       if (!hasIsActive) {
         this.db.exec(`ALTER TABLE study_plans ADD COLUMN is_active INTEGER NOT NULL DEFAULT 0;`)
+      }
+    }
+
+    // Additive, same reasoning as study_plans above: user_stat_events is real per-user
+    // activity history (not disposable dev data like the tables dropped below), so existing
+    // rows must survive — new columns are nullable and simply come back null for rows
+    // recorded before this migration.
+    if (currentVersion < 4) {
+      const statEventColumns = new Set(
+        (
+          this.db.prepare(`PRAGMA table_info(user_stat_events)`).all() as { name: string }[]
+        ).map((col) => col.name)
+      )
+      if (!statEventColumns.has("study_problem_id")) {
+        this.db.exec(`ALTER TABLE user_stat_events ADD COLUMN study_problem_id TEXT;`)
+      }
+      if (!statEventColumns.has("tests_passed")) {
+        this.db.exec(`ALTER TABLE user_stat_events ADD COLUMN tests_passed INTEGER;`)
+      }
+      if (!statEventColumns.has("tests_total")) {
+        this.db.exec(`ALTER TABLE user_stat_events ADD COLUMN tests_total INTEGER;`)
+      }
+      if (!statEventColumns.has("difficulty")) {
+        this.db.exec(`ALTER TABLE user_stat_events ADD COLUMN difficulty TEXT;`)
+      }
+    }
+
+    // Additive, same reasoning as the block above: existing rows predate the points feature
+    // and never earned any, so they come back 0 (read side COALESCEs) rather than null.
+    if (currentVersion < 5) {
+      const hasPoints = (
+        this.db.prepare(`PRAGMA table_info(user_stat_events)`).all() as { name: string }[]
+      ).some((col) => col.name === "points")
+      if (!hasPoints) {
+        this.db.exec(`ALTER TABLE user_stat_events ADD COLUMN points INTEGER;`)
+      }
+    }
+
+    // Additive, same reasoning as the blocks above: links a per-problem OA "attempt" event to
+    // the Mock OA session it was submitted within, so stats-service can fold per-session rows
+    // for the OA history table. Existing rows predate the concept and come back null (no
+    // session to group them into), same as difficulty/testsPassed for pre-migration rows.
+    if (currentVersion < 6) {
+      const hasSessionId = (
+        this.db.prepare(`PRAGMA table_info(user_stat_events)`).all() as { name: string }[]
+      ).some((col) => col.name === "session_id")
+      if (!hasSessionId) {
+        this.db.exec(`ALTER TABLE user_stat_events ADD COLUMN session_id TEXT;`)
       }
     }
 
@@ -1412,8 +1473,10 @@ export class SqliteProgressStore
     this.db
       .prepare(
         `INSERT INTO user_stat_events
-           (id, user_id, type, occurred_at, problem_id, mode, passed, duration_ms, lines_of_code)
-         VALUES (@id, @userId, @type, @occurredAt, @problemId, @mode, @passed, @durationMs, @linesOfCode)`
+           (id, user_id, type, occurred_at, problem_id, study_problem_id, mode, passed,
+            duration_ms, lines_of_code, tests_passed, tests_total, difficulty, points, session_id)
+         VALUES (@id, @userId, @type, @occurredAt, @problemId, @studyProblemId, @mode, @passed,
+            @durationMs, @linesOfCode, @testsPassed, @testsTotal, @difficulty, @points, @sessionId)`
       )
       .run({
         id,
@@ -1421,18 +1484,28 @@ export class SqliteProgressStore
         type: event.type,
         occurredAt: event.occurredAt,
         problemId: event.problemId,
+        studyProblemId: event.studyProblemId,
         mode: event.mode,
         passed: event.passed === null ? null : event.passed ? 1 : 0,
         durationMs: event.durationMs,
         linesOfCode: event.linesOfCode,
+        testsPassed: event.testsPassed,
+        testsTotal: event.testsTotal,
+        difficulty: event.difficulty,
+        points: event.points,
+        sessionId: event.sessionId,
       })
 
     return { id, ...event }
   }
 
   async listStatEvents(userId: string): Promise<StatEvent[]> {
+    // COALESCE points to 0: rows recorded before the points feature existed never earned any,
+    // as opposed to difficulty/testsPassed etc. above where null genuinely means "unknown."
     const rows = this.db
-      .prepare(`SELECT * FROM user_stat_events WHERE user_id = ? ORDER BY occurred_at ASC`)
+      .prepare(
+        `SELECT *, COALESCE(points, 0) AS points FROM user_stat_events WHERE user_id = ? ORDER BY occurred_at ASC`
+      )
       .all(userId) as StatEventRow[]
 
     return rows.map((row) => ({
@@ -1441,10 +1514,16 @@ export class SqliteProgressStore
       type: row.type as StatEventType,
       occurredAt: row.occurred_at,
       problemId: row.problem_id,
+      studyProblemId: row.study_problem_id,
       mode: row.mode as PracticeMode | null,
       passed: row.passed === null ? null : row.passed === 1,
       durationMs: row.duration_ms,
       linesOfCode: row.lines_of_code,
+      testsPassed: row.tests_passed,
+      testsTotal: row.tests_total,
+      difficulty: row.difficulty as Difficulty | null,
+      points: row.points ?? 0,
+      sessionId: row.session_id,
     }))
   }
 
