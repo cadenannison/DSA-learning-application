@@ -18,6 +18,11 @@
     {
       "input": "triangle = [[-10]]",
       "output": "-10"
+    },
+    {
+      "input": "triangle = [[1],[2,3]]",
+      "output": "3",
+      "explanation": "With just two rows, the only choices from the top are 2 or 3, and 1+2=3 is the minimum."
     }
   ],
   "constraints": [

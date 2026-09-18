@@ -16,6 +16,11 @@
     {
       "input": "head = [1,2,3,4,5,6,7,8,9,10], k = 3",
       "output": "[[1,2,3,4],[5,6,7],[8,9,10]]"
+    },
+    {
+      "input": "head = [], k = 3",
+      "output": "[[],[],[]]",
+      "explanation": "An empty list has no nodes to distribute, so every one of the k parts is simply an empty array."
     }
   ],
   "constraints": [

@@ -18,6 +18,11 @@
     {
       "input": "head = [1,1,1,2,3]",
       "output": "[2,3]"
+    },
+    {
+      "input": "head = [1,1]",
+      "output": "[]",
+      "explanation": "A two-node list where both nodes share the same value: since the whole run is a duplicate, both are removed entirely, leaving an empty list."
     }
   ],
   "constraints": [

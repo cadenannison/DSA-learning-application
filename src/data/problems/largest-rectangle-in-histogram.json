@@ -19,6 +19,11 @@
     {
       "input": "heights = [2,4]",
       "output": "4"
+    },
+    {
+      "input": "heights = [0]",
+      "output": "0",
+      "explanation": "A single bar of height 0 contributes no area, showing the minimum-height boundary allowed by the constraints."
     }
   ],
   "constraints": [

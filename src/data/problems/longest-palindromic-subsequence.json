@@ -20,6 +20,11 @@
       "input": "s = \"cbbd\"",
       "output": "2",
       "explanation": "One longest palindromic subsequence is \"bb\"."
+    },
+    {
+      "input": "s = \"a\"",
+      "output": "1",
+      "explanation": "A single character is trivially its own palindromic subsequence of length 1, the minimum possible input size."
     }
   ],
   "constraints": [

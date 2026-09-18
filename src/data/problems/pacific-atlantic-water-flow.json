@@ -20,6 +20,11 @@
       "input": "heights = [[1]]",
       "output": "[[0,0]]",
       "explanation": "The single cell touches both oceans trivially."
+    },
+    {
+      "input": "heights = [[3,3],[3,3]]",
+      "output": "[[0,0],[0,1],[1,0],[1,1]]",
+      "explanation": "A flat 2x2 grid: since equal heights still allow flow, water from every cell can reach both the top/left border (Pacific) and the bottom/right border (Atlantic), so all cells qualify."
     }
   ],
   "constraints": [

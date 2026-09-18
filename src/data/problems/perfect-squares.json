@@ -19,6 +19,11 @@
       "input": "n = 13",
       "output": "2",
       "explanation": "13 = 4 + 9."
+    },
+    {
+      "input": "n = 1",
+      "output": "1",
+      "explanation": "At the minimum boundary, n is itself a perfect square (1 = 1^2), so only one square is needed."
     }
   ],
   "constraints": [

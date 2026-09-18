@@ -18,6 +18,11 @@
     {
       "input": "nums = [2,0,1]",
       "output": "[0,1,2]"
+    },
+    {
+      "input": "nums = [0]",
+      "output": "[0]",
+      "explanation": "A single element, the minimum-size input allowed, is trivially already sorted."
     }
   ],
   "constraints": [

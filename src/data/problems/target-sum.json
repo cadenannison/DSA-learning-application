@@ -18,6 +18,11 @@
     {
       "input": "nums = [1], target = 1",
       "output": "1"
+    },
+    {
+      "input": "nums = [1], target = 2",
+      "output": "0",
+      "explanation": "With a single element, the only reachable sums are +1 and -1, so a target of 2 is unreachable."
     }
   ],
   "constraints": [

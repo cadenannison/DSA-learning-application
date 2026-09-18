@@ -17,6 +17,11 @@
     {
       "input": "n = 2, operations = [[\"reserve\"],[\"reserve\"],[\"unreserve\",1],[\"reserve\"]]",
       "output": "[1,2,1]"
+    },
+    {
+      "input": "n = 1, operations = [[\"reserve\"]]",
+      "output": "[1]",
+      "explanation": "With only one seat available and a single reserve call, seat 1 is the only possible choice."
     }
   ],
   "constraints": [

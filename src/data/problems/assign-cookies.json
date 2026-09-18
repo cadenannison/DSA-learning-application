@@ -18,6 +18,11 @@
       "input": "g = [1,2], s = [1,2,3]",
       "output": "2",
       "explanation": "You have 3 cookies and 2 children. You can satisfy both children."
+    },
+    {
+      "input": "g = [7], s = []",
+      "output": "0",
+      "explanation": "There are no cookies at all, so even a single child cannot be made content."
     }
   ],
   "constraints": [

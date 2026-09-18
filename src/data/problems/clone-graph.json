@@ -20,6 +20,11 @@
       "input": "graph = [[]]",
       "output": "[[]]",
       "explanation": "A single isolated node with no neighbors clones to a single isolated node."
+    },
+    {
+      "input": "graph = []",
+      "output": "[]",
+      "explanation": "An empty graph (no nodes at all) simply clones to an empty adjacency list."
     }
   ],
   "constraints": [

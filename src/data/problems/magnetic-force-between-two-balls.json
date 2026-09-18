@@ -17,6 +17,11 @@
     {
       "input": "position = [5,4,3,2,1,1000000000], m = 2",
       "output": "999999999"
+    },
+    {
+      "input": "position = [1,2], m = 2",
+      "output": "1",
+      "explanation": "With only two baskets and two balls, one ball must go in each basket, forcing a distance of 1."
     }
   ],
   "constraints": [

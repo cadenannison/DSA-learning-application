@@ -21,6 +21,11 @@
       "input": "intervals = [[7,10],[2,4]]",
       "output": "1",
       "explanation": "The meetings don't overlap, so one room suffices."
+    },
+    {
+      "input": "intervals = [[1,5],[5,10],[10,15]]",
+      "output": "1",
+      "explanation": "Meetings that only touch at an endpoint (one ends exactly when the next begins) don't count as overlapping, so a single room can handle all of them back-to-back."
     }
   ],
   "constraints": [

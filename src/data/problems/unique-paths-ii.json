@@ -18,6 +18,11 @@
     {
       "input": "obstacle_grid = [[0,1],[0,0]]",
       "output": "1"
+    },
+    {
+      "input": "obstacle_grid = [[1,0]]",
+      "output": "0",
+      "explanation": "When the starting cell itself is an obstacle, the robot can never begin moving, so there are 0 valid paths regardless of the rest of the grid."
     }
   ],
   "constraints": [

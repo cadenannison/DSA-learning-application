@@ -21,6 +21,11 @@
       "input": "head = [1,2,3,4,5], k = 3",
       "output": "[3,2,1,4,5]",
       "explanation": "The first group of 3 is reversed; only 2 nodes remain after that, fewer than k, so they stay in original order."
+    },
+    {
+      "input": "head = [1,2,3], k = 1",
+      "output": "[1,2,3]",
+      "explanation": "With k = 1 (the minimum allowed), every 'group' has exactly one node, so reversing each group changes nothing."
     }
   ],
   "constraints": [

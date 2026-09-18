@@ -20,6 +20,11 @@
       "input": "s1 = \"ab\", s2 = \"eidboaoo\"",
       "output": "false",
       "explanation": "No substring of s2 is a permutation of \"ab\"."
+    },
+    {
+      "input": "s1 = \"ab\", s2 = \"a\"",
+      "output": "false",
+      "explanation": "s2 is shorter than s1, so no window of matching length even exists"
     }
   ],
   "constraints": [

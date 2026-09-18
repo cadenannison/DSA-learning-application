@@ -17,6 +17,11 @@
     {
       "input": "dungeon = [[0]]",
       "output": "1"
+    },
+    {
+      "input": "dungeon = [[-1]]",
+      "output": "2",
+      "explanation": "With a single demon cell, the knight needs 2 starting health so that after losing 1 health he still has 1 left, since health must stay at least 1 the whole time."
     }
   ],
   "constraints": [

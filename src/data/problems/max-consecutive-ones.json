@@ -18,6 +18,11 @@
     {
       "input": "nums = [1,0,1,1,0,1]",
       "output": "2"
+    },
+    {
+      "input": "nums = [0,0,0]",
+      "output": "0",
+      "explanation": "There are no 1s at all, so the longest run of consecutive 1s is 0"
     }
   ],
   "constraints": [

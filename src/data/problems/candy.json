@@ -19,6 +19,11 @@
       "input": "ratings = [1,2,2]",
       "output": "4",
       "explanation": "Give candies [1,2,1]. The third child gets 1 candy since equal ratings don't require more candies than a neighbor. Total is 4."
+    },
+    {
+      "input": "ratings = [5]",
+      "output": "1",
+      "explanation": "With only one child and no neighbors to compare against, the minimum required is a single candy."
     }
   ],
   "constraints": [

@@ -17,6 +17,11 @@
     {
       "input": "customers = [1], grumpy = [0], minutes = 1",
       "output": "1"
+    },
+    {
+      "input": "customers = [2,2,2], grumpy = [0,0,0], minutes = 1",
+      "output": "6",
+      "explanation": "The owner is never grumpy, so every customer is already satisfied regardless of where the technique is used"
     }
   ],
   "constraints": [

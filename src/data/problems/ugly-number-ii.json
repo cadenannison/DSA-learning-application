@@ -19,6 +19,11 @@
       "input": "n = 1",
       "output": "1",
       "explanation": "1 has no prime factors, so by convention it's the first ugly number."
+    },
+    {
+      "input": "n = 2",
+      "output": "2",
+      "explanation": "The second ugly number after 1 is 2 itself, the smallest number whose only prime factor is 2."
     }
   ],
   "constraints": [

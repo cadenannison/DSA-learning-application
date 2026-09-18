@@ -19,6 +19,11 @@
       "input": "trips = [[2,1,5],[3,3,7]], capacity = 5",
       "output": "true",
       "explanation": "The peak overlap is 5 passengers, which exactly fits the capacity."
+    },
+    {
+      "input": "trips = [[9,3,4]], capacity = 10",
+      "output": "true",
+      "explanation": "A single trip can never exceed capacity as long as its own passenger count fits, since there's nothing to overlap with."
     }
   ],
   "constraints": [

@@ -19,6 +19,11 @@
       "input": "s1 = \"jmeqksfrsdcmsiwvaovztaqenprpvnbstl\", s2 = \"u\"",
       "output": "\"\"",
       "explanation": "s2 contains a character 'u' that doesn't appear in s1 at all."
+    },
+    {
+      "input": "s1 = \"abc\", s2 = \"abc\"",
+      "output": "\"abc\"",
+      "explanation": "s2 matches s1 exactly, so the entire string is the minimum window"
     }
   ],
   "constraints": [

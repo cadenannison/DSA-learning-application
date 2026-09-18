@@ -20,6 +20,11 @@
       "input": "n = 4294967293 (binary: 11111111111111111111111111111101)",
       "output": "3221225471",
       "explanation": "Reversing the 32 bits gives binary 10111111111111111111111111111111, which is 3221225471."
+    },
+    {
+      "input": "n = 0 (binary: 00000000000000000000000000000000)",
+      "output": "0",
+      "explanation": "All 32 bits are 0, so reversing them changes nothing."
     }
   ],
   "constraints": [

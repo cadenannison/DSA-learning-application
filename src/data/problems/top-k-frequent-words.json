@@ -19,6 +19,11 @@
       "input": "words = [\"the\",\"day\",\"is\",\"sunny\",\"the\",\"the\",\"the\",\"sunny\",\"is\",\"is\"], k = 4",
       "output": "[\"the\",\"is\",\"sunny\",\"day\"]",
       "explanation": "\"the\": 4, \"is\": 3, \"sunny\": 2, \"day\": 1, so ordering by frequency (desc) gives this exact result."
+    },
+    {
+      "input": "words = [\"b\",\"a\"], k = 2",
+      "output": "[\"a\",\"b\"]",
+      "explanation": "Both words appear exactly once, tying in frequency, so the alphabetical tie-break rule decides the order: \"a\" comes before \"b\"."
     }
   ],
   "constraints": [

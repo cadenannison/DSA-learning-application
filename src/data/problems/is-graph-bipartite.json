@@ -19,6 +19,11 @@
       "input": "graph = [[1,3],[0,2],[1,3],[0,2]]",
       "output": "true",
       "explanation": "Split into {0,2} and {1,3}; every edge crosses between the two sets."
+    },
+    {
+      "input": "graph = [[]]",
+      "output": "true",
+      "explanation": "A single isolated node with no edges has no constraints to violate, so it's trivially bipartite (it can sit alone in either set)."
     }
   ],
   "constraints": [

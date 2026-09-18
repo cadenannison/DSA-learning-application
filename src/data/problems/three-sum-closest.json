@@ -17,7 +17,13 @@
     },
     {
       "input": "nums = [0,0,0], target = 1",
-      "output": "0"
+      "output": "0",
+      "explanation": "With only three identical elements (the minimum-length input allowed), there's only one possible triplet sum to consider."
+    },
+    {
+      "input": "nums = [1,1,1,0], target = -100",
+      "output": "2",
+      "explanation": "When target is far below every possible triplet sum, the closest achievable sum is simply the smallest one available: 1+1+0=2."
     }
   ],
   "constraints": [

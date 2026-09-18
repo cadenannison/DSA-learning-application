@@ -19,6 +19,11 @@
       "input": "n = 6, edges = [[3,0],[3,1],[3,2],[3,4],[5,4]]",
       "output": "[3,4]",
       "explanation": "Rooting at 3 or 4 both give the minimum height of 2."
+    },
+    {
+      "input": "n = 1, edges = []",
+      "output": "[0]",
+      "explanation": "A single node with no edges has height 0 no matter what, and is trivially its own minimum-height root."
     }
   ],
   "constraints": [

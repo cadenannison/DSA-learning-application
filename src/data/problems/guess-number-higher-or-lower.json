@@ -17,6 +17,11 @@
     {
       "input": "n = 1, pick = 1",
       "output": "1"
+    },
+    {
+      "input": "n = 100, pick = 99",
+      "output": "99",
+      "explanation": "When the pick sits near the upper end of the range, binary search still needs only a logarithmic number of guesses to converge on it."
     }
   ],
   "constraints": [

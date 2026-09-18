@@ -21,6 +21,11 @@
       "input": "intervals = [[7,10],[2,4]]",
       "output": "true",
       "explanation": "The two meetings do not overlap."
+    },
+    {
+      "input": "intervals = []",
+      "output": "true",
+      "explanation": "With no meetings scheduled at all, there is nothing that could conflict, so a single person trivially can attend everything."
     }
   ],
   "constraints": [

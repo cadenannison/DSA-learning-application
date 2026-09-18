@@ -19,6 +19,11 @@
       "input": "nums = [0,0,1,1,1,1,2,3,3]",
       "output": "7",
       "explanation": "The first seven elements become [0,0,1,1,2,3,3]; k = 7."
+    },
+    {
+      "input": "nums = [1,1]",
+      "output": "2",
+      "explanation": "With only two identical elements, both are within the allowed limit of two copies, so nothing is removed and k = 2."
     }
   ],
   "constraints": [

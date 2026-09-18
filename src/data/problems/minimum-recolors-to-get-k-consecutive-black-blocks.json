@@ -18,6 +18,11 @@
       "input": "blocks = \"WBWBBBW\", k = 2",
       "output": "0",
       "explanation": "There's already a window of 2 consecutive black blocks, so no recoloring is needed."
+    },
+    {
+      "input": "blocks = \"WWWW\", k = 4",
+      "output": "4",
+      "explanation": "Every block is white and the window spans the entire string, so all 4 blocks must be recolored"
     }
   ],
   "constraints": [

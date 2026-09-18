@@ -19,6 +19,11 @@
       "input": "amount = 3, coins = [2]",
       "output": "0",
       "explanation": "No combination of 2s sums to 3."
+    },
+    {
+      "input": "amount = 0, coins = [1,2,5]",
+      "output": "1",
+      "explanation": "There is exactly one way to make an amount of 0: use no coins at all."
     }
   ],
   "constraints": [

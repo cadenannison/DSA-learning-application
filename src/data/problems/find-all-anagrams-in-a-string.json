@@ -20,6 +20,11 @@
       "input": "s = \"abab\", p = \"ab\"",
       "output": "[0,1,2]",
       "explanation": "The substrings starting at indices 0, 1, and 2 are all anagrams of \"ab\"."
+    },
+    {
+      "input": "s = \"a\", p = \"ab\"",
+      "output": "[]",
+      "explanation": "p is longer than s, so no window of s can ever match p's length, and the result is empty"
     }
   ],
   "constraints": [

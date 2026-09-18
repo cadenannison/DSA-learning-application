@@ -18,6 +18,11 @@
     {
       "input": "citations = [1,3,1]",
       "output": "1"
+    },
+    {
+      "input": "citations = [0,0,0,0]",
+      "output": "0",
+      "explanation": "With zero citations on every paper, not even a single paper has at least 1 citation, so the h-index is 0."
     }
   ],
   "constraints": [

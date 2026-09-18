@@ -16,6 +16,11 @@
     {
       "input": "target = [1,2,3], n = 3",
       "output": "[\"Push\",\"Push\",\"Push\"]"
+    },
+    {
+      "input": "target = [2], n = 4",
+      "output": "[\"Push\",\"Pop\",\"Push\"]",
+      "explanation": "Only one element is needed, and the stream stops being processed as soon as target is fully built, even though n allows numbers up to 4: 1 is pushed then popped (discarded), 2 is pushed and kept."
     }
   ],
   "constraints": [

@@ -19,6 +19,11 @@
       "input": "grid = [[0,1,0],[0,0,0],[0,0,1]]",
       "output": "2",
       "explanation": "The two islands are two cells apart in Manhattan distance minus the endpoints, requiring 2 flips to connect."
+    },
+    {
+      "input": "grid = [[1,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,1]]",
+      "output": "5",
+      "explanation": "The two single-cell islands sit at opposite corners of the grid, requiring the maximum possible bridge length for this small grid size."
     }
   ],
   "constraints": [

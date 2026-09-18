@@ -19,6 +19,11 @@
       "input": "nums = [3,2,1,0,4]",
       "output": "false",
       "explanation": "You will always arrive at index 3 with a jump length of 0, which is too short to escape."
+    },
+    {
+      "input": "nums = [0]",
+      "output": "true",
+      "explanation": "With only one element, you start already at the last index, so no jump is needed at all."
     }
   ],
   "constraints": [

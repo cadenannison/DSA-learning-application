@@ -18,6 +18,11 @@
       "input": "n = 3, relations = [[1,2],[2,3],[3,1]]",
       "output": "-1",
       "explanation": "1 -> 2 -> 3 -> 1 forms a cycle, so no valid completion order exists."
+    },
+    {
+      "input": "n = 1, relations = []",
+      "output": "1",
+      "explanation": "A single course with no prerequisites can be taken in the first (and only) semester."
     }
   ],
   "constraints": [

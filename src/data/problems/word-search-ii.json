@@ -20,6 +20,11 @@
       "input": "board = [[\"a\",\"b\"],[\"c\",\"d\"]], words = [\"abcb\"]",
       "output": "[]",
       "explanation": "\"abcb\" would require reusing the cell containing 'b', which isn't allowed within a single word's path."
+    },
+    {
+      "input": "board = [[\"a\"]], words = [\"a\"]",
+      "output": "[\"a\"]",
+      "explanation": "A single-cell board trivially matches a single-letter word with no adjacency steps needed."
     }
   ],
   "constraints": [

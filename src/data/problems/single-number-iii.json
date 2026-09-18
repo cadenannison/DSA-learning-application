@@ -18,6 +18,11 @@
     {
       "input": "nums = [-1,0]",
       "output": "[-1,0]"
+    },
+    {
+      "input": "nums = [4,1,4,2]",
+      "output": "[1,2]",
+      "explanation": "4 appears as a duplicated pair and cancels out, leaving 1 and 2 as the two elements that appear only once."
     }
   ],
   "constraints": [

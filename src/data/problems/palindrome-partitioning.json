@@ -18,7 +18,13 @@
     },
     {
       "input": "s = \"a\"",
-      "output": "[[\"a\"]]"
+      "output": "[[\"a\"]]",
+      "explanation": "The smallest possible input: a single character is trivially its own palindrome partition."
+    },
+    {
+      "input": "s = \"aaa\"",
+      "output": "[[\"a\",\"a\",\"a\"],[\"a\",\"aa\"],[\"aa\",\"a\"],[\"aaa\"]]",
+      "explanation": "Every substring of an all-repeated-character string is a palindrome, so every possible cut pattern is valid."
     }
   ],
   "constraints": [

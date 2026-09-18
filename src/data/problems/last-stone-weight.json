@@ -18,6 +18,11 @@
     {
       "input": "stones = [1]",
       "output": "1"
+    },
+    {
+      "input": "stones = [10,10,10,10]",
+      "output": "0",
+      "explanation": "All stones are equal weight, so they cancel out completely in pairs (10 vs 10 -> both destroyed, twice), leaving no stones and a result of 0."
     }
   ],
   "constraints": [

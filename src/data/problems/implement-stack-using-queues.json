@@ -13,6 +13,16 @@
       "input": "ops = [[\"push\",1],[\"push\",2],[\"top\",null],[\"pop\",null],[\"empty\",null]]",
       "output": "[2,2,false]",
       "explanation": "top() returns 2 (the most recently pushed). pop() removes and returns 2. empty() is false since 1 remains."
+    },
+    {
+      "input": "ops = [[\"push\",1],[\"empty\",null]]",
+      "output": "[false]",
+      "explanation": "After a single push, the stack holds one element, so empty() correctly reports false."
+    },
+    {
+      "input": "ops = [[\"push\",9],[\"top\",null],[\"top\",null],[\"pop\",null],[\"empty\",null]]",
+      "output": "[9,9,9,true]",
+      "explanation": "Repeated top() calls on a single-element stack don't consume it, returning 9 both times; after pop() removes it, the stack is empty."
     }
   ],
   "constraints": [

@@ -18,6 +18,11 @@
     {
       "input": "matrix = [[5,1],[2,4]]",
       "output": "[[2,5],[4,1]]"
+    },
+    {
+      "input": "matrix = [[1]]",
+      "output": "[[1]]",
+      "explanation": "A single-cell matrix, the smallest allowed by the constraints, is unchanged by any rotation."
     }
   ],
   "constraints": [

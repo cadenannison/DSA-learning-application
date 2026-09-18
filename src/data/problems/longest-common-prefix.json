@@ -20,6 +20,11 @@
       "input": "strs = [\"dog\",\"racecar\",\"car\"]",
       "output": "\"\"",
       "explanation": "The strings share no common prefix at all."
+    },
+    {
+      "input": "strs = [\"\",\"abc\"]",
+      "output": "\"\"",
+      "explanation": "Since one string is empty, there's no character it shares with any other string at position 0, so the longest common prefix is the empty string."
     }
   ],
   "constraints": [

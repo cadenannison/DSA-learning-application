@@ -17,6 +17,11 @@
     {
       "input": "k = 3, w = 0, profits = [1,2,3], capital = [0,1,2]",
       "output": "6"
+    },
+    {
+      "input": "k = 2, w = 0, profits = [5], capital = [10]",
+      "output": "0",
+      "explanation": "The only project requires 10 capital but we start with 0 and have no finished projects to unlock it, so no project is ever affordable and capital stays at 0."
     }
   ],
   "constraints": [

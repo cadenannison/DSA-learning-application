@@ -18,6 +18,11 @@
       "input": "words = [\"a\",\"banana\",\"app\",\"appl\",\"ap\",\"apply\",\"apple\"]",
       "output": "\"apple\"",
       "explanation": "Both \"apple\" and \"apply\" are buildable and have the same length 5; \"apple\" is lexicographically smaller."
+    },
+    {
+      "input": "words = [\"abc\"]",
+      "output": "\"\"",
+      "explanation": "\"abc\" requires \"a\" and \"ab\" to also be present in words to be buildable one letter at a time, but neither is, so no word qualifies and the result is an empty string."
     }
   ],
   "constraints": [

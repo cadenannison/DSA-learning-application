@@ -19,6 +19,11 @@
       "input": "root = [0,0,null,0,null,0,null,null,0]",
       "output": "2",
       "explanation": "Two cameras are needed to cover this longer chain."
+    },
+    {
+      "input": "root = [0]",
+      "output": "1",
+      "explanation": "A single node with no children is never covered by anything else, so it needs its own camera."
     }
   ],
   "constraints": [

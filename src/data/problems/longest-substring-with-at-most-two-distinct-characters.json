@@ -19,6 +19,11 @@
       "input": "s = \"ccaabbb\"",
       "output": "5",
       "explanation": "The substring \"aabbb\" has length 5 with 2 distinct characters, 'a' and 'b'."
+    },
+    {
+      "input": "s = \"\"",
+      "output": "0",
+      "explanation": "The string is empty, so there is no substring to consider and the answer is 0"
     }
   ],
   "constraints": [

@@ -20,6 +20,11 @@
       "input": "grid = [[2,1,1],[0,1,1],[1,0,1]]",
       "output": "-1",
       "explanation": "The orange in the bottom-left corner is never adjacent to a rotten orange, so it can never rot."
+    },
+    {
+      "input": "grid = [[0]]",
+      "output": "0",
+      "explanation": "The grid has no oranges at all, so no time needs to pass before every (nonexistent) fresh orange is rotten."
     }
   ],
   "constraints": [

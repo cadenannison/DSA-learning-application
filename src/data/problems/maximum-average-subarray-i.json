@@ -18,6 +18,11 @@
     {
       "input": "nums = [5], k = 1",
       "output": "5.00000"
+    },
+    {
+      "input": "nums = [-1,-2,-3,-4], k = 2",
+      "output": "-1.50000",
+      "explanation": "All values are negative, so the best window is the one that minimizes the loss: [-1,-2], averaging -1.5"
     }
   ],
   "constraints": [

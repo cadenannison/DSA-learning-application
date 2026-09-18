@@ -19,7 +19,12 @@
     },
     {
       "input": "n = 1",
-      "output": "[\"()\"]"
+      "output": "[\"()\"]",
+      "explanation": "The smallest possible input: exactly one pair of parentheses has only one well-formed arrangement."
+    },
+    {
+      "input": "n = 2",
+      "output": "[\"(())\",\"()()\"]"
     }
   ],
   "constraints": [

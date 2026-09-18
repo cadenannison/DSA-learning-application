@@ -18,6 +18,11 @@
       "input": "blocked = [], source = [0,0], target = [999999,999999]",
       "output": "true",
       "explanation": "With no obstacles, the target is always reachable."
+    },
+    {
+      "input": "blocked = [[0,1],[1,1],[1,0]], source = [0,0], target = [5,5]",
+      "output": "false",
+      "explanation": "Three blocked cells form a diagonal wall that seals the source into a tiny corner pocket, so no matter how far target is, it can't be reached."
     }
   ],
   "constraints": [

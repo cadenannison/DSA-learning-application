@@ -18,6 +18,11 @@
       "input": "grid = [[1,0,0],[0,0,0],[0,0,0]]",
       "output": "4",
       "explanation": "The cell (2,2) is farthest from the single land cell at (0,0), at Manhattan distance 4."
+    },
+    {
+      "input": "grid = [[1,1],[1,1]]",
+      "output": "-1",
+      "explanation": "The grid is entirely land, so there is no water cell to measure a distance from, and the answer is -1."
     }
   ],
   "constraints": [

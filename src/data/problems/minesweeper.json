@@ -18,6 +18,11 @@
       "input": "board = [[\"B\",\"1\",\"M\"],[\"B\",\"1\",\"M\"],[\"B\",\"B\",\"B\"]], clickr = 1, clickc = 2",
       "output": "[[\"B\",\"1\",\"M\"],[\"B\",\"1\",\"X\"],[\"B\",\"B\",\"B\"]]",
       "explanation": "The clicked square is a mine, so it is revealed as 'X' and nothing else changes."
+    },
+    {
+      "input": "board = [[\"E\",\"M\"],[\"E\",\"E\"]], clickr = 1, clickc = 0",
+      "output": "[[\"E\",\"M\"],[\"1\",\"E\"]]",
+      "explanation": "The clicked cell has one adjacent mine, so it's revealed as the digit '1' and the auto-expansion stops immediately there rather than spreading further."
     }
   ],
   "constraints": [

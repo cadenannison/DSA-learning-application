@@ -19,6 +19,11 @@
       "input": "root = [1,2,3,null,4,null,5], x = 4, y = 5",
       "output": "true",
       "explanation": "Both 4 and 5 are at depth 2, and their parents (2 and 3 respectively) are different."
+    },
+    {
+      "input": "root = [1,2,3,null,4], x = 2, y = 3",
+      "output": "false",
+      "explanation": "Nodes 2 and 3 are both at depth 1 and share the same parent (1), making them siblings rather than cousins."
     }
   ],
   "constraints": [

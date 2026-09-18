@@ -19,6 +19,11 @@
       "input": "root = [5,3,6,2,4,null,7], key = 0",
       "output": "[5,3,6,2,4,null,7]",
       "explanation": "Key 0 isn't in the tree, so it's returned unchanged."
+    },
+    {
+      "input": "root = [], key = 0",
+      "output": "[]",
+      "explanation": "Deleting from an empty tree has nothing to remove, so the result is still an empty tree."
     }
   ],
   "constraints": [

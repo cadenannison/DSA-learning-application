@@ -15,7 +15,13 @@
     },
     {
       "input": "arr = [400]",
-      "output": "[-1]"
+      "output": "[-1]",
+      "explanation": "With only a single element and no elements to its right, it is replaced with -1, the minimum-size input allowed by the constraints."
+    },
+    {
+      "input": "arr = [1,2,3,4,5]",
+      "output": "[5,5,5,5,-1]",
+      "explanation": "In a strictly increasing array, every position's greatest-to-the-right value is simply the final element, until the last position itself becomes -1."
     }
   ],
   "constraints": [

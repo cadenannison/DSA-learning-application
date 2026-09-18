@@ -1,18 +1,35 @@
 import type { Pattern } from '../types';
 import { dpPattern } from './dp';
 import { graphsPattern } from './graphs';
+import { backtrackingPattern } from './backtracking';
+import { bfsDfsPattern } from './bfsDfs';
+import { binarySearchPattern } from './binarySearch';
+import { greedyPattern } from './greedy';
+import { heapsPattern } from './heaps';
+import { intervalsPattern } from './intervals';
+import { linkedListPattern } from './linkedList';
+import { slidingWindowPattern } from './slidingWindow';
+import { stacksQueuesPattern } from './stacksQueues';
+import { treesPattern } from './trees';
+import { triesPattern } from './tries';
+import { twoPointersPattern } from './twoPointers';
 
-/** The finished patterns. Add to this array as more are authored (see README). */
-export const PATTERNS: Pattern[] = [dpPattern, graphsPattern];
-
-/**
- * Labels for patterns that exist in the app's curriculum but don't have
- * Pattern Lab content yet. Shown as disabled "soon" tabs so the full set is
- * visible from day one. Remove an entry here once its Pattern object is
- * added to PATTERNS above, in the same relative order.
- */
-export const SOON_PATTERNS: string[] = [
-  'Backtracking', 'BFS / DFS', 'Binary Search', 'Greedy', 'Heaps',
-  'Intervals', 'Linked List', 'Sliding Window', 'Stacks / Queues',
-  'Trees', 'Tries', 'Two Pointers',
+export const PATTERNS: Pattern[] = [
+  dpPattern,
+  graphsPattern,
+  backtrackingPattern,
+  bfsDfsPattern,
+  binarySearchPattern,
+  greedyPattern,
+  heapsPattern,
+  intervalsPattern,
+  linkedListPattern,
+  slidingWindowPattern,
+  stacksQueuesPattern,
+  treesPattern,
+  triesPattern,
+  twoPointersPattern,
 ];
+
+// All 14 patterns are now content-complete — nothing left "soon".
+export const SOON_PATTERNS: string[] = [];

@@ -19,6 +19,11 @@
       "input": "dictionary = [\"a\",\"b\",\"c\"], sentence = \"aadsfasf absfasf acewrewe\"",
       "output": "\"a a a\"",
       "explanation": "Every word in the sentence begins with one of the single-letter roots."
+    },
+    {
+      "input": "dictionary = [], sentence = \"no roots here\"",
+      "output": "\"no roots here\"",
+      "explanation": "With an empty dictionary, no word can match any root, so the sentence is returned completely unchanged."
     }
   ],
   "constraints": [

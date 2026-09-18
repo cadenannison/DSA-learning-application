@@ -21,6 +21,11 @@
       "input": "nums = [6,10,2,6,5], queries = [0,4]",
       "output": "[6.0,6.0]",
       "explanation": "After just [6], median=6.0. After all 5 values sorted as [2,5,6,6,10], the middle value is 6, so median=6.0."
+    },
+    {
+      "input": "nums = [1], queries = [0]",
+      "output": "[1.0]",
+      "explanation": "With only a single number added, the median is just that number itself."
     }
   ],
   "constraints": [

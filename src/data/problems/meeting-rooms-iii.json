@@ -18,6 +18,11 @@
       "input": "n = 3, meetings = [[1,20],[2,10],[3,5],[4,9],[6,8]]",
       "output": "1",
       "explanation": "Rooms 0, 1, 2 take the first three meetings directly. The 4th and 5th meetings wait for the earliest freed rooms. Room 1 ends up hosting the most."
+    },
+    {
+      "input": "n = 1, meetings = [[0,5],[5,10]]",
+      "output": "0",
+      "explanation": "With only a single room available, every meeting is forced into room 0 regardless of how many meetings there are, so it trivially holds the most (and only) meetings."
     }
   ],
   "constraints": [

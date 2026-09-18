@@ -17,6 +17,11 @@
     {
       "input": "servers = [5,1,4,3,2], tasks = [2,1,2,4,5,2,1]",
       "output": "[1,4,1,4,1,3,2]"
+    },
+    {
+      "input": "servers = [1], tasks = [1,1,1]",
+      "output": "[0,0,0]",
+      "explanation": "With only a single server, every task must be handled by server 0, one after another, each becoming free again just in time for the next task's arrival."
     }
   ],
   "constraints": [

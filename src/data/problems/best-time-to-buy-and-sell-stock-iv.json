@@ -19,6 +19,11 @@
       "input": "k = 2, prices = [3,2,6,5,0,3]",
       "output": "7",
       "explanation": "Buy on day 1 (price=2), sell on day 2 (price=6), profit=4. Buy on day 4 (price=0), sell on day 5 (price=3), profit=3. Total=7."
+    },
+    {
+      "input": "k = 0, prices = [5,10,15]",
+      "output": "0",
+      "explanation": "With k=0 transactions allowed, no trade can be made no matter how the prices move, so the profit is always 0."
     }
   ],
   "constraints": [

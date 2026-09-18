@@ -14,6 +14,16 @@
       "input": "k = 3, ops = [[\"enQueue\",1],[\"enQueue\",2],[\"enQueue\",3],[\"enQueue\",4],[\"Rear\",null],[\"isFull\",null],[\"deQueue\",null],[\"enQueue\",4],[\"Rear\",null]]",
       "output": "[true,true,true,false,3,true,true,true,4]",
       "explanation": "The queue fills to capacity 3 (values 1,2,3); the 4th enQueue fails. After dequeuing (removing 1), there's room for the new 4."
+    },
+    {
+      "input": "k = 1, ops = [[\"enQueue\",5],[\"isFull\",null],[\"Front\",null],[\"Rear\",null],[\"deQueue\",null],[\"isEmpty\",null]]",
+      "output": "[true,true,5,5,true,true]",
+      "explanation": "With capacity 1, the single enqueued value is both Front and Rear, and the queue is immediately full; dequeuing it makes the queue empty again."
+    },
+    {
+      "input": "k = 2, ops = [[\"isEmpty\",null],[\"deQueue\",null],[\"Front\",null]]",
+      "output": "[true,false,-1]",
+      "explanation": "deQueue on an empty queue fails and returns false rather than raising an error, and Front on an empty queue returns -1."
     }
   ],
   "constraints": [

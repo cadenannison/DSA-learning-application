@@ -12,6 +12,16 @@
       "input": "queries = [\"FooBar\",\"FooBarTest\",\"FootBall\",\"FrameBuffer\",\"ForceFeedBack\"], pattern = \"FB\"",
       "output": "[true,false,true,true,false]",
       "explanation": "\"FooBar\" can be formed from \"FB\" by inserting \"oo\" and \"ar\". \"FooBarTest\" fails because the trailing \"Test\" introduces an uppercase T that has no counterpart in the pattern after matching FB. \"FootBall\" and \"FrameBuffer\" both work by inserting lowercase letters only. \"ForceFeedBack\" fails because it has an extra uppercase F."
+    },
+    {
+      "input": "queries = [\"FB\",\"FoobBar\"], pattern = \"FB\"",
+      "output": "[true,true]",
+      "explanation": "\"FB\" matches the pattern exactly with zero insertions. \"FoobBar\" matches by inserting the lowercase letters \"oob\" and \"ar\" around the required F and B."
+    },
+    {
+      "input": "queries = [\"\",\"a\",\"A\"], pattern = \"\"",
+      "output": "[true,true,false]",
+      "explanation": "With an empty pattern, any query made up of only lowercase insertions matches, including the empty string itself. \"A\" fails since it's an uppercase letter with no corresponding character in the pattern."
     }
   ],
   "constraints": [

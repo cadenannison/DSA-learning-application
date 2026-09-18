@@ -18,6 +18,11 @@
       "input": "words = [\"t\"]",
       "output": "2",
       "explanation": "A valid encoding is s = \"t#\" with indices = [0]."
+    },
+    {
+      "input": "words = [\"me\",\"time\"]",
+      "output": "5",
+      "explanation": "\"me\" is a suffix of \"time\", so it is absorbed for free. A valid encoding is s = \"time#\" (length 5), with \"me\" referenced via indices = [2]."
     }
   ],
   "constraints": [

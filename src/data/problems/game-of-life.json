@@ -17,6 +17,11 @@
     {
       "input": "board = [[1,1],[1,0]]",
       "output": "[[1,1],[1,1]]"
+    },
+    {
+      "input": "board = [[0]]",
+      "output": "[[0]]",
+      "explanation": "A single dead cell with no neighbors stays dead, since it can never reach exactly three live neighbors."
     }
   ],
   "constraints": [

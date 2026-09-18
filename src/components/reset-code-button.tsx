@@ -15,14 +15,14 @@ export function ResetCodeButton({ onReset }: ResetCodeButtonProps) {
       <button
         type="button"
         onClick={() => setConfirming(true)}
-        className="min-h-[44px] rounded-control border border-border px-4 text-sm text-text-2 hover:bg-surface-2 hover:text-text-1"
+        className="min-h-[44px] rounded-control border border-danger/40 px-4 text-sm font-medium text-danger hover:bg-danger-soft"
       >
-        Reset
+        Reset code
       </button>
 
       {confirming && (
         <ConfirmDialog
-          message="Are you sure you want to reset?"
+          message="Are you sure you want to reset? Code will be reverted to its initial state."
           confirmLabel="Yes"
           cancelLabel="No"
           onConfirm={() => {

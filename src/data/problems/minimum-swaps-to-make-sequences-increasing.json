@@ -17,6 +17,11 @@
     {
       "input": "nums1 = [0,3,5,8,9], nums2 = [2,1,4,6,9]",
       "output": "1"
+    },
+    {
+      "input": "nums1 = [1,2], nums2 = [2,3]",
+      "output": "0",
+      "explanation": "Both arrays are already strictly increasing on their own, so no swaps are needed at all."
     }
   ],
   "constraints": [

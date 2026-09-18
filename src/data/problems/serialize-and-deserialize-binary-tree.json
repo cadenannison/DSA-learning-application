@@ -20,6 +20,11 @@
       "input": "root = []",
       "output": "[]",
       "explanation": "An empty tree serializes and deserializes back to an empty tree."
+    },
+    {
+      "input": "root = [1]",
+      "output": "[1]",
+      "explanation": "A single-node tree round-trips through serialize/deserialize unchanged, with no children to encode besides the null sentinels."
     }
   ],
   "constraints": [

@@ -19,6 +19,11 @@
     {
       "input": "candidates = [2,5,2,1,2], target = 5",
       "output": "[[1,2,2],[5]]"
+    },
+    {
+      "input": "candidates = [1], target = 2",
+      "output": "[]",
+      "explanation": "The only candidate is smaller than the target and each number can be used at most once, so no combination reaches 2."
     }
   ],
   "constraints": [

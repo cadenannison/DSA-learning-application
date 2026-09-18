@@ -21,6 +21,11 @@
       "input": "strs = [\"we\",\"say\",\":\",\"yes\"]",
       "output": "[\"we\",\"say\",\":\",\"yes\"]",
       "explanation": "Even though one string is just a colon (a common naive delimiter), the round trip must still be exact."
+    },
+    {
+      "input": "strs = []",
+      "output": "[]",
+      "explanation": "An empty list of strings encodes to an empty string and decodes back to an empty list, the minimum-size input allowed by the constraints."
     }
   ],
   "constraints": [

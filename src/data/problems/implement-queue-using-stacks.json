@@ -14,6 +14,16 @@
       "input": "ops = [[\"push\",1],[\"push\",2],[\"peek\",null],[\"pop\",null],[\"empty\",null]]",
       "output": "[1,1,false]",
       "explanation": "peek() returns 1 (the front, pushed first). pop() removes and returns 1. empty() is false since 2 remains."
+    },
+    {
+      "input": "ops = [[\"push\",1],[\"empty\",null]]",
+      "output": "[false]",
+      "explanation": "After a single push, the queue holds exactly one element, so empty() correctly reports false."
+    },
+    {
+      "input": "ops = [[\"push\",5],[\"peek\",null],[\"peek\",null],[\"pop\",null],[\"empty\",null]]",
+      "output": "[5,5,5,true]",
+      "explanation": "Repeated peek() calls on a single-element queue don't consume it, returning 5 both times; after pop() removes it, the queue is empty."
     }
   ],
   "constraints": [

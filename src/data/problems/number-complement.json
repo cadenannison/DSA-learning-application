@@ -18,6 +18,11 @@
       "input": "num = 1",
       "output": "0",
       "explanation": "1 is 1 in binary. Flipping gives 0."
+    },
+    {
+      "input": "num = 2147483647",
+      "output": "0",
+      "explanation": "At the upper constraint bound, 2^31 - 1 is all 1 bits (31 ones), so flipping every bit gives all 0s."
     }
   ],
   "constraints": [

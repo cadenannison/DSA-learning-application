@@ -20,6 +20,11 @@
       "input": "intervals = [[1,4],[4,5]]",
       "output": "[[1,5]]",
       "explanation": "Intervals that touch at an endpoint count as overlapping."
+    },
+    {
+      "input": "intervals = [[1,10],[2,3],[4,5],[6,7],[8,9]]",
+      "output": "[[1,10]]",
+      "explanation": "One large interval fully contains all the others, so everything collapses into a single merged interval."
     }
   ],
   "constraints": [

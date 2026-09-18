@@ -19,6 +19,11 @@
     {
       "input": "matrix = [[\"0\"]]",
       "output": "0"
+    },
+    {
+      "input": "matrix = [[\"1\",\"1\"],[\"1\",\"1\"]]",
+      "output": "4",
+      "explanation": "When the whole grid is filled with 1s, the largest rectangle is the entire matrix, area rows*cols = 4."
     }
   ],
   "constraints": [

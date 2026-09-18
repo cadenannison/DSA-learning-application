@@ -17,6 +17,11 @@
     {
       "input": "nums = [-1,0,3,5,9,12], target = 2",
       "output": "-1"
+    },
+    {
+      "input": "nums = [5], target = 5",
+      "output": "0",
+      "explanation": "With a single-element array, the target matches the only element at index 0."
     }
   ],
   "constraints": [

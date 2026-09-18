@@ -14,6 +14,16 @@
       "input": "book(10, 20) -> true, book(15, 25) -> false, book(20, 30) -> true",
       "output": "[true, false, true]",
       "explanation": "[10,20) and [15,25) overlap at [15,20), so the second booking is rejected. [20,30) does not overlap [10,20) since intervals are half-open, so it succeeds."
+    },
+    {
+      "input": "book(5, 10) -> true",
+      "output": "[true]",
+      "explanation": "The very first booking on an empty calendar always succeeds, since there's nothing yet to conflict with."
+    },
+    {
+      "input": "book(1, 5) -> true, book(1, 5) -> false",
+      "output": "[true, false]",
+      "explanation": "Booking the exact same interval twice rejects the second attempt, since it fully overlaps the first."
     }
   ],
   "constraints": [

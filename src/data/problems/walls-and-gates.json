@@ -19,6 +19,11 @@
       "input": "rooms = [[0]]",
       "output": "[[0]]",
       "explanation": "A single gate cell needs no update."
+    },
+    {
+      "input": "rooms = [[2147483647,-1],[-1,0]]",
+      "output": "[[2147483647,-1],[-1,0]]",
+      "explanation": "Walls completely cut off the empty room from the only gate, so it never gets reached and stays INF."
     }
   ],
   "constraints": [

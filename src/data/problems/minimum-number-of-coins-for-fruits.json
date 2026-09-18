@@ -18,6 +18,11 @@
       "input": "prices = [1,10,1,1]",
       "output": "2",
       "explanation": "Buy the 1st fruit for 1 coin to get the 2nd free. Buy the 3rd fruit for 1 coin to get the 4th free. Total is 2 coins."
+    },
+    {
+      "input": "prices = [1]",
+      "output": "1",
+      "explanation": "With a single fruit, you must simply buy it; there's no later fruit for its offer to make free."
     }
   ],
   "constraints": [

@@ -18,6 +18,11 @@
     {
       "input": "root = [5,4,8,11,null,13,4,7,2,null,null,5,1], targetSum = 22",
       "output": "3"
+    },
+    {
+      "input": "root = [], targetSum = 0",
+      "output": "0",
+      "explanation": "An empty tree has no nodes and thus no downward paths, so the count is 0 regardless of targetSum."
     }
   ],
   "constraints": [

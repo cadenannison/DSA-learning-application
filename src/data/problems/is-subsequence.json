@@ -17,6 +17,11 @@
     {
       "input": "s = \"axc\", t = \"ahbgdc\"",
       "output": "false"
+    },
+    {
+      "input": "s = \"\", t = \"ahbgdc\"",
+      "output": "true",
+      "explanation": "An empty string is trivially a subsequence of any string, since there are no characters that need to be matched."
     }
   ],
   "constraints": [

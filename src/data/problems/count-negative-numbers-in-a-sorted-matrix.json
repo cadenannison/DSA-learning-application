@@ -16,6 +16,11 @@
     {
       "input": "grid = [[3,2],[1,0]]",
       "output": "0"
+    },
+    {
+      "input": "grid = [[-1]]",
+      "output": "1",
+      "explanation": "The smallest possible grid is a single cell; here it's negative, so the count is 1."
     }
   ],
   "constraints": [

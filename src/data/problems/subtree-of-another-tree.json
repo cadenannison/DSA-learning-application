@@ -20,6 +20,11 @@
       "input": "root = [3,4,5,1,2,null,null,null,null,0], subRoot = [4,1,2]",
       "output": "false",
       "explanation": "The node with value 4 has an extra descendant (0) that subRoot doesn't have, so it's not an exact match."
+    },
+    {
+      "input": "root = [1], subRoot = [1]",
+      "output": "true",
+      "explanation": "With a single-node root and a single-node subRoot of the same value, the whole tree trivially matches as its own subtree."
     }
   ],
   "constraints": [

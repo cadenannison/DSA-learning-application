@@ -18,6 +18,11 @@
       "input": "richer = [], quiet = [0]",
       "output": "[0]",
       "explanation": "With only one person and no richer relationships, that person is trivially the answer for themself."
+    },
+    {
+      "input": "richer = [[0,1]], quiet = [1,0]",
+      "output": "[0,1]",
+      "explanation": "Person 0 is richer than person 1. For person 0, only person 0 qualifies (nobody is at least as rich), so the answer is 0 itself; for person 1, both people qualify and person 1 (quiet=0) is quieter than person 0 (quiet=1)."
     }
   ],
   "constraints": [

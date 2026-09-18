@@ -19,6 +19,11 @@
       "input": "head = [1,2,3,4,5,6]",
       "output": "[4,5,6]",
       "explanation": "There are two middle nodes with values 3 and 4; since the list has even length, the second one is returned."
+    },
+    {
+      "input": "head = [1]",
+      "output": "[1]",
+      "explanation": "With only a single node (the minimum allowed length), that node is trivially both the first and the middle."
     }
   ],
   "constraints": [

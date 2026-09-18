@@ -20,6 +20,11 @@
       "input": "s = \"aa\", k = 1",
       "output": "2",
       "explanation": "The substring \"aa\" has length 2 with 1 distinct character."
+    },
+    {
+      "input": "s = \"a\", k = 0",
+      "output": "0",
+      "explanation": "With k = 0, no substring can contain any characters, so the longest valid substring is empty"
     }
   ],
   "constraints": [

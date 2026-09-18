@@ -20,6 +20,11 @@
       "input": "n = 5, edges = [[0,1],[1,2],[2,3],[3,4]]",
       "output": "1",
       "explanation": "All 5 nodes are chained together into a single connected component."
+    },
+    {
+      "input": "n = 4, edges = []",
+      "output": "4",
+      "explanation": "With no edges at all, every node is isolated and forms its own component."
     }
   ],
   "constraints": [

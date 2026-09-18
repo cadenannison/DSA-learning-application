@@ -19,6 +19,11 @@
       "input": "words = [\"cat\",\"dog\",\"catdog\"]",
       "output": "[\"catdog\"]",
       "explanation": "\"catdog\" is formed from \"cat\" + \"dog\", both present in words."
+    },
+    {
+      "input": "words = [\"nuts\",\"coconuts\",\"coco\"]",
+      "output": "[\"coconuts\"]",
+      "explanation": "\"coconuts\" is formed from \"coco\" + \"nuts\". Note that a word length of 0 is allowed by the constraints but an empty string can never be a concatenated word itself since it has no shorter non-empty pieces to combine."
     }
   ],
   "constraints": [

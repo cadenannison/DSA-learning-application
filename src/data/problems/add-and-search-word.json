@@ -20,6 +20,11 @@
       "input": "words_to_add = [\"a\"], queries = [\"a\",\".\",\"aa\"]",
       "output": "[true,true,false]",
       "explanation": "\"a\" matches exactly, \".\" matches \"a\" via wildcard, \"aa\" doesn't match since lengths differ."
+    },
+    {
+      "input": "words_to_add = [\"dog\"], queries = [\"...\",\"....\"]",
+      "output": "[true,false]",
+      "explanation": "\"...\" is three wildcards, matching \"dog\" since it's also length 3. \"....\" has length 4, so it can never match \"dog\" regardless of wildcards, since lengths must be equal."
     }
   ],
   "constraints": [

@@ -20,6 +20,11 @@
       "input": "root = [-10,9,20,null,null,15,7]",
       "output": "42",
       "explanation": "The path 15 -> 20 -> 7 has sum 15 + 20 + 7 = 42, ignoring the negative root."
+    },
+    {
+      "input": "root = [-3]",
+      "output": "-3",
+      "explanation": "A single-node tree must use that node as the whole path, even though its value is negative — a path always has at least one node."
     }
   ],
   "constraints": [

@@ -18,6 +18,11 @@
     {
       "input": "root = [1]",
       "output": "[\"1\"]"
+    },
+    {
+      "input": "root = [1,2]",
+      "output": "[\"1->2\"]",
+      "explanation": "With only a left child, node 2 is the single leaf, so there is exactly one root-to-leaf path."
     }
   ],
   "constraints": [

@@ -18,6 +18,11 @@
       "input": "grid = [[0,1,1,0],[0,0,1,0],[0,0,1,0],[0,0,0,0]]",
       "output": "0",
       "explanation": "All the land cells are connected to land that touches the boundary, so none are enclosed."
+    },
+    {
+      "input": "grid = [[1,1,1,1],[1,0,0,1],[1,0,0,1],[1,1,1,1]]",
+      "output": "0",
+      "explanation": "The entire ring of land touches the border directly, so even though it encloses water, there is no land cell trapped inside — the answer is 0."
     }
   ],
   "constraints": [

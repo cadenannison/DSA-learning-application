@@ -13,6 +13,16 @@
       "input": "words = [\"cd\",\"f\",\"kl\"], stream = \"abcdefghijkl\"",
       "output": "[false,false,false,true,false,true,false,false,false,false,false,true]",
       "explanation": "After 'a','b': no match. After 'c': no match yet. After 'd': the suffix \"cd\" matches, so true. After 'e': no match. After 'f': suffix \"f\" matches, so true. The remaining characters produce no new matches until 'l', where suffix \"kl\" matches."
+    },
+    {
+      "input": "words = [\"a\"], stream = \"a\"",
+      "output": "[true]",
+      "explanation": "A single one-character word matched by a single-character stream, the smallest possible input for this problem."
+    },
+    {
+      "input": "words = [\"ab\",\"ba\"], stream = \"aba\"",
+      "output": "[false,true,true]",
+      "explanation": "After 'a': no complete word yet. After 'b': suffix \"ab\" matches. After the final 'a': suffix \"ba\" matches, showing that two words can overlap and both keep matching as the stream continues."
     }
   ],
   "constraints": [

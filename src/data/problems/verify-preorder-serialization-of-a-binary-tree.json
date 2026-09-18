@@ -19,6 +19,11 @@
       "input": "preorder = \"1,#\"",
       "output": "false",
       "explanation": "A single node needs two null markers (for its two children) to be complete; this string only has one."
+    },
+    {
+      "input": "preorder = \"#\"",
+      "output": "true",
+      "explanation": "A lone '#' represents an entirely empty tree, which is a valid (if minimal) pre-order serialization."
     }
   ],
   "constraints": [

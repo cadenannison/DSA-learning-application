@@ -18,6 +18,11 @@
       "input": "grid = [[1,2,2],[2,3,2]], row = 0, col = 1, color = 3",
       "output": "[[1,3,3],[2,3,3]]",
       "explanation": "The component of 2s containing (0,1) has every one of its cells on the border, so they're all recolored; the interior 3 at (1,1) is a different component and untouched."
+    },
+    {
+      "input": "grid = [[1,1,1],[1,1,1],[1,1,1]], row = 1, col = 1, color = 2",
+      "output": "[[2,2,2],[2,1,2],[2,2,2]]",
+      "explanation": "The single interior cell (1,1) is the only cell in the component not adjacent to the grid edge or a different color, so it alone stays uncolored while every surrounding cell becomes the border."
     }
   ],
   "constraints": [

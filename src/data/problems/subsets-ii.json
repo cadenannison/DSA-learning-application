@@ -18,6 +18,11 @@
     {
       "input": "nums = [0]",
       "output": "[[],[0]]"
+    },
+    {
+      "input": "nums = [2,2]",
+      "output": "[[],[2],[2,2]]",
+      "explanation": "With both elements equal, the duplicate-skipping rule collapses what would be 4 naive subsets down to just 3 distinct ones."
     }
   ],
   "constraints": [

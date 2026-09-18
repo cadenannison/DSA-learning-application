@@ -18,6 +18,11 @@
     {
       "input": "nums = [2,2,1,1,1,2,2]",
       "output": "2"
+    },
+    {
+      "input": "nums = [1]",
+      "output": "1",
+      "explanation": "With a single element, it trivially appears more than n/2 (0.5) times, making it the majority element."
     }
   ],
   "constraints": [

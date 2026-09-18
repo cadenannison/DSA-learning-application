@@ -17,6 +17,11 @@
     {
       "input": "arr = [11,81,94,43,3]",
       "output": "444"
+    },
+    {
+      "input": "arr = [2,2,2]",
+      "output": "12",
+      "explanation": "Duplicate values test the tie-breaking rule needed to avoid double-counting: subarrays and minimums are [2]=2,[2]=2,[2]=2,[2,2]=2,[2,2]=2,[2,2,2]=2, summing to 12."
     }
   ],
   "constraints": [

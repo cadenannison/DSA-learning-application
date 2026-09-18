@@ -19,6 +19,11 @@
     {
       "input": "root = [1]",
       "output": "[[1]]"
+    },
+    {
+      "input": "root = []",
+      "output": "[]",
+      "explanation": "An empty tree has no levels at all, so the result is an empty list."
     }
   ],
   "constraints": [

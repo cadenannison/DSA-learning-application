@@ -18,6 +18,11 @@
     {
       "input": "nums = [0]",
       "output": "[0]"
+    },
+    {
+      "input": "nums = [1,2,3]",
+      "output": "[1,2,3]",
+      "explanation": "With no zeros present, the array is already in its target arrangement and nothing needs to move."
     }
   ],
   "constraints": [

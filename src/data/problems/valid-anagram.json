@@ -17,6 +17,11 @@
     {
       "input": "s = \"rat\", t = \"car\"",
       "output": "false"
+    },
+    {
+      "input": "s = \"a\", t = \"a\"",
+      "output": "true",
+      "explanation": "Single-character strings, the minimum length allowed, are trivially anagrams of themselves when equal."
     }
   ],
   "constraints": [

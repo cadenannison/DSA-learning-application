@@ -13,6 +13,16 @@
       "input": "k = 3, ops = [[\"insertLast\",1],[\"insertLast\",2],[\"insertFront\",3],[\"insertFront\",4],[\"getRear\",null],[\"isFull\",null],[\"deleteLast\",null],[\"insertFront\",4],[\"getFront\",null]]",
       "output": "[true,true,true,false,2,true,true,true,4]",
       "explanation": "After inserting 1,2 at the back and 3 at the front, the deque [3,1,2] is full, so insertFront(4) fails. getRear is 2. After deleteLast, there's room to insertFront(4) again, making getFront 4."
+    },
+    {
+      "input": "k = 1, ops = [[\"insertFront\",9],[\"isFull\",null],[\"getFront\",null],[\"getRear\",null],[\"deleteFront\",null],[\"isEmpty\",null]]",
+      "output": "[true,true,9,9,true,true]",
+      "explanation": "With capacity 1, a single inserted element is simultaneously the front and rear, and the deque immediately reports full; deleting it empties the deque."
+    },
+    {
+      "input": "k = 2, ops = [[\"isEmpty\",null],[\"deleteFront\",null],[\"deleteLast\",null],[\"getFront\",null]]",
+      "output": "[true,false,false,-1]",
+      "explanation": "Deleting from an empty deque fails both at the front and the back, returning false rather than throwing, and getFront on an empty deque returns -1."
     }
   ],
   "constraints": [

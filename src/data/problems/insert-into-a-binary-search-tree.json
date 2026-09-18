@@ -19,6 +19,11 @@
       "input": "root = [], val = 1",
       "output": "[1]",
       "explanation": "Inserting into an empty tree makes the new value the root."
+    },
+    {
+      "input": "root = [1], val = 0",
+      "output": "[1,0]",
+      "explanation": "With a single-node tree, 0 is less than 1, so it becomes the root's left child."
     }
   ],
   "constraints": [

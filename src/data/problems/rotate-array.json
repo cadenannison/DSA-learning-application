@@ -18,6 +18,11 @@
     {
       "input": "nums = [-1,-100,3,99], k = 2",
       "output": "[3,99,-1,-100]"
+    },
+    {
+      "input": "nums = [1,2], k = 3",
+      "output": "[2,1]",
+      "explanation": "k exceeds the array length, so it must first be reduced with k %= len(nums) (3 % 2 = 1), making this equivalent to a rotation by 1."
     }
   ],
   "constraints": [

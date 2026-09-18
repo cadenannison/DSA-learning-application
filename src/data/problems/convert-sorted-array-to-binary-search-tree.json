@@ -19,6 +19,11 @@
       "input": "nums = [1,3]",
       "output": "[1,null,3]",
       "explanation": "With two elements, the middle index rounds down to index 0 (value 1), making 3 the right child."
+    },
+    {
+      "input": "nums = [5]",
+      "output": "[5]",
+      "explanation": "With a single element, the tree is just one node, the minimum-length input allowed by the constraints."
     }
   ],
   "constraints": [

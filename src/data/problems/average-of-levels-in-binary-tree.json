@@ -18,6 +18,11 @@
     {
       "input": "root = [3,9,20]",
       "output": "[3.0,14.5]"
+    },
+    {
+      "input": "root = [1]",
+      "output": "[1.0]",
+      "explanation": "A single-node tree has exactly one level, so the average is just that node's own value."
     }
   ],
   "constraints": [

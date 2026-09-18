@@ -18,6 +18,11 @@
       "input": "root = [0,3,0]",
       "output": "3",
       "explanation": "The left child has 2 excess coins: one is needed by the root (1 move) and one must continue past the root to the right child (2 moves), plus the root itself needs 1 coin from its child (already counted) — total moves sum to 3."
+    },
+    {
+      "input": "root = [1]",
+      "output": "0",
+      "explanation": "A single node with exactly 1 coin already satisfies the requirement, so no moves are needed."
     }
   ],
   "constraints": [

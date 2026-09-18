@@ -16,7 +16,12 @@
     },
     {
       "input": "numRows = 1",
-      "output": "[[1]]"
+      "output": "[[1]]",
+      "explanation": "The minimum allowed numRows produces just the single-element first row."
+    },
+    {
+      "input": "numRows = 2",
+      "output": "[[1],[1,1]]"
     }
   ],
   "constraints": [

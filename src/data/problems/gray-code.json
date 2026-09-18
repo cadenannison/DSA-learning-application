@@ -17,6 +17,11 @@
     {
       "input": "n = 1",
       "output": "[0,1]"
+    },
+    {
+      "input": "n = 0",
+      "output": "[0]",
+      "explanation": "With n = 0, the only valid 0-bit value is 0, so the sequence is a single-element list."
     }
   ],
   "constraints": [

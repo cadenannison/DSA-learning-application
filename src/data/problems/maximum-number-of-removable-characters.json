@@ -17,6 +17,11 @@
     {
       "input": "s = \"abcbddddd\", p = \"abcd\", removable = [3,2,1,4,5,6]",
       "output": "1"
+    },
+    {
+      "input": "s = \"aaa\", p = \"a\", removable = [0,1,2]",
+      "output": "2",
+      "explanation": "With repeated characters, up to 2 of the 3 a's can be removed and \"a\" is still a subsequence of what's left."
     }
   ],
   "constraints": [

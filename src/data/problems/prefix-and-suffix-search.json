@@ -18,6 +18,11 @@
       "input": "words = [\"apple\",\"applx\",\"applz\"], queries = [[\"a\",\"e\"],[\"ap\",\"\"]]",
       "output": "[0,2]",
       "explanation": "Only index 0 (\"apple\") ends with \"e\". All three words start with \"ap\", and since any suffix (empty string) matches, the LARGEST matching index 2 is returned."
+    },
+    {
+      "input": "words = [\"dog\",\"doge\",\"dogs\"], queries = [[\"dog\",\"s\"],[\"dog\",\"x\"]]",
+      "output": "[2,-1]",
+      "explanation": "\"dogs\" (index 2) starts with \"dog\" and ends with \"s\". No word in the list ends with \"x\", so the second query has no match and returns -1."
     }
   ],
   "constraints": [

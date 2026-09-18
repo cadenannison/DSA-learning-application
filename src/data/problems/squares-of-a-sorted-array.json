@@ -19,6 +19,11 @@
     {
       "input": "nums = [-7,-3,2,3,11]",
       "output": "[4,9,9,49,121]"
+    },
+    {
+      "input": "nums = [0]",
+      "output": "[0]",
+      "explanation": "A single element, the minimum-size input allowed, squares to itself with nothing to reorder."
     }
   ],
   "constraints": [

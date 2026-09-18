@@ -66,6 +66,22 @@ interface StudyTrackRow {
   coaching_note: string | null
 }
 
+/** technical-interview-prep pattern ids with a full Pattern Lab experience (Learn/Recognize
+ * It/Practice) — see pattern-section-content.tsx's PATTERN_LAB_IDS, which this must stay in
+ * sync with. Determines hasExtendedLesson below, independent of whether curriculum.json also
+ * seeded a markdown `lesson` for the pattern (Pattern Lab content is self-contained). */
+const PATTERN_LAB_STUDY_PATTERN_IDS = new Set([
+  "dynamic-programming",
+  "graphs",
+  "backtracking",
+  "trees",
+  "heaps",
+  "stacks",
+  "linked-lists",
+  "intervals",
+  "two-pointers-sliding-window-binary-search",
+])
+
 // Shared curriculum template — same for every user, seeded once from curriculum.json.
 interface StudyPatternRow {
   id: string
@@ -1528,7 +1544,8 @@ export class SqliteProgressStore
         lastReviewedAt: patternState?.last_reviewed_at ?? null,
         reviewCount: patternState?.review_count ?? 0,
       },
-      hasExtendedLesson: row.track_id === "technical-interview-prep" && row.priority_rank <= 2,
+      hasExtendedLesson:
+        row.track_id === "technical-interview-prep" && PATTERN_LAB_STUDY_PATTERN_IDS.has(row.id),
       lesson: patternExtension?.lesson_json
         ? (JSON.parse(patternExtension.lesson_json) as StudyPattern["lesson"])
         : null,

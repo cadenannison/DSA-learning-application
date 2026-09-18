@@ -18,6 +18,11 @@
       "input": "n = 1, logs = [\"0:start:0\",\"0:start:2\",\"0:end:5\",\"0:end:6\"]",
       "output": "[7]",
       "explanation": "Function 0 recursively calls itself. Total wall time 0 to 6 inclusive is 7 units, all attributed to function 0 since there's no other function."
+    },
+    {
+      "input": "n = 1, logs = [\"0:start:0\",\"0:end:0\"]",
+      "output": "[1]",
+      "explanation": "The shortest possible run: a function that starts and ends at the same timestamp still occupies 1 unit of time, since the end timestamp is inclusive."
     }
   ],
   "constraints": [

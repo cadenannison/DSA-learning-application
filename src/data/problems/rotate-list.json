@@ -19,6 +19,11 @@
       "input": "head = [0,1,2], k = 4",
       "output": "[2,0,1]",
       "explanation": "k can be larger than the list length; only k % length rotations actually matter."
+    },
+    {
+      "input": "head = [], k = 3",
+      "output": "[]",
+      "explanation": "An empty list (allowed by the constraints) has nothing to rotate, so it stays empty regardless of k."
     }
   ],
   "constraints": [

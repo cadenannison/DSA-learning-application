@@ -18,6 +18,11 @@
       "input": "grid1 = [[1,0,1,0,1],[1,1,1,1,1],[0,0,0,0,0],[1,1,1,1,1],[1,0,1,0,1]], grid2 = [[0,0,0,0,0],[1,1,1,1,1],[0,0,0,0,0],[1,1,1,1,1],[1,0,0,0,1]]",
       "output": "2",
       "explanation": "Two of grid2's islands are fully contained within grid1's land; the rest include at least one cell that's water in grid1."
+    },
+    {
+      "input": "grid1 = [[0,0],[0,1]], grid2 = [[1,1],[1,1]]",
+      "output": "0",
+      "explanation": "grid2 has a single large island, but part of its footprint is water in grid1, so no sub-island qualifies even though most of the area overlaps."
     }
   ],
   "constraints": [

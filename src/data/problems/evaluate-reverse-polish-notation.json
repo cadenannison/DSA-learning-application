@@ -20,6 +20,11 @@
       "input": "tokens = [\"4\",\"13\",\"5\",\"/\",\"+\"]",
       "output": "6",
       "explanation": "4 + (13 / 5) = 4 + 2 = 6."
+    },
+    {
+      "input": "tokens = [\"3\"]",
+      "output": "3",
+      "explanation": "A single-token expression with no operators: the stack just holds one value, which is the answer."
     }
   ],
   "constraints": [

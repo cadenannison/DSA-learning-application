@@ -7,6 +7,7 @@ import { use, useEffect, useRef, useState } from "react"
 import { AuthGate } from "@/components/auth-gate"
 import { ProblemWorkbenchView } from "@/components/problem-workbench-view"
 import { apiClient } from "@/lib/api-client"
+import { usePersistedCode } from "@/lib/use-persisted-code"
 import { StudyPlanPresenter } from "@/presenter/study-plan-presenter"
 import type { ExecutionResult, Problem, StudyPlanOverview, TestCaseResult } from "@/types"
 
@@ -69,7 +70,10 @@ function WorkbookProblemContainer({
 
   const [problem, setProblem] = useState<Problem | null>(null)
   const [problemError, setProblemError] = useState<string | null>(null)
-  const [code, setCode] = useState("")
+  const [code, setCode] = usePersistedCode(
+    problem ? studyProblemId : null,
+    problem?.starterCode ?? ""
+  )
   const [running, setRunning] = useState(false)
   const [result, setResult] = useState<ExecutionResult | null>(null)
   const [caseResults, setCaseResults] = useState<Record<number, TestCaseResult>>({})
@@ -182,7 +186,6 @@ function WorkbookProblemBody({
       .then((p) => {
         if (cancelled) return
         setProblem(p)
-        setCode(p.starterCode)
       })
       .catch((err) => {
         if (cancelled) return
@@ -251,6 +254,15 @@ function WorkbookProblemBody({
     }
   }
 
+  function handleResetCase(index: number) {
+    setCaseResults((prev) => {
+      const next = { ...prev }
+      delete next[index]
+      return next
+    })
+    setResult(null)
+  }
+
   async function handleSubmit() {
     if (!problem) return
     setRunning(true)
@@ -293,6 +305,7 @@ function WorkbookProblemBody({
         caseResults={caseResults}
         onRun={handleRun}
         onRunCase={handleRunCase}
+        onResetCase={handleResetCase}
         onSubmit={handleSubmit}
         onResetCode={() => setCode(problem.starterCode)}
         revealedHints={revealedHints}

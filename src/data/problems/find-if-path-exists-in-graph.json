@@ -19,6 +19,11 @@
       "input": "n = 6, edges = [[0,1],[0,2],[3,5],[5,4],[4,3]], source = 0, destination = 5",
       "output": "false",
       "explanation": "Vertices {0,1,2} and {3,4,5} form two separate components, so there's no way to reach 5 from 0."
+    },
+    {
+      "input": "n = 1, edges = [], source = 0, destination = 0",
+      "output": "true",
+      "explanation": "A single vertex with no edges still has a trivial path to itself since source equals destination."
     }
   ],
   "constraints": [

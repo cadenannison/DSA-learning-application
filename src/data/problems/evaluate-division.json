@@ -20,6 +20,11 @@
       "input": "equations = [[\"a\",\"b\"],[\"b\",\"c\"],[\"bc\",\"cd\"]], values = [1.5,2.5,5.0], queries = [[\"a\",\"c\"],[\"c\",\"b\"],[\"bc\",\"cd\"],[\"cd\",\"bc\"]]",
       "output": "[3.75,0.4,5.0,0.2]",
       "explanation": "a/c = (a/b)*(b/c) = 1.5*2.5 = 3.75; the rest follow directly or by inversion."
+    },
+    {
+      "input": "equations = [[\"a\",\"b\"]], values = [0.5], queries = [[\"a\",\"b\"],[\"b\",\"a\"],[\"a\",\"c\"]]",
+      "output": "[0.5,2.0,-1.0]",
+      "explanation": "With only one equation, a/b and its inverse b/a are answerable directly, but c never appears anywhere in the equations, so a/c is undetermined (-1.0)."
     }
   ],
   "constraints": [

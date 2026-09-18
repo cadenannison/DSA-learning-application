@@ -17,6 +17,11 @@
     {
       "input": "costs = [1,2,4,1], k = 3, candidates = 3",
       "output": "4"
+    },
+    {
+      "input": "costs = [5], k = 1, candidates = 1",
+      "output": "5",
+      "explanation": "With only one worker to hire and one candidate window, that single worker is hired at their listed cost."
     }
   ],
   "constraints": [

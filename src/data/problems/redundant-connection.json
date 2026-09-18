@@ -19,6 +19,11 @@
       "input": "edges = [[1,2],[2,3],[3,4],[1,4],[1,5]]",
       "output": "[1,4]",
       "explanation": "Edges 1-2-3-4-1 form a cycle; [1,4] is the last edge in the input that closes it."
+    },
+    {
+      "input": "edges = [[1,2],[2,3],[1,3]]",
+      "output": "[1,3]",
+      "explanation": "The smallest possible cycle (a triangle on 3 nodes, the minimum n allowed): edge [1,3] is the last one that closes it, since 1 and 2 are already connected via 1-2-3 when [1,3] is processed."
     }
   ],
   "constraints": [

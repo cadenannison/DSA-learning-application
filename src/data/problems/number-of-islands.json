@@ -15,6 +15,16 @@
       "input": "grid = [[\"1\",\"1\",\"0\"],[\"1\",\"0\",\"0\"],[\"0\",\"0\",\"1\"]]",
       "output": "2",
       "explanation": "The top-left 1s form one connected island; the bottom-right 1 is a separate island."
+    },
+    {
+      "input": "grid = [[\"0\",\"0\"],[\"0\",\"0\"]]",
+      "output": "0",
+      "explanation": "The grid is entirely water, so there are no islands at all."
+    },
+    {
+      "input": "grid = [[\"1\"]]",
+      "output": "1",
+      "explanation": "A single land cell with no neighbors is itself one whole island."
     }
   ],
   "constraints": [

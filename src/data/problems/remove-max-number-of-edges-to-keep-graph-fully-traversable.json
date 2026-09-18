@@ -18,6 +18,11 @@
       "input": "n = 4, edges = [[3,2,3],[1,1,2],[2,3,4]]",
       "output": "-1",
       "explanation": "Even using every edge, Alice can never reach node 4, so full traversal by both is impossible regardless of what's removed."
+    },
+    {
+      "input": "n = 1, edges = []",
+      "output": "0",
+      "explanation": "A single node with no edges is trivially fully traversable by both Alice and Bob already, so there are zero edges to remove."
     }
   ],
   "constraints": [

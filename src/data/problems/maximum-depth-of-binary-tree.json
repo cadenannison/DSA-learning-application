@@ -18,6 +18,11 @@
     {
       "input": "root = [1,null,2]",
       "output": "2"
+    },
+    {
+      "input": "root = []",
+      "output": "0",
+      "explanation": "An empty tree has no nodes, so its maximum depth is 0."
     }
   ],
   "constraints": [

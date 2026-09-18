@@ -20,6 +20,11 @@
       "input": "s = \"aaab\"",
       "output": "\"\"",
       "explanation": "There is no way to rearrange \"aaab\" so that no two 'a's are adjacent, since 'a' appears 3 times among only 4 characters."
+    },
+    {
+      "input": "s = \"a\"",
+      "output": "\"a\"",
+      "explanation": "A single character has no adjacent pair to worry about, so it's trivially already a valid arrangement."
     }
   ],
   "constraints": [

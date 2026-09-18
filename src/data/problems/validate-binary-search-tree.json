@@ -20,6 +20,11 @@
       "input": "root = [5,1,4,null,null,3,6]",
       "output": "false",
       "explanation": "The node 4 is in 5's right subtree, but 4's own right child is 3, which is less than 4 and also less than the ancestor bound of 5 — specifically, 3 must be greater than 4 to be valid there, which it isn't."
+    },
+    {
+      "input": "root = [1]",
+      "output": "true",
+      "explanation": "A single-node tree has no relative ordering to violate, so it is trivially a valid BST."
     }
   ],
   "constraints": [

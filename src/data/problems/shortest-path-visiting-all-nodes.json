@@ -18,6 +18,11 @@
       "input": "graph = [[1],[0,2,4],[1,3,4],[2],[1,2]]",
       "output": "4",
       "explanation": "One shortest walk visiting all 5 nodes uses 4 edges, e.g. 0 -> 1 -> 4 -> 2 -> 3."
+    },
+    {
+      "input": "graph = [[]]",
+      "output": "0",
+      "explanation": "A single node with no edges is already visited by simply starting there, so the minimum path length is 0."
     }
   ],
   "constraints": [

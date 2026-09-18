@@ -18,6 +18,11 @@
     {
       "input": "nums1 = [1,1,2], nums2 = [1,2,3], k = 2",
       "output": "[[1,1],[1,1]]"
+    },
+    {
+      "input": "nums1 = [1], nums2 = [1], k = 1",
+      "output": "[[1,1]]",
+      "explanation": "Both arrays have only one element, and k equals the total number of possible pairs, so the single pair (1,1) is returned."
     }
   ],
   "constraints": [

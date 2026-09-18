@@ -18,6 +18,11 @@
       "input": "ops = [[\"insert\",\"a\",5],[\"insert\",\"a\",10],[\"sum\",\"a\",null]]",
       "output": "[10]",
       "explanation": "Re-inserting key \"a\" with value 10 overwrites the earlier value of 5, so sum(\"a\") is just 10."
+    },
+    {
+      "input": "ops = [[\"sum\",\"x\",null]]",
+      "output": "[0]",
+      "explanation": "Calling sum() on a prefix before any keys have been inserted (or when no key starts with that prefix) returns 0."
     }
   ],
   "constraints": [

@@ -17,6 +17,11 @@
     {
       "input": "nums = [1,1]",
       "output": "[2]"
+    },
+    {
+      "input": "nums = [1,2,3]",
+      "output": "[]",
+      "explanation": "Every value from 1 to n already appears exactly once, so no numbers are missing and the result is empty."
     }
   ],
   "constraints": [

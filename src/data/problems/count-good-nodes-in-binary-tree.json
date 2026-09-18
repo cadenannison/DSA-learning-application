@@ -19,6 +19,11 @@
       "input": "root = [3,3,null,4,2]",
       "output": "3",
       "explanation": "Root 3 is good. Node 3 (left child) is good since 3 >= 3. Node 4 is good since 4 >= 3. Node 2 is not good since 4 > 2 appeared on the path."
+    },
+    {
+      "input": "root = [1]",
+      "output": "1",
+      "explanation": "A single-node tree has only the root, which is always good since there are no ancestors to exceed it."
     }
   ],
   "constraints": [

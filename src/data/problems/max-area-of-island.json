@@ -20,6 +20,11 @@
       "input": "grid = [[0,0,0]]",
       "output": "0",
       "explanation": "There is no land at all."
+    },
+    {
+      "input": "grid = [[1,0,1],[0,0,0],[1,0,1]]",
+      "output": "1",
+      "explanation": "Four separate single-cell islands are diagonally placed but never 4-directionally connected, so the largest island has area 1."
     }
   ],
   "constraints": [

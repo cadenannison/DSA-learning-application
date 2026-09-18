@@ -20,6 +20,11 @@
       "input": "board = [[\"X\"]]",
       "output": "[[\"X\"]]",
       "explanation": "No Os exist, so nothing changes."
+    },
+    {
+      "input": "board = [[\"O\",\"O\"],[\"O\",\"O\"]]",
+      "output": "[[\"O\",\"O\"],[\"O\",\"O\"]]",
+      "explanation": "Every O touches the border in this small grid, so none are enclosed and the board is unchanged."
     }
   ],
   "constraints": [

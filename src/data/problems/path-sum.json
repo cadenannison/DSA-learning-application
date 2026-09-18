@@ -19,6 +19,11 @@
       "input": "root = [1,2,3], targetSum = 5",
       "output": "false",
       "explanation": "No root-to-leaf path (1->2 sums to 3, 1->3 sums to 4) equals 5."
+    },
+    {
+      "input": "root = [], targetSum = 0",
+      "output": "false",
+      "explanation": "An empty tree has no root-to-leaf path at all, so it can never satisfy any target sum, even 0."
     }
   ],
   "constraints": [

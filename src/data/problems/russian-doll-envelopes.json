@@ -18,6 +18,11 @@
     {
       "input": "envelopes = [[1,1],[1,1],[1,1]]",
       "output": "1"
+    },
+    {
+      "input": "envelopes = [[1,1]]",
+      "output": "1",
+      "explanation": "With only a single envelope, the longest nesting chain is trivially that one envelope by itself."
     }
   ],
   "constraints": [

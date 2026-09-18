@@ -17,6 +17,11 @@
     {
       "input": "head = [2,1], x = 2",
       "output": "[1,2]"
+    },
+    {
+      "input": "head = [], x = 5",
+      "output": "[]",
+      "explanation": "An empty list (allowed by the constraints) has no nodes to partition, so it simply stays empty."
     }
   ],
   "constraints": [

@@ -18,6 +18,11 @@
     {
       "input": "s = \"eccbbbbdec\"",
       "output": "[10]"
+    },
+    {
+      "input": "s = \"a\"",
+      "output": "[1]",
+      "explanation": "A single character trivially forms its own one-letter partition."
     }
   ],
   "constraints": [

@@ -19,6 +19,11 @@
     {
       "input": "n = 1, bad = 1",
       "output": "1"
+    },
+    {
+      "input": "n = 10, bad = 10",
+      "output": "10",
+      "explanation": "When only the very last version is bad, the search must narrow all the way to the upper boundary."
     }
   ],
   "constraints": [

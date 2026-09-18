@@ -17,6 +17,11 @@
     {
       "input": "nums = [3,3,7,7,10,11,11]",
       "output": "10"
+    },
+    {
+      "input": "nums = [1]",
+      "output": "1",
+      "explanation": "With only one element and no pair to match it, that single element is trivially the answer."
     }
   ],
   "constraints": [

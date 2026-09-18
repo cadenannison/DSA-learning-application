@@ -20,6 +20,11 @@
     {
       "input": "word1 = \"intention\", word2 = \"execution\"",
       "output": "5"
+    },
+    {
+      "input": "word1 = \"\", word2 = \"abc\"",
+      "output": "3",
+      "explanation": "With an empty word1, the only operations available are 3 insertions to build up word2 from nothing."
     }
   ],
   "constraints": [

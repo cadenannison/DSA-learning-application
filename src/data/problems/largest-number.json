@@ -19,6 +19,11 @@
     {
       "input": "nums = [3,30,34,5,9]",
       "output": "\"9534330\""
+    },
+    {
+      "input": "nums = [0,0]",
+      "output": "\"0\"",
+      "explanation": "When every number is zero, the naive concatenation would produce leading zeros like \"00\", so the result must collapse to a single \"0\"."
     }
   ],
   "constraints": [

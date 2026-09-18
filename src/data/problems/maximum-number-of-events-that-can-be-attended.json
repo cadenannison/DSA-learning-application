@@ -18,7 +18,12 @@
     {
       "input": "events = [[1,2],[2,3],[3,4],[1,2]]",
       "output": "4",
-      "explanation": "Attend the first [1,2] on day 1, the second [1,2] on day 2, [2,3] on day 3 is already past... more precisely: day1->event[1,2], day2->event[1,2] (the other one), day3->[2,3] wait it must still be within its range; the optimal schedule attends all four events across days 1-4."
+      "explanation": "Attend the first [1,2] on day 1, the second [1,2] on day 2, [2,3] on day 3, and [3,4] on day 4."
+    },
+    {
+      "input": "events = [[1,100000]]",
+      "output": "1",
+      "explanation": "A single very long-lasting event still only lets you attend it on one day, since at most one event can be attended per day."
     }
   ],
   "constraints": [

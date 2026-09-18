@@ -18,6 +18,11 @@
       "input": "arr = [7]",
       "output": "0",
       "explanation": "Start already at the last index."
+    },
+    {
+      "input": "arr = [7,7,7,7,7,7,7]",
+      "output": "1",
+      "explanation": "All elements share the same value, so you can jump directly from index 0 to the last index in a single equal-value jump."
     }
   ],
   "constraints": [

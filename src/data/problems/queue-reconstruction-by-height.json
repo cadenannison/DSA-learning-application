@@ -18,6 +18,11 @@
     {
       "input": "people = [[6,0],[5,0],[4,0],[3,2],[2,2],[1,4]]",
       "output": "[[4,0],[5,0],[2,2],[3,2],[1,4],[6,0]]"
+    },
+    {
+      "input": "people = [[1,0]]",
+      "output": "[[1,0]]",
+      "explanation": "With only one person and k = 0, they already satisfy having zero taller-or-equal people in front, so the queue is unchanged."
     }
   ],
   "constraints": [

@@ -19,6 +19,11 @@
     {
       "input": "nums = [0,0,1,1,0,0,1,1,1,0,1,1,0,0,0,1,1,1,1], k = 3",
       "output": "10"
+    },
+    {
+      "input": "nums = [0,0,0], k = 0",
+      "output": "0",
+      "explanation": "All elements are 0 and no flips are allowed, so the longest run of 1's is 0"
     }
   ],
   "constraints": [

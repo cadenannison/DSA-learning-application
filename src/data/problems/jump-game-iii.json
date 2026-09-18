@@ -18,6 +18,11 @@
       "input": "arr = [3,0,2,1,2], start = 2",
       "output": "false",
       "explanation": "From index 2 you can only reach index 0 or index 4, and from there you can never reach the 0 at index 1."
+    },
+    {
+      "input": "arr = [0], start = 0",
+      "output": "true",
+      "explanation": "The starting index itself already holds 0, so no jumps are needed at all."
     }
   ],
   "constraints": [
